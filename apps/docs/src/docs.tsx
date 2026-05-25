@@ -63,7 +63,7 @@ function Docs() {
     <main>
       <nav className="nav">
         <a className="brand" href="./" aria-label="Mobigent home">
-          <span className="brandMark">M</span>
+          <img className="brandMark" src="./mobigent-mark.svg" alt="" />
           <span>Mobigent</span>
         </a>
         <div className="navLinks">

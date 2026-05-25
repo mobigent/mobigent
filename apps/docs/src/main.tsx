@@ -12,12 +12,12 @@ function App() {
         <div className="heroCopy">
           <div className="eyebrow">
             <Radio size={15} />
-            Open-source mobile agent infrastructure
+            Open-source agent infrastructure for mobile apps
           </div>
-          <h1>Give AI agents a safe way into your mobile app.</h1>
+          <h1>The bridge between AI agents and real app capability.</h1>
           <p>
-            Mobigent exposes real app actions, resources, and screens as typed agent capabilities, with
-            user approval and app-owned control built in.
+            Mobigent gives mobile apps a clean, typed interface for agents. Expose actions, resources,
+            screens, and approvals without asking agents to poke around your UI.
           </p>
           <div className="heroActions">
             <a className="primaryButton" href="./docs.html">
@@ -35,18 +35,23 @@ function App() {
             <span><Check size={15} /> In-app approval</span>
           </div>
         </div>
-        <div className="terminalPanel" aria-label="Mobigent quickstart">
-          <div className="terminalTop">
-            <span />
-            <span />
-            <span />
-            <strong>ship it</strong>
+        <div className="heroVisual" aria-label="Mobigent product mark and quickstart">
+          <div className="logoHalo">
+            <img className="heroLogo" src="./mobigent-mark.svg" alt="Mobigent MT logo" />
           </div>
-          <pre>{quickstart}</pre>
-          <div className="signalGrid">
-            <Metric label="Install" value="1 command" />
-            <Metric label="Surface" value="typed" />
-            <Metric label="Control" value="yours" />
+          <div className="terminalPanel">
+            <div className="terminalTop">
+              <span />
+              <span />
+              <span />
+              <strong>quickstart</strong>
+            </div>
+            <pre>{quickstart}</pre>
+            <div className="signalGrid">
+              <Metric label="Install" value="1 command" />
+              <Metric label="Surface" value="typed" />
+              <Metric label="Control" value="yours" />
+            </div>
           </div>
         </div>
       </section>
@@ -95,7 +100,7 @@ function Nav() {
   return (
     <nav className="nav">
       <a className="brand" href="./" aria-label="Mobigent home">
-        <span className="brandMark">M</span>
+        <img className="brandMark" src="./mobigent-mark.svg" alt="" />
         <span>Mobigent</span>
       </a>
       <div className="navLinks">

@@ -1,5 +1,9 @@
 # Mobigent
 
+<p align="center">
+  <img src="assets/brand/mobigent-mark.svg" alt="Mobigent logo" width="96" height="96">
+</p>
+
 **Make mobile apps agent-ready.**
 
 Mobigent is an open-source SDK that lets AI agents talk to mobile apps through safe, typed capabilities instead of brittle screen tapping.
