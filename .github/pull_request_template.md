@@ -1,13 +1,28 @@
 ## Summary
 
-What changed?
+What changed, and why?
+
+## Type
+
+- [ ] Fix
+- [ ] Feature
+- [ ] Docs
+- [ ] Refactor
+- [ ] Tests
+- [ ] Chore
 
 ## Validation
 
 - [ ] `npm run verify`
-- [ ] `npm run demo`
-- [ ] docs updated, if needed
+- [ ] Demo or example checked, if relevant
+- [ ] Docs updated, if behavior changed
 
-## Notes
+## Safety
 
-Anything reviewers should pay attention to?
+- [ ] No secrets, tokens, or private data added
+- [ ] User confirmation/audit behavior considered for agent-facing changes
+- [ ] Capability schemas remain explicit and least-privilege
+
+## Notes For Reviewers
+
+Anything reviewers should look at first?

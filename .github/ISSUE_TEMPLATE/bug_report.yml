@@ -1,0 +1,71 @@
+name: Bug Report
+description: Report something that is broken or confusing in Mobigent.
+title: "bug: "
+labels: ["type: bug", "status: needs triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping make Mobigent stronger. Clear repros help us fix issues fast.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - React Native SDK
+        - Gateway
+        - MCP
+        - HTTP / OpenAPI
+        - Provider adapters
+        - Docs / website
+        - Examples
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the bug and the behavior you expected.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Steps, commands, or a minimal code sample.
+      render: bash
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Paste relevant output. Remove secrets, tokens, and private data.
+      render: text
+  - type: input
+    id: version
+    attributes:
+      label: Mobigent version or commit
+      placeholder: "0.1.0, latest main, or commit SHA"
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      value: |
+        - OS:
+        - Node:
+        - npm:
+        - React Native / Expo:
+        - Device or simulator:
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and did not find a duplicate.
+          required: true
+        - label: I removed secrets and private data from this report.
+          required: true

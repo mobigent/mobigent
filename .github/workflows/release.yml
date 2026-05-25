@@ -30,7 +30,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          npm publish --workspace @intentbridge/core --access public --provenance
-          npm publish --workspace @intentbridge/providers --access public --provenance
-          npm publish --workspace @intentbridge/react-native --access public --provenance
-          npm publish --workspace @intentbridge/gateway --access public --provenance
+          npm publish --workspace @mobigent/core --access public --provenance
+          npm publish --workspace @mobigent/providers --access public --provenance
+          npm publish --workspace @mobigent/react-native --access public --provenance
+          npm publish --workspace @mobigent/gateway --access public --provenance

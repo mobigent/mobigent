@@ -1,0 +1,60 @@
+name: Feature Request
+description: Suggest a capability, SDK improvement, provider, or docs upgrade.
+title: "feat: "
+labels: ["type: feature", "status: needs triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Mobigent is early, so product-shaping feedback is very welcome. Tell us the workflow you want to unlock.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - React Native SDK
+        - Native iOS / Android
+        - Gateway
+        - MCP
+        - HTTP / OpenAPI
+        - Provider adapters
+        - Docs / website
+        - Examples
+        - Governance / community
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user or developer problem should Mobigent solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What would the ideal solution look like?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: Other approaches, tools, or workarounds you considered.
+  - type: textarea
+    id: success
+    attributes:
+      label: Success criteria
+      description: How would we know this is done well?
+      placeholder: |
+        - Developers can...
+        - Agents can...
+        - Users remain protected by...
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - label: I would be interested in helping implement or test this.

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and ideas
+    url: https://github.com/mobigent/mobigent/discussions
+    about: Use Discussions for early ideas, questions, and design exploration.
+  - name: Security report
+    url: https://github.com/mobigent/mobigent/security/advisories/new
+    about: Please report vulnerabilities privately.

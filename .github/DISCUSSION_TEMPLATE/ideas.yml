@@ -1,0 +1,22 @@
+title: "Idea: "
+labels: ["type: idea"]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: Idea
+      description: What should Mobigent explore?
+    validations:
+      required: true
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use case
+      description: What mobile app or agent workflow would this unlock?
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Links, sketches, related tools, or examples.

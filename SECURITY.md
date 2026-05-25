@@ -10,7 +10,11 @@ The project is pre-1.0. Security fixes are applied to the latest published versi
 
 Please do not open a public issue for sensitive reports.
 
-For now, report vulnerabilities privately to the project maintainer once a public repository is created. Include:
+Use GitHub private vulnerability reporting:
+
+https://github.com/mobigent/mobigent/security/advisories/new
+
+Include:
 
 - affected package and version
 - reproduction steps
