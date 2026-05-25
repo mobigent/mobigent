@@ -1,0 +1,12 @@
+node_modules/
+dist/
+build/
+.DS_Store
+.env
+.env.*
+*.log
+npm-debug.log*
+*.tsbuildinfo
+apps/docs/.docusaurus/
+apps/docs/build/
+apps/docs/node_modules/

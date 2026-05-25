@@ -1,0 +1,14 @@
+{
+  "name": "@mobigent/example-agent-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "demo": "tsx mock-agent.ts",
+    "runtime": "tsx provider-runtime.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@mobigent/providers": "0.1.0"
+  }
+}

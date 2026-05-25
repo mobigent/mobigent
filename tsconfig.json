@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "rootDir": ".",
+    "ignoreDeprecations": "6.0",
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@mobigent/core": ["packages/core/src/index.ts"],
+      "@mobigent/gateway": ["packages/gateway/src/index.ts"],
+      "@mobigent/providers": ["packages/providers/src/index.ts"],
+      "@mobigent/react-native": ["packages/react-native/src/index.ts"]
+    }
+  }
+}

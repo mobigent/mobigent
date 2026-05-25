@@ -1,0 +1,20 @@
+{
+  "name": "@mobigent/example-expense-app",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "app": "tsx app.ts",
+    "demo": "tsx run-local-demo.ts",
+    "demo:http": "tsx run-http-demo.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@mobigent/gateway": "0.1.0",
+    "@mobigent/react-native": "0.1.0",
+    "ws": "^8.21.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.18.1"
+  }
+}

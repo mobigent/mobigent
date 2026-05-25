@@ -1,0 +1,48 @@
+{
+  "name": "mobigent-repo",
+  "version": "0.1.0",
+  "description": "Open-source SDK for exposing mobile app intents and capabilities to AI agents.",
+  "type": "module",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "build:sdk": "npm run build -w @mobigent/core -w @mobigent/providers -w @mobigent/gateway -w @mobigent/react-native",
+    "typecheck": "npm run build:sdk && npm run typecheck --workspaces --if-present",
+    "test": "npm run build:sdk && node --test --import tsx tests/*.test.ts",
+    "verify": "npm run typecheck && npm test && npm run rn-cli:smoke && npm run pack:check && npm run docs:build",
+    "pack:check": "tsx scripts/pack-check.ts",
+    "rn-cli:smoke": "tsx scripts/verify-rn-cli.ts",
+    "docs:start": "npm run start -w @mobigent/docs",
+    "docs:build": "npm run build -w @mobigent/docs",
+    "dev:gateway": "npm run build:sdk && tsx packages/gateway/src/server.ts",
+    "dev:http": "npm run build:sdk && tsx packages/gateway/src/http-server.ts",
+    "dev:mcp": "npm run build:sdk && tsx packages/gateway/src/mcp-server.ts",
+    "dev:app": "npm run build:sdk && tsx examples/expense-app/app.ts",
+    "demo": "npm run build:sdk && tsx examples/expense-app/run-local-demo.ts",
+    "demo:http": "npm run build:sdk && tsx examples/expense-app/run-http-demo.ts",
+    "clean": "rm -rf packages/*/dist examples/*/dist dist"
+  },
+  "keywords": [
+    "mobigent",
+    "mcp",
+    "agents",
+    "react-native",
+    "mobile",
+    "sdk"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "tsx": "^4.22.3",
+    "typescript": "^6.0.3"
+  }
+}
