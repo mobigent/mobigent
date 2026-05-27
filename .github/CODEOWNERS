@@ -6,4 +6,7 @@
 /packages/gateway/ @vivekjm
 /packages/providers/ @vivekjm
 /packages/react-native/ @vivekjm
+/packages/ios/ @vivekjm
+/packages/android/ @vivekjm
+/docs/ @vivekjm
 /examples/ @vivekjm

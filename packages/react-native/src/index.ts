@@ -4,6 +4,7 @@ export {
   agentBridge,
   formatMobigentDiagnostics,
   intentBridge,
+  mobigent,
   type MobigentConnectionListener,
   type MobigentConnectionState,
   type MobigentDiagnostics,

@@ -1,0 +1,10 @@
+node_modules
+packages/*/dist
+examples/*/dist
+apps/docs/build
+.git
+.github
+*.log
+.DS_Store
+packages/ios/.build
+examples/ios-expense/.build

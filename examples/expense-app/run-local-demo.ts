@@ -1,5 +1,5 @@
 import { BridgeGateway } from "@mobigent/gateway";
-import { intentBridge } from "@mobigent/react-native";
+import { mobigent } from "@mobigent/react-native";
 import { createNodeSocket } from "./nodeSocket.js";
 
 type Expense = {
@@ -21,7 +21,7 @@ const expenses: Expense[] = [
   }
 ];
 
-intentBridge.configure({
+mobigent.configure({
   appId: "com.mobigent.expenses",
   appName: "Mobigent Expenses",
   gatewayUrl: "ws://localhost:8787",
@@ -33,7 +33,7 @@ intentBridge.configure({
   }
 });
 
-intentBridge.registerAction({
+mobigent.registerAction({
   name: "create_expense",
   description: "Create a new expense report.",
   inputSchema: {
@@ -67,7 +67,7 @@ intentBridge.registerAction({
   }
 });
 
-intentBridge.registerResource({
+mobigent.registerResource({
   name: "expenses",
   description: "Current list of expense reports.",
   policy: {
@@ -76,7 +76,7 @@ intentBridge.registerResource({
   read: async () => ({ expenses })
 });
 
-intentBridge.registerComponent({
+mobigent.registerComponent({
   name: "expense_detail",
   description: "Expense detail screen.",
   propsSchema: {
@@ -103,7 +103,7 @@ intentBridge.registerComponent({
   }
 });
 
-await intentBridge.connect();
+await mobigent.connect();
 await new Promise((resolve) => setTimeout(resolve, 100));
 
 console.log("");
@@ -132,5 +132,5 @@ const focusResult = await gateway.callTool("com_mobigent_expenses.show_expense_d
 });
 console.log(JSON.stringify(focusResult, null, 2));
 
-intentBridge.disconnect();
+mobigent.disconnect();
 gateway.stop();

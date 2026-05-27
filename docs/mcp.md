@@ -59,7 +59,9 @@ Use this shape for clients that support stdio MCP servers:
 Then configure your mobile app SDK with:
 
 ```ts
-intentBridge.configure({
+import { mobigent } from "@mobigent/react-native";
+
+mobigent.configure({
   appId: "com.example.expenses",
   appName: "Example Expenses",
   gatewayUrl: "ws://localhost:8787",
@@ -72,7 +74,7 @@ intentBridge.configure({
 An app action:
 
 ```ts
-intentBridge.registerAction({
+mobigent.registerAction({
   name: "create_expense",
   description: "Create a new expense report.",
   inputSchema: {

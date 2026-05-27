@@ -479,16 +479,16 @@ const SyncCapabilityMount = syncCapabilities.Component;
 The lower-level singleton is still available for non-React modules, tests, and app bootstrap code:
 
 ```ts
-import { intentBridge } from "@mobigent/react-native";
+import { mobigent } from "@mobigent/react-native";
 
-intentBridge.configure({
+mobigent.configure({
   appId: "com.example.app",
   appName: "Example App",
   gatewayUrl: "ws://localhost:8787",
   confirm: async () => true
 });
 
-intentBridge.registerAction({
+mobigent.registerAction({
   name: "create_expense",
   description: "Create an expense.",
   inputSchema: {
@@ -525,7 +525,7 @@ Capability names must be unique across actions, resources, and components. `comp
 Resources can declare `outputSchema`. The SDK validates read results before returning them to agents:
 
 ```ts
-intentBridge.registerResource({
+mobigent.registerResource({
   name: "expenses",
   description: "Current expenses.",
   outputSchema: {
@@ -552,9 +552,9 @@ intentBridge.registerResource({
 Capabilities can be removed when their owning screen or hook unmounts:
 
 ```ts
-intentBridge.unregisterAction("create_expense");
-intentBridge.unregisterResource("expenses");
-intentBridge.unregisterComponent("expense_detail");
+mobigent.unregisterAction("create_expense");
+mobigent.unregisterResource("expenses");
+mobigent.unregisterComponent("expense_detail");
 ```
 
 ## Signed Manifests
@@ -608,7 +608,7 @@ React Native provides a global `WebSocket`, which the SDK uses by default. Node 
 ## Connection State
 
 ```ts
-const unsubscribe = intentBridge.subscribeConnection((state) => {
+const unsubscribe = mobigent.subscribeConnection((state) => {
   console.log(state);
 });
 ```
@@ -616,7 +616,7 @@ const unsubscribe = intentBridge.subscribeConnection((state) => {
 Enable reconnect when needed:
 
 ```ts
-intentBridge.configure({
+mobigent.configure({
   appId: "com.example.app",
   appName: "Example App",
   gatewayUrl: "ws://localhost:8787",
@@ -636,7 +636,7 @@ Retries use exponential backoff. `delayMs` is the first retry delay, `backoffFac
 Enable heartbeats when mobile networks or proxies may silently drop idle WebSockets:
 
 ```ts
-intentBridge.configure({
+mobigent.configure({
   appId: "com.example.app",
   appName: "Example App",
   gatewayUrl: "ws://localhost:8787",
@@ -656,7 +656,7 @@ The SDK sends `ping` messages at `intervalMs`. If the gateway does not return `p
 `emit()` returns `true` when the event was sent or queued, and `false` when it was dropped. Enable a bounded queue when app events should survive short disconnects:
 
 ```ts
-intentBridge.configure({
+mobigent.configure({
   appId: "com.example.app",
   appName: "Example App",
   gatewayUrl: "ws://localhost:8787",
@@ -667,7 +667,7 @@ intentBridge.configure({
   }
 });
 
-intentBridge.emit("screen.viewed", { name: "ExpenseDetail" });
+mobigent.emit("screen.viewed", { name: "ExpenseDetail" });
 ```
 
 Queued events flush after the socket reconnects. When the queue is full, the oldest event is dropped first so memory stays bounded.
@@ -675,11 +675,11 @@ Queued events flush after the socket reconnects. When the queue is full, the old
 ## Confirmation Controller
 
 ```ts
-import { createConfirmationController, intentBridge } from "@mobigent/react-native";
+import { createConfirmationController, mobigent } from "@mobigent/react-native";
 
 const confirmationController = createConfirmationController();
 
-intentBridge.configure({
+mobigent.configure({
   appId: "com.example.app",
   appName: "Example App",
   gatewayUrl: "ws://localhost:8787",

@@ -17,6 +17,8 @@
     "verify": "npm run typecheck && npm test && npm run rn-cli:smoke && npm run pack:check && npm run docs:build",
     "pack:check": "tsx scripts/pack-check.ts",
     "rn-cli:smoke": "tsx scripts/verify-rn-cli.ts",
+    "verify:ios": "swift test --package-path packages/ios && swift build --package-path examples/ios-expense",
+    "verify:android": "gradle -p packages/android test && gradle -p examples/android-expense :app:assembleDebug",
     "docs:start": "npm run start -w @mobigent/docs",
     "docs:build": "npm run build -w @mobigent/docs",
     "dev:gateway": "npm run build:sdk && tsx packages/gateway/src/server.ts",

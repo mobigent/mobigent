@@ -134,8 +134,9 @@ Node simulations, tests, and examples should inject a socket factory:
 
 ```ts
 import WebSocket from "ws";
+import { mobigent } from "@mobigent/react-native";
 
-intentBridge.configure({
+mobigent.configure({
   appId: "com.example.expenses",
   appName: "Example Expenses",
   gatewayUrl: "ws://localhost:8787",
@@ -154,7 +155,7 @@ const { connectionState, connected, connect, disconnect } = useMobigent();
 For app lifecycle resilience, enable reconnect:
 
 ```ts
-intentBridge.configure({
+mobigent.configure({
   appId: "com.example.expenses",
   appName: "Example Expenses",
   gatewayUrl: "ws://localhost:8787",

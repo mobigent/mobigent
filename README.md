@@ -29,6 +29,19 @@ npm run demo
 
 This starts a Mobigent gateway, connects a sample expense app, discovers its capabilities, creates an expense through an agent-style call, asks for confirmation, and reads the updated expense list.
 
+For a fresh React Native app, the fastest path is:
+
+```bash
+npm install @mobigent/react-native
+npx mobigent-init \
+  --app-id com.example.app \
+  --app-name "Example App" \
+  --feature expense \
+  --out-dir src \
+  --expo-router \
+  --custom-confirmation
+```
+
 Run the full verification suite:
 
 ```bash
@@ -124,11 +137,16 @@ npm run dev:mcp
 
 - Website: https://mobigent.github.io/mobigent/
 - Docs: https://mobigent.github.io/mobigent/docs.html
+- First run: [docs/quickstart.md](./docs/quickstart.md)
 - MCP setup: [docs/mcp.md](./docs/mcp.md)
 - ChatGPT Actions: [docs/chatgpt-actions.md](./docs/chatgpt-actions.md)
 - React Native guide: [docs/react-native.md](./docs/react-native.md)
 - iOS guide: [docs/ios.md](./docs/ios.md)
 - Android guide: [docs/android.md](./docs/android.md)
+- Capability design: [docs/capability-design.md](./docs/capability-design.md)
+- Security model: [docs/security.md](./docs/security.md)
+- Production gateway: [docs/production-gateway.md](./docs/production-gateway.md)
+- Native publishing plan: [docs/native-publishing.md](./docs/native-publishing.md)
 
 ## Why Mobigent Exists
 
@@ -159,6 +177,8 @@ Mobigent is an early developer preview. The proof of concept already includes:
 - Audit events
 - Provider examples
 - GitHub Pages docs site
+- Native CI workflow
+- Docker production gateway path
 
 The goal is simple: make Mobigent the easiest way to build agentic mobile apps.
 

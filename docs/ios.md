@@ -4,10 +4,10 @@ Mobigent's iOS SDK lets a native Swift app expose typed capabilities to AI agent
 
 ## Install
 
-Add the Swift package from this repo:
+For local development, add the Swift package from this repository checkout:
 
-```text
-https://github.com/mobigent/mobigent
+```swift
+.package(path: "../mobigent/packages/ios")
 ```
 
 Use the package product:
@@ -17,6 +17,12 @@ import Mobigent
 ```
 
 The package targets iOS 15+ and Swift 5.9+.
+
+After tagged releases begin, Swift Package Manager will be able to consume the public Git tag directly:
+
+```swift
+.package(url: "https://github.com/mobigent/mobigent", from: "0.1.0")
+```
 
 ## Create A Client
 

@@ -226,7 +226,7 @@ For config-driven Expo apps, add the config plugin:
 }
 ```
 
-The Expo factory reads plugin metadata from `extra.intentBridge`, then lets `EXPO_PUBLIC_MOBIGENT_MODE`, `EXPO_PUBLIC_MOBIGENT_HOST`, `EXPO_PUBLIC_MOBIGENT_DEVICE_HOST`, `EXPO_PUBLIC_MOBIGENT_GATEWAY_URL`, and `EXPO_PUBLIC_MOBIGENT_AUTH_TOKEN` override it. It derives the app id/name/version from `extra.intentBridge.app`, `extra.intentBridgeApp`, bundle identifiers, package names, or the Expo slug, then enables reconnects, heartbeat, and preflight by default.
+The Expo factory reads plugin metadata from `extra.mobigent`, then lets `EXPO_PUBLIC_MOBIGENT_MODE`, `EXPO_PUBLIC_MOBIGENT_HOST`, `EXPO_PUBLIC_MOBIGENT_DEVICE_HOST`, `EXPO_PUBLIC_MOBIGENT_GATEWAY_URL`, and `EXPO_PUBLIC_MOBIGENT_AUTH_TOKEN` override it. It derives the app id/name/version from `extra.mobigent.app`, `extra.mobigentApp`, bundle identifiers, package names, or the Expo slug, then enables reconnects, heartbeat, and preflight by default.
 
 Use declarative registration components when a screen owns a capability and that capability should appear only while the screen is mounted:
 
@@ -491,16 +491,16 @@ function SyncCapabilities() {
 Use the lower-level singleton from non-React modules or custom bootstraps:
 
 ```ts
-import { intentBridge } from "@mobigent/react-native";
+import { mobigent } from "@mobigent/react-native";
 
-intentBridge.configure({
+mobigent.configure({
   appId: "com.example.expenses",
   appName: "Example Expenses",
   gatewayUrl: "ws://localhost:8787",
   confirm: async () => true
 });
 
-intentBridge.registerAction({
+mobigent.registerAction({
   name: "create_expense",
   description: "Create a new expense report.",
   inputSchema: {
@@ -535,7 +535,7 @@ Capability names must be unique across actions, resources, and components. This 
 Register components when an agent should be able to ask the app to open or focus a native screen:
 
 ```ts
-intentBridge.registerComponent({
+mobigent.registerComponent({
   name: "expense_detail",
   description: "Expense detail screen.",
   propsSchema: {
@@ -562,7 +562,7 @@ The gateway exposes this as a tool named `show_expense_detail` under the app id,
 Resources can declare `outputSchema`. The SDK validates read results before returning them to agents:
 
 ```ts
-intentBridge.registerResource({
+mobigent.registerResource({
   name: "expenses",
   description: "Current expenses.",
   outputSchema: {
@@ -632,7 +632,7 @@ The gateway verifies signatures when `manifestSigningSecret` or `MOBIGENT_MANIFE
 Mobile connections are not stable forever. Enable reconnects for production apps so the SDK can recover after app resume, gateway restarts, or network changes:
 
 ```ts
-intentBridge.configure({
+mobigent.configure({
   appId: "com.example.expenses",
   appName: "Example Expenses",
   gatewayUrl: "wss://gateway.example.com",
@@ -654,7 +654,7 @@ Retries use exponential backoff. `delayMs` is the first retry delay, `backoffFac
 Enable heartbeats when mobile networks or proxies may silently drop idle WebSockets:
 
 ```ts
-intentBridge.configure({
+mobigent.configure({
   appId: "com.example.expenses",
   appName: "Example Expenses",
   gatewayUrl: "wss://gateway.example.com",
@@ -674,7 +674,7 @@ The SDK sends `ping` messages at `intervalMs`. If the gateway does not return `p
 `emit()` returns `true` when the event was sent or queued, and `false` when it was dropped. Enable a bounded queue when app events should survive short disconnects:
 
 ```ts
-intentBridge.configure({
+mobigent.configure({
   appId: "com.example.expenses",
   appName: "Example Expenses",
   gatewayUrl: "wss://gateway.example.com",
@@ -685,9 +685,9 @@ intentBridge.configure({
   }
 });
 
-intentBridge.emit("screen.viewed", { name: "ExpenseDetail" });
+mobigent.emit("screen.viewed", { name: "ExpenseDetail" });
 ```
 
 Queued events flush after the socket reconnects. When the queue is full, the oldest event is dropped first so memory stays bounded.
 
-Use `MobigentApp` for the shortest React Native setup. Use `MobigentProvider` and `MobigentConfirmationModal` separately when you want custom placement for confirmation UI. The provider accepts the same `reconnect`, `heartbeat`, and `eventQueue` options as `intentBridge.configure()`. Use `createConfirmationController()` when you want full control over the modal.
+Use `MobigentApp` for the shortest React Native setup. Use `MobigentProvider` and `MobigentConfirmationModal` separately when you want custom placement for confirmation UI. The provider accepts the same `reconnect`, `heartbeat`, and `eventQueue` options as `mobigent.configure()`. Use `createConfirmationController()` when you want full control over the modal.

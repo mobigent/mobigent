@@ -144,7 +144,9 @@ dependencies {
 
 const androidUsageCode = `import io.mobigent.MobigentAction
 import io.mobigent.MobigentClient
+import io.mobigent.MobigentConfirmationPolicy
 import io.mobigent.MobigentResource
+import io.mobigent.MobigentRisk
 import io.mobigent.MobigentSchema
 
 val client = MobigentClient.Builder(context)
@@ -159,12 +161,14 @@ client.registerResource(
     name = "expense.list",
     description = "Read saved expenses.",
     outputSchema = MobigentSchema.obj(
-      "items" to MobigentSchema.array(
+      mapOf("items" to MobigentSchema.array(
         MobigentSchema.obj(
-          "merchant" to MobigentSchema.string(),
-          "amount" to MobigentSchema.number()
+          mapOf(
+            "merchant" to MobigentSchema.string(),
+            "amount" to MobigentSchema.number()
+          )
         )
-      )
+      ))
     )
   ) { mapOf("items" to listExpenses()) }
 )
@@ -174,11 +178,16 @@ client.registerAction(
     name = "expense.create",
     description = "Create an expense after approval.",
     inputSchema = MobigentSchema.obj(
-      "merchant" to MobigentSchema.string(),
-      "amount" to MobigentSchema.number(),
+      mapOf(
+        "merchant" to MobigentSchema.string(),
+        "amount" to MobigentSchema.number()
+      ),
       required = listOf("merchant", "amount")
     ),
-    confirmation = MobigentAction.Confirmation.required("medium")
+    confirmation = MobigentConfirmationPolicy(
+      required = true,
+      risk = MobigentRisk.Medium
+    )
   ) { input -> createExpense(input) }
 )
 
@@ -201,6 +210,14 @@ const nativeUrls = [
   ["Android emulator", "ws://10.0.2.2:8787"],
   ["Physical device", "ws://YOUR_MAC_LAN_IP:8787"],
   ["Hosted gateway", "wss://your-gateway.example.com"]
+];
+
+const firstRunChecks = [
+  ["Generate", "`mobigent-init` creates a root wrapper, feature module, optional approval UI, and Expo Router layout."],
+  ["Connect", "The app sends hello and manifest messages to the gateway over WebSocket."],
+  ["Discover", "The gateway exposes tools through HTTP, OpenAPI, provider helpers, and MCP."],
+  ["Approve", "Risky actions pause inside the app before handlers run."],
+  ["Audit", "Calls, approvals, denials, errors, and events appear in `/audit`."]
 ];
 
 const model = [
@@ -284,6 +301,14 @@ const safety = [
   ["Audit logs", "Calls, approvals, denials, and failures can be traced."]
 ];
 
+const productionGateway = [
+  ["Auth", "Use app session auth plus HTTP API keys or per-agent keys before exposing a gateway."],
+  ["Deploy", "Run `mobigent-http` behind HTTPS/WSS with the included Dockerfile or your Node platform."],
+  ["Observe", "Use `/health`, `/ready`, `/metrics`, `/metrics/prometheus`, `/apps`, and `/audit`."],
+  ["Restrict", "Set allowed app ids, signed manifests, CORS origins, JSON limits, and agent profiles."],
+  ["Retry safely", "Forward request ids and idempotency keys from provider calls."]
+];
+
 function Docs() {
   return (
     <main>
@@ -297,6 +322,7 @@ function Docs() {
           <a href="#quickstart">Quickstart</a>
           <a href="#native">Native</a>
           <a href="#sdk">SDK</a>
+          <a href="#production">Production</a>
           <a href="#providers">Providers</a>
           <a href="#security">Security</a>
           <a className="ghostButton" href="https://github.com/mobigent/mobigent">
@@ -327,6 +353,18 @@ function Docs() {
         </div>
         <div className="tableGrid">
           {model.map(([title, text]) => (
+            <Row key={title} title={title} text={text} />
+          ))}
+        </div>
+      </section>
+
+      <section className="section docsBlock">
+        <div className="sectionHeader compact">
+          <span className="eyebrow"><Rocket size={15} /> First five minutes</span>
+          <h2>A good first run proves the full agent loop.</h2>
+        </div>
+        <div className="tableGrid nativeLifecycleGrid">
+          {firstRunChecks.map(([title, text]) => (
             <Row key={title} title={title} text={text} />
           ))}
         </div>
@@ -451,6 +489,19 @@ function Docs() {
               <Row key={name} title={name} text={text} />
             ))}
           </div>
+        </div>
+      </section>
+
+      <section id="production" className="section docsBlock">
+        <div className="sectionHeader compact">
+          <span className="eyebrow"><Network size={15} /> Production gateway</span>
+          <h2>Ship the gateway like an API service.</h2>
+          <p>Use the Dockerfile or `npx mobigent-http`, put it behind HTTPS/WSS, require auth, and monitor readiness before agent startup.</p>
+        </div>
+        <div className="apiList">
+          {productionGateway.map(([name, text]) => (
+            <Row key={name} title={name} text={text} />
+          ))}
         </div>
       </section>
 

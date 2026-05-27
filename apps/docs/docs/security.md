@@ -45,7 +45,7 @@ MOBIGENT_MANIFEST_SIGNING_SECRET=manifest-secret npx mobigent-http
 React Native apps provide a signer callback:
 
 ```ts
-intentBridge.configure({
+mobigent.configure({
   appId: "com.example.expenses",
   appName: "Example Expenses",
   gatewayUrl: "wss://gateway.example.com",

@@ -4,15 +4,26 @@ Mobigent's Android SDK lets a native Kotlin app expose typed capabilities to AI 
 
 ## Install
 
-The Android SDK lives in `packages/android` as a Gradle/Kotlin library:
+The Android SDK lives in `packages/android` as a Gradle/Kotlin library. For local development, include it as a project dependency:
+
+```kotlin
+// settings.gradle.kts
+include(":mobigent-android")
+project(":mobigent-android").projectDir = file("../mobigent/packages/android")
+
+// app/build.gradle.kts
+dependencies {
+    implementation(project(":mobigent-android"))
+}
+```
+
+After Maven Central publishing is configured, apps will be able to use:
 
 ```kotlin
 dependencies {
     implementation("io.mobigent:mobigent-android:0.1.0")
 }
 ```
-
-For local development in this repo, include `packages/android` as a Gradle project dependency.
 
 Targets:
 

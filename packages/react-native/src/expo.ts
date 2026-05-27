@@ -32,8 +32,8 @@ export default function withMobigentExpoConfig<
     ...config,
     extra: {
       ...(config.extra ?? {}),
-      intentBridge: removeUndefinedFields({
-        ...(isObject(config.extra?.intentBridge) ? config.extra.intentBridge : {}),
+      mobigent: removeUndefinedFields({
+        ...(isObject(config.extra?.mobigent) ? config.extra.mobigent : {}),
         app: options.app,
         appId: options.appId,
         appName: options.appName,

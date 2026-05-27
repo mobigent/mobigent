@@ -1,0 +1,42 @@
+name: Native SDKs
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ios:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v5
+      - name: Test Swift package
+        working-directory: packages/ios
+        run: swift test
+      - name: Build iOS example package
+        working-directory: examples/ios-expense
+        run: swift build
+
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.10.2"
+      - name: Test Android library
+        run: gradle -p packages/android test
+      - name: Build Android example
+        run: gradle -p examples/android-expense :app:assembleDebug

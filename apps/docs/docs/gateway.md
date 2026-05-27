@@ -225,7 +225,7 @@ MCP is best for local desktop agents because it supports dynamic tool discovery 
 The gateway enforces policy metadata from registered actions and resources:
 
 ```ts
-intentBridge.registerAction({
+mobigent.registerAction({
   name: "delete_expense",
   description: "Delete an expense.",
   inputSchema: { type: "object", properties: {} },

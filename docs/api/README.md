@@ -14,7 +14,9 @@
 An app-owned function that an agent can call.
 
 ```ts
-intentBridge.registerAction({
+import { mobigent } from "@mobigent/react-native";
+
+mobigent.registerAction({
   name: "create_expense",
   description: "Create an expense.",
   inputSchema: {
@@ -37,7 +39,7 @@ Action input is validated against `inputSchema` before confirmation or handler e
 A read-only or read-mostly provider exposed as a `get_` tool.
 
 ```ts
-intentBridge.registerResource({
+mobigent.registerResource({
   name: "expenses",
   description: "Current expense list.",
   policy: { readOnly: true },
@@ -50,7 +52,7 @@ intentBridge.registerResource({
 App-originated notifications sent to the gateway.
 
 ```ts
-intentBridge.emit("expense.created", { id: "EXP-1" });
+mobigent.emit("expense.created", { id: "EXP-1" });
 ```
 
 ## Gateway APIs

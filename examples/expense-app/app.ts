@@ -1,4 +1,4 @@
-import { intentBridge } from "@mobigent/react-native";
+import { mobigent } from "@mobigent/react-native";
 import { createNodeSocket } from "./nodeSocket.js";
 
 type Expense = {
@@ -18,7 +18,7 @@ const expenses: Expense[] = [
   }
 ];
 
-intentBridge.configure({
+mobigent.configure({
   appId: "com.mobigent.expenses",
   appName: "Mobigent Expenses",
   gatewayUrl: process.env.MOBIGENT_GATEWAY_URL ?? "ws://localhost:8787",
@@ -34,7 +34,7 @@ intentBridge.configure({
   }
 });
 
-intentBridge.registerAction({
+mobigent.registerAction({
   name: "create_expense",
   description: "Create a new expense report.",
   inputSchema: {
@@ -66,12 +66,12 @@ intentBridge.registerAction({
     };
 
     expenses.push(expense);
-    intentBridge.emit("expense.created", expense);
+    mobigent.emit("expense.created", expense);
     return expense;
   }
 });
 
-intentBridge.registerAction({
+mobigent.registerAction({
   name: "delete_expense",
   description: "Delete an existing expense report by id.",
   inputSchema: {
@@ -97,12 +97,12 @@ intentBridge.registerAction({
     }
 
     const [deleted] = expenses.splice(index, 1);
-    intentBridge.emit("expense.deleted", { expenseId: deleted.id });
+    mobigent.emit("expense.deleted", { expenseId: deleted.id });
     return { deleted: true, expenseId: deleted.id };
   }
 });
 
-intentBridge.registerResource({
+mobigent.registerResource({
   name: "expenses",
   description: "Current list of expense reports.",
   outputSchema: {
@@ -122,7 +122,7 @@ intentBridge.registerResource({
   read: async () => ({ expenses })
 });
 
-intentBridge.registerComponent({
+mobigent.registerComponent({
   name: "expense_detail",
   description: "Expense detail screen.",
   propsSchema: {
@@ -150,7 +150,7 @@ intentBridge.registerComponent({
   }
 });
 
-await intentBridge.connect();
+await mobigent.connect();
 
 console.log("Expense app connected. Registered capabilities:");
-console.log(JSON.stringify(intentBridge.getManifest(), null, 2));
+console.log(JSON.stringify(mobigent.getManifest(), null, 2));

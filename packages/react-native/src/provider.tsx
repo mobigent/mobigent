@@ -645,7 +645,11 @@ export function resolveMobigentAppIdentity(
 
 export function resolveMobigentExpoAppIdentity(expo: MobigentExpoConfig = {}): MobigentAppIdentity {
   const extra = expo.extra ?? {};
-  const extraApp = isMobigentExpoExtraApp(extra.intentBridgeApp) ? extra.intentBridgeApp : undefined;
+  const extraApp = isMobigentExpoExtraApp(extra.mobigentApp)
+    ? extra.mobigentApp
+    : isMobigentExpoExtraApp(extra.intentBridgeApp)
+      ? extra.intentBridgeApp
+      : undefined;
   const extraBridge = readMobigentExpoExtraConfig(expo);
   const id =
     readMobigentString(extraApp?.id) ??
@@ -668,7 +672,7 @@ export function resolveMobigentExpoAppIdentity(expo: MobigentExpoConfig = {}): M
 
   if (!id || !name) {
     throw new Error(
-      "Mobigent Expo app identity is required. Pass app, expo config with name/slug, or extra.intentBridgeApp."
+      "Mobigent Expo app identity is required. Pass app, expo config with name/slug, or extra.mobigentApp."
     );
   }
 
@@ -1584,7 +1588,11 @@ function isMobigentExpoExtraObject(value: unknown): value is Record<string, unkn
 
 function readMobigentExpoExtraConfig(expo: MobigentExpoConfig): MobigentExpoExtraConfig {
   const extra = expo.extra ?? {};
-  const raw = isMobigentExpoExtraObject(extra.intentBridge) ? extra.intentBridge : {};
+  const raw = isMobigentExpoExtraObject(extra.mobigent)
+    ? extra.mobigent
+    : isMobigentExpoExtraObject(extra.intentBridge)
+      ? extra.intentBridge
+      : {};
   const rawApp = isMobigentExpoExtraObject(raw.app) ? raw.app : undefined;
   const appId = readMobigentString(rawApp?.id);
   const appName = readMobigentString(rawApp?.name);

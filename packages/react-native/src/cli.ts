@@ -656,21 +656,21 @@ import { createAgentApp, createAgentEnvironmentFromEnv, type AgentAppRootProps }
 import { ${options.feature}Module } from "./mobigent-features/${options.feature}";
 ${confirmationImport}
 
-export const intentBridgeApp = {
+export const mobigentApp = {
   id: ${JSON.stringify(options.appId)},
   name: ${JSON.stringify(options.appName)}${versionLine}
 } as const;
 
-export const intentBridgeEnvironment = createAgentEnvironmentFromEnv({
+export const mobigentEnvironment = createAgentEnvironmentFromEnv({
   fallback: ${environmentFallback}
 });
 
 const { Root } = createAgentApp({
-  app: intentBridgeApp,
+  app: mobigentApp,
   reconnect: { enabled: true, maxAttempts: 20 },
   heartbeat: true,
   modules: [${options.feature}Module],
-  ...intentBridgeEnvironment${confirmationOption}
+  ...mobigentEnvironment${confirmationOption}
 });
 
 export type MobigentRootProps = Omit<AgentAppRootProps, "children"> & {
@@ -698,13 +698,13 @@ import { createAgentExpoApp, type AgentAppRootProps } from "@mobigent/react-nati
 import { ${options.feature}Module } from "./mobigent-features/${options.feature}";
 ${confirmationImport}
 
-export const intentBridgeApp = {
+export const mobigentApp = {
   id: ${JSON.stringify(options.appId)},
   name: ${JSON.stringify(options.appName)}${versionLine}
 } as const;
 
 const { Root } = createAgentExpoApp({
-  app: intentBridgeApp,
+  app: mobigentApp,
   expo: Constants.expoConfig,
   modules: [${options.feature}Module]${confirmationOption}
 });

@@ -177,8 +177,10 @@ import {
   MobigentModules,
   MobigentSurface,
   MobigentResource,
+  intentBridge,
   integerSchema,
   literalSchema,
+  mobigent,
   nullableSchema,
   objectSchema,
   resolveMobigentAppIdentity,
@@ -228,6 +230,10 @@ import {
 } from "@mobigent/react-native";
 
 const createNodeSocket: MobigentSocketFactory = (url) => new WebSocket(url);
+
+test("React Native package exposes mobigent as primary singleton with legacy alias", () => {
+  assert.equal(mobigent, intentBridge);
+});
 
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -1255,7 +1261,7 @@ test("Expo app factory derives modern defaults from Expo config and public env",
     }
   );
 
-  assert.deepEqual(config.extra?.intentBridge, {
+  assert.deepEqual(config.extra?.mobigent, {
     app: {
       id: "com.example.expense",
       name: "Expense AI",
@@ -2042,12 +2048,12 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   assert.doesNotMatch(rootFile.contents, /createMobigentEnvironmentFromEnv/);
   assert.doesNotMatch(rootFile.contents, /createMobigentCapabilityRegistry/);
   assert.match(rootFile.contents, /MobigentRootProps/);
-  assert.match(rootFile.contents, /intentBridgeApp/);
-  assert.match(rootFile.contents, /intentBridgeEnvironment/);
-  assert.doesNotMatch(rootFile.contents, /intentBridgeCapabilities/);
+  assert.match(rootFile.contents, /mobigentApp/);
+  assert.match(rootFile.contents, /mobigentEnvironment/);
+  assert.doesNotMatch(rootFile.contents, /mobigentCapabilities/);
   assert.match(rootFile.contents, /com.mobigent.demo/);
   assert.match(rootFile.contents, /modules: \[expenseModule\]/);
-  assert.match(rootFile.contents, /\.\.\.intentBridgeEnvironment/);
+  assert.match(rootFile.contents, /\.\.\.mobigentEnvironment/);
   assert.match(rootFile.contents, /expenseModule/);
   assert.match(featureFile.contents, /createAgentModule/);
   assert.match(featureFile.contents, /@mobigent\/react-native\/app/);
