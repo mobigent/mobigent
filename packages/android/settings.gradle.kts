@@ -15,5 +15,3 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "mobigent-android"
-include(":mobigent-android")
-project(":mobigent-android").projectDir = file(".")
