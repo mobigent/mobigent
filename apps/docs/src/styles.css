@@ -428,6 +428,14 @@ h3 {
   grid-template-columns: 0.84fr 1.08fr 1.08fr;
 }
 
+.nativeCodeGrid {
+  grid-template-columns: 1fr 1fr;
+}
+
+.nativeCodeGrid.spacious {
+  margin-top: 1px;
+}
+
 .tableGrid,
 .apiList,
 .tagCloud,
@@ -448,6 +456,15 @@ h3 {
 
 .tableGrid.threeCol {
   grid-template-columns: 1fr;
+}
+
+.nativeLifecycleGrid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.nativeUrlGrid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 16px;
 }
 
 .tableRow {
@@ -590,7 +607,10 @@ h3 {
   .docsGrid,
   .codeGrid,
   .tableGrid,
-  .docsCodeGrid {
+  .docsCodeGrid,
+  .nativeCodeGrid,
+  .nativeLifecycleGrid,
+  .nativeUrlGrid {
     grid-template-columns: 1fr;
   }
 

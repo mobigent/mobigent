@@ -74,6 +74,135 @@ createChatGptActionsProvider({
   auth: "bearer"
 });`;
 
+const iosInstallCode = `// Package.swift
+dependencies: [
+  .package(path: "../mobigent/packages/ios")
+],
+targets: [
+  .target(
+    name: "YourApp",
+    dependencies: [
+      .product(name: "Mobigent", package: "ios")
+    ]
+  )
+]`;
+
+const iosUsageCode = `import Mobigent
+
+let client = MobigentClient(
+  appId: "com.example.expense",
+  appName: "Expense App",
+  gatewayURL: URL(string: "ws://localhost:8787")!,
+  version: "1.0.0"
+)
+
+client.registerResource(MobigentResource(
+  name: "expense.list",
+  description: "Read saved expenses.",
+  outputSchema: .object([
+    "items": .array(.object([
+      "merchant": .string(),
+      "amount": .number()
+    ]))
+  ]),
+  handler: { _ in ["items": listExpenses()] }
+))
+
+client.registerAction(MobigentAction(
+  name: "expense.create",
+  description: "Create an expense after approval.",
+  inputSchema: .object([
+    "merchant": .string(),
+    "amount": .number()
+  ], required: ["merchant", "amount"]),
+  confirmation: .required(risk: "medium"),
+  handler: { input in createExpense(input) }
+))
+
+client.onConfirmation { request in
+  await showApprovalSheet(request)
+}
+
+try await client.connect()`;
+
+const androidInstallCode = `// settings.gradle.kts
+dependencyResolutionManagement {
+  repositories {
+    google()
+    mavenCentral()
+  }
+}
+
+include(":mobigent-android")
+project(":mobigent-android").projectDir =
+  file("../mobigent/packages/android")
+
+// app/build.gradle.kts
+dependencies {
+  implementation(project(":mobigent-android"))
+}`;
+
+const androidUsageCode = `import io.mobigent.MobigentAction
+import io.mobigent.MobigentClient
+import io.mobigent.MobigentResource
+import io.mobigent.MobigentSchema
+
+val client = MobigentClient.Builder(context)
+  .appId("com.example.expense")
+  .appName("Expense App")
+  .gatewayUrl("ws://10.0.2.2:8787")
+  .version("1.0.0")
+  .build()
+
+client.registerResource(
+  MobigentResource(
+    name = "expense.list",
+    description = "Read saved expenses.",
+    outputSchema = MobigentSchema.obj(
+      "items" to MobigentSchema.array(
+        MobigentSchema.obj(
+          "merchant" to MobigentSchema.string(),
+          "amount" to MobigentSchema.number()
+        )
+      )
+    )
+  ) { mapOf("items" to listExpenses()) }
+)
+
+client.registerAction(
+  MobigentAction(
+    name = "expense.create",
+    description = "Create an expense after approval.",
+    inputSchema = MobigentSchema.obj(
+      "merchant" to MobigentSchema.string(),
+      "amount" to MobigentSchema.number(),
+      required = listOf("merchant", "amount")
+    ),
+    confirmation = MobigentAction.Confirmation.required("medium")
+  ) { input -> createExpense(input) }
+)
+
+client.confirmationHandler { request ->
+  showApprovalDialog(request)
+}
+
+client.connect()`;
+
+const nativeLifecycle = [
+  ["1. Create a client", "Give Mobigent the app id, app name, version, and gateway WebSocket URL."],
+  ["2. Register capabilities", "Add actions for writes, resources for reads, and components for screen context."],
+  ["3. Add confirmations", "Mark risky actions and let the native app render the approval UI."],
+  ["4. Connect to gateway", "The SDK sends hello and manifest messages, then waits for calls."],
+  ["5. Emit events", "Send app events such as expense.created or sync.failed back through the gateway."]
+];
+
+const nativeUrls = [
+  ["iOS simulator", "ws://localhost:8787"],
+  ["Android emulator", "ws://10.0.2.2:8787"],
+  ["Physical device", "ws://YOUR_MAC_LAN_IP:8787"],
+  ["Hosted gateway", "wss://your-gateway.example.com"]
+];
+
 const model = [
   ["App SDK", "Lives inside the mobile app and declares safe capabilities."],
   ["Gateway", "Keeps app sessions alive and exposes capabilities as HTTP, OpenAPI, or MCP."],
@@ -166,6 +295,7 @@ function Docs() {
         <div className="navLinks">
           <a href="./">Home</a>
           <a href="#quickstart">Quickstart</a>
+          <a href="#native">Native</a>
           <a href="#sdk">SDK</a>
           <a href="#providers">Providers</a>
           <a href="#security">Security</a>
@@ -238,10 +368,44 @@ function Docs() {
         <div className="sectionHeader compact">
           <span className="eyebrow"><Smartphone size={15} /> Native SDKs</span>
           <h2>iOS and Android use the same capability contract.</h2>
+          <p>Native apps do not need React Native. They register the same actions, resources, components, confirmations, events, and schemas directly from Swift or Kotlin.</p>
         </div>
         <div className="apiList">
           {nativeApis.map(([name, text]) => (
             <Row key={name} title={name} text={text} />
+          ))}
+        </div>
+      </section>
+
+      <section id="native" className="section codeSection">
+        <div className="sectionHeader">
+          <span className="eyebrow"><Smartphone size={15} /> Native quickstart</span>
+          <h2>Drop Mobigent into a native app and expose real app behavior.</h2>
+          <p>Start with one read resource and one confirmed write action. Once the gateway sees the manifest, the same tools become available through HTTP, OpenAPI, ChatGPT Actions, and MCP.</p>
+        </div>
+        <div className="codeGrid two nativeCodeGrid">
+          <Code title="iOS install" code={iosInstallCode} />
+          <Code title="Android install" code={androidInstallCode} />
+        </div>
+        <div className="codeGrid two nativeCodeGrid spacious">
+          <Code title="iOS Swift usage" code={iosUsageCode} />
+          <Code title="Android Kotlin usage" code={androidUsageCode} />
+        </div>
+      </section>
+
+      <section className="section docsBlock">
+        <div className="sectionHeader compact">
+          <span className="eyebrow"><Workflow size={15} /> Native lifecycle</span>
+          <h2>What happens at runtime.</h2>
+        </div>
+        <div className="tableGrid nativeLifecycleGrid">
+          {nativeLifecycle.map(([title, text]) => (
+            <Row key={title} title={title} text={text} />
+          ))}
+        </div>
+        <div className="tableGrid nativeUrlGrid">
+          {nativeUrls.map(([title, text]) => (
+            <Row key={title} title={title} text={text} />
           ))}
         </div>
       </section>
