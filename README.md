@@ -108,12 +108,16 @@ npm run dev:mcp
 
 - `@mobigent/core`: protocol and shared types
 - `@mobigent/react-native`: React Native app-side SDK
+- `packages/ios`: native Swift Package for iOS apps
+- `packages/android`: native Kotlin/Android SDK
 - `@mobigent/gateway`: local gateway, HTTP API, OpenAPI, and MCP bridge
 - `@mobigent/providers`: provider setup helpers for agent runtimes
 
 ## Examples
 
 - `examples/expense-app`: sample mobile app capabilities
+- `examples/ios-expense`: native Swift example
+- `examples/android-expense`: native Kotlin/Android example
 - `examples/agent-server`: OpenAI, Anthropic, Gemini, Bedrock, Vercel AI SDK, and mock agent examples
 
 ## Documentation
@@ -123,6 +127,8 @@ npm run dev:mcp
 - MCP setup: [docs/mcp.md](./docs/mcp.md)
 - ChatGPT Actions: [docs/chatgpt-actions.md](./docs/chatgpt-actions.md)
 - React Native guide: [docs/react-native.md](./docs/react-native.md)
+- iOS guide: [docs/ios.md](./docs/ios.md)
+- Android guide: [docs/android.md](./docs/android.md)
 
 ## Why Mobigent Exists
 
@@ -143,6 +149,8 @@ It is MCP-inspired, but built for mobile app control, app state, user approval, 
 Mobigent is an early developer preview. The proof of concept already includes:
 
 - React Native SDK APIs
+- Native iOS SDK
+- Native Android SDK
 - Local gateway
 - HTTP and OpenAPI support
 - MCP server support

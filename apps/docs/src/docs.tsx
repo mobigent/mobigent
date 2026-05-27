@@ -91,6 +91,8 @@ const capabilities = [
 
 const packages = [
   ["@mobigent/react-native", "App-side SDK", "Expo/React Native roots, modules, hooks, UI helpers, confirmation flow."],
+  ["Mobigent iOS", "Swift package", "Native iOS client with actions, resources, components, confirmations, reconnect, heartbeat, and events."],
+  ["Mobigent Android", "Kotlin library", "Native Android client with the same gateway protocol and local emulator-friendly defaults."],
   ["@mobigent/gateway", "Agent bridge", "WebSocket app sessions, HTTP API, OpenAPI schema, MCP stdio server."],
   ["@mobigent/providers", "Agent setup", "Provider descriptors and runtime helpers for popular AI platforms."],
   ["@mobigent/core", "Protocol", "Shared types, protocol messages, schemas, and validation contracts."]
@@ -105,6 +107,13 @@ const reactNativeApis = [
   ["useAgentScreen()", "Makes screen-owned capabilities available only while the screen is mounted."],
   ["useMobigentStatus()", "Reads connection state for badges, diagnostics, and debugging."],
   ["MobigentStatusBadge", "Optional UI component for local development visibility."]
+];
+
+const nativeApis = [
+  ["iOS MobigentClient", "Swift client for registering capabilities, connecting, emitting events, and reading diagnostics."],
+  ["Android MobigentClient.Builder", "Kotlin builder for app identity, gateway URL, reconnect, heartbeat, and transport setup."],
+  ["MobigentSchema", "Shared native schema builders for string, number, boolean, object, array, and enum."],
+  ["confirmation handler", "Native callback hook so the host app renders its own approval UI."]
 ];
 
 const gatewayEndpoints = [
@@ -221,6 +230,18 @@ function Docs() {
               <strong className="cardKicker">{label}</strong>
               <p>{text}</p>
             </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="section docsBlock">
+        <div className="sectionHeader compact">
+          <span className="eyebrow"><Smartphone size={15} /> Native SDKs</span>
+          <h2>iOS and Android use the same capability contract.</h2>
+        </div>
+        <div className="apiList">
+          {nativeApis.map(([name, text]) => (
+            <Row key={name} title={name} text={text} />
           ))}
         </div>
       </section>

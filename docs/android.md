@@ -1,0 +1,91 @@
+# Mobigent Android SDK
+
+Mobigent's Android SDK lets a native Kotlin app expose typed capabilities to AI agents through the Mobigent gateway.
+
+## Install
+
+The Android SDK lives in `packages/android` as a Gradle/Kotlin library:
+
+```kotlin
+dependencies {
+    implementation("io.mobigent:mobigent-android:0.1.0")
+}
+```
+
+For local development in this repo, include `packages/android` as a Gradle project dependency.
+
+Targets:
+
+- Android API 23+
+- Kotlin 2.1+
+- JVM 17
+
+## Create A Client
+
+```kotlin
+val client = MobigentClient.Builder(context)
+    .appId("com.example.expenses")
+    .appName("Expenses")
+    .gatewayUrl("ws://10.0.2.2:8787")
+    .build()
+```
+
+Use `ws://10.0.2.2:8787` for the Android emulator. Use your Mac's LAN IP for a physical device.
+
+## Register Capabilities
+
+```kotlin
+client.registerAction(
+    MobigentAction(
+        name = "create",
+        description = "Create an expense after approval.",
+        inputSchema = MobigentSchema.obj(
+            mapOf(
+                "merchant" to MobigentSchema.string(),
+                "amount" to MobigentSchema.number()
+            ),
+            required = listOf("merchant", "amount")
+        ),
+        confirmation = MobigentConfirmationPolicy(required = true, risk = MobigentRisk.Medium)
+    ) { input ->
+        mapOf("id" to "EXP-1", "merchant" to input["merchant"], "amount" to input["amount"])
+    }
+)
+
+client.registerResource(
+    MobigentResource(
+        name = "list",
+        description = "List expenses.",
+        outputSchema = MobigentSchema.obj(
+            mapOf("items" to MobigentSchema.array(MobigentSchema.obj())),
+            required = listOf("items")
+        )
+    ) {
+        mapOf("items" to emptyList<Map<String, Any?>>())
+    }
+)
+```
+
+## Confirm Sensitive Actions
+
+```kotlin
+client.confirmationHandler { request ->
+    // Show your own native approval UI.
+    true
+}
+```
+
+If no confirmation handler is provided, the SDK allows the action. Production apps should provide a handler for medium/high risk actions.
+
+## Connect
+
+```kotlin
+client.connect()
+client.emit("expense.created", mapOf("id" to "EXP-1"))
+```
+
+The client sends the same `hello`, `manifest`, `event`, `action_result`, `resource_result`, `component_result`, and `ping` messages used by the React Native SDK.
+
+## Example
+
+See `examples/android-expense` for a small native example with one confirmed action and one resource.
