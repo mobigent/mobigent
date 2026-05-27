@@ -97,6 +97,42 @@ client.emit("expense.created", mapOf("id" to "EXP-1"))
 
 The client sends the same `hello`, `manifest`, `event`, `action_result`, `resource_result`, `component_result`, and `ping` messages used by the React Native SDK.
 
+## Test The Full Loop
+
+Start the gateway:
+
+```bash
+npm run dev:http
+```
+
+Use these gateway URLs:
+
+- Android emulator: `ws://10.0.2.2:8787`
+- physical device: `ws://YOUR_MAC_LAN_IP:8787`
+- hosted gateway: `wss://your-gateway.example.com`
+
+Open the local inspector:
+
+```bash
+open http://localhost:8788/inspect
+```
+
+You should see the app, manifest tools, recent audit events, and metrics. The same tools are also available at `http://localhost:8788/tools` and `http://localhost:8788/openapi.json`.
+
+## App Actions Bridge Plan
+
+Mobigent can generate a first-pass Android App Actions XML plan from the same capability contract used by the gateway:
+
+```bash
+npx mobigent-init \
+  --platform-actions android-xml \
+  --app-id com.example.expenses \
+  --app-name "Expenses" \
+  --feature expense
+```
+
+Use the generated XML as a starting point for app action shortcuts/deep links, then forward the Android entry point into your Mobigent client or app service layer.
+
 ## Example
 
 See `examples/android-expense` for a small native example with one confirmed action and one resource.

@@ -40,6 +40,14 @@
       "types": "./dist/app.d.ts",
       "import": "./dist/app.js"
     },
+    "./schema-adapters": {
+      "types": "./dist/schemaAdapters.d.ts",
+      "import": "./dist/schemaAdapters.js"
+    },
+    "./platform-actions": {
+      "types": "./dist/platformActions.d.ts",
+      "import": "./dist/platformActions.js"
+    },
     "./expo": {
       "types": "./dist/expo.d.ts",
       "import": "./dist/expo.js"

@@ -57,6 +57,7 @@ export type MobigentGatewayConfig = {
     prometheusMetrics: "/metrics/prometheus";
     audit: "/audit";
     auditStream: "/audit/stream";
+    inspector: "/inspect";
     openApi: "/openapi.json";
     toolCallTemplate: "/tools/{toolName}/call";
   };
@@ -269,6 +270,10 @@ export function createHttpApp(gateway: BridgeGateway, options: MobigentHttpOptio
       metrics: gateway.getMetrics(),
       audit: gateway.getAuditLog(25)
     });
+  });
+
+  app.get("/inspect", (_req, res) => {
+    res.type("html").send(renderInspectorHtml());
   });
 
   app.get("/metrics", (_req, res) => {
@@ -497,6 +502,7 @@ export function createGatewayConfig(
       prometheusMetrics: "/metrics/prometheus",
       audit: "/audit",
       auditStream: "/audit/stream",
+      inspector: "/inspect",
       openApi: "/openapi.json",
       toolCallTemplate: "/tools/{toolName}/call"
     },
@@ -526,6 +532,103 @@ export function createGatewayConfig(
       timeoutMs: "x-mobigent-timeout-ms"
     }
   };
+}
+
+function renderInspectorHtml() {
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mobigent Inspector</title>
+  <style>
+    :root { color-scheme: light; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    body { margin: 0; background: #f8fafc; color: #0f172a; }
+    main { max-width: 1180px; margin: 0 auto; padding: 32px 20px 48px; }
+    header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+    h1 { margin: 0; font-size: clamp(28px, 4vw, 46px); letter-spacing: 0; }
+    h2 { margin: 0 0 12px; font-size: 16px; }
+    button { border: 1px solid #cbd5e1; background: white; border-radius: 8px; padding: 9px 12px; color: #0f172a; cursor: pointer; }
+    button:hover { border-color: #3157ff; }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+    .panel { grid-column: span 6; border: 1px solid #e2e8f0; background: rgba(255,255,255,.82); border-radius: 12px; padding: 16px; box-shadow: 0 18px 40px rgba(15,23,42,.08); backdrop-filter: blur(18px); }
+    .wide { grid-column: span 12; }
+    .metric { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .metric div { border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; background: white; }
+    .label { display: block; font-size: 12px; color: #64748b; }
+    .value { display: block; margin-top: 4px; font-size: 22px; font-weight: 700; }
+    pre { overflow: auto; max-height: 360px; margin: 0; padding: 12px; border-radius: 10px; background: #0f172a; color: #e2e8f0; font-size: 12px; }
+    ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+    li { border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; background: white; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .muted { color: #64748b; }
+    .error { color: #b91c1c; }
+    @media (max-width: 760px) { .panel { grid-column: span 12; } .metric { grid-template-columns: repeat(2, minmax(0, 1fr)); } header { align-items: flex-start; flex-direction: column; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <p class="muted">Local gateway workspace</p>
+        <h1>Mobigent Inspector</h1>
+      </div>
+      <button id="refresh" type="button">Refresh</button>
+    </header>
+    <section class="grid">
+      <article class="panel wide">
+        <h2>Gateway</h2>
+        <div class="metric" id="metrics"></div>
+      </article>
+      <article class="panel">
+        <h2>Connected Apps</h2>
+        <ul id="apps"><li class="muted">Loading...</li></ul>
+      </article>
+      <article class="panel">
+        <h2>Tools</h2>
+        <ul id="tools"><li class="muted">Loading...</li></ul>
+      </article>
+      <article class="panel wide">
+        <h2>Recent Audit Events</h2>
+        <pre id="audit">Loading...</pre>
+      </article>
+      <article class="panel wide">
+        <h2>Snapshot JSON</h2>
+        <pre id="snapshot">Loading...</pre>
+      </article>
+    </section>
+  </main>
+  <script>
+    const json = (value) => JSON.stringify(value, null, 2);
+    const text = (value) => String(value ?? "");
+    async function load() {
+      const metrics = document.getElementById("metrics");
+      const apps = document.getElementById("apps");
+      const tools = document.getElementById("tools");
+      const audit = document.getElementById("audit");
+      const snapshot = document.getElementById("snapshot");
+      try {
+        const response = await fetch("/snapshot");
+        const data = await response.json();
+        metrics.innerHTML = [
+          ["Apps", data.health?.status?.appsWithManifests ?? data.apps?.length ?? 0],
+          ["Tools", data.tools?.length ?? 0],
+          ["Calls", data.metrics?.toolCalls?.started ?? 0],
+          ["Errors", data.metrics?.toolCalls?.failed ?? 0]
+        ].map(([label, value]) => "<div><span class='label'>" + label + "</span><span class='value'>" + value + "</span></div>").join("");
+        apps.innerHTML = (data.apps ?? []).length ? data.apps.map((app) => "<li><strong>" + text(app.appName ?? app.name ?? app.appId) + "</strong><br><span class='muted'><code>" + text(app.appId) + "</code></span></li>").join("") : "<li class='muted'>No apps connected yet.</li>";
+        tools.innerHTML = (data.tools ?? []).length ? data.tools.map((tool) => "<li><strong>" + text(tool.name) + "</strong><br><span class='muted'>" + text(tool.description) + "</span></li>").join("") : "<li class='muted'>No tools discovered yet.</li>";
+        audit.textContent = json(data.audit ?? []);
+        snapshot.textContent = json(data);
+      } catch (error) {
+        snapshot.innerHTML = "<span class='error'>" + text(error.message || error) + "</span>";
+      }
+    }
+    document.getElementById("refresh").addEventListener("click", load);
+    load();
+  </script>
+</body>
+</html>`;
 }
 
 function readAgentIds(value: unknown): string[] | undefined {

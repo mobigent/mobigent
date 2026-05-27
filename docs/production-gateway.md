@@ -60,6 +60,14 @@ curl https://gateway.example.com/metrics/prometheus
 
 `/ready` should gate agent startup when a connected app and tools are required.
 
+For trusted development or an internal protected environment, open:
+
+```bash
+open https://gateway.example.com/inspect
+```
+
+The inspector shows connected apps, tools, metrics, audit events, and the gateway snapshot in one browser view.
+
 ## Provider Setup
 
 For ChatGPT Actions:
@@ -92,6 +100,7 @@ Before exposing a gateway to real users:
 - set a smaller JSON body limit
 - write audit logs to durable storage
 - monitor `/metrics/prometheus`
+- keep `/inspect` behind trusted network access or auth
 - use idempotency keys for write calls
 - use request ids to correlate provider, gateway, and app logs
 

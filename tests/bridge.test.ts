@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import WebSocket from "ws";
+import { z } from "zod";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { BridgeGateway, createHttpApp, createMcpServer, createOpenApiSpec } from "@mobigent/gateway";
@@ -121,6 +122,7 @@ import {
   createReactNativeEnvTemplate,
   createReactNativeIntegrationManifest,
   createReactNativeDoctorReport,
+  createReactNativeSecurityDoctorReport,
   createReactNativeFeatureFiles,
   createReactNativeStarterFiles,
   runReactNativeInitCli,
@@ -164,6 +166,12 @@ import {
   defineMobigentResource,
   formatMobigentCapabilityDiagnostics,
   formatMobigentDiagnostics,
+  fromTypeBox,
+  fromZod,
+  createAndroidAppActionsPlan,
+  createAppleAppIntentsPlan,
+  renderAndroidAppActionsXml,
+  renderAppleAppIntentsSwift,
   AgentAction,
   AgentComponent,
   AgentModules,
@@ -2434,6 +2442,75 @@ test("React Native init CLI diagnoses local integration setup", async () => {
   await rm(missingDependencyDir, { force: true, recursive: true });
 });
 
+test("React Native init CLI runs a security doctor and prints native platform action plans", () => {
+  const safeReport = createReactNativeSecurityDoctorReport({
+    appId: "com.mobigent.demo",
+    appName: "Demo App",
+    feature: "expense",
+    outDir: "src",
+    gatewayUrl: "wss://gateway.example.com",
+    dryRun: false,
+    force: false,
+    doctor: false,
+    securityDoctor: true,
+    customConfirmation: true,
+    manifest: false,
+    contract: false
+  });
+
+  assert.equal(safeReport.status, "pass");
+  assert.deepEqual(
+    safeReport.checks.map((check) => check.name),
+    ["gateway_transport", "risky_action_confirmation", "host_approval_ui", "app_identity"]
+  );
+
+  const riskyReport = createReactNativeSecurityDoctorReport({
+    appId: "com.mobigent.demo",
+    appName: "Demo App",
+    feature: "expense",
+    outDir: "src",
+    gatewayUrl: "ws://gateway.example.com",
+    dryRun: false,
+    force: false,
+    doctor: false,
+    securityDoctor: true,
+    customConfirmation: false,
+    manifest: false,
+    contract: false
+  });
+  assert.equal(riskyReport.status, "fail");
+
+  let stdout = "";
+  const securityCode = runReactNativeInitCli(
+    [
+      "--security-doctor",
+      "--app-id",
+      "com.mobigent.demo",
+      "--app-name",
+      "Demo App",
+      "--feature",
+      "expense",
+      "--gateway-url",
+      "wss://gateway.example.com",
+      "--custom-confirmation"
+    ],
+    { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
+    { write: () => undefined } as NodeJS.WritableStream
+  );
+  assert.equal(securityCode, 0);
+  assert.match(stdout, /Mobigent security doctor: PASS/);
+
+  stdout = "";
+  const planCode = runReactNativeInitCli(
+    ["--platform-actions", "json", "--app-id", "com.mobigent.demo", "--app-name", "Demo App", "--feature", "expense"],
+    { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
+    { write: () => undefined } as NodeJS.WritableStream
+  );
+  assert.equal(planCode, 0);
+  assert.match(stdout, /mobigent\.apple-app-intents\.plan/);
+  assert.match(stdout, /mobigent\.android-app-actions\.plan/);
+});
+
 test("React Native init CLI prints a machine-readable integration manifest", () => {
   const manifestOptions = {
     appId: "com.mobigent.demo",
@@ -2854,6 +2931,38 @@ test("React Native schema helpers create JSON schema definitions", () => {
     },
     required: ["id"]
   });
+});
+
+test("React Native schema adapters and platform action generators keep manifest parity", () => {
+  assert.deepEqual(fromTypeBox({ type: "string" }), { type: "string" });
+  assert.deepEqual(fromZod(z.object({ merchant: z.string(), amount: z.number() })), {
+    type: "object",
+    properties: {
+      merchant: { type: "string" },
+      amount: { type: "number" }
+    },
+    required: ["merchant", "amount"],
+    additionalProperties: false
+  });
+
+  const contract = createReactNativeCapabilityContract({
+    appId: "com.mobigent.demo",
+    appName: "Demo App",
+    feature: "expense",
+    outDir: "src",
+    dryRun: false,
+    force: false,
+    doctor: false,
+    manifest: false,
+    contract: true
+  });
+  const ios = createAppleAppIntentsPlan(contract);
+  const android = createAndroidAppActionsPlan(contract);
+
+  assert.equal(ios.intents[0]?.swiftTypeName, "ExpenseCreateIntent");
+  assert.equal(android.actions[0]?.deepLink, "mobigent://com.mobigent.demo/actions/expense_create");
+  assert.match(renderAppleAppIntentsSwift(ios), /struct ExpenseCreateIntent: AppIntent/);
+  assert.match(renderAndroidAppActionsXml(android), /actions.intent.EXPENSE_CREATE/);
 });
 
 test("confirmation controller pauses action calls until approved", async () => {
@@ -4584,7 +4693,7 @@ test("gateway exposes app session status for operators", async () => {
       baseUrl: string;
       protocol: { currentVersion: number; supportedVersions: number[] };
       auth: { required: boolean };
-      endpoints: { ready: string; agents: string; providers: string; snapshot: string; tools: string; toolStream: string; openApi: string };
+      endpoints: { ready: string; agents: string; providers: string; snapshot: string; tools: string; toolStream: string; inspector: string; openApi: string };
       features: { dynamicTools: boolean; agentVisibility: boolean; agentScopedDiscovery: boolean; agentProfiles: boolean; providerSnapshot: boolean };
       limits: { jsonBodyLimit: string | number; maxTimeoutMs: number };
       headers: { agentId: string; idempotencyKey: string };
@@ -4599,6 +4708,7 @@ test("gateway exposes app session status for operators", async () => {
     assert.equal(configBody.endpoints.snapshot, "/snapshot");
     assert.equal(configBody.endpoints.tools, "/tools");
     assert.equal(configBody.endpoints.toolStream, "/tools/stream");
+    assert.equal(configBody.endpoints.inspector, "/inspect");
     assert.equal(configBody.endpoints.openApi, "/openapi.json");
     assert.equal(configBody.features.dynamicTools, true);
     assert.equal(configBody.features.agentVisibility, true);
@@ -4621,6 +4731,10 @@ test("gateway exposes app session status for operators", async () => {
     assert.ok(spec.paths["/snapshot"]);
     assert.ok(spec.paths["/metrics"]);
     assert.ok(spec.paths["/metrics/prometheus"]);
+
+    const inspector = await fetch(`http://localhost:${httpPort}/inspect`);
+    assert.equal(inspector.status, 200);
+    assert.match(await inspector.text(), /Mobigent Inspector/);
   } finally {
     bridge.disconnect();
     gateway.stop();

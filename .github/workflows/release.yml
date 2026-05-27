@@ -15,7 +15,31 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  validate-ios:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Swift package
+        working-directory: packages/ios
+        run: swift test
+
+  validate-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.10.2"
+      - name: Verify Android library
+        run: gradle -p packages/android test
+
   publish:
+    needs: [validate-ios, validate-android]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

@@ -3,6 +3,12 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { validateCapabilityManifest, type CapabilityManifest } from "@mobigent/core";
 import { createMobigentGatewayUrl } from "./gatewayUrl.js";
+import {
+  createAndroidAppActionsPlan,
+  createAppleAppIntentsPlan,
+  renderAndroidAppActionsXml,
+  renderAppleAppIntentsSwift
+} from "./platformActions.js";
 
 export type ReactNativeInitCliOptions = {
   appId: string;
@@ -14,8 +20,10 @@ export type ReactNativeInitCliOptions = {
   dryRun: boolean;
   force: boolean;
   doctor: boolean;
+  securityDoctor?: boolean;
   manifest: boolean;
   contract: boolean;
+  platformActions?: "json" | "ios-swift" | "android-xml";
   featureOnly?: boolean;
   customConfirmation: boolean;
   envTemplate?: boolean;
@@ -44,6 +52,10 @@ export type ReactNativeDoctorReport = {
   status: "pass" | "warn" | "fail";
   outDir: string;
   checks: ReactNativeDoctorCheck[];
+};
+
+export type ReactNativeSecurityDoctorReport = ReactNativeDoctorReport & {
+  kind: "mobigent.react-native.security-doctor";
 };
 
 export type ReactNativeIntegrationManifest = {
@@ -386,6 +398,54 @@ export function createReactNativeDoctorReport(options: ReactNativeInitCliOptions
   };
 }
 
+export function createReactNativeSecurityDoctorReport(
+  options: ReactNativeInitCliOptions
+): ReactNativeSecurityDoctorReport {
+  const checks: ReactNativeDoctorCheck[] = [];
+  const gatewayUrl = options.gatewayUrl ?? createMobigentGatewayUrl();
+  const contract = createReactNativeCapabilityContract(options);
+
+  pushCheck(
+    checks,
+    isSecureOrLocalWebSocketUrl(gatewayUrl),
+    "gateway_transport",
+    `Gateway transport is acceptable for development or production: ${gatewayUrl}`,
+    `Use wss:// for hosted gateways. ws:// is only acceptable for localhost, simulator, or emulator hosts.`
+  );
+
+  const riskyActions = contract.actions.filter((action) => (action.confirmation?.risk ?? "low") !== "low");
+  pushCheck(
+    checks,
+    riskyActions.every((action) => action.confirmation?.required),
+    "risky_action_confirmation",
+    "All medium/high risk actions require confirmation.",
+    "Every medium/high risk action should set confirmation.required=true."
+  );
+
+  pushCheck(
+    checks,
+    options.customConfirmation,
+    "host_approval_ui",
+    "Custom confirmation UI is requested for host-owned approvals.",
+    "Use --custom-confirmation or wire your own on-device approval UI before shipping write actions."
+  );
+
+  pushCheck(
+    checks,
+    Boolean(options.appId && options.appName),
+    "app_identity",
+    "App identity is stable and visible in manifests.",
+    "Pass --app-id and --app-name before sharing contracts with agents."
+  );
+
+  return {
+    kind: "mobigent.react-native.security-doctor",
+    status: summarizeChecks(checks),
+    outDir: options.outDir,
+    checks
+  };
+}
+
 export function runReactNativeInitCli(
   argv = process.argv.slice(2),
   output = process.stdout,
@@ -403,6 +463,12 @@ export function runReactNativeInitCli(
     if (options.doctor) {
       const report = createReactNativeDoctorReport(options);
       output.write(`${formatDoctorReport(report)}\n`);
+      return report.status === "fail" ? 1 : 0;
+    }
+
+    if (options.securityDoctor) {
+      const report = createReactNativeSecurityDoctorReport(options);
+      output.write(`${formatSecurityDoctorReport(report)}\n`);
       return report.status === "fail" ? 1 : 0;
     }
 
@@ -437,6 +503,20 @@ export function runReactNativeInitCli(
 
     if (options.contract) {
       output.write(`${JSON.stringify(createReactNativeCapabilityContract(options), null, 2)}\n`);
+      return 0;
+    }
+
+    if (options.platformActions) {
+      const contract = createReactNativeCapabilityContract(options);
+      const iosPlan = createAppleAppIntentsPlan(contract);
+      const androidPlan = createAndroidAppActionsPlan(contract);
+      const result =
+        options.platformActions === "ios-swift"
+          ? renderAppleAppIntentsSwift(iosPlan)
+          : options.platformActions === "android-xml"
+            ? renderAndroidAppActionsXml(androidPlan)
+            : JSON.stringify({ ios: iosPlan, android: androidPlan }, null, 2);
+      output.write(`${result}${result.endsWith("\n") ? "" : "\n"}`);
       return 0;
     }
 
@@ -500,6 +580,7 @@ function parseArgs(
     dryRun: false,
     force: false,
     doctor: false,
+    securityDoctor: false,
     manifest: false,
     contract: false,
     featureOnly: false,
@@ -569,6 +650,9 @@ function parseArgs(
       case "--doctor":
         options.doctor = true;
         break;
+      case "--security-doctor":
+        options.securityDoctor = true;
+        break;
       case "--manifest":
         options.manifest = true;
         break;
@@ -580,6 +664,9 @@ function parseArgs(
         break;
       case "--contract":
         options.contract = true;
+        break;
+      case "--platform-actions":
+        options.platformActions = readPlatformActionsFormat(next());
         break;
       case "--write-contract":
         options.writeContractPath = next();
@@ -608,11 +695,13 @@ function parseArgs(
 
   if (
     !options.doctor &&
+    !options.securityDoctor &&
     !options.manifest &&
     !options.writeManifestPath &&
     !options.validateManifestPath &&
     !options.contract &&
     !options.writeContractPath &&
+    !options.platformActions &&
     !options.validateContractPath &&
     !options.envTemplate &&
     !options.writeEnvPath &&
@@ -623,11 +712,16 @@ function parseArgs(
   }
 
   if (
-    (options.manifest || options.writeManifestPath || options.contract || options.writeContractPath) &&
+    (options.manifest ||
+      options.writeManifestPath ||
+      options.contract ||
+      options.writeContractPath ||
+      options.securityDoctor ||
+      options.platformActions) &&
     (!options.appId || !options.appName)
   ) {
     throw new Error(
-      "--app-id and --app-name are required for --manifest, --write-manifest, --contract, and --write-contract.\n\n" +
+      "--app-id and --app-name are required for --manifest, --write-manifest, --contract, --write-contract, --security-doctor, and --platform-actions.\n\n" +
         helpText()
     );
   }
@@ -1173,6 +1267,14 @@ function formatDoctorReport(report: ReactNativeDoctorReport) {
   return lines.join("\n");
 }
 
+function formatSecurityDoctorReport(report: ReactNativeSecurityDoctorReport) {
+  const lines = [`Mobigent security doctor: ${report.status.toUpperCase()}`];
+  for (const check of report.checks) {
+    lines.push(`${check.status.toUpperCase()} ${check.name}: ${check.message}`);
+  }
+  return lines.join("\n");
+}
+
 function formatContractValidationReport(report: ReactNativeContractValidationReport) {
   const lines = [`Mobigent React Native contract: ${report.status.toUpperCase()}`];
   lines.push(`PATH ${report.path}`);
@@ -1198,6 +1300,29 @@ function isWebSocketUrl(value: string) {
   } catch {
     return false;
   }
+}
+
+function isSecureOrLocalWebSocketUrl(value: string) {
+  try {
+    const url = new URL(value);
+    if (url.protocol === "wss:") {
+      return true;
+    }
+    return (
+      url.protocol === "ws:" &&
+      ["localhost", "127.0.0.1", "10.0.2.2", "0.0.0.0", "::1", "[::1]"].includes(url.hostname)
+    );
+  } catch {
+    return false;
+  }
+}
+
+function readPlatformActionsFormat(value: string): ReactNativeInitCliOptions["platformActions"] {
+  if (value === "json" || value === "ios-swift" || value === "android-xml") {
+    return value;
+  }
+
+  throw new Error("--platform-actions must be one of: json, ios-swift, android-xml.");
 }
 
 function shellQuote(value: string) {
@@ -1227,10 +1352,12 @@ Usage:
   mobigent-rn-init --app-id com.example.app --app-name "Example App" --feature expense --out-dir src --custom-confirmation
   mobigent-rn-init --feature invoice --out-dir src --feature-only
   mobigent-rn-init --doctor --app-id com.example.app --app-name "Example App" --feature expense --out-dir src --app-root .
+  mobigent-rn-init --security-doctor --app-id com.example.app --app-name "Example App" --feature expense --custom-confirmation
   mobigent-rn-init --manifest --app-id com.example.app --app-name "Example App" --feature expense --out-dir src
   mobigent-rn-init --write-manifest ./mobigent-integration.json --app-id com.example.app --app-name "Example App" --feature expense --out-dir src
   mobigent-rn-init --validate-manifest ./mobigent-integration.json
   mobigent-rn-init --contract --app-id com.example.app --app-name "Example App" --feature expense
+  mobigent-rn-init --platform-actions json --app-id com.example.app --app-name "Example App" --feature expense
   mobigent-rn-init --write-contract ./mobigent-contract.json --app-id com.example.app --app-name "Example App" --feature expense
   mobigent-rn-init --validate-contract ./mobigent-contract.json
   mobigent-rn-init --env-template --gateway-url ws://localhost:8787
@@ -1250,12 +1377,15 @@ Options:
   --custom-confirmation  Generate and wire an editable confirmation component.
   --feature-only         Generate only the feature module for an existing capability registry.
   --doctor               Check local React Native integration files.
+  --security-doctor      Check transport, confirmation, and manifest safety defaults.
   --manifest             Print a machine-readable integration manifest.
   --write-manifest <path>
                          Write a machine-readable integration manifest JSON file.
   --validate-manifest <path>
                          Validate a saved integration manifest JSON file.
   --contract             Print a protocol-native capability contract.
+  --platform-actions <format>
+                         Print native assistant bridge plans. Formats: json, ios-swift, android-xml.
   --write-contract <path>
                          Write a protocol-native capability contract JSON file.
   --validate-contract <path>

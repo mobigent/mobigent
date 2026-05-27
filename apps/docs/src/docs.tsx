@@ -25,6 +25,11 @@ npx mobigent-init \\
   --out-dir src \\
   --expo-router`;
 
+const demoCode = `npm install
+npm run demo:magic
+
+open http://localhost:8788/inspect`;
+
 const moduleCode = `import { createAgentModule, schema } from "@mobigent/react-native/app";
 
 export const expenseModule = createAgentModule({
@@ -64,8 +69,40 @@ const gatewayCode = `npx mobigent-http
 curl http://localhost:8788/health
 curl http://localhost:8788/tools
 curl http://localhost:8788/openapi.json
+open http://localhost:8788/inspect
 
 npx mobigent-mcp`;
+
+const securityDoctorCode = `npx mobigent-init \\
+  --security-doctor \\
+  --app-id com.example.app \\
+  --app-name "Example App" \\
+  --feature expense \\
+  --gateway-url wss://gateway.example.com \\
+  --custom-confirmation`;
+
+const schemaAdapterCode = `import { fromZod, fromTypeBox } from "@mobigent/react-native";
+import { z } from "zod";
+
+const expenseInput = fromZod(z.object({
+  merchant: z.string(),
+  amount: z.number()
+}));
+
+const taskInput = fromTypeBox({
+  type: "object",
+  properties: { title: { type: "string" } },
+  required: ["title"]
+});`;
+
+const platformActionsCode = `npx mobigent-init \\
+  --platform-actions json \\
+  --app-id com.example.app \\
+  --app-name "Example App" \\
+  --feature expense
+
+npx mobigent-init --platform-actions ios-swift ...
+npx mobigent-init --platform-actions android-xml ...`;
 
 const providerCode = `import { createChatGptActionsProvider } from "@mobigent/providers";
 
@@ -270,7 +307,8 @@ const gatewayEndpoints = [
   ["GET /openapi.json", "Importable OpenAPI schema for ChatGPT Actions and HTTP agents."],
   ["GET /providers", "Provider setup descriptors for supported agent platforms."],
   ["GET /audit", "Recent audit events for tool calls, approvals, and failures."],
-  ["GET /metrics", "Operational counters for sessions, calls, tools, and rate limits."]
+  ["GET /metrics", "Operational counters for sessions, calls, tools, and rate limits."],
+  ["GET /inspect", "A local browser inspector for apps, tools, metrics, audit events, and snapshot JSON."]
 ];
 
 const providers = [
@@ -299,6 +337,13 @@ const safety = [
   ["Rate limits", "Per-agent and per-tool limits reduce accidental loops."],
   ["Idempotency", "Safe retries avoid running the same write twice."],
   ["Audit logs", "Calls, approvals, denials, and failures can be traced."]
+];
+
+const developerExperience = [
+  ["Inspector", "Open `/inspect` during development to see connected apps, tools, metrics, audit events, and raw gateway snapshot data."],
+  ["Security doctor", "Run `--security-doctor` before sharing a gateway URL to catch unsafe transport and missing approval UI."],
+  ["Schema adapters", "Use Zod, TypeBox-style JSON Schema, or the built-in helpers without changing the gateway contract."],
+  ["Native assistant bridges", "Generate App Intents and Android App Actions plans from the same capability manifest."]
 ];
 
 const productionGateway = [
@@ -363,10 +408,13 @@ function Docs() {
           <span className="eyebrow"><Rocket size={15} /> First five minutes</span>
           <h2>A good first run proves the full agent loop.</h2>
         </div>
-        <div className="tableGrid nativeLifecycleGrid">
-          {firstRunChecks.map(([title, text]) => (
-            <Row key={title} title={title} text={text} />
-          ))}
+        <div className="codeGrid two">
+          <Code title="Flagship local demo" code={demoCode} />
+          <div className="tableGrid nativeLifecycleGrid">
+            {firstRunChecks.map(([title, text]) => (
+              <Row key={title} title={title} text={text} />
+            ))}
+          </div>
         </div>
       </section>
 
@@ -473,6 +521,23 @@ function Docs() {
           {reactNativeApis.map(([name, text]) => (
             <Row key={name} title={name} text={text} />
           ))}
+        </div>
+      </section>
+
+      <section className="section codeSection">
+        <div className="sectionHeader compact">
+          <span className="eyebrow"><ShieldCheck size={15} /> Developer workflow</span>
+          <h2>Build, inspect, and harden before you connect a real agent.</h2>
+        </div>
+        <div className="tableGrid nativeLifecycleGrid">
+          {developerExperience.map(([title, text]) => (
+            <Row key={title} title={title} text={text} />
+          ))}
+        </div>
+        <div className="codeGrid three">
+          <Code title="Security doctor" code={securityDoctorCode} />
+          <Code title="Schema adapters" code={schemaAdapterCode} />
+          <Code title="Native assistant bridges" code={platformActionsCode} />
         </div>
       </section>
 

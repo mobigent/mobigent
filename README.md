@@ -24,7 +24,7 @@ Run the local demo:
 
 ```bash
 npm install
-npm run demo
+npm run demo:magic
 ```
 
 This starts a Mobigent gateway, connects a sample expense app, discovers its capabilities, creates an expense through an agent-style call, asks for confirmation, and reads the updated expense list.
@@ -109,6 +109,7 @@ Then inspect the tools:
 ```bash
 curl http://localhost:8788/tools
 curl http://localhost:8788/openapi.json
+open http://localhost:8788/inspect
 ```
 
 Use the OpenAPI schema with ChatGPT Actions, or use the MCP server for MCP-compatible agents:
@@ -137,6 +138,7 @@ npm run dev:mcp
 
 - Website: https://mobigent.github.io/mobigent/
 - Docs: https://mobigent.github.io/mobigent/docs.html
+- Flagship demo: [docs/flagship-demo.md](./docs/flagship-demo.md)
 - First run: [docs/quickstart.md](./docs/quickstart.md)
 - MCP setup: [docs/mcp.md](./docs/mcp.md)
 - ChatGPT Actions: [docs/chatgpt-actions.md](./docs/chatgpt-actions.md)
@@ -146,7 +148,16 @@ npm run dev:mcp
 - Capability design: [docs/capability-design.md](./docs/capability-design.md)
 - Security model: [docs/security.md](./docs/security.md)
 - Production gateway: [docs/production-gateway.md](./docs/production-gateway.md)
+- Hosted gateway and tunnels: [docs/hosted-gateway.md](./docs/hosted-gateway.md)
 - Native publishing plan: [docs/native-publishing.md](./docs/native-publishing.md)
+- Developer workflow: [docs/developer-workflow.md](./docs/developer-workflow.md)
+
+## Developer Workflow Highlights
+
+- Open `http://localhost:8788/inspect` to see apps, tools, metrics, audit events, and gateway snapshot data.
+- Run `npx mobigent-init --security-doctor ...` before exposing a hosted gateway.
+- Use `fromZod()` or `fromTypeBox()` when you already have schemas.
+- Run `npx mobigent-init --platform-actions json ...` to generate iOS App Intents and Android App Actions bridge plans.
 
 ## Why Mobigent Exists
 

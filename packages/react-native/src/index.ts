@@ -38,6 +38,15 @@ export {
   type MobigentObjectSchemaShape,
   type MobigentSchemaOptions
 } from "./schema.js";
+export { fromJsonSchema, fromTypeBox, fromZod, schemaAdapters, type MobigentSchemaAdapterOptions } from "./schemaAdapters.js";
+export {
+  createAndroidAppActionsPlan,
+  createAppleAppIntentsPlan,
+  renderAndroidAppActionsXml,
+  renderAppleAppIntentsSwift,
+  type MobigentAndroidAppActionsPlan,
+  type MobigentAppleAppIntentPlan
+} from "./platformActions.js";
 export {
   createMobigentGatewayUrl,
   createMobigentGatewayUrlForPlatform,

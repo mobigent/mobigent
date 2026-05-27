@@ -82,6 +82,42 @@ client.emit(name: "expense.created", payload: ["id": "EXP-1"])
 
 The client sends the same `hello`, `manifest`, `event`, `action_result`, `resource_result`, `component_result`, and `ping` messages used by the React Native SDK.
 
+## Test The Full Loop
+
+Start the gateway:
+
+```bash
+npm run dev:http
+```
+
+Use these gateway URLs:
+
+- iOS simulator: `ws://localhost:8787`
+- physical device: `ws://YOUR_MAC_LAN_IP:8787`
+- hosted gateway: `wss://your-gateway.example.com`
+
+Open the local inspector:
+
+```bash
+open http://localhost:8788/inspect
+```
+
+You should see the app, manifest tools, recent audit events, and metrics. The same tools are also available at `http://localhost:8788/tools` and `http://localhost:8788/openapi.json`.
+
+## App Intents Bridge Plan
+
+Mobigent can generate a first-pass App Intents plan from the same capability contract used by the gateway:
+
+```bash
+npx mobigent-init \
+  --platform-actions ios-swift \
+  --app-id com.example.expenses \
+  --app-name "Expenses" \
+  --feature expense
+```
+
+Use the generated Swift as a starting point for Siri/Shortcuts entry points, then forward the native intent handler into your Mobigent client or app service layer.
+
 ## Example
 
 See `examples/ios-expense` for a small native example with one confirmed action and one resource.
