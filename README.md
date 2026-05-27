@@ -48,6 +48,15 @@ Run the full verification suite:
 npm run verify
 ```
 
+## Install Packages
+
+Until npmjs.com publishing is connected with an `NPM_TOKEN`, packages are published from tagged releases to GitHub Packages and attached to GitHub Releases.
+
+```bash
+npm config set @mobigent:registry https://npm.pkg.github.com
+npm install @mobigent/react-native
+```
+
 ## Use It In React Native
 
 Generate a starter integration:

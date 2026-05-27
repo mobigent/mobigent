@@ -1,6 +1,14 @@
-# Native SDK Publishing Plan
+# Native SDK Publishing
 
-The native SDKs are package-ready in the repository, but public registry publishing is intentionally separate from the first implementation.
+The repository publishes release artifacts from GitHub Actions when a SemVer tag is pushed.
+
+Current release channels:
+
+- GitHub Release tarballs for `@mobigent/core`, `@mobigent/providers`, `@mobigent/react-native`, and `@mobigent/gateway`
+- GitHub Packages for the same npm packages under the `@mobigent` scope
+- Swift Package Manager through Git tags
+
+npmjs.com publishing is enabled in the release workflow when the repository has an `NPM_TOKEN` secret.
 
 ## iOS
 
@@ -40,12 +48,13 @@ Current state:
 - target is Android API 23+
 - JVM target is 17
 
-Recommended release path:
+Current release path:
 
-1. Add signing keys and Maven Central credentials as GitHub secrets.
-2. Publish `io.mobigent:mobigent-android` from CI.
-3. Attach generated API docs and changelog to each release.
-4. Keep the local project dependency path documented until the first public release is available.
+1. Validate the Android library and example from CI.
+2. Ship source and release artifacts through the public Git tag.
+3. Keep the local project dependency path documented until Maven Central credentials are configured.
+
+Maven Central publishing still needs signing keys and Central Portal credentials. That can be added without changing the SDK code or gateway protocol.
 
 Local integration before Maven Central:
 

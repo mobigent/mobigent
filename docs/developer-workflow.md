@@ -90,3 +90,14 @@ npx mobigent-init --platform-actions android-xml \
 ```
 
 These outputs are bridge plans, not magic app-store configuration. Review them, connect them to your native entry points, and keep Mobigent as the app-owned execution layer.
+
+## 6. Install From GitHub Packages
+
+Tagged releases publish the JavaScript packages to GitHub Packages:
+
+```bash
+npm config set @mobigent:registry https://npm.pkg.github.com
+npm install @mobigent/react-native
+```
+
+Release tarballs are also attached to GitHub Releases for direct inspection and download.

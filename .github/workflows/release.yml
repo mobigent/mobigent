@@ -7,8 +7,9 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
+  packages: write
 
 concurrency:
   group: release-${{ github.ref }}
@@ -40,6 +41,7 @@ jobs:
 
   publish:
     needs: [validate-ios, validate-android]
+    if: ${{ secrets.NPM_TOKEN != '' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -58,3 +60,52 @@ jobs:
           npm publish --workspace @mobigent/providers --access public --provenance
           npm publish --workspace @mobigent/react-native --access public --provenance
           npm publish --workspace @mobigent/gateway --access public --provenance
+
+  publish-github-packages:
+    needs: [validate-ios, validate-android]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          registry-url: https://npm.pkg.github.com
+          scope: "@mobigent"
+      - run: npm ci
+      - run: npm run build:sdk
+      - name: Publish GitHub Packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm publish --workspace @mobigent/core --registry=https://npm.pkg.github.com
+          npm publish --workspace @mobigent/providers --registry=https://npm.pkg.github.com
+          npm publish --workspace @mobigent/react-native --registry=https://npm.pkg.github.com
+          npm publish --workspace @mobigent/gateway --registry=https://npm.pkg.github.com
+
+  github-release:
+    needs: [validate-ios, validate-android]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build:sdk
+      - name: Pack npm artifacts
+        run: |
+          mkdir -p release-artifacts
+          npm pack --workspace @mobigent/core --pack-destination release-artifacts
+          npm pack --workspace @mobigent/providers --pack-destination release-artifacts
+          npm pack --workspace @mobigent/react-native --pack-destination release-artifacts
+          npm pack --workspace @mobigent/gateway --pack-destination release-artifacts
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" release-artifacts/*.tgz \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Mobigent $GITHUB_REF_NAME" \
+            --notes "First public Mobigent SDK release with React Native, native iOS, native Android, gateway, provider helpers, inspector, schema adapters, and security tooling."
