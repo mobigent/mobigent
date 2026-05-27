@@ -52,6 +52,14 @@ npm run verify
 
 Until npmjs.com publishing is connected with an `NPM_TOKEN`, packages are published from tagged releases to GitHub Packages and attached to GitHub Releases.
 
+Install directly from the public release tarball:
+
+```bash
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.0/mobigent-react-native-0.1.0.tgz
+```
+
+Or install from GitHub Packages with a GitHub token that has package read access:
+
 ```bash
 npm config set @mobigent:registry https://npm.pkg.github.com
 npm install @mobigent/react-native

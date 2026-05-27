@@ -93,11 +93,15 @@ These outputs are bridge plans, not magic app-store configuration. Review them, 
 
 ## 6. Install From GitHub Packages
 
-Tagged releases publish the JavaScript packages to GitHub Packages:
+Tagged releases attach public package tarballs to GitHub Releases:
+
+```bash
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.0/mobigent-react-native-0.1.0.tgz
+```
+
+The same JavaScript packages are also published to GitHub Packages. Use this path when your environment has a GitHub token with package read access:
 
 ```bash
 npm config set @mobigent:registry https://npm.pkg.github.com
 npm install @mobigent/react-native
 ```
-
-Release tarballs are also attached to GitHub Releases for direct inspection and download.
