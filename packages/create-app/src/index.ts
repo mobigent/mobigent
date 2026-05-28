@@ -1,5 +1,5 @@
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
-import { basename, dirname, join, relative, resolve } from "node:path";
+import { existsSync, mkdirSync, realpathSync, writeFileSync } from "node:fs";
+import { basename, join, resolve } from "node:path";
 
 export type CreateMobigentAppOptions = {
   targetDir: string;
@@ -523,11 +523,8 @@ function sanitizePackageName(name: string) {
 }
 
 function localPackageSpec(options: CreateMobigentAppOptions, packageDir: string) {
-  const packagePath = resolve(options.localPackages ?? ".", "packages", packageDir);
-  const targetPackageJson = resolve(options.targetDir, "package.json");
-  const fromDir = dirname(targetPackageJson);
-  const relativePath = relative(fromDir, packagePath).replaceAll("\\", "/");
-  return `file:${relativePath.startsWith(".") ? relativePath : `./${relativePath}`}`;
+  const packagePath = realpathSync(resolve(options.localPackages ?? ".", "packages", packageDir));
+  return `file:${packagePath.replaceAll("\\", "/")}`;
 }
 
 function toolName(appId: string, capability: string) {
