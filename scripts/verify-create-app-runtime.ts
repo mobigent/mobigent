@@ -45,8 +45,8 @@ try {
 
   await run("npm", ["install", "--prefix", target], process.cwd());
 
-  server = spawn("npm", ["run", "dev", "--prefix", target], {
-    cwd: process.cwd(),
+  server = spawn(join(target, "node_modules", ".bin", process.platform === "win32" ? "tsx.cmd" : "tsx"), ["src/server.ts"], {
+    cwd: target,
     env: {
       ...process.env,
       MOBIGENT_DEMO_OPEN: "0"
