@@ -47,6 +47,10 @@ export function createMobigentAppFiles(options: CreateMobigentAppOptions): Gener
       contents: createServerFile(options)
     },
     {
+      path: join("src", "capabilities.ts"),
+      contents: createCapabilitiesFile()
+    },
+    {
       path: join("src", "doctor.ts"),
       contents: createDoctorFile(options)
     },
@@ -222,10 +226,11 @@ These print copy-paste setup for Claude Desktop/MCP, generic OpenAPI agents, and
 
 ## What To Edit
 
-- \`src/server.ts\`: app state, Mobigent actions/resources, and demo UI
+- \`src/capabilities.ts\`: app state, Mobigent actions/resources, schemas, and handlers
+- \`src/server.ts\`: demo UI, gateway process, and local agent playground
 - \`src/nodeSocket.ts\`: Node WebSocket transport for the local demo
 
-When you move this into a real mobile app, keep the capability shape and replace the in-memory handlers with your app's real data/functions.
+When you move this into a real mobile app, start by copying the shape from \`src/capabilities.ts\` and replacing the in-memory handlers with your app's real data/functions.
 `;
 }
 
@@ -233,27 +238,9 @@ function createServerFile(options: CreateMobigentAppOptions) {
   return `import { spawn } from "node:child_process";
 import express from "express";
 import { BridgeGateway, createHttpApp } from "@mobigent/gateway";
-import { mobigent, schema } from "@mobigent/react-native";
+import { mobigent } from "@mobigent/react-native";
+import { expenses, parsePrompt, registerMobigentCapabilities } from "./capabilities.js";
 import { createNodeSocket } from "./nodeSocket.js";
-
-type Expense = {
-  id: string;
-  amount: number;
-  merchant: string;
-  category: string;
-  notes?: string;
-  createdAt: string;
-};
-
-const expenses: Expense[] = [
-  {
-    id: "EXP-1001",
-    amount: 18.75,
-    merchant: "Blue Bottle",
-    category: "Meals",
-    createdAt: new Date().toISOString()
-  }
-];
 
 let lastAgentRun: unknown;
 
@@ -318,74 +305,9 @@ mobigent.configure({
   }
 });
 
-mobigent.registerAction({
-  name: "create_expense",
-  description: "Create an expense in the app.",
-  inputSchema: schema.object(
-    {
-      amount: schema.number({ description: "Expense amount." }),
-      merchant: schema.string({ description: "Merchant name." }),
-      category: schema.string({ description: "Expense category." }),
-      notes: schema.string({ description: "Optional notes." })
-    },
-    { required: ["amount", "merchant", "category"] }
-  ),
-  confirmation: {
-    required: true,
-    title: "Create expense?",
-    risk: "medium"
-  },
-  policy: {
-    foregroundOnly: true,
-    requiresUser: true
-  },
-  handler: async (input) => {
-    const expense: Expense = {
-      id: \`EXP-\${1001 + expenses.length}\`,
-      amount: Number(input.amount),
-      merchant: String(input.merchant),
-      category: String(input.category),
-      notes: input.notes ? String(input.notes) : undefined,
-      createdAt: new Date().toISOString()
-    };
-    expenses.unshift(expense);
-    mobigent.emit("expense.created", { id: expense.id, amount: expense.amount, merchant: expense.merchant });
-    return expense;
-  }
-});
-
-mobigent.registerResource({
-  name: "expenses",
-  description: "Read expenses from the app.",
-  outputSchema: schema.object(
-    {
-      expenses: schema.array(schema.object())
-    },
-    { required: ["expenses"] }
-  ),
-  policy: { readOnly: true },
-  read: async () => ({ expenses })
-});
+registerMobigentCapabilities();
 
 await mobigent.connect();
-
-function parsePrompt(prompt: string) {
-  const amountMatch = prompt.match(/(?:\\$|usd\\s*)?(\\d+(?:\\.\\d{1,2})?)/i);
-  const categoryMatch = prompt.match(/\\b(meals|travel|software|office|lodging|transport|shopping)\\b/i);
-  const merchantMatch = prompt.match(/\\b(?:at|from|for)\\s+(.+?)(?:\\s+(?:with|as|under|category|note|notes)\\b|$)/i);
-  const notesMatch = prompt.match(/\\bnotes?\\s*[:\\-]?\\s*["']?(.+?)["']?$/i);
-
-  return {
-    amount: amountMatch ? Number(amountMatch[1]) : 42.8,
-    merchant: merchantMatch?.[1]?.replace(/[.,]$/, "").trim() || "Expo Coffee",
-    category: categoryMatch ? titleCase(categoryMatch[1]) : "Meals",
-    notes: notesMatch?.[1]?.trim() || "Created from the Mobigent starter"
-  };
-}
-
-function titleCase(value: string) {
-  return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
-}
 
 function openBrowser(url: string) {
   if (${options.openBrowser ? "false" : "true"} || process.env.MOBIGENT_DEMO_OPEN === "0") {
@@ -514,7 +436,7 @@ function renderPage() {
       <div class="panel step">
         <span>3</span>
         <h3>App owns the action</h3>
-        <p><code>src/server.ts</code> runs <code>create_expense</code> and updates state.</p>
+        <p><code>src/capabilities.ts</code> runs <code>create_expense</code> and updates state.</p>
       </div>
       <div class="panel step">
         <span>4</span>
@@ -577,6 +499,116 @@ function renderPage() {
   </script>
 </body>
 </html>\`;
+}
+`;
+}
+
+function createCapabilitiesFile() {
+  return `import { mobigent, schema } from "@mobigent/react-native";
+
+export type Expense = {
+  id: string;
+  amount: number;
+  merchant: string;
+  category: string;
+  notes?: string;
+  createdAt: string;
+};
+
+export const expenses: Expense[] = [
+  {
+    id: "EXP-1001",
+    amount: 18.75,
+    merchant: "Blue Bottle",
+    category: "Meals",
+    createdAt: new Date().toISOString()
+  }
+];
+
+export function registerMobigentCapabilities() {
+  mobigent.registerAction({
+    name: "create_expense",
+    description: "Create an expense in the app.",
+    inputSchema: schema.object(
+      {
+        amount: schema.number({ description: "Expense amount." }),
+        merchant: schema.string({ description: "Merchant name." }),
+        category: schema.string({ description: "Expense category." }),
+        notes: schema.string({ description: "Optional notes." })
+      },
+      { required: ["amount", "merchant", "category"] }
+    ),
+    confirmation: {
+      required: true,
+      title: "Create expense?",
+      risk: "medium"
+    },
+    policy: {
+      foregroundOnly: true,
+      requiresUser: true
+    },
+    handler: async (input) => {
+      const expense = await createExpense({
+        amount: Number(input.amount),
+        merchant: String(input.merchant),
+        category: String(input.category),
+        notes: input.notes ? String(input.notes) : undefined
+      });
+
+      mobigent.emit("expense.created", { id: expense.id, amount: expense.amount, merchant: expense.merchant });
+      return expense;
+    }
+  });
+
+  mobigent.registerResource({
+    name: "expenses",
+    description: "Read expenses from the app.",
+    outputSchema: schema.object(
+      {
+        expenses: schema.array(schema.object())
+      },
+      { required: ["expenses"] }
+    ),
+    policy: { readOnly: true },
+    read: async () => ({ expenses })
+  });
+}
+
+export async function createExpense(input: {
+  amount: number;
+  merchant: string;
+  category: string;
+  notes?: string;
+}) {
+  const expense: Expense = {
+    id: \`EXP-\${1001 + expenses.length}\`,
+    amount: input.amount,
+    merchant: input.merchant,
+    category: input.category,
+    notes: input.notes,
+    createdAt: new Date().toISOString()
+  };
+
+  expenses.unshift(expense);
+  return expense;
+}
+
+export function parsePrompt(prompt: string) {
+  const amountMatch = prompt.match(/(?:\\$|usd\\s*)?(\\d+(?:\\.\\d{1,2})?)/i);
+  const categoryMatch = prompt.match(/\\b(meals|travel|software|office|lodging|transport|shopping)\\b/i);
+  const merchantMatch = prompt.match(/\\b(?:at|from|for)\\s+(.+?)(?:\\s+(?:with|as|under|category|note|notes)\\b|$)/i);
+  const notesMatch = prompt.match(/\\bnotes?\\s*[:\\-]?\\s*["']?(.+?)["']?$/i);
+
+  return {
+    amount: amountMatch ? Number(amountMatch[1]) : 42.8,
+    merchant: merchantMatch?.[1]?.replace(/[.,]$/, "").trim() || "Expo Coffee",
+    category: categoryMatch ? titleCase(categoryMatch[1]) : "Meals",
+    notes: notesMatch?.[1]?.trim() || "Created from the Mobigent starter"
+  };
+}
+
+function titleCase(value: string) {
+  return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
 }
 `;
 }

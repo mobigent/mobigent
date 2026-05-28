@@ -10,6 +10,8 @@ npm run dev
 
 The starter opens a browser page where one click calls a Mobigent tool and updates app state.
 
+Edit `src/capabilities.ts` first. That file contains the sample app state, Mobigent schemas, `create_expense` action, `expenses` resource, and handler you replace with real app logic.
+
 Run this in another terminal while the starter is running:
 
 ```bash

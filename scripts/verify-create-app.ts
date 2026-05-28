@@ -33,6 +33,7 @@ try {
   assert.equal(dryRun.code, 0, dryRun.stderr);
   const dryRunFiles = JSON.parse(dryRun.stdout).files as Array<{ path: string; contents: string }>;
   assert.ok(dryRunFiles.some((file) => file.path === "src/server.ts"));
+  assert.ok(dryRunFiles.some((file) => file.path === "src/capabilities.ts"));
   assert.match(dryRun.stdout, /com_mobigent_expense.create_expense/);
 
   const init = run([
@@ -69,8 +70,15 @@ try {
   assert.match(server, /Run agent request/);
   assert.match(server, /How this demo works/);
   assert.match(server, /You edit one file/);
-  assert.match(server, /src\/server\.ts/);
+  assert.match(server, /src\/capabilities\.ts/);
+  assert.doesNotMatch(server, /mobigent\.registerAction/);
   assert.match(server, /MOBIGENT_DEMO_OPEN/);
+
+  const capabilities = await readFile(join(target, "src", "capabilities.ts"), "utf8");
+  assert.match(capabilities, /registerMobigentCapabilities/);
+  assert.match(capabilities, /mobigent\.registerAction/);
+  assert.match(capabilities, /create_expense/);
+  assert.match(capabilities, /createExpense/);
 
   const doctor = await readFile(join(target, "src", "doctor.ts"), "utf8");
   assert.match(doctor, /Mobigent starter doctor/);

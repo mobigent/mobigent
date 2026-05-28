@@ -34,6 +34,8 @@ The demo runs a local gateway, connects a visible expense app, and opens the sim
 
 Generated starters also include `npm run doctor`. Run it in another terminal while `npm run dev` is running to confirm the visible app, gateway health, readiness, and expected tool are all working. Then run `npm run agent:local`, `npm run agent:openapi`, or `npm run agent:chatgpt` for copy-paste agent setup.
 
+For the first real adaptation, edit `src/capabilities.ts`. It holds the sample Mobigent action, resource, schemas, and handler separately from the demo server/UI.
+
 If your system blocks auto-open, open the app manually:
 
 ```bash
