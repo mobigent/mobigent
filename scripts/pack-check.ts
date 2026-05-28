@@ -37,6 +37,11 @@ const packages: PackageExpectation[] = [
     path: "packages/react-native",
     requiredFiles: ["README.md", "package.json", "dist/index.js", "dist/index.d.ts", "dist/cli.js", "dist/cli.d.ts", "dist/expo.js", "dist/expo.d.ts", "dist/ui.js", "dist/ui.d.ts"],
     requiredBins: ["dist/cli.js"]
+  },
+  {
+    path: "packages/create-app",
+    requiredFiles: ["README.md", "package.json", "dist/index.js", "dist/index.d.ts", "dist/cli.js", "dist/cli.d.ts"],
+    requiredBins: ["dist/cli.js"]
   }
 ];
 

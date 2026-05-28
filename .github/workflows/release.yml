@@ -63,6 +63,7 @@ jobs:
           npm publish --workspace @mobigent/providers --access public --provenance
           npm publish --workspace @mobigent/react-native --access public --provenance
           npm publish --workspace @mobigent/gateway --access public --provenance
+          npm publish --workspace create-mobigent-app --access public --provenance
 
   publish-github-packages:
     needs: [validate-ios, validate-android]
@@ -85,6 +86,7 @@ jobs:
           npm publish --workspace @mobigent/providers --registry=https://npm.pkg.github.com
           npm publish --workspace @mobigent/react-native --registry=https://npm.pkg.github.com
           npm publish --workspace @mobigent/gateway --registry=https://npm.pkg.github.com
+          echo "Skipping create-mobigent-app for GitHub Packages because npm packages there must be scoped."
 
   github-release:
     needs: [validate-ios, validate-android]
@@ -104,6 +106,7 @@ jobs:
           npm pack --workspace @mobigent/providers --pack-destination release-artifacts
           npm pack --workspace @mobigent/react-native --pack-destination release-artifacts
           npm pack --workspace @mobigent/gateway --pack-destination release-artifacts
+          npm pack --workspace create-mobigent-app --pack-destination release-artifacts
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -111,4 +114,4 @@ jobs:
           gh release create "$GITHUB_REF_NAME" release-artifacts/*.tgz \
             --repo "$GITHUB_REPOSITORY" \
             --title "Mobigent $GITHUB_REF_NAME" \
-            --notes "First public Mobigent SDK release with React Native, native iOS, native Android, gateway, provider helpers, inspector, schema adapters, and security tooling."
+            --notes "Mobigent SDK release with React Native, native iOS, native Android, gateway, provider helpers, inspector, schema adapters, security tooling, and create-mobigent-app starter."

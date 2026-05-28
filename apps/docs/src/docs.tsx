@@ -25,7 +25,12 @@ npx mobigent-init \\
   --out-dir src \\
   --expo-router`;
 
-const demoCode = `npm install
+const demoCode = `npm create mobigent-app my-demo
+cd my-demo
+npm install
+npm run dev`;
+
+const repoDemoCode = `npm install
 npm run demo:app
 
 open http://localhost:8788/inspect`;
@@ -273,6 +278,7 @@ const capabilities = [
 ];
 
 const packages = [
+  ["create-mobigent-app", "Starter generator", "Creates a runnable app with gateway, inspector, visible state, and an agent playground."],
   ["@mobigent/react-native", "App-side SDK", "Expo/React Native roots, modules, hooks, UI helpers, confirmation flow."],
   ["Mobigent iOS", "Swift package", "Native iOS client with actions, resources, components, confirmations, reconnect, heartbeat, and events."],
   ["Mobigent Android", "Kotlin library", "Native Android client with the same gateway protocol and local emulator-friendly defaults."],
@@ -408,8 +414,9 @@ function Docs() {
           <span className="eyebrow"><Rocket size={15} /> First five minutes</span>
           <h2>A good first run should feel like one click.</h2>
         </div>
-        <div className="codeGrid two">
-          <Code title="Visible app + agent playground" code={demoCode} />
+        <div className="codeGrid three">
+          <Code title="Create a starter" code={demoCode} />
+          <Code title="Run from this repo" code={repoDemoCode} />
           <div className="tableGrid nativeLifecycleGrid">
             {firstRunChecks.map(([title, text]) => (
               <Row key={title} title={title} text={text} />

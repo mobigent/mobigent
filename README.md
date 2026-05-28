@@ -20,14 +20,23 @@ The result: agents get a clean interface, users stay in control, and your app de
 
 ## Quick Start
 
-Run the local demo:
+Create a Mobigent starter:
+
+```bash
+npm create mobigent-app my-demo
+cd my-demo
+npm install
+npm run dev
+```
+
+That opens a visible app beside an agent playground. Click **Run agent request** and Mobigent calls the app's `create_expense` tool through the gateway, asks for approval in the app host, and adds a new row to the app state.
+
+Working from this repo? Run the local demo:
 
 ```bash
 npm install
 npm run demo:app
 ```
-
-The demo opens `http://localhost:8790` with a real expense app UI beside an agent playground. Click **Run agent request** and Mobigent will call the app's `create_expense` tool through the gateway, ask for approval in the app host, and add a new row to the app state.
 
 That first run is the whole idea: agents do not tap screens or guess UI. Your app exposes safe tools, and Mobigent lets agents call them.
 
@@ -149,6 +158,7 @@ npm run dev:mcp
 
 - `@mobigent/core`: protocol and shared types
 - `@mobigent/react-native`: React Native app-side SDK
+- `create-mobigent-app`: one-command starter app with gateway, inspector, visible app, and agent playground
 - `packages/ios`: native Swift Package for iOS apps
 - `packages/android`: native Kotlin/Android SDK
 - `@mobigent/gateway`: local gateway, HTTP API, OpenAPI, and MCP bridge

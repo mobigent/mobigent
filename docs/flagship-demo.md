@@ -2,6 +2,17 @@
 
 This is the fastest way to show what Mobigent solves.
 
+For a new project:
+
+```bash
+npm create mobigent-app my-demo
+cd my-demo
+npm install
+npm run dev
+```
+
+For this repository:
+
 ```bash
 npm install
 npm run demo:app
