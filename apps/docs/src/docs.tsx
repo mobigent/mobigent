@@ -415,7 +415,7 @@ function Docs() {
           <h2>A good first run should feel like one click.</h2>
         </div>
         <div className="codeGrid three">
-          <Code title="Create a starter" code={demoCode} />
+          <Code title="Create a starter after npm publish" code={demoCode} />
           <Code title="Run from this repo" code={repoDemoCode} />
           <div className="tableGrid nativeLifecycleGrid">
             {firstRunChecks.map(([title, text]) => (

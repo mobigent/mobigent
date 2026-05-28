@@ -2,7 +2,7 @@
 
 This is the fastest way to show what Mobigent solves.
 
-For a new project:
+For a new project once npm publishing is connected:
 
 ```bash
 npm create mobigent-app my-demo
