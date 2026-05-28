@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "app": "tsx app.ts",
+    "demo:app": "tsx run-visible-app-demo.ts",
     "demo": "tsx run-local-demo.ts",
     "demo:http": "tsx run-http-demo.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"

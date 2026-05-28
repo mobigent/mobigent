@@ -4,12 +4,23 @@ This is the fastest way to show what Mobigent solves.
 
 ```bash
 npm install
-npm run demo:magic
+npm run demo:app
 ```
 
-The demo runs a local gateway, connects a sample expense app, exposes typed capabilities, asks for approval before a write action, emits an app event, and prints the gateway snapshot.
+The demo runs a local gateway, connects a visible expense app, and opens the simplest adoption story:
 
-Open the inspector while the demo is running:
+- App state on the left
+- Agent request box on the right
+- One button that calls the app through Mobigent
+- Inspector link for the gateway details
+
+If your system blocks auto-open, open the app manually:
+
+```bash
+open http://localhost:8790
+```
+
+Open the inspector when you want to see the gateway details:
 
 ```bash
 open http://localhost:8788/inspect
@@ -21,16 +32,17 @@ Mobigent gives mobile apps a real agent interface. The app declares safe capabil
 
 ## Demo Beats
 
-1. Show `GET /tools`: the agent discovers app-owned tools.
-2. Call `read_expenses`: the agent reads real app state.
-3. Call `create_expense`: the app asks for confirmation before the handler runs.
-4. Show `/snapshot` or `/inspect`: tools, audit, metrics, and app session data are visible.
+1. Run `npm run demo:app`.
+2. Click `Run agent request`.
+3. Show the new expense row appear in the app.
+4. Open `/inspect` to show the discovered tools, call count, app session, and audit trail.
 5. Point to ChatGPT Actions or MCP: the same gateway contract works across agent runtimes.
 
 ## Video Shot List
 
-1. Terminal: `npm run demo:magic`
-2. Browser: `http://localhost:8788/inspect`
-3. OpenAPI: `http://localhost:8788/openapi.json`
-4. Docs: native iOS/Android quickstart
-5. Closing frame: "Make mobile apps agent-ready."
+1. Terminal: `npm run demo:app`
+2. Browser: `http://localhost:8790`
+3. Click: `Run agent request`
+4. Browser: new row appears in the expense table
+5. Browser: `http://localhost:8788/inspect`
+6. Closing frame: "Make mobile apps agent-ready."

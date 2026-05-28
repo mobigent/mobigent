@@ -26,7 +26,7 @@ npx mobigent-init \\
   --expo-router`;
 
 const demoCode = `npm install
-npm run demo:magic
+npm run demo:app
 
 open http://localhost:8788/inspect`;
 
@@ -406,10 +406,10 @@ function Docs() {
       <section className="section docsBlock">
         <div className="sectionHeader compact">
           <span className="eyebrow"><Rocket size={15} /> First five minutes</span>
-          <h2>A good first run proves the full agent loop.</h2>
+          <h2>A good first run should feel like one click.</h2>
         </div>
         <div className="codeGrid two">
-          <Code title="Flagship local demo" code={demoCode} />
+          <Code title="Visible app + agent playground" code={demoCode} />
           <div className="tableGrid nativeLifecycleGrid">
             {firstRunChecks.map(([title, text]) => (
               <Row key={title} title={title} text={text} />

@@ -25,6 +25,7 @@
     "dev:http": "npm run build:sdk && tsx packages/gateway/src/http-server.ts",
     "dev:mcp": "npm run build:sdk && tsx packages/gateway/src/mcp-server.ts",
     "dev:app": "npm run build:sdk && tsx examples/expense-app/app.ts",
+    "demo:app": "npm run build:sdk && tsx examples/expense-app/run-visible-app-demo.ts",
     "demo": "npm run build:sdk && tsx examples/expense-app/run-local-demo.ts",
     "demo:http": "npm run build:sdk && tsx examples/expense-app/run-http-demo.ts",
     "demo:magic": "npm run build:sdk && tsx examples/expense-app/run-flagship-demo.ts",

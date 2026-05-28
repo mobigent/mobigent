@@ -24,10 +24,12 @@ Run the local demo:
 
 ```bash
 npm install
-npm run demo:magic
+npm run demo:app
 ```
 
-This starts a Mobigent gateway, connects a sample expense app, discovers its capabilities, creates an expense through an agent-style call, asks for confirmation, and reads the updated expense list.
+The demo opens `http://localhost:8790` with a real expense app UI beside an agent playground. Click **Run agent request** and Mobigent will call the app's `create_expense` tool through the gateway, ask for approval in the app host, and add a new row to the app state.
+
+That first run is the whole idea: agents do not tap screens or guess UI. Your app exposes safe tools, and Mobigent lets agents call them.
 
 For a fresh React Native app, the fastest path is:
 
@@ -128,6 +130,14 @@ curl http://localhost:8788/tools
 curl http://localhost:8788/openapi.json
 open http://localhost:8788/inspect
 ```
+
+For the friendliest local loop, use the visible demo instead:
+
+```bash
+npm run demo:app
+```
+
+That single page includes the app UI, an agent request box, the tool call result, and a link to the inspector.
 
 Use the OpenAPI schema with ChatGPT Actions, or use the MCP server for MCP-compatible agents:
 

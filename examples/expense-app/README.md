@@ -9,7 +9,21 @@ It registers:
 - `expenses` resource
 - `expense.created` and `expense.deleted` events
 
-## Run The Local Demo
+## Run The Visible Demo
+
+This is the best first demo because it shows the whole product in one browser page.
+
+```bash
+npm run demo:app
+```
+
+Click `Run agent request`. The request goes through the Mobigent gateway, calls the app-owned `create_expense` action, and adds a row to the visible app state.
+
+If your system blocks auto-open, visit `http://localhost:8790`.
+
+Open the gateway inspector at `http://localhost:8788/inspect` when you want to see the tools, session, call count, and audit trail.
+
+## Run The Terminal Demo
 
 ```bash
 npm run demo
