@@ -84,6 +84,9 @@ function parseArgs(argv: string[]): ParsedOptions {
       case "--no-open":
         options.openBrowser = false;
         break;
+      case "--local-packages":
+        options.localPackages = next();
+        break;
       case "--force":
         options.force = true;
         break;
@@ -135,6 +138,7 @@ Options:
   --http-port <port>    HTTP/OpenAPI/inspector gateway port. Default: 8788
   --app-port <port>     Visible app playground port. Default: 8790
   --no-open             Do not open the browser automatically.
+  --local-packages <dir> Link generated app to local Mobigent packages in this repo.
   --force               Overwrite generated files if they already exist.
   --dry-run             Print generated files as JSON without writing.
   -h, --help            Show help.

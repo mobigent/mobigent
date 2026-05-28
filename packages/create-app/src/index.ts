@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
-import { basename, join, resolve } from "node:path";
+import { basename, dirname, join, relative, resolve } from "node:path";
 
 export type CreateMobigentAppOptions = {
   targetDir: string;
@@ -12,6 +12,7 @@ export type CreateMobigentAppOptions = {
   openBrowser: boolean;
   force: boolean;
   dryRun: boolean;
+  localPackages?: string;
 };
 
 export type GeneratedFile = {
@@ -25,7 +26,7 @@ export function createMobigentAppFiles(options: CreateMobigentAppOptions): Gener
   return [
     {
       path: "package.json",
-      contents: `${JSON.stringify(createPackageJson(packageName), null, 2)}\n`
+      contents: `${JSON.stringify(createPackageJson(packageName, options), null, 2)}\n`
     },
     {
       path: "README.md",
@@ -92,7 +93,23 @@ Click "Run agent request" to watch a Mobigent tool call update the app.
 `;
 }
 
-function createPackageJson(packageName: string) {
+function createPackageJson(packageName: string, options?: CreateMobigentAppOptions) {
+  const dependencies = options?.localPackages
+    ? {
+        "@mobigent/core": localPackageSpec(options, "core"),
+        "@mobigent/providers": localPackageSpec(options, "providers"),
+        "@mobigent/gateway": localPackageSpec(options, "gateway"),
+        "@mobigent/react-native": localPackageSpec(options, "react-native"),
+        express: "^5.2.1",
+        ws: "^8.21.0"
+      }
+    : {
+        "@mobigent/gateway": "^0.1.0",
+        "@mobigent/react-native": "^0.1.0",
+        express: "^5.2.1",
+        ws: "^8.21.0"
+      };
+
   return {
     name: packageName,
     version: "0.1.0",
@@ -102,12 +119,7 @@ function createPackageJson(packageName: string) {
       dev: "tsx src/server.ts",
       check: "tsc -p tsconfig.json --noEmit"
     },
-    dependencies: {
-      "@mobigent/gateway": "^0.1.0",
-      "@mobigent/react-native": "^0.1.0",
-      express: "^5.2.1",
-      ws: "^8.21.0"
-    },
+    dependencies,
     devDependencies: {
       "@types/express": "^5.0.6",
       "@types/node": "^25.9.1",
@@ -134,9 +146,14 @@ function createTsConfig() {
 }
 
 function createReadme(options: CreateMobigentAppOptions) {
+  const localNote = options.localPackages
+    ? "\nThis starter is linked to local Mobigent packages from this repository, so it works before npm publishing is connected.\n"
+    : "";
+
   return `# ${options.appName}
 
 This app was created with \`create-mobigent-app\`.
+${localNote}
 
 ## Run
 
@@ -503,6 +520,14 @@ function sanitizePackageName(name: string) {
     .replace(/^-+|-+$/g, "");
 
   return normalized || "mobigent-app";
+}
+
+function localPackageSpec(options: CreateMobigentAppOptions, packageDir: string) {
+  const packagePath = resolve(options.localPackages ?? ".", "packages", packageDir);
+  const targetPackageJson = resolve(options.targetDir, "package.json");
+  const fromDir = dirname(targetPackageJson);
+  const relativePath = relative(fromDir, packagePath).replaceAll("\\", "/");
+  return `file:${relativePath.startsWith(".") ? relativePath : `./${relativePath}`}`;
 }
 
 function toolName(appId: string, capability: string) {

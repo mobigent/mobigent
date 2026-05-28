@@ -67,6 +67,25 @@ try {
   const forced = run([target, "--force", "--no-open"]);
   assert.equal(forced.code, 0, forced.stderr);
 
+  const localTarget = join(dir, "local-demo");
+  const localInit = run([
+    localTarget,
+    "--app-id",
+    "com.mobigent.local",
+    "--app-name",
+    "Local Demo",
+    "--no-open",
+    "--local-packages",
+    process.cwd()
+  ]);
+  assert.equal(localInit.code, 0, localInit.stderr);
+  const localPackageJson = JSON.parse(await readFile(join(localTarget, "package.json"), "utf8"));
+  assert.match(localPackageJson.dependencies["@mobigent/core"], /^file:/);
+  assert.match(localPackageJson.dependencies["@mobigent/providers"], /^file:/);
+  assert.match(localPackageJson.dependencies["@mobigent/gateway"], /^file:/);
+  assert.match(localPackageJson.dependencies["@mobigent/react-native"], /^file:/);
+  assert.match(await readFile(join(localTarget, "README.md"), "utf8"), /linked to local Mobigent packages/);
+
   console.log("create-mobigent-app smoke check passed.");
 } finally {
   await rm(dir, { force: true, recursive: true });

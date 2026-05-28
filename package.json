@@ -22,6 +22,7 @@
     "verify:android": "gradle -p packages/android test && gradle -p examples/android-expense :app:assembleDebug",
     "docs:start": "npm run start -w @mobigent/docs",
     "docs:build": "npm run build -w @mobigent/docs",
+    "starter:new": "npm run build:sdk && node packages/create-app/dist/cli.js --local-packages .",
     "dev:gateway": "npm run build:sdk && tsx packages/gateway/src/server.ts",
     "dev:http": "npm run build:sdk && tsx packages/gateway/src/http-server.ts",
     "dev:mcp": "npm run build:sdk && tsx packages/gateway/src/mcp-server.ts",

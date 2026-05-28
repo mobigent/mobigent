@@ -35,6 +35,11 @@ npm run demo:app
 
 open http://localhost:8788/inspect`;
 
+const localStarterCode = `npm run starter:new -- my-demo
+cd my-demo
+npm install
+npm run dev`;
+
 const moduleCode = `import { createAgentModule, schema } from "@mobigent/react-native/app";
 
 export const expenseModule = createAgentModule({
@@ -416,7 +421,8 @@ function Docs() {
         </div>
         <div className="codeGrid three">
           <Code title="Create a starter after npm publish" code={demoCode} />
-          <Code title="Run from this repo" code={repoDemoCode} />
+          <Code title="Local starter from repo" code={localStarterCode} />
+          <Code title="Run repo demo" code={repoDemoCode} />
           <div className="tableGrid nativeLifecycleGrid">
             {firstRunChecks.map(([title, text]) => (
               <Row key={title} title={title} text={text} />

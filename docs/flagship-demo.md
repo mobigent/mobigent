@@ -18,6 +18,15 @@ npm install
 npm run demo:app
 ```
 
+To generate a separate local starter from this checkout before npm publish:
+
+```bash
+npm run starter:new -- my-demo
+cd my-demo
+npm install
+npm run dev
+```
+
 The demo runs a local gateway, connects a visible expense app, and opens the simplest adoption story:
 
 - App state on the left
