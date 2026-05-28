@@ -49,6 +49,7 @@ const gatewayServer = gatewayApp.listen(8788, () => {
 
 const app = express();
 app.use(express.json());
+app.get("/favicon.ico", (_req, res) => res.status(204).end());
 app.get("/", (_req, res) => res.type("html").send(renderExpenseApp()));
 app.get("/state", (_req, res) => res.json({ expenses, lastAgentRun }));
 
@@ -251,7 +252,13 @@ function renderExpenseApp() {
     .status strong { color: #2945ff; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) 370px; gap: 16px; align-items: start; }
     .appGrid { display: grid; grid-template-columns: 250px 1fr; gap: 16px; margin-top: 16px; }
+    .explain { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
     .panel { border: 1px solid #d9e0ff; background: rgba(255,255,255,.84); border-radius: 12px; padding: 18px; box-shadow: 0 16px 50px rgba(49, 87, 255, .10); backdrop-filter: blur(18px); }
+    .step { min-height: 132px; }
+    .step span { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 999px; background: #2945ff; color: #fff; font-size: 13px; font-weight: 800; }
+    .step h3 { margin: 12px 0 0; font-size: 15px; }
+    .step p { font-size: 13px; }
+    code { display: inline-block; max-width: 100%; border: 1px solid #d9e0ff; border-radius: 7px; padding: 2px 6px; background: #f8faff; color: #2945ff; font-size: 12px; overflow-wrap: anywhere; }
     .metric { display: grid; gap: 14px; }
     .metric div { border-bottom: 1px solid #edf0ff; padding-bottom: 14px; }
     .metric div:last-child { border-bottom: 0; padding-bottom: 0; }
@@ -266,7 +273,7 @@ function renderExpenseApp() {
     th { color: #667085; font-weight: 600; }
     .pill { display: inline-flex; border: 1px solid #d9e0ff; color: #2945ff; border-radius: 999px; padding: 4px 8px; font-size: 12px; background: #f8faff; white-space: nowrap; }
     .link { color: #2945ff; font-weight: 700; text-decoration: none; }
-    @media (max-width: 980px) { .layout, .appGrid { display: block; } .panel, .agentPanel { margin-top: 16px; position: static; } }
+    @media (max-width: 980px) { .layout, .appGrid, .explain { display: block; } .panel, .agentPanel, .step { margin-top: 16px; position: static; } }
     @media (max-width: 640px) { main { padding: 24px 14px; } header { display: block; } .status { margin-top: 16px; } .panel { overflow: auto; } }
   </style>
 </head>
@@ -315,6 +322,28 @@ function renderExpenseApp() {
         </div>
         <div class="result"><pre id="result">Waiting for an agent request...</pre></div>
       </aside>
+    </section>
+    <section class="explain" aria-label="How this demo works">
+      <div class="panel step">
+        <span>1</span>
+        <h3>Agent calls a tool</h3>
+        <p>The playground posts to <code>/tools/com_mobigent_visible_expenses.create_expense/call</code>.</p>
+      </div>
+      <div class="panel step">
+        <span>2</span>
+        <h3>Gateway routes it</h3>
+        <p>Mobigent sends the request to the connected app over WebSocket.</p>
+      </div>
+      <div class="panel step">
+        <span>3</span>
+        <h3>App owns the action</h3>
+        <p><code>run-visible-app-demo.ts</code> runs <code>create_expense</code> and updates state.</p>
+      </div>
+      <div class="panel step">
+        <span>4</span>
+        <h3>You edit one file</h3>
+        <p>Replace the sample action with your real app function, then open the inspector.</p>
+      </div>
     </section>
   </main>
   <script>

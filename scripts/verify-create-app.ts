@@ -59,6 +59,9 @@ try {
   assert.match(server, /appId: "com.mobigent.expense"/);
   assert.match(server, /appName: "Expense Demo"/);
   assert.match(server, /Run agent request/);
+  assert.match(server, /How this demo works/);
+  assert.match(server, /You edit one file/);
+  assert.match(server, /src\/server\.ts/);
   assert.match(server, /MOBIGENT_DEMO_OPEN/);
 
   const duplicate = run([target, "--no-open"]);
