@@ -3,6 +3,7 @@ import { basename } from "node:path";
 import {
   createMobigentAppFiles,
   formatSuccessMessage,
+  installMobigentAppDependencies,
   writeMobigentApp,
   type CreateMobigentAppOptions
 } from "./index.js";
@@ -26,6 +27,22 @@ export function runCreateMobigentAppCli(
     }
 
     writeMobigentApp(options);
+    if (options.installDependencies) {
+      output.write("Installing dependencies...\n");
+      const install = installMobigentAppDependencies(options);
+      if (install.stdout) {
+        output.write(install.stdout);
+      }
+      if (install.stderr) {
+        errorOutput.write(install.stderr);
+      }
+      if (install.error) {
+        throw install.error;
+      }
+      if (install.status !== 0) {
+        throw new Error(`npm install failed with exit code ${install.status}`);
+      }
+    }
     output.write(formatSuccessMessage(options));
     return 0;
   } catch (error) {
@@ -87,6 +104,9 @@ function parseArgs(argv: string[]): ParsedOptions {
       case "--local-packages":
         options.localPackages = next();
         break;
+      case "--install":
+        options.installDependencies = true;
+        break;
       case "--force":
         options.force = true;
         break;
@@ -139,6 +159,7 @@ Options:
   --app-port <port>     Visible app playground port. Default: 8790
   --no-open             Do not open the browser automatically.
   --local-packages <dir> Link generated app to local Mobigent packages in this repo.
+  --install             Run npm install after files are created.
   --force               Overwrite generated files if they already exist.
   --dry-run             Print generated files as JSON without writing.
   -h, --help            Show help.

@@ -45,6 +45,7 @@ try {
   ]);
   assert.equal(init.code, 0, init.stderr);
   assert.match(init.stdout, /Created Mobigent starter/);
+  assert.match(init.stdout, /npm install/);
   assert.match(init.stdout, /npm run dev/);
 
   const packageJson = JSON.parse(await readFile(join(target, "package.json"), "utf8"));
@@ -66,6 +67,13 @@ try {
 
   const forced = run([target, "--force", "--no-open"]);
   assert.equal(forced.code, 0, forced.stderr);
+
+  const help = run(["--help"]);
+  assert.equal(help.code, 0, help.stderr);
+  assert.match(help.stdout, /--install/);
+
+  const installMessage = run([join(dir, "install-message-demo"), "--install", "--no-open", "--dry-run"]);
+  assert.equal(installMessage.code, 0, installMessage.stderr);
 
   const localTarget = join(dir, "local-demo");
   const localInit = run([

@@ -1,4 +1,5 @@
 import { existsSync, mkdirSync, realpathSync, writeFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { basename, join, resolve } from "node:path";
 
 export type CreateMobigentAppOptions = {
@@ -13,6 +14,7 @@ export type CreateMobigentAppOptions = {
   force: boolean;
   dryRun: boolean;
   localPackages?: string;
+  installDependencies?: boolean;
 };
 
 export type GeneratedFile = {
@@ -80,17 +82,35 @@ export function formatSuccessMessage(options: CreateMobigentAppOptions) {
   const openLine = options.openBrowser
     ? `The dev server opens http://localhost:${options.appPort} automatically.`
     : `Open http://localhost:${options.appPort} after the dev server starts.`;
+  const next = options.installDependencies
+    ? `  cd ${shellPath(relativeDir)}
+  npm run dev`
+    : `  cd ${shellPath(relativeDir)}
+  npm install
+  npm run dev`;
 
   return `Created Mobigent starter in ${relativeDir}
 
 Next:
-  cd ${shellPath(relativeDir)}
-  npm install
-  npm run dev
+${next}
 
 ${openLine}
 Click "Run agent request" to watch a Mobigent tool call update the app.
 `;
+}
+
+export function installMobigentAppDependencies(options: Pick<CreateMobigentAppOptions, "targetDir">) {
+  const result = spawnSync("npm", ["install"], {
+    cwd: resolve(options.targetDir),
+    encoding: "utf8"
+  });
+
+  return {
+    status: result.status ?? 1,
+    stdout: result.stdout ?? "",
+    stderr: result.stderr ?? "",
+    error: result.error
+  };
 }
 
 function createPackageJson(packageName: string, options?: CreateMobigentAppOptions) {
@@ -149,6 +169,7 @@ function createReadme(options: CreateMobigentAppOptions) {
   const localNote = options.localPackages
     ? "\nThis starter is linked to local Mobigent packages from this repository, so it works before npm publishing is connected.\n"
     : "";
+  const runSteps = options.installDependencies ? "npm run dev" : "npm install\nnpm run dev";
 
   return `# ${options.appName}
 
@@ -158,8 +179,7 @@ ${localNote}
 ## Run
 
 \`\`\`bash
-npm install
-npm run dev
+${runSteps}
 \`\`\`
 
 ${options.openBrowser ? `The demo opens \`http://localhost:${options.appPort}\` automatically.` : `Open \`http://localhost:${options.appPort}\` after the dev server starts.`}

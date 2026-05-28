@@ -39,11 +39,11 @@ try {
     String(appPort),
     "--no-open",
     "--local-packages",
-    process.cwd()
+    process.cwd(),
+    "--install"
   ]);
   assert.equal(init.code, 0, init.stderr);
-
-  await run("npm", ["install", "--prefix", target], process.cwd());
+  assert.match(init.stdout, /Installing dependencies/);
 
   server = spawn(join(target, "node_modules", ".bin", process.platform === "win32" ? "tsx.cmd" : "tsx"), ["src/server.ts"], {
     cwd: target,
@@ -122,26 +122,6 @@ try {
     await stop(server);
   }
   await rm(dir, { force: true, recursive: true });
-}
-
-function run(command: string, args: string[], cwd: string) {
-  return new Promise<void>((resolve, reject) => {
-    const child = spawn(command, args, { cwd, stdio: "pipe" });
-    let output = "";
-    child.stdout.on("data", (chunk) => {
-      output += chunk.toString();
-    });
-    child.stderr.on("data", (chunk) => {
-      output += chunk.toString();
-    });
-    child.on("close", (code) => {
-      if (code === 0) {
-        resolve();
-        return;
-      }
-      reject(new Error(`${command} ${args.join(" ")} failed with code ${code}\n${output}`));
-    });
-  });
 }
 
 async function waitFor(check: () => Promise<boolean>, message: () => string, timeoutMs = 30000) {

@@ -23,9 +23,8 @@ The result: agents get a clean interface, users stay in control, and your app de
 Create a Mobigent starter once npm publishing is connected:
 
 ```bash
-npm create mobigent-app my-demo
+npm create mobigent-app my-demo -- --install
 cd my-demo
-npm install
 npm run dev
 ```
 
@@ -34,9 +33,8 @@ That opens a visible app beside an agent playground. Click **Run agent request**
 The `create-mobigent-app` package is release-ready in this repo. Until npm auth is configured, create a local starter from this checkout:
 
 ```bash
-npm run starter:new -- my-demo
+npm run starter:new -- my-demo --install
 cd my-demo
-npm install
 npm run dev
 ```
 
