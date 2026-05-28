@@ -2,17 +2,29 @@
 
 This guide gets you from an app with no agent interface to a working Mobigent loop: app SDK, gateway, discovered tools, confirmed action, and read resource.
 
-## 1. Install
+## 1. Run The Starter
 
 ```bash
-npm install @mobigent/react-native
+npm exec --yes \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.1/create-mobigent-app-0.1.1.tgz \
+  -- create-mobigent-app my-demo --install
+cd my-demo
+npm run dev
+```
+
+Click **Run agent request** in the browser. That one click calls the Mobigent gateway, runs the app-owned `create_expense` action, asks for confirmation, and updates visible app state.
+
+Run the starter doctor in another terminal:
+
+```bash
+npm run doctor
 ```
 
 For this repository checkout:
 
 ```bash
 npm install
-npm run demo
+npm run demo:app
 ```
 
 The demo starts a gateway, connects a sample expense app, calls a confirmed write action, then reads the updated expense list.

@@ -16,7 +16,7 @@ import {
 import { createRoot } from "react-dom/client";
 import "./styles.css";
 
-const quickstart = `npm install @mobigent/react-native
+const quickstart = `npm install https://github.com/mobigent/mobigent/releases/download/v0.1.1/mobigent-react-native-0.1.1.tgz
 
 npx mobigent-init \\
   --app-id com.example.app \\
@@ -25,7 +25,9 @@ npx mobigent-init \\
   --out-dir src \\
   --expo-router`;
 
-const demoCode = `npm create mobigent-app my-demo -- --install
+const demoCode = `npm exec --yes \\
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.1/create-mobigent-app-0.1.1.tgz \\
+  -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
 
@@ -426,7 +428,7 @@ function Docs() {
           <h2>A good first run should feel like one click.</h2>
         </div>
         <div className="codeGrid three">
-          <Code title="Create a starter after npm publish" code={demoCode} />
+          <Code title="Create a starter today" code={demoCode} />
           <Code title="Local starter from repo" code={localStarterCode} />
           <Code title="Run repo demo" code={repoDemoCode} />
           <div className="tableGrid nativeLifecycleGrid">

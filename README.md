@@ -20,10 +20,12 @@ The result: agents get a clean interface, users stay in control, and your app de
 
 ## Quick Start
 
-Create a Mobigent starter once npm publishing is connected:
+Create a Mobigent starter from the public GitHub release:
 
 ```bash
-npm create mobigent-app my-demo -- --install
+npm exec --yes \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.1/create-mobigent-app-0.1.1.tgz \
+  -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
 ```
@@ -32,7 +34,7 @@ That opens a visible app beside an agent playground. Click **Run agent request**
 
 When you are ready to adapt it, start with `src/capabilities.ts`. That is the small file that owns the sample action, resource, schemas, and handler.
 
-The `create-mobigent-app` package is release-ready in this repo. Until npm auth is configured, create a local starter from this checkout:
+Working from this repo? Create the same starter locally:
 
 ```bash
 npm run starter:new -- my-demo --install
@@ -52,7 +54,7 @@ That first run is the whole idea: agents do not tap screens or guess UI. Your ap
 For a fresh React Native app, the fastest path is:
 
 ```bash
-npm install @mobigent/react-native
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.1/mobigent-react-native-0.1.1.tgz
 npx mobigent-init \
   --app-id com.example.app \
   --app-name "Example App" \
@@ -75,13 +77,12 @@ Until npmjs.com publishing is connected with an `NPM_TOKEN`, packages are publis
 Install directly from the public release tarball:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.0/mobigent-react-native-0.1.0.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.1/mobigent-react-native-0.1.1.tgz
 ```
 
-Or install from GitHub Packages with a GitHub token that has package read access:
+Or install from npmjs after npm publishing is connected:
 
 ```bash
-npm config set @mobigent:registry https://npm.pkg.github.com
 npm install @mobigent/react-native
 ```
 

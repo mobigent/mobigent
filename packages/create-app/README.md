@@ -3,7 +3,9 @@
 Create a runnable Mobigent starter with a visible app, gateway, inspector, and agent playground.
 
 ```bash
-npm create mobigent-app my-demo -- --install
+npm exec --yes \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.1/create-mobigent-app-0.1.1.tgz \
+  -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
 ```
@@ -31,7 +33,9 @@ npm run agent:chatgpt
 Use `--no-open` when you do not want the browser to open automatically:
 
 ```bash
-npm create mobigent-app my-demo -- --no-open
+npm exec --yes \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.1/create-mobigent-app-0.1.1.tgz \
+  -- create-mobigent-app my-demo --no-open
 ```
 
 Skip `--install` when you want to review files before installing dependencies.

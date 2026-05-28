@@ -106,6 +106,12 @@ function parseArgs(argv: string[]): ParsedOptions {
       case "--local-packages":
         options.localPackages = next();
         break;
+      case "--package-source":
+        options.packageSource = parsePackageSource(next());
+        break;
+      case "--package-version":
+        options.packageVersion = next();
+        break;
       case "--install":
         options.installDependencies = true;
         break;
@@ -143,14 +149,21 @@ function parsePort(name: string, value: string) {
   return port;
 }
 
+function parsePackageSource(value: string) {
+  if (value === "github-release" || value === "npm") {
+    return value;
+  }
+  throw new Error("--package-source must be github-release or npm.");
+}
+
 function helpText() {
   return `create-mobigent-app
 
 Create a runnable Mobigent starter with a visible app, gateway, inspector, and agent playground.
 
 Usage:
-  npm create mobigent-app my-demo
-  npx create-mobigent-app my-demo --app-name "Expense App"
+  npm exec --package https://github.com/mobigent/mobigent/releases/download/v0.1.1/create-mobigent-app-0.1.1.tgz -- create-mobigent-app my-demo --install
+  npm create mobigent-app my-demo -- --install
 
 Options:
   --app-id <id>          App id for the Mobigent manifest. Default: com.mobigent.demo
@@ -161,6 +174,8 @@ Options:
   --app-port <port>     Visible app playground port. Default: 8790
   --no-open             Do not open the browser automatically.
   --local-packages <dir> Link generated app to local Mobigent packages in this repo.
+  --package-source <source> Use github-release or npm package specs. Default: github-release
+  --package-version <version> Mobigent package version. Default: latest starter version
   --install             Run npm install after files are created.
   --force               Overwrite generated files if they already exist.
   --dry-run             Print generated files as JSON without writing.

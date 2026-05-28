@@ -2,10 +2,12 @@
 
 This is the fastest way to show what Mobigent solves.
 
-For a new project once npm publishing is connected:
+For a new project from the public GitHub release:
 
 ```bash
-npm create mobigent-app my-demo -- --install
+npm exec --yes \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.1/create-mobigent-app-0.1.1.tgz \
+  -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
 ```
@@ -17,7 +19,7 @@ npm install
 npm run demo:app
 ```
 
-To generate a separate local starter from this checkout before npm publish:
+To generate a separate local starter from this checkout:
 
 ```bash
 npm run starter:new -- my-demo --install

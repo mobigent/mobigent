@@ -59,9 +59,18 @@ try {
     packageJson.scripts["agent:chatgpt"],
     "mobigent-provider --provider chatgpt-actions --base-url https://your-public-gateway.example --format guide"
   );
-  assert.equal(packageJson.dependencies["@mobigent/gateway"], "^0.1.0");
-  assert.equal(packageJson.dependencies["@mobigent/providers"], "^0.1.0");
-  assert.equal(packageJson.dependencies["@mobigent/react-native"], "^0.1.0");
+  assert.equal(
+    packageJson.dependencies["@mobigent/gateway"],
+    "https://github.com/mobigent/mobigent/releases/download/v0.1.1/mobigent-gateway-0.1.1.tgz"
+  );
+  assert.equal(
+    packageJson.dependencies["@mobigent/providers"],
+    "https://github.com/mobigent/mobigent/releases/download/v0.1.1/mobigent-providers-0.1.1.tgz"
+  );
+  assert.equal(
+    packageJson.dependencies["@mobigent/react-native"],
+    "https://github.com/mobigent/mobigent/releases/download/v0.1.1/mobigent-react-native-0.1.1.tgz"
+  );
   assert.equal(packageJson.devDependencies["@types/express"], "^5.0.6");
 
   const server = await readFile(join(target, "src", "server.ts"), "utf8");
@@ -95,6 +104,15 @@ try {
   const help = run(["--help"]);
   assert.equal(help.code, 0, help.stderr);
   assert.match(help.stdout, /--install/);
+  assert.match(help.stdout, /--package-source/);
+
+  const npmTarget = join(dir, "npm-demo");
+  const npmInit = run([npmTarget, "--no-open", "--package-source", "npm", "--package-version", "1.2.3"]);
+  assert.equal(npmInit.code, 0, npmInit.stderr);
+  const npmPackageJson = JSON.parse(await readFile(join(npmTarget, "package.json"), "utf8"));
+  assert.equal(npmPackageJson.dependencies["@mobigent/gateway"], "^1.2.3");
+  assert.equal(npmPackageJson.dependencies["@mobigent/providers"], "^1.2.3");
+  assert.equal(npmPackageJson.dependencies["@mobigent/react-native"], "^1.2.3");
 
   const installMessage = run([join(dir, "install-message-demo"), "--install", "--no-open", "--dry-run"]);
   assert.equal(installMessage.code, 0, installMessage.stderr);

@@ -91,17 +91,20 @@ npx mobigent-init --platform-actions android-xml \
 
 These outputs are bridge plans, not magic app-store configuration. Review them, connect them to your native entry points, and keep Mobigent as the app-owned execution layer.
 
-## 6. Install From GitHub Packages
+## 6. Install Public Tarballs
 
 Tagged releases attach public package tarballs to GitHub Releases:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.0/mobigent-react-native-0.1.0.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.1/mobigent-react-native-0.1.1.tgz
 ```
 
-The same JavaScript packages are also published to GitHub Packages. Use this path when your environment has a GitHub token with package read access:
+Use the starter tarball for the easiest first run:
 
 ```bash
-npm config set @mobigent:registry https://npm.pkg.github.com
-npm install @mobigent/react-native
+npm exec --yes \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.1/create-mobigent-app-0.1.1.tgz \
+  -- create-mobigent-app my-demo --install
 ```
+
+After npmjs publishing is connected, the same packages can be installed with normal npm names.

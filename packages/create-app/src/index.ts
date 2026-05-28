@@ -14,6 +14,8 @@ export type CreateMobigentAppOptions = {
   force: boolean;
   dryRun: boolean;
   localPackages?: string;
+  packageSource?: "github-release" | "npm";
+  packageVersion?: string;
   installDependencies?: boolean;
 };
 
@@ -122,7 +124,11 @@ export function installMobigentAppDependencies(options: Pick<CreateMobigentAppOp
   };
 }
 
+const defaultMobigentVersion = "0.1.1";
+
 function createPackageJson(packageName: string, options?: CreateMobigentAppOptions) {
+  const packageSource = options?.packageSource ?? "github-release";
+  const version = options?.packageVersion ?? defaultMobigentVersion;
   const dependencies = options?.localPackages
     ? {
         "@mobigent/core": localPackageSpec(options, "core"),
@@ -132,17 +138,25 @@ function createPackageJson(packageName: string, options?: CreateMobigentAppOptio
         express: "^5.2.1",
         ws: "^8.21.0"
       }
+    : packageSource === "github-release"
+      ? {
+          "@mobigent/gateway": releaseTarballSpec("mobigent-gateway", version),
+          "@mobigent/providers": releaseTarballSpec("mobigent-providers", version),
+          "@mobigent/react-native": releaseTarballSpec("mobigent-react-native", version),
+          express: "^5.2.1",
+          ws: "^8.21.0"
+        }
     : {
-        "@mobigent/gateway": "^0.1.0",
-        "@mobigent/providers": "^0.1.0",
-        "@mobigent/react-native": "^0.1.0",
+        "@mobigent/gateway": `^${version}`,
+        "@mobigent/providers": `^${version}`,
+        "@mobigent/react-native": `^${version}`,
         express: "^5.2.1",
         ws: "^8.21.0"
       };
 
   return {
     name: packageName,
-    version: "0.1.0",
+    version: "0.1.1",
     private: true,
     type: "module",
     scripts: {
@@ -180,15 +194,19 @@ function createTsConfig() {
 }
 
 function createReadme(options: CreateMobigentAppOptions) {
-  const localNote = options.localPackages
-    ? "\nThis starter is linked to local Mobigent packages from this repository, so it works before npm publishing is connected.\n"
-    : "";
+  const packageSource = options.localPackages ? "local" : (options.packageSource ?? "github-release");
+  const sourceNote =
+    packageSource === "local"
+      ? "\nThis starter is linked to local Mobigent packages from this repository.\n"
+      : packageSource === "github-release"
+        ? "\nThis starter installs Mobigent packages from public GitHub release tarballs, so it works before npmjs publishing is connected.\n"
+        : "";
   const runSteps = options.installDependencies ? "npm run dev" : "npm install\nnpm run dev";
 
   return `# ${options.appName}
 
 This app was created with \`create-mobigent-app\`.
-${localNote}
+${sourceNote}
 
 ## Run
 
@@ -707,6 +725,10 @@ function sanitizePackageName(name: string) {
 function localPackageSpec(options: CreateMobigentAppOptions, packageDir: string) {
   const packagePath = realpathSync(resolve(options.localPackages ?? ".", "packages", packageDir));
   return `file:${packagePath.replaceAll("\\", "/")}`;
+}
+
+function releaseTarballSpec(packageFileName: string, version: string) {
+  return `https://github.com/mobigent/mobigent/releases/download/v${version}/${packageFileName}-${version}.tgz`;
 }
 
 function toolName(appId: string, capability: string) {

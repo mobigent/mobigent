@@ -1,6 +1,6 @@
 {
   "name": "@mobigent/gateway",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Mobigent local gateway for routing agent calls to mobile app capabilities.",
   "type": "module",
   "license": "MIT",
@@ -34,8 +34,8 @@
     "prepublishOnly": "npm run build && npm run typecheck"
   },
   "dependencies": {
-    "@mobigent/core": "0.1.0",
-    "@mobigent/providers": "0.1.0",
+    "@mobigent/core": "0.1.1",
+    "@mobigent/providers": "0.1.1",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",
