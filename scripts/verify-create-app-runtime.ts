@@ -71,6 +71,11 @@ try {
     return Boolean(body.tools?.some((tool) => tool.name === "com_mobigent_runtime.create_expense"));
   }, () => `starter did not expose tools in time.\n${serverOutput}`);
 
+  const doctor = await run("npm", ["run", "doctor"], target);
+  assert.match(doctor, /Mobigent starter doctor: PASS/);
+  assert.match(doctor, /PASS Gateway readiness: ready for agent startup/);
+  assert.match(doctor, /PASS Expense tool: com_mobigent_runtime.create_expense/);
+
   const runResponse = await fetch(`http://localhost:${appPort}/agent/run`, {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -122,6 +127,26 @@ try {
     await stop(server);
   }
   await rm(dir, { force: true, recursive: true });
+}
+
+function run(command: string, args: string[], cwd: string) {
+  return new Promise<string>((resolve, reject) => {
+    const child = spawn(command, args, { cwd, stdio: "pipe" });
+    let output = "";
+    child.stdout.on("data", (chunk) => {
+      output += chunk.toString();
+    });
+    child.stderr.on("data", (chunk) => {
+      output += chunk.toString();
+    });
+    child.on("close", (code) => {
+      if (code === 0) {
+        resolve(output);
+        return;
+      }
+      reject(new Error(`${command} ${args.join(" ")} failed with code ${code}\n${output}`));
+    });
+  });
 }
 
 async function waitFor(check: () => Promise<boolean>, message: () => string, timeoutMs = 30000) {

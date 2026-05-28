@@ -47,6 +47,10 @@ export function createMobigentAppFiles(options: CreateMobigentAppOptions): Gener
       contents: createServerFile(options)
     },
     {
+      path: join("src", "doctor.ts"),
+      contents: createDoctorFile(options)
+    },
+    {
       path: join("src", "nodeSocket.ts"),
       contents: createNodeSocketFile()
     }
@@ -96,6 +100,7 @@ ${next}
 
 ${openLine}
 Click "Run agent request" to watch a Mobigent tool call update the app.
+Run "npm run doctor" in another terminal to confirm the app, gateway, readiness check, and tool discovery are healthy.
 `;
 }
 
@@ -137,6 +142,7 @@ function createPackageJson(packageName: string, options?: CreateMobigentAppOptio
     type: "module",
     scripts: {
       dev: "tsx src/server.ts",
+      doctor: "tsx src/doctor.ts",
       check: "tsc -p tsconfig.json --noEmit"
     },
     dependencies,
@@ -185,6 +191,14 @@ ${runSteps}
 ${options.openBrowser ? `The demo opens \`http://localhost:${options.appPort}\` automatically.` : `Open \`http://localhost:${options.appPort}\` after the dev server starts.`}
 
 Click \`Run agent request\`. The request calls the Mobigent gateway tool endpoint, runs the app-owned action, and updates visible app state.
+
+In another terminal, run this anytime:
+
+\`\`\`bash
+npm run doctor
+\`\`\`
+
+It checks the visible app, gateway health, readiness, and exposed Mobigent tool.
 
 ## What Is Running
 
@@ -549,6 +563,78 @@ function renderPage() {
   </script>
 </body>
 </html>\`;
+}
+`;
+}
+
+function createDoctorFile(options: CreateMobigentAppOptions) {
+  const tool = toolName(options.appId, "create_expense");
+  return `const appUrl = "http://localhost:${options.appPort}";
+const gatewayUrl = "http://localhost:${options.httpPort}";
+const expectedTool = "${tool}";
+
+type Check = {
+  name: string;
+  ok: boolean;
+  message: string;
+};
+
+const checks: Check[] = [];
+
+await check("App playground", async () => {
+  const body = await getJson<{ expenses?: unknown[] }>(\`\${appUrl}/state\`);
+  return Array.isArray(body.expenses)
+    ? \`reachable with \${body.expenses.length} expense rows\`
+    : "reachable but state shape is unexpected";
+});
+
+await check("Gateway health", async () => {
+  const body = await getJson<{ status?: { tools?: number; appsWithManifests?: number } }>(\`\${gatewayUrl}/health\`);
+  return \`\${body.status?.appsWithManifests ?? 0} app manifest(s), \${body.status?.tools ?? 0} tool(s)\`;
+});
+
+await check("Gateway readiness", async () => {
+  const body = await getJson<{ ok?: boolean }>(\`\${gatewayUrl}/ready?minApps=1&minTools=1\`);
+  if (!body.ok) {
+    throw new Error("gateway is reachable but not ready for one app and one tool yet");
+  }
+  return "ready for agent startup";
+});
+
+await check("Expense tool", async () => {
+  const body = await getJson<{ tools?: Array<{ name?: string }> }>(\`\${gatewayUrl}/tools\`);
+  const names = body.tools?.map((tool) => tool.name).filter(Boolean) ?? [];
+  if (!names.includes(expectedTool)) {
+    throw new Error(\`expected \${expectedTool}; saw \${names.join(", ") || "no tools"}\`);
+  }
+  return expectedTool;
+});
+
+const passed = checks.every((item) => item.ok);
+console.log(\`Mobigent starter doctor: \${passed ? "PASS" : "FAIL"}\`);
+for (const item of checks) {
+  console.log(\`\${item.ok ? "PASS" : "FAIL"} \${item.name}: \${item.message}\`);
+}
+
+if (!passed) {
+  console.log("\\nStart the demo with npm run dev, wait for the browser page, then run npm run doctor again.");
+  process.exitCode = 1;
+}
+
+async function check(name: string, run: () => Promise<string>) {
+  try {
+    checks.push({ name, ok: true, message: await run() });
+  } catch (error) {
+    checks.push({ name, ok: false, message: error instanceof Error ? error.message : String(error) });
+  }
+}
+
+async function getJson<T>(url: string): Promise<T> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(\`\${url} returned HTTP \${response.status}\`);
+  }
+  return (await response.json()) as T;
 }
 `;
 }

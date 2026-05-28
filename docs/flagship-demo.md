@@ -32,6 +32,8 @@ The demo runs a local gateway, connects a visible expense app, and opens the sim
 - One button that calls the app through Mobigent
 - Inspector link for the gateway details
 
+Generated starters also include `npm run doctor`. Run it in another terminal while `npm run dev` is running to confirm the visible app, gateway health, readiness, and expected tool are all working.
+
 If your system blocks auto-open, open the app manually:
 
 ```bash

@@ -10,6 +10,14 @@ npm run dev
 
 The starter opens a browser page where one click calls a Mobigent tool and updates app state.
 
+Run this in another terminal while the starter is running:
+
+```bash
+npm run doctor
+```
+
+It checks the visible app, gateway health, readiness, and expected Mobigent tool.
+
 Use `--no-open` when you do not want the browser to open automatically:
 
 ```bash

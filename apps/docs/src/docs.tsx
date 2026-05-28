@@ -27,7 +27,10 @@ npx mobigent-init \\
 
 const demoCode = `npm create mobigent-app my-demo -- --install
 cd my-demo
-npm run dev`;
+npm run dev
+
+# in another terminal
+npm run doctor`;
 
 const repoDemoCode = `npm install
 npm run demo:app
@@ -36,7 +39,10 @@ open http://localhost:8788/inspect`;
 
 const localStarterCode = `npm run starter:new -- my-demo --install
 cd my-demo
-npm run dev`;
+npm run dev
+
+# in another terminal
+npm run doctor`;
 
 const moduleCode = `import { createAgentModule, schema } from "@mobigent/react-native/app";
 

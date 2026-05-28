@@ -51,6 +51,7 @@ try {
   const packageJson = JSON.parse(await readFile(join(target, "package.json"), "utf8"));
   assert.equal(packageJson.name, "expense-demo");
   assert.equal(packageJson.scripts.dev, "tsx src/server.ts");
+  assert.equal(packageJson.scripts.doctor, "tsx src/doctor.ts");
   assert.equal(packageJson.dependencies["@mobigent/gateway"], "^0.1.0");
   assert.equal(packageJson.dependencies["@mobigent/react-native"], "^0.1.0");
   assert.equal(packageJson.devDependencies["@types/express"], "^5.0.6");
@@ -63,6 +64,11 @@ try {
   assert.match(server, /You edit one file/);
   assert.match(server, /src\/server\.ts/);
   assert.match(server, /MOBIGENT_DEMO_OPEN/);
+
+  const doctor = await readFile(join(target, "src", "doctor.ts"), "utf8");
+  assert.match(doctor, /Mobigent starter doctor/);
+  assert.match(doctor, /com_mobigent_expense.create_expense/);
+  assert.match(doctor, /ready\?minApps=1&minTools=1/);
 
   const duplicate = run([target, "--no-open"]);
   assert.equal(duplicate.code, 1);
