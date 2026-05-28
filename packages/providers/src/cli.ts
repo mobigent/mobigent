@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   createAnthropicToolUseProvider,
   createAutoGenProvider,
@@ -845,6 +846,10 @@ function shellQuote(value: string) {
   return JSON.stringify(value);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+function isMainModule() {
+  return Boolean(process.argv[1]) && realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
+}
+
+if (isMainModule()) {
   main();
 }

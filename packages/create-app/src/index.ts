@@ -130,6 +130,7 @@ function createPackageJson(packageName: string, options?: CreateMobigentAppOptio
       }
     : {
         "@mobigent/gateway": "^0.1.0",
+        "@mobigent/providers": "^0.1.0",
         "@mobigent/react-native": "^0.1.0",
         express: "^5.2.1",
         ws: "^8.21.0"
@@ -143,6 +144,9 @@ function createPackageJson(packageName: string, options?: CreateMobigentAppOptio
     scripts: {
       dev: "tsx src/server.ts",
       doctor: "tsx src/doctor.ts",
+      "agent:local": "mobigent-provider --provider claude-desktop --command mobigent-mcp --format guide",
+      "agent:openapi": `mobigent-provider --provider openapi --base-url http://localhost:${options?.httpPort ?? 8788} --format guide`,
+      "agent:chatgpt": "mobigent-provider --provider chatgpt-actions --base-url https://your-public-gateway.example --format guide",
       check: "tsc -p tsconfig.json --noEmit"
     },
     dependencies,
@@ -199,6 +203,16 @@ npm run doctor
 \`\`\`
 
 It checks the visible app, gateway health, readiness, and exposed Mobigent tool.
+
+Then choose an agent path:
+
+\`\`\`bash
+npm run agent:local
+npm run agent:openapi
+npm run agent:chatgpt
+\`\`\`
+
+These print copy-paste setup for Claude Desktop/MCP, generic OpenAPI agents, and ChatGPT Actions.
 
 ## What Is Running
 

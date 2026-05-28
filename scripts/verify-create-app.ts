@@ -52,7 +52,14 @@ try {
   assert.equal(packageJson.name, "expense-demo");
   assert.equal(packageJson.scripts.dev, "tsx src/server.ts");
   assert.equal(packageJson.scripts.doctor, "tsx src/doctor.ts");
+  assert.equal(packageJson.scripts["agent:local"], "mobigent-provider --provider claude-desktop --command mobigent-mcp --format guide");
+  assert.equal(packageJson.scripts["agent:openapi"], "mobigent-provider --provider openapi --base-url http://localhost:8788 --format guide");
+  assert.equal(
+    packageJson.scripts["agent:chatgpt"],
+    "mobigent-provider --provider chatgpt-actions --base-url https://your-public-gateway.example --format guide"
+  );
   assert.equal(packageJson.dependencies["@mobigent/gateway"], "^0.1.0");
+  assert.equal(packageJson.dependencies["@mobigent/providers"], "^0.1.0");
   assert.equal(packageJson.dependencies["@mobigent/react-native"], "^0.1.0");
   assert.equal(packageJson.devDependencies["@types/express"], "^5.0.6");
 
@@ -102,6 +109,7 @@ try {
   assert.match(localPackageJson.dependencies["@mobigent/gateway"], /^file:/);
   assert.match(localPackageJson.dependencies["@mobigent/react-native"], /^file:/);
   assert.match(await readFile(join(localTarget, "README.md"), "utf8"), /linked to local Mobigent packages/);
+  assert.match(await readFile(join(localTarget, "README.md"), "utf8"), /npm run agent:local/);
 
   console.log("create-mobigent-app smoke check passed.");
 } finally {

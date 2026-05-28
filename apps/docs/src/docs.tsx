@@ -30,7 +30,8 @@ cd my-demo
 npm run dev
 
 # in another terminal
-npm run doctor`;
+npm run doctor
+npm run agent:local`;
 
 const repoDemoCode = `npm install
 npm run demo:app
@@ -42,7 +43,8 @@ cd my-demo
 npm run dev
 
 # in another terminal
-npm run doctor`;
+npm run doctor
+npm run agent:local`;
 
 const moduleCode = `import { createAgentModule, schema } from "@mobigent/react-native/app";
 

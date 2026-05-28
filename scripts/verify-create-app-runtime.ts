@@ -76,6 +76,10 @@ try {
   assert.match(doctor, /PASS Gateway readiness: ready for agent startup/);
   assert.match(doctor, /PASS Expense tool: com_mobigent_runtime.create_expense/);
 
+  const localAgent = await run("npm", ["run", "agent:local"], target);
+  assert.match(localAgent, /Claude Desktop/);
+  assert.match(localAgent, /mobigent-mcp/);
+
   const runResponse = await fetch(`http://localhost:${appPort}/agent/run`, {
     method: "POST",
     headers: { "content-type": "application/json" },

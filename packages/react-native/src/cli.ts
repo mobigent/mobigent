@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { validateCapabilityManifest, type CapabilityManifest } from "@mobigent/core";
 import { createMobigentGatewayUrl } from "./gatewayUrl.js";
 import {
@@ -1401,6 +1402,10 @@ function isExpoFirstCommand(commandName: string) {
   return commandName === "mobigent-init" || commandName === "mobigent-expo-init";
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+function isMainModule() {
+  return Boolean(process.argv[1]) && realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
+}
+
+if (isMainModule()) {
   process.exitCode = runReactNativeInitCli();
 }

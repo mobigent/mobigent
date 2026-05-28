@@ -28,7 +28,7 @@ cd my-demo
 npm run dev
 ```
 
-That opens a visible app beside an agent playground. Click **Run agent request** and Mobigent calls the app's `create_expense` tool through the gateway, asks for approval in the app host, and adds a new row to the app state. In another terminal, run `npm run doctor` to confirm the app, gateway, readiness check, and tool discovery are healthy.
+That opens a visible app beside an agent playground. Click **Run agent request** and Mobigent calls the app's `create_expense` tool through the gateway, asks for approval in the app host, and adds a new row to the app state. In another terminal, run `npm run doctor` to confirm everything is healthy, then `npm run agent:local`, `npm run agent:openapi`, or `npm run agent:chatgpt` for copy-paste agent setup.
 
 The `create-mobigent-app` package is release-ready in this repo. Until npm auth is configured, create a local starter from this checkout:
 

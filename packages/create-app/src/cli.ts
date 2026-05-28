@@ -1,5 +1,7 @@
 #!/usr/bin/env node
+import { realpathSync } from "node:fs";
 import { basename } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   createMobigentAppFiles,
   formatSuccessMessage,
@@ -166,6 +168,10 @@ Options:
 `;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+function isMainModule() {
+  return Boolean(process.argv[1]) && realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
+}
+
+if (isMainModule()) {
   process.exitCode = runCreateMobigentAppCli();
 }

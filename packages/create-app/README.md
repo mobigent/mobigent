@@ -18,6 +18,14 @@ npm run doctor
 
 It checks the visible app, gateway health, readiness, and expected Mobigent tool.
 
+Then print copy-paste agent setup:
+
+```bash
+npm run agent:local
+npm run agent:openapi
+npm run agent:chatgpt
+```
+
 Use `--no-open` when you do not want the browser to open automatically:
 
 ```bash
