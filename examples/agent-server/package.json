@@ -1,6 +1,6 @@
 {
   "name": "@mobigent/example-agent-server",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "type": "module",
   "scripts": {
@@ -9,6 +9,6 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@mobigent/providers": "0.1.1"
+    "@mobigent/providers": "0.1.2"
   }
 }

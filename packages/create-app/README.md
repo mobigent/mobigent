@@ -4,7 +4,7 @@ Create a runnable Mobigent starter with a visible app, gateway, inspector, and a
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.1/create-mobigent-app-0.1.1.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.2/create-mobigent-app-0.1.2.tgz \
   -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
@@ -34,7 +34,7 @@ Use `--no-open` when you do not want the browser to open automatically:
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.1/create-mobigent-app-0.1.1.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.2/create-mobigent-app-0.1.2.tgz \
   -- create-mobigent-app my-demo --no-open
 ```
 

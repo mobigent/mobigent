@@ -16,7 +16,7 @@ import {
 import { createRoot } from "react-dom/client";
 import "./styles.css";
 
-const quickstart = `npm install https://github.com/mobigent/mobigent/releases/download/v0.1.1/mobigent-react-native-0.1.1.tgz
+const quickstart = `npm install https://github.com/mobigent/mobigent/releases/download/v0.1.2/mobigent-react-native-0.1.2.tgz
 
 npx mobigent-init \\
   --app-id com.example.app \\
@@ -26,7 +26,7 @@ npx mobigent-init \\
   --expo-router`;
 
 const demoCode = `npm exec --yes \\
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.1/create-mobigent-app-0.1.1.tgz \\
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.2/create-mobigent-app-0.1.2.tgz \\
   -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev

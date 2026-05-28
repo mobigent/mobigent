@@ -162,7 +162,7 @@ function helpText() {
 Create a runnable Mobigent starter with a visible app, gateway, inspector, and agent playground.
 
 Usage:
-  npm exec --package https://github.com/mobigent/mobigent/releases/download/v0.1.1/create-mobigent-app-0.1.1.tgz -- create-mobigent-app my-demo --install
+  npm exec --package https://github.com/mobigent/mobigent/releases/download/v0.1.2/create-mobigent-app-0.1.2.tgz -- create-mobigent-app my-demo --install
   npm create mobigent-app my-demo -- --install
 
 Options:

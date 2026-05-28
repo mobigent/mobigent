@@ -60,16 +60,20 @@ try {
     "mobigent-provider --provider chatgpt-actions --base-url https://your-public-gateway.example --format guide"
   );
   assert.equal(
+    packageJson.dependencies["@mobigent/core"],
+    "https://github.com/mobigent/mobigent/releases/download/v0.1.2/mobigent-core-0.1.2.tgz"
+  );
+  assert.equal(
     packageJson.dependencies["@mobigent/gateway"],
-    "https://github.com/mobigent/mobigent/releases/download/v0.1.1/mobigent-gateway-0.1.1.tgz"
+    "https://github.com/mobigent/mobigent/releases/download/v0.1.2/mobigent-gateway-0.1.2.tgz"
   );
   assert.equal(
     packageJson.dependencies["@mobigent/providers"],
-    "https://github.com/mobigent/mobigent/releases/download/v0.1.1/mobigent-providers-0.1.1.tgz"
+    "https://github.com/mobigent/mobigent/releases/download/v0.1.2/mobigent-providers-0.1.2.tgz"
   );
   assert.equal(
     packageJson.dependencies["@mobigent/react-native"],
-    "https://github.com/mobigent/mobigent/releases/download/v0.1.1/mobigent-react-native-0.1.1.tgz"
+    "https://github.com/mobigent/mobigent/releases/download/v0.1.2/mobigent-react-native-0.1.2.tgz"
   );
   assert.equal(packageJson.devDependencies["@types/express"], "^5.0.6");
 

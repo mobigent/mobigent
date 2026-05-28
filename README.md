@@ -24,7 +24,7 @@ Create a Mobigent starter from the public GitHub release:
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.1/create-mobigent-app-0.1.1.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.2/create-mobigent-app-0.1.2.tgz \
   -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
@@ -54,7 +54,7 @@ That first run is the whole idea: agents do not tap screens or guess UI. Your ap
 For a fresh React Native app, the fastest path is:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.1/mobigent-react-native-0.1.1.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.2/mobigent-react-native-0.1.2.tgz
 npx mobigent-init \
   --app-id com.example.app \
   --app-name "Example App" \
@@ -77,7 +77,7 @@ Until npmjs.com publishing is connected with an `NPM_TOKEN`, packages are publis
 Install directly from the public release tarball:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.1/mobigent-react-native-0.1.1.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.2/mobigent-react-native-0.1.2.tgz
 ```
 
 Or install from npmjs after npm publishing is connected:

@@ -6,7 +6,7 @@ This guide gets you from an app with no agent interface to a working Mobigent lo
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.1/create-mobigent-app-0.1.1.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.2/create-mobigent-app-0.1.2.tgz \
   -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
