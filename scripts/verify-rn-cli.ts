@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { runReactNativeInitCli } from "../packages/react-native/src/cli.js";
@@ -76,6 +76,52 @@ try {
   assert.match(await readFile(join(dir, "auto-config", "mobigent-config.ts"), "utf8"), /com.mobigent.auto/);
   assert.match(autoConfigRoot, /config: mobigentConfig/);
   assert.doesNotMatch(autoConfigRoot, /gatewayUrl: process\.env/);
+
+  const backendDir = join(dir, "backend");
+  await mkdir(backendDir);
+  await writeFile(
+    join(backendDir, "mobigent.app.json"),
+    JSON.stringify({
+      appId: "com.mobigent.backenddir",
+      appName: "Backend Dir App",
+      connectionUrl: "ws://localhost:8787"
+    }),
+    "utf8"
+  );
+  const backendDirInit = run([
+    "--backend-dir",
+    backendDir,
+    "--feature",
+    "backenddir",
+    "--out-dir",
+    join(dir, "backend-dir-config")
+  ]);
+  assert.equal(backendDirInit.code, 0, backendDirInit.stderr);
+  assert.match(await readFile(join(dir, "backend-dir-config", "mobigent-config.ts"), "utf8"), /com.mobigent.backenddir/);
+
+  const workspaceDir = join(dir, "workspace");
+  const workspaceBackendDir = join(workspaceDir, "backend");
+  const workspaceAppDir = join(workspaceDir, "mobile");
+  await mkdir(workspaceBackendDir, { recursive: true });
+  await mkdir(workspaceAppDir);
+  await writeFile(
+    join(workspaceBackendDir, "mobigent.app.json"),
+    JSON.stringify({
+      appId: "com.mobigent.sibling",
+      appName: "Sibling Backend App",
+      connectionUrl: "ws://localhost:8787"
+    }),
+    "utf8"
+  );
+  const previousSiblingCwd = process.cwd();
+  process.chdir(workspaceAppDir);
+  try {
+    const siblingInit = run(["--feature", "sibling", "--out-dir", join(workspaceAppDir, "src")]);
+    assert.equal(siblingInit.code, 0, siblingInit.stderr);
+  } finally {
+    process.chdir(previousSiblingCwd);
+  }
+  assert.match(await readFile(join(workspaceAppDir, "src", "mobigent-config.ts"), "utf8"), /com.mobigent.sibling/);
 
   const doctor = run([
     "--doctor",

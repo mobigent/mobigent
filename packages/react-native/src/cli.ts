@@ -19,6 +19,7 @@ export type ReactNativeInitCliOptions = {
   appVersion?: string;
   appConfig?: ReactNativeAppConfigFile;
   configPath?: string;
+  backendDir?: string;
   feature: string;
   appRoot?: string;
   outDir: string;
@@ -663,6 +664,9 @@ function parseArgs(
       case "--config":
         options.configPath = next();
         break;
+      case "--backend-dir":
+        options.backendDir = next();
+        break;
       case "--feature":
         options.feature = next();
         break;
@@ -746,7 +750,7 @@ function parseArgs(
   }
 
   if (!options.configPath) {
-    options.configPath = findDefaultReactNativeAppConfig();
+    options.configPath = findDefaultReactNativeAppConfig(options.appRoot ?? process.cwd(), options.backendDir);
   }
 
   if (options.configPath) {
@@ -923,7 +927,14 @@ function readReactNativeAppConfig(path: string): ReactNativeAppConfigFile {
   return parsed;
 }
 
-function findDefaultReactNativeAppConfig(startDir = process.cwd()): string | undefined {
+function findDefaultReactNativeAppConfig(startDir = process.cwd(), backendDir?: string): string | undefined {
+  if (backendDir) {
+    const candidate = join(backendDir, defaultAppConfigFile);
+    if (existsSync(candidate)) {
+      return candidate;
+    }
+  }
+
   let dir = startDir;
 
   while (true) {
@@ -932,12 +943,32 @@ function findDefaultReactNativeAppConfig(startDir = process.cwd()): string | und
       return candidate;
     }
 
+    const sibling = findSiblingBackendConfig(dir);
+    if (sibling) {
+      return sibling;
+    }
+
     const parent = dirname(dir);
     if (parent === dir) {
       return undefined;
     }
+
     dir = parent;
   }
+}
+
+function findSiblingBackendConfig(dir: string) {
+  const parent = dirname(dir);
+  const siblingNames = ["backend", "server", "api", "agent-server", "mobigent-backend"];
+
+  for (const siblingName of siblingNames) {
+    const candidate = join(parent, siblingName, defaultAppConfigFile);
+    if (existsSync(candidate)) {
+      return candidate;
+    }
+  }
+
+  return undefined;
 }
 
 export function inferReactNativeAppIdentity(startDir = process.cwd()): Pick<ReactNativeInitCliOptions, "appId" | "appName"> {
@@ -1510,6 +1541,7 @@ Options:
   --app-name <name>      Human-readable app name. Default: inferred from package.json.
   --app-version <value>  App version to publish in the capability manifest.
   --config <path>        Read a backend-generated app config. Default: auto-detect mobigent.app.json.
+  --backend-dir <path>   Read mobigent.app.json from a backend project directory.
   --feature <name>       Feature module name. Default: expense.
   --app-root <path>      React Native app root for package.json doctor checks. Default: current directory.
   --out-dir <path>       Output directory. Default: src.

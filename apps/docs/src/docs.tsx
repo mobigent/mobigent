@@ -17,12 +17,20 @@ import { createRoot } from "react-dom/client";
 import "./styles.css";
 
 const quickstart = `# backend
+cd backend
 npm install @mobigent/backend
 npx mobigent-backend init
 
 # app
+cd ../mobile-app
 npm install @mobigent/react-native
 npx mobigent init --feature expense --out-dir src`;
+
+const customLayoutCode = `# app in a custom folder layout
+npx mobigent init \\
+  --feature expense \\
+  --out-dir src \\
+  --backend-dir ../server`;
 
 const demoCode = `npm exec --yes \\
   --package https://github.com/mobigent/mobigent/releases/download/v0.1.12/create-mobigent-app-0.1.12.tgz \\
@@ -69,15 +77,6 @@ const { Root } = mobigentApp(expenses);
 export default function App() {
   return <Root><YourApp /></Root>;
 }`;
-
-const connectCode = `import { startMobigentBackend } from "@mobigent/backend";
-import { connectMobigent } from "@mobigent/react-native";
-import { expenses } from "./mobigent/expense";
-
-const backend = await startMobigentBackend();
-await connectMobigent(expenses, {
-  connectionUrl: backend.defaultApp.connectionUrl,
-});`;
 
 const gatewayCode = `npx mobigent-http
 
@@ -287,7 +286,7 @@ const nativeUrls = [
 const firstRunChecks = [
   ["Install", "Add the app package to React Native and the backend package to your server."],
   ["Expose", "`feature()` turns real app functions into typed agent capabilities."],
-  ["Connect", "`mobigent.defaultApp` creates config; `mobigentApp()` or `connectMobigent()` consumes it."],
+  ["Connect", "The app initializer finds `mobigent.app.json` from the app, parent folders, common sibling backend folders, or `--backend-dir`."],
   ["Wait", "`mobigent.ready()` tells backend code when the app is connected and callable."],
   ["Approve", "Risky actions pause inside the app before handlers run."],
   ["Audit", "Calls, approvals, denials, errors, and events appear in `/audit`."]
@@ -471,7 +470,7 @@ function Docs() {
           <Code title="1. Install and scaffold" code={quickstart} />
           <Code title="2. Define app capability" code={moduleCode} />
           <Code title="3. Wrap the app" code={appCode} />
-          <Code title="Alternative: connect a demo host" code={connectCode} />
+          <Code title="Custom folder layout" code={customLayoutCode} />
         </div>
       </section>
 

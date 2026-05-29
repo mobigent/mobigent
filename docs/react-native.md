@@ -15,7 +15,7 @@ npm install @mobigent/react-native
 npx mobigent init --feature expense --out-dir src
 ```
 
-No app id ceremony is required for a first run. If `mobigent.app.json` is present, the initializer uses it. If not, it infers a starter app id and app name from your `package.json`, so you can add the wrapper and feature code immediately.
+No app id ceremony is required for a first run. If `mobigent.app.json` is present in the app, a parent folder, or a common sibling backend folder such as `../backend`, the initializer uses it. For custom layouts, pass `--backend-dir ../server`. If no config exists yet, it infers a starter app id and app name from your `package.json`.
 
 ## 2. Create A Feature
 

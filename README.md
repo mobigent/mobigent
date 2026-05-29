@@ -146,7 +146,7 @@ npm install @mobigent/react-native
 npx mobigent init --feature expense --out-dir src
 ```
 
-You do not need to invent an app id for local development. If `mobigent.app.json` exists, the app package uses it. If it does not, the initializer infers a starter app id and app name from `package.json`, then you can replace them later with production values.
+You do not need to invent an app id for local development. If `mobigent.app.json` exists in the app, a parent folder, or a common sibling backend folder such as `../backend`, the app package uses it. For custom layouts, pass `--backend-dir ../server`. If no config exists yet, the initializer infers a starter app id and app name from `package.json`.
 
 Create one feature file:
 
@@ -212,10 +212,10 @@ npx mobigent-backend init --app-dir ../mobile-app
 
 Mobigent infers starter app identity from the project. Pass `--app-id` and `--app-name` only when you want exact production values.
 
-That creates `mobigent.app.json` in the backend project and, with `--app-dir`, also puts it in the app project so the app package auto-detects it:
+That creates `mobigent.app.json` in the backend project. If your app lives beside a folder named `backend`, `server`, `api`, `agent-server`, or `mobigent-backend`, the app initializer auto-detects that config. For any other layout, pass `--app-dir` from the backend or `--backend-dir` from the app:
 
 ```bash
-npx mobigent init --feature expense --out-dir src
+npx mobigent init --feature expense --out-dir src --backend-dir ../server
 ```
 
 Or write it manually:

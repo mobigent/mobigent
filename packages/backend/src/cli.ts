@@ -386,7 +386,7 @@ ${files.map((file) => `  ${file.path}`).join("\n")}
 
 Then in your app:
   npx mobigent init --feature expense --out-dir src
-${options.appDir ? `\nMobigent already wrote ${join(options.appDir, "mobigent.app.json")}, so the app initializer will auto-detect the backend connection.\n` : ""}
+${options.appDir ? `\nMobigent already wrote ${join(options.appDir, "mobigent.app.json")}, so the app initializer will auto-detect the backend connection.\n` : "\nIf your app is beside this backend folder, the app initializer will auto-detect mobigent.app.json. For custom layouts, run: npx mobigent init --feature expense --out-dir src --backend-dir ../server\n"}
 
 Run:
   node --env-file=${options.envFile} --import tsx ${join(options.outDir, options.fileName)}

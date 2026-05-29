@@ -31,11 +31,17 @@ The demo starts a Mobigent backend, connects a sample expense app, calls a confi
 
 ## 2. Add One Feature To An Existing App
 
-Install the app SDK and scaffold the small Mobigent folder from the backend config:
+Install the app SDK and scaffold the small Mobigent folder. If your backend project is a sibling folder named `backend`, `server`, `api`, `agent-server`, or `mobigent-backend`, the app initializer finds `mobigent.app.json` automatically:
 
 ```bash
 npm install @mobigent/react-native
 npx mobigent init --feature expense --out-dir src
+```
+
+For custom layouts, point the app initializer at the backend project:
+
+```bash
+npx mobigent init --feature expense --out-dir src --backend-dir ../server
 ```
 
 Create a feature file:
@@ -98,7 +104,7 @@ npx mobigent-backend init --app-dir ../mobile-app
 
 Mobigent infers starter app identity from the project. Pass `--app-id` and `--app-name` only when you want exact production values.
 
-That creates `mobigent.app.json` with a simple `connectionUrl`. With `--app-dir`, Mobigent also writes that config into the app project, then the app init command auto-detects it:
+That creates `mobigent.app.json` with a simple `connectionUrl`. The app initializer auto-detects that file from the app project, parent folders, and common sibling backend folders. With `--app-dir`, Mobigent also writes that config directly into the app project:
 
 ```bash
 npm install @mobigent/react-native

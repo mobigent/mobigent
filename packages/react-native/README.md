@@ -39,7 +39,7 @@ npm install @mobigent/react-native
 npx mobigent init --feature expense --out-dir src
 ```
 
-That command now works even before you have a backend config file. It infers a starter app id/name from `package.json`, creates a Mobigent root wrapper, and creates one feature file. Later, when your backend writes `mobigent.app.json`, drop it into the app and Mobigent will use its `connectionUrl` automatically.
+That command works before you have a backend config file. It infers a starter app id/name from `package.json`, creates a Mobigent root wrapper, and creates one feature file. When your backend writes `mobigent.app.json`, the initializer auto-detects it from the app, parent folders, or common sibling backend folders such as `../backend`. For custom layouts, use `--backend-dir ../server`.
 
 Create `src/mobigent/expenses.ts`:
 

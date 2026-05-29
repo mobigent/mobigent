@@ -12,6 +12,8 @@ Use Mobigent like normal app code: expose a few real functions, wrap the app onc
 npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-react-native-0.1.12.tgz
 ```
 
+If your backend is in a sibling folder named `backend`, `server`, `api`, `agent-server`, or `mobigent-backend`, the app initializer finds `mobigent.app.json` automatically. For custom layouts, pass `--backend-dir ../server`.
+
 ## Create A Feature
 
 ```ts
@@ -52,9 +54,10 @@ export default function App() {
 import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent();
+await mobigent.ready();
 ```
 
-Open the inspector URL printed by the backend. When the app connects, the feature tools appear there.
+`mobigent.ready()` waits until the app is connected and has exposed at least one function.
 
 ## Non-React Host Or Demo
 

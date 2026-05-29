@@ -3,10 +3,12 @@ import { createRoot } from "react-dom/client";
 import "./styles.css";
 
 const quickstart = `# backend
+cd backend
 npm install @mobigent/backend
-npx mobigent-backend init --app-dir ../mobile-app
+npx mobigent-backend init
 
 # app
+cd ../mobile-app
 npm install @mobigent/react-native
 npx mobigent init --feature expense --out-dir src`;
 

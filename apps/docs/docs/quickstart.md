@@ -26,11 +26,17 @@ You should see app, backend, readiness, and tool checks pass.
 
 ## Existing React Native App
 
-Install the app SDK and scaffold the small Mobigent folder:
+Install the app SDK and scaffold the small Mobigent folder. If your backend is in a sibling folder named `backend`, `server`, `api`, `agent-server`, or `mobigent-backend`, the initializer finds `mobigent.app.json` automatically:
 
 ```bash
 npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-react-native-0.1.12.tgz
 npx mobigent init --feature expense --out-dir src
+```
+
+For custom layouts:
+
+```bash
+npx mobigent init --feature expense --out-dir src --backend-dir ../server
 ```
 
 Create one feature:
@@ -97,6 +103,7 @@ Or write it manually:
 import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent();
+await mobigent.ready();
 
 console.log(mobigent.urls.inspector);
 console.log(mobigent.urls.openapi);
@@ -109,4 +116,4 @@ console.log(mobigent.agent("chatgpt").endpoints.openApi);
 
 With no options, Mobigent infers a starter app id and app name from your project. Pass `app: { id, name }` when you want exact production values.
 
-Open the inspector URL. When the app connects, its tools appear there.
+`mobigent.ready()` waits until the app is connected and has exposed at least one function.

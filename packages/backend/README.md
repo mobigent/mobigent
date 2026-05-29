@@ -9,6 +9,7 @@ npx mobigent-backend init --app-dir ../mobile-app
 
 That creates `src/mobigent.ts`, `.env.mobigent`, and `mobigent.app.json`.
 When `--app-dir` is present, it also writes `../mobile-app/mobigent.app.json` so the app SDK can auto-detect the connection.
+If your app is in a sibling folder and this backend folder is named `backend`, `server`, `api`, `agent-server`, or `mobigent-backend`, the app initializer can auto-detect the backend config without `--app-dir`.
 Mobigent infers a starter app id and app name from the project. Override them with `--app-id` and `--app-name` when you want exact production values.
 
 ```ts
@@ -76,6 +77,12 @@ If you did not pass `--app-dir`, put the generated `mobigent.app.json` in the ap
 
 ```bash
 npx mobigent init --feature expense --out-dir src
+```
+
+For custom folder layouts, run the app initializer with:
+
+```bash
+npx mobigent init --feature expense --out-dir src --backend-dir ../server
 ```
 
 Use `mobigent.copyAppConfig()` when you want a copy-paste TypeScript file for the mobile app:
