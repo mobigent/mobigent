@@ -4,6 +4,15 @@
   "description": "Provider configuration helpers for connecting Mobigent to agent platforms.",
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mobigent/mobigent.git",
+    "directory": "packages/providers"
+  },
+  "bugs": {
+    "url": "https://github.com/mobigent/mobigent/issues"
+  },
+  "homepage": "https://mobigent.github.io/mobigent/",
   "publishConfig": {
     "access": "public"
   },

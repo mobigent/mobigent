@@ -4,6 +4,15 @@
   "description": "Simple backend helper for running Mobigent gateway, HTTP, OpenAPI, and MCP-ready agent endpoints.",
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mobigent/mobigent.git",
+    "directory": "packages/backend"
+  },
+  "bugs": {
+    "url": "https://github.com/mobigent/mobigent/issues"
+  },
+  "homepage": "https://mobigent.github.io/mobigent/",
   "publishConfig": {
     "access": "public"
   },

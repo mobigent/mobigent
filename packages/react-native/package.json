@@ -4,6 +4,15 @@
   "description": "React Native SDK for exposing app capabilities to AI agents through Mobigent.",
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mobigent/mobigent.git",
+    "directory": "packages/react-native"
+  },
+  "bugs": {
+    "url": "https://github.com/mobigent/mobigent/issues"
+  },
+  "homepage": "https://mobigent.github.io/mobigent/",
   "publishConfig": {
     "access": "public"
   },

@@ -4,6 +4,15 @@
   "description": "Create a runnable Mobigent starter with a visible app, gateway, inspector, and agent playground.",
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mobigent/mobigent.git",
+    "directory": "packages/create-app"
+  },
+  "bugs": {
+    "url": "https://github.com/mobigent/mobigent/issues"
+  },
+  "homepage": "https://mobigent.github.io/mobigent/",
   "publishConfig": {
     "access": "public"
   },

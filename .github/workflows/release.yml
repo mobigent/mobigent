@@ -19,7 +19,7 @@ jobs:
   validate-ios:
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Verify Swift package
         working-directory: packages/ios
         run: swift test
@@ -27,7 +27,7 @@ jobs:
   validate-android:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -49,46 +49,33 @@ jobs:
           node-version: 24
           package-manager-cache: false
           registry-url: https://registry.npmjs.org
+      - name: Require npmjs publishing credentials
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TRUSTED_PUBLISHING: ${{ vars.NPM_TRUSTED_PUBLISHING }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ] && [ "$NPM_TRUSTED_PUBLISHING" != "true" ]; then
+            echo "npmjs.com publishing is not configured."
+            echo "Set NPM_TOKEN, or configure npm Trusted Publishing and set repository variable NPM_TRUSTED_PUBLISHING=true."
+            exit 1
+          fi
       - run: npm ci
       - run: npm run verify
       - name: Publish public packages
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TRUSTED_PUBLISHING: ${{ vars.NPM_TRUSTED_PUBLISHING }}
-        run: |
-          if [ -n "$NODE_AUTH_TOKEN" ]; then
-            echo "Publishing to npmjs.com with NPM_TOKEN."
-            npm publish --workspace @mobigent/core --access public --provenance
-            npm publish --workspace @mobigent/providers --access public --provenance
-            npm publish --workspace @mobigent/backend --access public --provenance
-            npm publish --workspace @mobigent/react-native --access public --provenance
-            npm publish --workspace @mobigent/gateway --access public --provenance
-            npm publish --workspace create-mobigent-app --access public --provenance
-            exit 0
-          fi
-
-          if [ "$NPM_TRUSTED_PUBLISHING" != "true" ]; then
-            echo "Skipping npmjs.com publish. Set NPM_TOKEN or configure npm Trusted Publishing and set repository variable NPM_TRUSTED_PUBLISHING=true."
-            exit 0
-          fi
-
-          echo "Publishing to npmjs.com with npm Trusted Publishing."
-          npm publish --workspace @mobigent/core --access public
-          npm publish --workspace @mobigent/providers --access public
-          npm publish --workspace @mobigent/backend --access public
-          npm publish --workspace @mobigent/react-native --access public
-          npm publish --workspace @mobigent/gateway --access public
-          npm publish --workspace create-mobigent-app --access public
+        run: npm run npm:publish
 
   publish-github-packages:
     needs: [validate-ios, validate-android]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
-          cache: npm
+          node-version: 24
+          package-manager-cache: false
           registry-url: https://npm.pkg.github.com
           scope: "@mobigent"
       - run: npm ci
@@ -108,11 +95,11 @@ jobs:
     needs: [validate-ios, validate-android]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
-          cache: npm
+          node-version: 24
+          package-manager-cache: false
       - run: npm ci
       - run: npm run build:sdk
       - name: Pack npm artifacts

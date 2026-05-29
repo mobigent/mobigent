@@ -27,7 +27,12 @@ npm exec --yes \
 
 ## Option A: Token Publishing
 
-Add an npm automation token as the GitHub secret `NPM_TOKEN`.
+Use this for the first public publish, because npm Trusted Publishing can only be configured after each package exists on npmjs.com.
+
+1. Create or join the `@mobigent` npm organization.
+2. Create an npm automation token with publish access for the six packages.
+3. Add that token as the GitHub secret `NPM_TOKEN`.
+4. Push the next SemVer tag.
 
 The release workflow publishes all npm packages on SemVer tags.
 
@@ -39,6 +44,7 @@ npm Trusted Publishing uses GitHub Actions OIDC instead of a long-lived token. n
 - package write access
 - account-level 2FA
 - the package must already exist on npm
+- each package's `repository.url` must match `https://github.com/mobigent/mobigent`
 
 After the first package versions exist on npm, configure trust for the release workflow:
 
@@ -60,6 +66,20 @@ NPM_TRUSTED_PUBLISHING=true
 ```
 
 The release workflow will publish through OIDC when `NPM_TOKEN` is absent and `NPM_TRUSTED_PUBLISHING=true`.
+
+## Release Behavior
+
+The release workflow fails if neither `NPM_TOKEN` nor `NPM_TRUSTED_PUBLISHING=true` is configured. A green release should mean the npmjs.com path was actually attempted, not silently skipped.
+
+The publish script is idempotent per version: if `@mobigent/react-native@0.1.7` already exists, it skips that package and continues. This makes reruns safer after a partial publish.
+
+For local maintainer publishing after `npm login`:
+
+```bash
+npm run verify
+npm run npm:publish
+npm run npm:status
+```
 
 ## Verify
 

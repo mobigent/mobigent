@@ -4,6 +4,15 @@
   "description": "Mobigent local gateway for routing agent calls to mobile app capabilities.",
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mobigent/mobigent.git",
+    "directory": "packages/gateway"
+  },
+  "bugs": {
+    "url": "https://github.com/mobigent/mobigent/issues"
+  },
+  "homepage": "https://mobigent.github.io/mobigent/",
   "publishConfig": {
     "access": "public"
   },
