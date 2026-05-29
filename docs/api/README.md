@@ -74,6 +74,13 @@ const appConfig = mobigent.defaultApp;
 const appConfigCode = mobigent.copyAppConfig();
 ```
 
+For local development, `startMobigent()` can infer `defaultApp` from your project name:
+
+```ts
+const mobigent = await startMobigent();
+const appConfig = mobigent.defaultApp;
+```
+
 The returned object includes:
 
 - `urls.websocket`

@@ -74,12 +74,7 @@ connection.disconnect();
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent({
-  app: {
-    id: "com.example.app",
-    name: "Example App"
-  }
-});
+const mobigent = await startMobigent();
 ```
 
 The backend object exposes:

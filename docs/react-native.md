@@ -64,15 +64,10 @@ In your backend:
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent({
-  app: {
-    id: "com.example.app",
-    name: "Example App"
-  }
-});
+const mobigent = await startMobigent();
 ```
 
-Open the inspector URL printed by the backend. When the app connects, the feature tools appear there.
+Mobigent infers a starter app id and app name from your project. Pass `app: { id, name }` when you want exact production values. Open the inspector URL printed by the backend. When the app connects, the feature tools appear there.
 
 ## Non-React Host Or Demo
 
@@ -83,12 +78,7 @@ import { startMobigent } from "@mobigent/backend";
 import { connectMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
 
-const backend = await startMobigent({
-  app: {
-    id: "com.example.app",
-    name: "Example App"
-  }
-});
+const backend = await startMobigent();
 const connection = await connectMobigent({
   config: backend.defaultApp,
   features: [expenses]

@@ -4,7 +4,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import WebSocket from "ws";
-import { formatMobigentAppConfigModule, startMobigent, startMobigentBackend } from "@mobigent/backend";
+import {
+  formatMobigentAppConfigModule,
+  inferMobigentAppIdentity,
+  startMobigent,
+  startMobigentBackend
+} from "@mobigent/backend";
 import { createMobigentBackendFiles, runMobigentBackendCli } from "@mobigent/backend/cli";
 import {
   connectMobigent,
@@ -112,6 +117,44 @@ test("backend SDK can start with one app config like normal backend plumbing", a
     assert.match(backend.appConfigCode ?? "", /defineMobigentConfig/);
   } finally {
     await backend.stop();
+  }
+});
+
+test("backend SDK infers app identity when no app config is passed", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "mobigent-infer-sdk-"));
+  const previousCwd = process.cwd();
+
+  try {
+    await writeFile(join(dir, "package.json"), JSON.stringify({ name: "@acme/travel-wallet" }), "utf8");
+    process.chdir(dir);
+
+    const inferred = inferMobigentAppIdentity();
+    assert.deepEqual(inferred, {
+      appId: "app.acme.travel.wallet",
+      appName: "Travel Wallet"
+    });
+
+    const backend = await startMobigent({
+      wsPort: 18995,
+      httpPort: 18996,
+      silent: true
+    });
+
+    try {
+      assert.deepEqual(backend.defaultApp, {
+        appId: "app.acme.travel.wallet",
+        appName: "Travel Wallet",
+        connectionUrl: "ws://localhost:18995",
+        authToken: undefined,
+        version: undefined
+      });
+      assert.match(backend.copyAppConfig(), /Travel Wallet/);
+    } finally {
+      await backend.stop();
+    }
+  } finally {
+    process.chdir(previousCwd);
+    await rm(dir, { force: true, recursive: true });
   }
 });
 

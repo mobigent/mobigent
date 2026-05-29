@@ -1,4 +1,6 @@
+import { existsSync, readFileSync } from "node:fs";
 import type { Server } from "node:http";
+import { basename, dirname, join } from "node:path";
 import {
   BridgeGateway,
   createHttpApp,
@@ -71,6 +73,11 @@ export type MobigentBackendAppConfigModuleOptions = MobigentBackendAppConfigOpti
   exportName?: string;
 };
 
+export type MobigentInferredAppIdentity = {
+  appId: string;
+  appName: string;
+};
+
 export type MobigentAgentKind =
   | ProviderKind
   | "chatgpt"
@@ -118,9 +125,8 @@ export type MobigentBackendOptionsWithApp = MobigentBackendOptions & {
   app: MobigentBackendDefaultAppOptions;
 };
 
-export async function startMobigentBackend(options: MobigentBackendOptionsWithApp): Promise<MobigentBackendWithApp>;
-export async function startMobigentBackend(options?: MobigentBackendOptions): Promise<MobigentBackend>;
-export async function startMobigentBackend(options: MobigentBackendOptions = {}): Promise<MobigentBackend> {
+export async function startMobigentBackend(options?: MobigentBackendOptions): Promise<MobigentBackendWithApp>;
+export async function startMobigentBackend(options: MobigentBackendOptions = {}): Promise<MobigentBackendWithApp> {
   const wsPort = options.wsPort ?? Number(process.env.MOBIGENT_WS_PORT ?? 8787);
   const httpPort = options.httpPort ?? Number(process.env.MOBIGENT_HTTP_PORT ?? 8788);
   const host = options.host ?? "localhost";
@@ -173,8 +179,8 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     formatMobigentAppConfigModule(appConfig(appOptions), {
       exportName: appOptions.exportName
     });
-  const defaultApp = options.app ? appConfig(normalizeDefaultApp(options.app)) : undefined;
-  const appConfigCode = defaultApp ? formatMobigentAppConfigModule(defaultApp) : undefined;
+  const defaultApp = appConfig(normalizeDefaultApp(options.app ?? inferMobigentAppIdentity()));
+  const appConfigCode = formatMobigentAppConfigModule(defaultApp);
   const createAgentCatalog = (agentOptions: MobigentAgentOptions = {}) => createProviderCatalog({
     mcp: {
       command: "mobigent-mcp"
@@ -207,17 +213,7 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     agents: (agentOptions = {}) => createAgentCatalog(agentOptions).map((provider) => createProviderBundle(provider)),
     defaultApp,
     appConfigCode,
-    copyAppConfig: () => {
-      if (appConfigCode) {
-        return appConfigCode;
-      }
-      return formatMobigentAppConfigModule(
-        appConfig({
-          appId: "com.example.app",
-          appName: "Example App"
-        })
-      );
-    },
+    copyAppConfig: () => appConfigCode,
     stop: () => stopBackend(httpServer, gateway),
     tools: () => gateway.listTools(),
     apps: () => gateway.listApps(),
@@ -236,6 +232,15 @@ export function formatMobigentAppConfigModule(
 
 export const ${exportName} = defineMobigentConfig(${JSON.stringify(config, null, 2)});
 `;
+}
+
+export function inferMobigentAppIdentity(startDir = process.cwd()): MobigentInferredAppIdentity {
+  const projectName = findProjectName(startDir);
+
+  return {
+    appId: inferAppId(projectName),
+    appName: inferAppName(projectName)
+  };
 }
 
 export const mobigentBackend = {
@@ -274,6 +279,56 @@ function normalizeDefaultApp(app: MobigentBackendDefaultAppOptions): MobigentBac
     appToken: app.appToken,
     authToken: app.authToken
   };
+}
+
+function findProjectName(startDir: string): string {
+  let dir = startDir;
+
+  while (true) {
+    const packageJsonPath = join(dir, "package.json");
+    if (existsSync(packageJsonPath)) {
+      try {
+        const parsed = JSON.parse(readFileSync(packageJsonPath, "utf8")) as { name?: unknown };
+        if (typeof parsed.name === "string" && parsed.name.trim()) {
+          return parsed.name;
+        }
+      } catch {
+        break;
+      }
+    }
+
+    const parent = dirname(dir);
+    if (parent === dir) {
+      break;
+    }
+    dir = parent;
+  }
+
+  return basename(startDir) || "mobigent-app";
+}
+
+function inferAppName(projectName: string): string {
+  return titleFromName(projectName);
+}
+
+function inferAppId(projectName: string): string {
+  const withoutNpmScope = projectName.replace(/^@/, "");
+  const segments = withoutNpmScope
+    .split(/[/.]+/)
+    .flatMap((segment) => segment.split(/[-_\s]+/))
+    .map((segment) => segment.toLowerCase().replace(/[^a-z0-9]+/g, ""))
+    .filter(Boolean);
+
+  return ["app", ...(segments.length > 0 ? segments : ["mobigent"])].join(".");
+}
+
+function titleFromName(value: string): string {
+  const name = value
+    .replace(/^@[^/]+\//, "")
+    .replace(/[-_.]+/g, " ")
+    .trim();
+
+  return (name || "Mobigent App").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function normalizeAgentKind(kind: MobigentAgentKind): ProviderKind {

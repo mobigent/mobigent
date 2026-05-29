@@ -46,6 +46,8 @@ const backend = await startMobigent({
 });
 ```
 
+For local development, `startMobigent()` can also infer the app id and name from your project.
+
 For a non-React host or local demo, pass the backend config straight to the SDK:
 
 ```ts
@@ -247,6 +249,13 @@ console.log(mobigent.urls.openapi);
 const appConfig = mobigent.defaultApp;
 ```
 
+For the fastest first run, this also works:
+
+```ts
+const mobigent = await startMobigent();
+const appConfig = mobigent.defaultApp;
+```
+
 That one function starts the app connection endpoint, HTTP API, OpenAPI schema, inspector, tool routing, audit trail, and readiness checks.
 
 It also gives you agent setup from the same backend object:
@@ -293,7 +302,7 @@ npm run dev:mcp
 Most apps start with two packages:
 
 - `@mobigent/react-native`: app SDK for declaring app functions with `defineFeature()` and `setupMobigent()`
-- `@mobigent/backend`: backend SDK for `startMobigent({ app })`, tool routing, inspector, agent HTTP, and app connections
+- `@mobigent/backend`: backend SDK for `startMobigent()`, tool routing, inspector, agent HTTP, and app connections
 
 Useful extras:
 

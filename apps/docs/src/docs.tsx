@@ -99,12 +99,7 @@ npx mobigent-mcp`;
 
 const backendCode = `import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent({
-  app: {
-    id: "com.example.app",
-    name: "Example App"
-  }
-});
+const mobigent = await startMobigent();
 
 console.log(mobigent.urls.inspector);
 console.log(mobigent.urls.openapi);

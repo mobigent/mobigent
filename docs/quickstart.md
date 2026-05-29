@@ -117,12 +117,7 @@ In your server:
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent({
-  app: {
-    id: "com.example.app",
-    name: "Example App"
-  }
-});
+const mobigent = await startMobigent();
 
 console.log(mobigent.urls.inspector);
 
@@ -130,6 +125,8 @@ const appConfig = mobigent.defaultApp;
 
 console.log(mobigent.copyAppConfig());
 ```
+
+With no options, Mobigent infers a starter app id and app name from your project. Pass `app: { id, name }` when you want exact production values.
 
 Need agent setup? Use the same backend object:
 

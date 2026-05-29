@@ -107,12 +107,7 @@ Or write it manually:
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent({
-  app: {
-    id: "com.example.app",
-    name: "Example App"
-  }
-});
+const mobigent = await startMobigent();
 
 console.log(mobigent.urls.inspector);
 console.log(mobigent.urls.openapi);
@@ -122,5 +117,7 @@ const appConfig = mobigent.defaultApp;
 console.log(mobigent.copyAppConfig());
 console.log(mobigent.agent("chatgpt").endpoints.openApi);
 ```
+
+With no options, Mobigent infers a starter app id and app name from your project. Pass `app: { id, name }` when you want exact production values.
 
 Open the inspector URL. When the app connects, its tools appear there.

@@ -13,17 +13,23 @@ Mobigent infers a starter app id and app name from the project. Override them wi
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
+const mobigent = await startMobigent();
+
+console.log(mobigent.urls.inspector);
+console.log(mobigent.urls.openapi);
+
+const appConfig = mobigent.defaultApp;
+```
+
+With no options, Mobigent infers a starter app id and app name from the nearest `package.json` or folder. Pass `app` only when you want exact production values:
+
+```ts
 const mobigent = await startMobigent({
   app: {
     id: "com.example.app",
     name: "Example App"
   }
 });
-
-console.log(mobigent.urls.inspector);
-console.log(mobigent.urls.openapi);
-
-const appConfig = mobigent.defaultApp;
 ```
 
 This starts:
@@ -52,15 +58,10 @@ npx mobigent-backend agent claude
 
 ## App Config
 
-Pass `app` to `startMobigent()` to create the small config object your app SDK needs:
+Use `mobigent.defaultApp` to get the small config object your app SDK needs:
 
 ```ts
-const mobigent = await startMobigent({
-  app: {
-    id: "com.example.app",
-    name: "Example App"
-  }
-});
+const mobigent = await startMobigent();
 
 const appConfig = mobigent.defaultApp;
 ```
