@@ -43,7 +43,24 @@ const backendFile = createMobigentBackendFiles({
 
 assert.match(backendFile, /startMobigent/);
 assert.match(backendFile, /app: \{/);
-assert.doesNotMatch(backendFile, /BridgeGateway|createHttpApp|mobigent\.appConfigModule/);
+assert.doesNotMatch(backendFile, /BridgeGateway|createHttpApp|mobigent\.appConfigModule|copyAppConfig|Copy this/);
+
+const backendWithAppDir = createMobigentBackendFiles({
+  appId: "com.example.app",
+  appName: "Example App",
+  outDir: "src",
+  fileName: "mobigent.ts",
+  envFile: ".env.mobigent",
+  configFile: "mobigent.app.json",
+  appDir: "../mobile-app",
+  connectionUrl: "ws://localhost:8787",
+  authToken: "dev-token",
+  force: false,
+  dryRun: true
+});
+const backendWithAppDirFile = backendWithAppDir.find((file) => file.path === "src/mobigent.ts")?.contents ?? "";
+assert.match(backendWithAppDirFile, /appDir: "\.\.\/mobile-app"/);
+assert.match(backendWithAppDirFile, /mobigent\.appConfigPath/);
 
 const rnFiles = createReactNativeStarterFiles({
   appId: "com.example.app",

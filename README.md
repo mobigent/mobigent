@@ -104,10 +104,11 @@ npm install @mobigent/backend
 npx mobigent-backend init --app-dir ../mobile-app
 ```
 
-From the backend, generate the tiny config file your app imports:
+From the backend, point Mobigent at the app folder and let the SDK write the tiny app config:
 
 ```ts
 const backend = await startMobigent({
+  appDir: "../mobile-app",
   appToken: "dev-token",
   app: {
     id: "com.example.app",
@@ -115,7 +116,7 @@ const backend = await startMobigent({
   }
 });
 
-console.log(backend.copyAppConfig());
+console.log(backend.appConfigPath);
 ```
 
 ## Install Packages

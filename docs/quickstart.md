@@ -127,7 +127,7 @@ console.log(mobigent.urls.inspector);
 
 const appConfig = mobigent.defaultApp;
 
-console.log(mobigent.copyAppConfig());
+console.log(mobigent.appConfigPath);
 ```
 
 With no options, Mobigent infers a starter app id and app name from your project. Pass `app: { id, name }` when you want exact production values. Pass `appDir` when you want the backend SDK to write `mobigent.app.json` into the app project for you.

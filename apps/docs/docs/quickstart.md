@@ -113,7 +113,7 @@ console.log("App config:", mobigent.appConfigPath);
 
 const appConfig = mobigent.defaultApp;
 
-console.log(mobigent.copyAppConfig());
+console.log(mobigent.appConfigPath);
 console.log(mobigent.agent("chatgpt").endpoints.openApi);
 ```
 

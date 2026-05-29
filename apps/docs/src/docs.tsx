@@ -99,7 +99,6 @@ console.log(mobigent.urls.openapi);
 console.log("App config:", mobigent.appConfigPath);
 
 const appConfig = mobigent.defaultApp;
-const appConfigCode = mobigent.copyAppConfig();
 
 await mobigent.call("expense.create", {
   merchant: "Airport Taxi",

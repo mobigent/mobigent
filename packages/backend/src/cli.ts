@@ -337,23 +337,26 @@ function formatAgentSetup(options: MobigentBackendAgentOptions) {
 }
 
 function createBackendFile(options: MobigentBackendInitOptions) {
+  const appDirLine = options.appDir ? `  appDir: ${JSON.stringify(options.appDir)},\n` : "";
+
   return `import { startMobigent } from "@mobigent/backend";
 
 export const mobigent = await startMobigent({
-  appToken: process.env.MOBIGENT_AUTH_TOKEN,
-  apiKey: process.env.MOBIGENT_HTTP_API_KEY,
-  app: {
+${appDirLine}  app: {
     id: ${JSON.stringify(options.appId)},
     name: ${JSON.stringify(options.appName)}
-  }
+  },
+  appToken: process.env.MOBIGENT_AUTH_TOKEN,
+  apiKey: process.env.MOBIGENT_HTTP_API_KEY
 });
 
 export const mobigentConfig = mobigent.defaultApp;
 
 console.log("Mobigent inspector:", mobigent.urls.inspector);
 console.log("Mobigent OpenAPI:", mobigent.urls.openapi);
-console.log("Copy this into your app when you need a static config file:");
-console.log(mobigent.copyAppConfig());
+if (mobigent.appConfigPath) {
+  console.log("Mobigent app config:", mobigent.appConfigPath);
+}
 `;
 }
 

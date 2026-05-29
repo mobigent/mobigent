@@ -208,7 +208,7 @@ test("backend SDK writes app config when appDir is provided", async () => {
   }
 });
 
-test("backend init helper creates a copy-paste server entrypoint", () => {
+test("backend init helper creates a simple server entrypoint", () => {
   const files = createMobigentBackendFiles({
     appId: "com.example.app",
     appName: "Example App",
@@ -225,9 +225,36 @@ test("backend init helper creates a copy-paste server entrypoint", () => {
   assert.deepEqual(files.map((file) => file.path), ["src/mobigent.ts", ".env.mobigent", "mobigent.app.json"]);
   assert.match(files[0]?.contents ?? "", /startMobigent/);
   assert.match(files[0]?.contents ?? "", /defaultApp/);
-  assert.match(files[0]?.contents ?? "", /copyAppConfig/);
+  assert.doesNotMatch(files[0]?.contents ?? "", /copyAppConfig|Copy this/);
   assert.match(files[1]?.contents ?? "", /MOBIGENT_AUTH_TOKEN/);
   assert.match(files[2]?.contents ?? "", /"connectionUrl": "ws:\/\/localhost:8787"/);
+});
+
+test("backend init helper bakes appDir into generated backend code", () => {
+  const files = createMobigentBackendFiles({
+    appId: "com.example.app",
+    appName: "Example App",
+    outDir: "src",
+    fileName: "mobigent.ts",
+    envFile: ".env.mobigent",
+    configFile: "mobigent.app.json",
+    appDir: "../mobile-app",
+    connectionUrl: "ws://localhost:8787",
+    authToken: "dev-token",
+    force: false,
+    dryRun: true
+  });
+
+  const backendFile = files.find((file) => file.path === "src/mobigent.ts")?.contents ?? "";
+
+  assert.deepEqual(files.map((file) => file.path), [
+    "src/mobigent.ts",
+    ".env.mobigent",
+    "mobigent.app.json",
+    "../mobile-app/mobigent.app.json"
+  ]);
+  assert.match(backendFile, /appDir: "\.\.\/mobile-app"/);
+  assert.match(backendFile, /mobigent\.appConfigPath/);
 });
 
 test("backend init CLI infers app identity and prints the short app init command", async () => {
