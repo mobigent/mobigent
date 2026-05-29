@@ -102,7 +102,10 @@ Or install from npmjs after npm publishing is connected:
 
 ```bash
 npm install @mobigent/react-native
+npm install @mobigent/backend
 ```
+
+Maintainer note: npmjs publishing is tracked in [docs/npm-publishing.md](./docs/npm-publishing.md). The release workflow supports either `NPM_TOKEN` or npm Trusted Publishing through GitHub Actions OIDC.
 
 ## Add It To An Existing React Native App
 
@@ -224,6 +227,7 @@ npm run dev:mcp
 - Production gateway: [docs/production-gateway.md](./docs/production-gateway.md)
 - Hosted gateway and tunnels: [docs/hosted-gateway.md](./docs/hosted-gateway.md)
 - Native publishing plan: [docs/native-publishing.md](./docs/native-publishing.md)
+- npm publishing: [docs/npm-publishing.md](./docs/npm-publishing.md)
 - Developer workflow: [docs/developer-workflow.md](./docs/developer-workflow.md)
 
 ## Developer Workflow Highlights
