@@ -2362,6 +2362,40 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   assert.match(taskFeatureFile, /export const taskFeature/);
   await rm(dir, { force: true, recursive: true });
 
+  const backendFirstDir = await mkdtemp(join(tmpdir(), "mobigent-rn-backend-first-"));
+  await writeFile(
+    join(backendFirstDir, "mobigent-config.ts"),
+    `import { defineMobigentConfig } from "@mobigent/react-native";
+
+export const mobigentConfig = defineMobigentConfig({
+  appId: "com.mobigent.backendfirst",
+  appName: "Backend First App",
+  connectionUrl: "ws://localhost:8787"
+});
+`,
+    "utf8"
+  );
+  stderr = "";
+  const backendFirstCode = runReactNativeInitCli(
+    [
+      "--app-id",
+      "com.mobigent.generated",
+      "--app-name",
+      "Generated App",
+      "--feature",
+      "expense",
+      "--out-dir",
+      backendFirstDir
+    ],
+    { write: () => undefined } as NodeJS.WritableStream,
+    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
+  );
+  assert.equal(backendFirstCode, 0, stderr);
+  assert.match(await readFile(join(backendFirstDir, "mobigent.tsx"), "utf8"), /config: mobigentConfig/);
+  assert.match(await readFile(join(backendFirstDir, "mobigent-config.ts"), "utf8"), /com.mobigent.backendfirst/);
+  assert.doesNotMatch(await readFile(join(backendFirstDir, "mobigent-config.ts"), "utf8"), /com.mobigent.generated/);
+  await rm(backendFirstDir, { force: true, recursive: true });
+
   assert.equal(
     runReactNativeInitCli(
       ["--app-id", "com.mobigent.demo", "--app-name", "Demo App", "--feature", "bad-name", "--dry-run"],

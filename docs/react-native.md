@@ -58,7 +58,7 @@ export default function App() {
 }
 ```
 
-That is enough for a local first run. The generated wrapper imports `src/mobigent-config.ts`. If your backend was started with `appDir`, Mobigent keeps that file updated for you.
+That is enough for a local first run. The generated wrapper imports `src/mobigent-config.ts`. If your backend was started with `appDir`, Mobigent keeps that file updated for you, and the app initializer preserves it when you scaffold features later.
 
 ## 4. Run The Backend
 

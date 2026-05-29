@@ -99,6 +99,35 @@ try {
   assert.equal(backendDirInit.code, 0, backendDirInit.stderr);
   assert.match(await readFile(join(dir, "backend-dir-config", "mobigent-config.ts"), "utf8"), /com.mobigent.backenddir/);
 
+  const backendFirstDir = join(dir, "backend-first");
+  await mkdir(backendFirstDir);
+  await writeFile(
+    join(backendFirstDir, "mobigent-config.ts"),
+    `import { defineMobigentConfig } from "@mobigent/react-native";
+
+export const mobigentConfig = defineMobigentConfig({
+  appId: "com.mobigent.backendfirst",
+  appName: "Backend First App",
+  connectionUrl: "ws://localhost:8787"
+});
+`,
+    "utf8"
+  );
+  const backendFirstInit = run([
+    "--app-id",
+    "com.mobigent.generated",
+    "--app-name",
+    "Generated App",
+    "--feature",
+    "backendfirst",
+    "--out-dir",
+    backendFirstDir
+  ]);
+  assert.equal(backendFirstInit.code, 0, backendFirstInit.stderr);
+  assert.match(await readFile(join(backendFirstDir, "mobigent.tsx"), "utf8"), /config: mobigentConfig/);
+  assert.match(await readFile(join(backendFirstDir, "mobigent-config.ts"), "utf8"), /com.mobigent.backendfirst/);
+  assert.doesNotMatch(await readFile(join(backendFirstDir, "mobigent-config.ts"), "utf8"), /com.mobigent.generated/);
+
   const workspaceDir = join(dir, "workspace");
   const workspaceBackendDir = join(workspaceDir, "backend");
   const workspaceAppDir = join(workspaceDir, "mobile");

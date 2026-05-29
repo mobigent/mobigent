@@ -46,6 +46,7 @@ export type ReactNativeInitCliOptions = {
 export type ReactNativeGeneratedFile = {
   path: string;
   contents: string;
+  preserveExisting?: boolean;
 };
 
 export type ReactNativeAppConfigFile = {
@@ -134,7 +135,8 @@ export function createReactNativeStarterFiles(options: ReactNativeInitCliOptions
   const files: ReactNativeGeneratedFile[] = [
     {
       path: join(options.outDir, "mobigent-config.ts"),
-      contents: createMobigentConfigFile(options)
+      contents: createMobigentConfigFile(options),
+      preserveExisting: true
     },
     {
       path: join(options.outDir, "mobigent.tsx"),
@@ -568,7 +570,7 @@ export function runReactNativeInitCli(
     const files = createReactNativeStarterFiles(options);
 
     if (options.dryRun) {
-      output.write(`${JSON.stringify({ files }, null, 2)}\n`);
+      output.write(`${JSON.stringify({ files: toPublicGeneratedFiles(files) }, null, 2)}\n`);
       return 0;
     }
 
@@ -1184,11 +1186,18 @@ export const ${feature}Feature = defineFeature(${JSON.stringify(feature)})
 
 function writeGeneratedFile(file: ReactNativeGeneratedFile, force: boolean) {
   if (!force && existsSync(file.path)) {
+    if (file.preserveExisting) {
+      return;
+    }
     throw new Error(`${file.path} already exists. Re-run with --force to overwrite it.`);
   }
 
   mkdirSync(dirname(file.path), { recursive: true });
   writeFileSync(file.path, file.contents, "utf8");
+}
+
+function toPublicGeneratedFiles(files: ReactNativeGeneratedFile[]) {
+  return files.map(({ path, contents }) => ({ path, contents }));
 }
 
 function formatCreatedFilesMessage(options: ReactNativeInitCliOptions) {
