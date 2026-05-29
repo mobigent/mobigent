@@ -8,6 +8,9 @@ type PackageJson = {
   publishConfig?: {
     access?: string;
   };
+  repository?: {
+    url?: string;
+  };
   dependencies?: Record<string, string>;
   peerDependencies?: Record<string, string>;
   bin?: Record<string, string>;
@@ -31,6 +34,11 @@ for (const item of publicPackages) {
 
   assert.equal(packageJson.name, item.name, `${item.path} package name should be ${item.name}.`);
   assert.equal(packageJson.version, rootPackage.version, `${item.name} version should match root ${rootPackage.version}.`);
+  assert.equal(
+    packageJson.repository?.url,
+    "https://github.com/mobigent/mobigent",
+    `${item.name} repository.url must match the GitHub repository for npm trusted publishing.`
+  );
   assert.equal(packageJson.private, undefined, `${item.name} must not be private.`);
   assert.equal(packageJson.publishConfig?.access, "public", `${item.name} must publish with public access.`);
 
@@ -57,6 +65,12 @@ const releaseWorkflow = await readFile(".github/workflows/release.yml", "utf8");
 assert.match(releaseWorkflow, /tags:\s*\n\s+- "v\*\.\*\.\*"/, "release workflow must run on SemVer tags.");
 assert.match(releaseWorkflow, /workflow_dispatch:/, "release workflow must support manual dispatch.");
 assert.match(releaseWorkflow, /id-token: write/, "release workflow must request OIDC id-token permission.");
+assert.match(releaseWorkflow, /node-version: 24/, "release workflow must use Node 24 for npm trusted publishing.");
+assert.match(
+  releaseWorkflow,
+  /npm install -g npm@\^11\.10\.0/,
+  "release workflow must install an npm version with trusted publishing support."
+);
 assert.match(releaseWorkflow, /registry-url: https:\/\/registry\.npmjs\.org/, "release workflow must target npmjs.org.");
 assert.match(releaseWorkflow, /Require npmjs publishing credentials/, "release workflow must fail without npm credentials.");
 assert.match(releaseWorkflow, /npm run verify/, "release workflow must run full verification before publish.");

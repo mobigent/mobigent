@@ -49,6 +49,8 @@ jobs:
           node-version: 24
           package-manager-cache: false
           registry-url: https://registry.npmjs.org
+      - name: Use npm with trusted publishing support
+        run: npm install -g npm@^11.10.0
       - name: Require npmjs publishing credentials
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

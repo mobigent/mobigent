@@ -41,6 +41,7 @@ The release workflow publishes all npm packages on SemVer tags.
 npm Trusted Publishing uses GitHub Actions OIDC instead of a long-lived token. npm requires:
 
 - npm CLI `11.10.0` or newer for `npm trust`
+- npm CLI `11.5.1` or newer and Node `22.14.0` or newer inside the publishing workflow
 - package write access
 - account-level 2FA
 - the package must already exist on npm
@@ -66,6 +67,7 @@ NPM_TRUSTED_PUBLISHING=true
 ```
 
 The release workflow will publish through OIDC when `NPM_TOKEN` is absent and `NPM_TRUSTED_PUBLISHING=true`.
+The workflow pins Node 24 and installs `npm@^11.10.0` before publishing so the OIDC path has the npm features it needs.
 
 ## Release Behavior
 
