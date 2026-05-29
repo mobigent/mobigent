@@ -102,7 +102,7 @@ const appConfig = mobigent.defaultApp;
 const appConfigCode = mobigent.copyAppConfig();`;
 
 const backendInitCode = `npm install @mobigent/backend
-npx mobigent-backend init`;
+npx mobigent-backend init --app-dir ../mobile-app`;
 
 const securityDoctorCode = `npx mobigent security-doctor \\
   --app-id com.example.app \\

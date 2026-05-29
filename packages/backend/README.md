@@ -4,10 +4,11 @@ Run Mobigent from normal Node code.
 
 ```bash
 npm install @mobigent/backend
-npx mobigent-backend init
+npx mobigent-backend init --app-dir ../mobile-app
 ```
 
 That creates `src/mobigent.ts`, `.env.mobigent`, and `mobigent.app.json`.
+When `--app-dir` is present, it also writes `../mobile-app/mobigent.app.json` so the app SDK can auto-detect the connection.
 Mobigent infers a starter app id and app name from the project. Override them with `--app-id` and `--app-name` when you want exact production values.
 
 ```ts
@@ -68,7 +69,7 @@ const appConfig = mobigent.defaultApp;
 
 That config includes the app id, app name, connection URL, version, and app token when `appToken` or `MOBIGENT_AUTH_TOKEN` is configured.
 
-Put the generated `mobigent.app.json` in the app project, then run:
+If you did not pass `--app-dir`, put the generated `mobigent.app.json` in the app project, then run:
 
 ```bash
 npx mobigent init --feature expense --out-dir src

@@ -89,7 +89,7 @@ Install the backend SDK and generate the backend entrypoint:
 
 ```bash
 npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-backend-0.1.12.tgz
-npx mobigent-backend init
+npx mobigent-backend init --app-dir ../mobile-app
 ```
 
 Mobigent infers starter app identity from the project. Pass `--app-id` and `--app-name` only when you want exact production values.

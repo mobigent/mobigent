@@ -216,6 +216,18 @@ test("backend init CLI infers app identity and prints the short app init command
     assert.match(stdout, /npx mobigent init --feature expense --out-dir src/);
     assert.doesNotMatch(stdout, /--config/);
     assert.match(await readFile(join(dir, "mobigent.app.json"), "utf8"), /Expense App/);
+
+    const appDir = join(dir, "mobile-app");
+    stdout = "";
+    stderr = "";
+    const appDirCode = runMobigentBackendCli(
+      ["--app", "com.example.mobile", "--app-name", "Mobile App", "--app-dir", appDir, "--force"],
+      { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
+      { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
+    );
+    assert.equal(appDirCode, 0, stderr);
+    assert.match(stdout, /mobile-app.*mobigent\.app\.json/);
+    assert.match(await readFile(join(appDir, "mobigent.app.json"), "utf8"), /Mobile App/);
   } finally {
     process.chdir(previousCwd);
     await rm(dir, { force: true, recursive: true });

@@ -103,7 +103,7 @@ After npmjs publishing is connected, the normal backend setup is:
 
 ```bash
 npm install @mobigent/backend
-npx mobigent-backend init
+npx mobigent-backend init --app-dir ../mobile-app
 ```
 
 From the backend, generate the tiny config file your app imports:
@@ -212,12 +212,12 @@ Create the backend entrypoint and app config:
 
 ```bash
 npm install @mobigent/backend
-npx mobigent-backend init
+npx mobigent-backend init --app-dir ../mobile-app
 ```
 
 Mobigent infers starter app identity from the project. Pass `--app-id` and `--app-name` only when you want exact production values.
 
-That creates `mobigent.app.json`. Put it in the app project and the app package auto-detects it:
+That creates `mobigent.app.json` in the backend project and, with `--app-dir`, also puts it in the app project so the app package auto-detects it:
 
 ```bash
 npx mobigent init --feature expense --out-dir src

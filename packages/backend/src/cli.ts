@@ -16,6 +16,7 @@ export type MobigentBackendInitOptions = {
   fileName: string;
   envFile: string;
   configFile: string;
+  appDir?: string;
   connectionUrl: string;
   authToken: string;
   force: boolean;
@@ -43,7 +44,7 @@ export type MobigentBackendAgentOptions = {
 };
 
 export function createMobigentBackendFiles(options: MobigentBackendInitOptions): MobigentBackendGeneratedFile[] {
-  return [
+  const files = [
     {
       path: join(options.outDir, options.fileName),
       contents: createBackendFile(options)
@@ -57,6 +58,18 @@ export function createMobigentBackendFiles(options: MobigentBackendInitOptions):
       contents: createAppConfigFile(options)
     }
   ];
+
+  if (options.appDir) {
+    const appConfigPath = join(options.appDir, "mobigent.app.json");
+    if (!files.some((file) => file.path === appConfigPath)) {
+      files.push({
+        path: appConfigPath,
+        contents: createAppConfigFile(options)
+      });
+    }
+  }
+
+  return files;
 }
 
 export function writeMobigentBackendFiles(options: MobigentBackendInitOptions) {
@@ -198,6 +211,9 @@ function parseArgs(argv: string[]) {
       case "--config-file":
         options.configFile = next();
         break;
+      case "--app-dir":
+        options.appDir = next();
+        break;
       case "--gateway-url":
       case "--connection-url":
         options.connectionUrl = next();
@@ -291,6 +307,7 @@ function defaultOptions(): MobigentBackendInitOptions {
     fileName: "mobigent.ts",
     envFile: ".env.mobigent",
     configFile: "mobigent.app.json",
+    appDir: undefined,
     connectionUrl: "ws://localhost:8787",
     authToken: "dev-token",
     force: false,
@@ -369,6 +386,7 @@ ${files.map((file) => `  ${file.path}`).join("\n")}
 
 Then in your app:
   npx mobigent init --feature expense --out-dir src
+${options.appDir ? `\nMobigent already wrote ${join(options.appDir, "mobigent.app.json")}, so the app initializer will auto-detect the backend connection.\n` : ""}
 
 Run:
   node --env-file=${options.envFile} --import tsx ${join(options.outDir, options.fileName)}
@@ -397,6 +415,7 @@ Options:
   --file <name>       Backend file name. Default: mobigent.ts.
   --env <path>        Env file path. Default: .env.mobigent.
   --config-file <path> App config JSON for mobile init. Default: mobigent.app.json.
+  --app-dir <path>    Also write mobigent.app.json into an existing app project.
   --connection-url <url> App connection URL written to config. Default: ws://localhost:8787.
   --gateway-url <url> Backward-compatible alias for --connection-url.
   --auth-token <token> App auth token written to config. Default: dev-token.

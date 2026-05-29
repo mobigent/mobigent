@@ -96,12 +96,12 @@ Generate the backend entrypoint and app config:
 
 ```bash
 npm install @mobigent/backend
-npx mobigent-backend init
+npx mobigent-backend init --app-dir ../mobile-app
 ```
 
 Mobigent infers starter app identity from the project. Pass `--app-id` and `--app-name` only when you want exact production values.
 
-That creates `mobigent.app.json` with a simple `connectionUrl`. Put that file in the app project, then the app init command auto-detects it:
+That creates `mobigent.app.json` with a simple `connectionUrl`. With `--app-dir`, Mobigent also writes that config into the app project, then the app init command auto-detects it:
 
 ```bash
 npm install @mobigent/react-native
