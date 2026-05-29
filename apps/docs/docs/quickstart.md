@@ -30,7 +30,7 @@ Install the app SDK and scaffold the small Mobigent folder:
 
 ```bash
 npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-react-native-0.1.12.tgz
-npx mobigent init --config mobigent.app.json --feature expense --out-dir src
+npx mobigent init --feature expense --out-dir src
 ```
 
 Create one feature:

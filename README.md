@@ -148,7 +148,7 @@ Install the app package, then let the SDK create the tiny Mobigent folder from t
 
 ```bash
 npm install @mobigent/react-native
-npx mobigent init --config mobigent.app.json --feature expense --out-dir src
+npx mobigent init --feature expense --out-dir src
 ```
 
 Create one feature file:
@@ -221,10 +221,10 @@ npm install @mobigent/backend
 npx mobigent-backend init --app-id com.example.app --app-name "Example App"
 ```
 
-That creates `mobigent.app.json` for the app package to consume:
+That creates `mobigent.app.json`. Put it in the app project and the app package auto-detects it:
 
 ```bash
-npx mobigent init --config mobigent.app.json --feature expense --out-dir src
+npx mobigent init --feature expense --out-dir src
 ```
 
 Or write it manually:

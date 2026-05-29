@@ -54,6 +54,29 @@ try {
     /defineFeature\("task"\)/
   );
 
+  await writeFile(
+    join(dir, "mobigent.app.json"),
+    JSON.stringify({
+      appId: "com.mobigent.auto",
+      appName: "Auto Config App",
+      gatewayUrl: "ws://localhost:8787",
+      authToken: "dev-token"
+    }),
+    "utf8"
+  );
+  const previousCwd = process.cwd();
+  process.chdir(dir);
+  try {
+    const autoConfigInit = run(["--feature", "auto", "--out-dir", join(dir, "auto-config")]);
+    assert.equal(autoConfigInit.code, 0, autoConfigInit.stderr);
+  } finally {
+    process.chdir(previousCwd);
+  }
+  const autoConfigRoot = await readFile(join(dir, "auto-config", "mobigent.tsx"), "utf8");
+  assert.match(await readFile(join(dir, "auto-config", "mobigent-config.ts"), "utf8"), /com.mobigent.auto/);
+  assert.match(autoConfigRoot, /config: mobigentConfig/);
+  assert.doesNotMatch(autoConfigRoot, /gatewayUrl: process\.env/);
+
   const doctor = run([
     "--doctor",
     "--app-id",

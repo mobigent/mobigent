@@ -11,6 +11,8 @@ import {
   renderAppleAppIntentsSwift
 } from "./platformActions.js";
 
+const defaultAppConfigFile = "mobigent.app.json";
+
 export type ReactNativeInitCliOptions = {
   appId: string;
   appName: string;
@@ -742,6 +744,10 @@ function parseArgs(
     return options;
   }
 
+  if (!options.configPath) {
+    options.configPath = findDefaultReactNativeAppConfig();
+  }
+
   if (options.configPath) {
     options.appConfig = readReactNativeAppConfig(options.configPath);
     options.appId ||= options.appConfig.appId;
@@ -765,7 +771,9 @@ function parseArgs(
     !options.featureOnly &&
     (!options.appId || !options.appName)
   ) {
-    throw new Error("--app-id and --app-name are required.\n\n" + helpText());
+    throw new Error(
+      `--app-id and --app-name are required unless ${defaultAppConfigFile} is available.\n\n` + helpText()
+    );
   }
 
   if (
@@ -919,6 +927,23 @@ function readReactNativeAppConfig(path: string): ReactNativeAppConfigFile {
   }
 
   return parsed;
+}
+
+function findDefaultReactNativeAppConfig(startDir = process.cwd()): string | undefined {
+  let dir = startDir;
+
+  while (true) {
+    const candidate = join(dir, defaultAppConfigFile);
+    if (existsSync(candidate)) {
+      return candidate;
+    }
+
+    const parent = dirname(dir);
+    if (parent === dir) {
+      return undefined;
+    }
+    dir = parent;
+  }
 }
 
 function isReactNativeAppConfig(value: unknown): value is ReactNativeAppConfigFile {
@@ -1412,7 +1437,7 @@ function helpText() {
   return `Mobigent React Native initializer
 
 Usage:
-  mobigent init --config mobigent.app.json --feature expense --out-dir src
+  mobigent init --feature expense --out-dir src
   mobigent init --app-id com.example.app --app-name "Example App" --feature expense --out-dir src
   mobigent doctor --app-id com.example.app --app-name "Example App" --feature expense --out-dir src --app-root .
   mobigent-init --app-id com.example.app --app-name "Example App" --feature expense --out-dir src
@@ -1439,7 +1464,7 @@ Options:
   --app-id <id>          Mobile app identifier. Required.
   --app-name <name>      Human-readable app name. Required.
   --app-version <value>  App version to publish in the capability manifest.
-  --config <path>        Read backend-generated mobigent.app.json.
+  --config <path>        Read a backend-generated app config. Default: auto-detect mobigent.app.json.
   --feature <name>       Feature module name. Default: expense.
   --app-root <path>      React Native app root for package.json doctor checks. Default: current directory.
   --out-dir <path>       Output directory. Default: src.

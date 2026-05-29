@@ -60,10 +60,10 @@ const appConfig = mobigent.defaultApp;
 
 That config includes the app id, app name, WebSocket URL, version, and app token when `appToken` or `MOBIGENT_AUTH_TOKEN` is configured.
 
-Use the generated `mobigent.app.json` with the app package:
+Put the generated `mobigent.app.json` in the app project, then run:
 
 ```bash
-npx mobigent init --config mobigent.app.json --feature expense --out-dir src
+npx mobigent init --feature expense --out-dir src
 ```
 
 Use `mobigent.copyAppConfig()` when you want a copy-paste TypeScript file for the mobile app:

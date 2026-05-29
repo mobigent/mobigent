@@ -34,7 +34,7 @@ npm install @mobigent/react-native
 In an existing app, start with the initializer:
 
 ```bash
-npx mobigent init --config mobigent.app.json --feature expense --out-dir src
+npx mobigent init --feature expense --out-dir src
 ```
 
 It reads the backend-generated app config, then creates a Mobigent root wrapper and one feature file. You can also create the feature by hand.

@@ -11,7 +11,7 @@ npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobig
 If your backend was initialized with `mobigent-backend init`, scaffold from its config file:
 
 ```bash
-npx mobigent init --config mobigent.app.json --feature expense --out-dir src
+npx mobigent init --feature expense --out-dir src
 ```
 
 ## 2. Create A Feature
