@@ -53,11 +53,13 @@ export default function App() {
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent();
+const mobigent = await startMobigent({
+  appDir: "../mobile-app"
+});
 await mobigent.ready();
 ```
 
-`mobigent.ready()` waits until the app is connected and has exposed at least one function.
+`appDir` lets the backend SDK write `mobigent.app.json` into the app project for you. `mobigent.ready()` waits until the app is connected and has exposed at least one function.
 
 ## Non-React Host Or Demo
 

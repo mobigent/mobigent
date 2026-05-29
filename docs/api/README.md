@@ -51,6 +51,7 @@ connection.disconnect();
 import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent({
+  appDir: "../mobile-app",
   app: {
     id: "com.example.app",
     name: "Example App"
@@ -77,6 +78,7 @@ The returned object includes:
 - `urls.http`
 - `urls.inspector`
 - `urls.openapi`
+- `appConfigPath`
 - `app({ appId, appName })`
 - `appConfig({ appId, appName })`
 - `copyAppConfig()`

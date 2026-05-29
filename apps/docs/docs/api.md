@@ -64,12 +64,15 @@ connection.disconnect();
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent();
+const mobigent = await startMobigent({
+  appDir: "../mobile-app"
+});
 ```
 
 The backend object exposes:
 
 - `urls`
+- `appConfigPath`
 - `app({ appId, appName })`
 - `appConfig({ appId, appName })`
 - `appConfigModule({ appId, appName })`

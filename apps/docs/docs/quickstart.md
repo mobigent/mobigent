@@ -102,11 +102,14 @@ Or write it manually:
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent();
+const mobigent = await startMobigent({
+  appDir: "../mobile-app"
+});
 await mobigent.ready();
 
 console.log(mobigent.urls.inspector);
 console.log(mobigent.urls.openapi);
+console.log("App config:", mobigent.appConfigPath);
 
 const appConfig = mobigent.defaultApp;
 
@@ -114,6 +117,6 @@ console.log(mobigent.copyAppConfig());
 console.log(mobigent.agent("chatgpt").endpoints.openApi);
 ```
 
-With no options, Mobigent infers a starter app id and app name from your project. Pass `app: { id, name }` when you want exact production values.
+With no options, Mobigent infers a starter app id and app name from your project. Pass `appDir` when you want the backend SDK to write `mobigent.app.json` into the app project for you. Pass `app: { id, name }` when you want exact production values.
 
 `mobigent.ready()` waits until the app is connected and has exposed at least one function.

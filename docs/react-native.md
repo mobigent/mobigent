@@ -67,11 +67,13 @@ In your backend:
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent();
+const mobigent = await startMobigent({
+  appDir: "../mobile-app"
+});
 await mobigent.ready();
 ```
 
-Mobigent infers a starter app id and app name from your project. Pass `app: { id, name }` when you want exact production values. `mobigent.ready()` waits until the app is connected and has exposed at least one function.
+Mobigent infers a starter app id and app name from your project. Pass `appDir` when you want the backend SDK to write `mobigent.app.json` into the app project for you. Pass `app: { id, name }` when you want exact production values. `mobigent.ready()` waits until the app is connected and has exposed at least one function.
 
 ## Non-React Host Or Demo
 

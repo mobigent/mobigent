@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import type { Server } from "node:http";
 import { basename, dirname, join } from "node:path";
 import {
@@ -36,6 +36,9 @@ export type MobigentBackendOptions = {
   host?: string;
   silent?: boolean;
   app?: MobigentBackendDefaultAppOptions;
+  appDir?: string;
+  appConfigFile?: string;
+  writeAppConfig?: boolean;
 };
 
 export type MobigentBackendDefaultAppOptions = {
@@ -109,6 +112,7 @@ export type MobigentBackend = {
     inspector: string;
     openapi: string;
   };
+  appConfigPath?: string;
   app(options: MobigentBackendAppConfigOptions): MobigentBackendAppConfig;
   appConfig(options: MobigentBackendAppConfigOptions): MobigentBackendAppConfig;
   appConfigModule(options: MobigentBackendAppConfigModuleOptions): string;
@@ -190,6 +194,7 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     });
   const defaultApp = appConfig(normalizeDefaultApp(options.app ?? inferMobigentAppIdentity()));
   const appConfigCode = formatMobigentAppConfigModule(defaultApp);
+  const appConfigPath = writeDefaultAppConfig(options, defaultApp);
   const createAgentCatalog = (agentOptions: MobigentAgentOptions = {}) => createProviderCatalog({
     mcp: {
       command: "mobigent-mcp"
@@ -204,6 +209,7 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     gateway,
     httpServer,
     urls,
+    appConfigPath,
     app: appConfig,
     appConfig,
     appConfigModule,
@@ -231,6 +237,20 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     call: (toolName, input = {}, callOptions) =>
       gateway.callTool(resolveBackendToolName(gateway.listTools(), toolName, defaultApp), input as JsonObject, callOptions)
   };
+}
+
+function writeDefaultAppConfig(options: MobigentBackendOptions, defaultApp: MobigentBackendAppConfig) {
+  if (!options.appDir || options.writeAppConfig === false) {
+    return undefined;
+  }
+
+  const fileName = options.appConfigFile ?? "mobigent.app.json";
+  const path = join(options.appDir, fileName);
+
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, `${JSON.stringify(defaultApp, null, 2)}\n`, "utf8");
+
+  return path;
 }
 
 export function formatMobigentAppConfigModule(

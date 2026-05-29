@@ -118,7 +118,9 @@ In your server:
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent();
+const mobigent = await startMobigent({
+  appDir: "../mobile-app"
+});
 await mobigent.ready();
 
 console.log(mobigent.urls.inspector);
@@ -128,7 +130,7 @@ const appConfig = mobigent.defaultApp;
 console.log(mobigent.copyAppConfig());
 ```
 
-With no options, Mobigent infers a starter app id and app name from your project. Pass `app: { id, name }` when you want exact production values.
+With no options, Mobigent infers a starter app id and app name from your project. Pass `app: { id, name }` when you want exact production values. Pass `appDir` when you want the backend SDK to write `mobigent.app.json` into the app project for you.
 
 `mobigent.ready()` waits until the app is connected and has exposed at least one function. If the app is not running yet, it tells you exactly what is missing.
 

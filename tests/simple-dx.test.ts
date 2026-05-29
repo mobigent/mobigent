@@ -174,6 +174,40 @@ test("backend SDK infers app identity when no app config is passed", async () =>
   }
 });
 
+test("backend SDK writes app config when appDir is provided", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "mobigent-backend-appdir-"));
+  const appDir = join(dir, "mobile-app");
+
+  try {
+    const backend = await startMobigent({
+      wsPort: 19001,
+      httpPort: 19002,
+      appToken: "dev-token",
+      appDir,
+      app: {
+        id: "com.example.mobile",
+        name: "Mobile App"
+      },
+      silent: true
+    });
+
+    try {
+      assert.equal(backend.appConfigPath, join(appDir, "mobigent.app.json"));
+      const config = JSON.parse(await readFile(join(appDir, "mobigent.app.json"), "utf8"));
+      assert.deepEqual(config, {
+        appId: "com.example.mobile",
+        appName: "Mobile App",
+        connectionUrl: "ws://localhost:19001",
+        authToken: "dev-token"
+      });
+    } finally {
+      await backend.stop();
+    }
+  } finally {
+    await rm(dir, { force: true, recursive: true });
+  }
+});
+
 test("backend init helper creates a copy-paste server entrypoint", () => {
   const files = createMobigentBackendFiles({
     appId: "com.example.app",

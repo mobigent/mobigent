@@ -89,11 +89,14 @@ npx mobigent-mcp`;
 
 const backendCode = `import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent();
+const mobigent = await startMobigent({
+  appDir: "../mobile-app"
+});
 await mobigent.ready();
 
 console.log(mobigent.urls.inspector);
 console.log(mobigent.urls.openapi);
+console.log("App config:", mobigent.appConfigPath);
 
 const appConfig = mobigent.defaultApp;
 const appConfigCode = mobigent.copyAppConfig();
