@@ -53,11 +53,9 @@ Wrap the app once:
 
 ```tsx
 import { mobigentApp } from "@mobigent/react-native";
-import { mobigentConfig } from "./mobigent/config";
 import { expenses } from "./mobigent/expenses";
 
 const { Root } = mobigentApp({
-  config: mobigentConfig,
   features: [expenses]
 });
 
@@ -74,19 +72,13 @@ For a non-React demo or test host, connect the same feature in one call:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { mobigent } from "@mobigent/react-native";
 import { connectMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
 
-const backend = await startMobigent({
-  app: {
-    id: "com.example.app",
-    name: "Example App"
-  }
-});
+const backend = await startMobigent();
 
 await connectMobigent({
-  config: backend.defaultApp,
+  connectionUrl: backend.defaultApp.connectionUrl,
   features: [expenses]
 });
 ```

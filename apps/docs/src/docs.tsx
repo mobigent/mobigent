@@ -65,9 +65,6 @@ const appCode = `import { mobigentApp } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expense";
 
 const { Root } = mobigentApp({
-  // Optional: add config from mobigent.app.json when your backend is ready.
-  appId: "app.example.mobile",
-  appName: "Example Mobile",
   features: [expenses]
 });
 
@@ -76,16 +73,12 @@ export default function App() {
 }`;
 
 const connectCode = `import { startMobigentBackend } from "@mobigent/backend";
-import { mobigent } from "@mobigent/react-native";
 import { connectMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expense";
 
 const backend = await startMobigentBackend();
-await connectMobigent(mobigent, {
-  config: backend.app({
-    appId: "com.example.app",
-    appName: "Example App"
-  }),
+await connectMobigent({
+  connectionUrl: backend.defaultApp.connectionUrl,
   features: [expenses]
 });`;
 

@@ -33,11 +33,9 @@ export const expenses = feature("expense")
 
 ```tsx
 import { mobigentApp } from "@mobigent/react-native";
-import { mobigentConfig } from "./mobigent/config";
 import { expenses } from "./mobigent/expenses";
 
 const { Root } = mobigentApp({
-  config: mobigentConfig,
   features: [expenses]
 });
 
@@ -66,19 +64,18 @@ If you are running a local demo, test host, or another runtime where you are usi
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { mobigent } from "@mobigent/react-native";
 import { connectMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
 
 const backend = await startMobigent();
 
 const connection = await connectMobigent({
-  config: backend.defaultApp,
+  connectionUrl: backend.defaultApp.connectionUrl,
   features: [expenses]
 });
 ```
 
-That one call consumes the backend app config, registers the feature, connects to the backend, and returns a `disconnect()` helper.
+That one call registers the feature, connects to the backend, and returns a `disconnect()` helper.
 
 ## Tool Names
 

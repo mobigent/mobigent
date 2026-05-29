@@ -71,11 +71,9 @@ com_example_app.expense_create
 
 ```tsx
 import { setupMobigent } from "@mobigent/react-native";
-import { mobigentConfig } from "./src/mobigent/config";
 import { expenses } from "./src/mobigent/expenses";
 
 const { Root } = setupMobigent({
-  config: mobigentConfig,
   features: [expenses]
 });
 
@@ -88,7 +86,7 @@ export default function App() {
 }
 ```
 
-Run a Mobigent backend from your server with `@mobigent/backend`, then open the inspector URL it prints.
+Run a Mobigent backend from your server with `@mobigent/backend`, then open the inspector URL it prints. Local development uses the default app identity `app.mobigent.local`. For production, pass `appId`/`appName` or use a backend-generated config file.
 
 For a Node demo, test host, or another non-React runtime, use the same feature without manual registration:
 
@@ -99,7 +97,7 @@ import { expenses } from "./mobigent/expenses";
 
 const backend = await startMobigent();
 const connection = await connectMobigent({
-  config: backend.defaultApp,
+  connectionUrl: backend.defaultApp.connectionUrl,
   features: [expenses]
 });
 ```

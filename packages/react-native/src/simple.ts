@@ -18,6 +18,7 @@ import type {
 } from "./AgentBridge.js";
 import { mobigent } from "./AgentBridge.js";
 import { createMobigentGatewayUrl } from "./gatewayUrl.js";
+import { defaultMobigentAppIdentity } from "./provider.js";
 import { schema } from "./schema.js";
 import type { MobigentSocketFactory } from "./transport.js";
 
@@ -81,8 +82,8 @@ export type MobigentSimpleClient = {
 };
 
 export type MobigentSimpleConnectionOptions = {
-  appId: string;
-  appName: string;
+  appId?: string;
+  appName?: string;
   connectionUrl?: string;
   gatewayUrl?: string;
   features: MobigentSimpleFeature | MobigentSimpleFeature[];
@@ -99,7 +100,10 @@ export type MobigentSimpleConnectionOptions = {
 export type MobigentSimpleAppConfig = Pick<
   MobigentSimpleConnectionOptions,
   "appId" | "appName" | "connectionUrl" | "gatewayUrl" | "version" | "authToken"
->;
+> & {
+  appId: string;
+  appName: string;
+};
 
 export function defineMobigentConfig(config: MobigentSimpleAppConfig): MobigentSimpleAppConfig {
   return config;
@@ -122,6 +126,15 @@ export type MobigentSimpleConnectionClient = MobigentSimpleClient & {
   configure(options: Omit<MobigentSimpleConnectionOptions, "features">): unknown;
   connect(): Promise<void>;
   disconnect(): unknown;
+};
+
+export type MobigentResolvedConnectionOptions = Omit<
+  MobigentSimpleConnectionOptions,
+  "appId" | "appName" | "gatewayUrl"
+> & {
+  appId: string;
+  appName: string;
+  gatewayUrl: string;
 };
 
 export type MobigentSimpleConnection = {
@@ -257,20 +270,24 @@ export async function connectMobigent(
 
 function resolveConnectionOptions(
   options: MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions
-): MobigentSimpleConnectionOptions & { gatewayUrl: string } {
+): MobigentResolvedConnectionOptions {
   if (!("config" in options)) {
     return {
       ...options,
+      appId: options.appId ?? defaultMobigentAppIdentity.id,
+      appName: options.appName ?? defaultMobigentAppIdentity.name,
       gatewayUrl: options.gatewayUrl ?? options.connectionUrl ?? createMobigentGatewayUrl()
     };
   }
 
   const { config, ...rest } = options;
+  const appId = rest.appId ?? config.appId ?? defaultMobigentAppIdentity.id;
+  const appName = rest.appName ?? config.appName ?? defaultMobigentAppIdentity.name;
 
   return {
     ...rest,
-    appId: rest.appId ?? config.appId,
-    appName: rest.appName ?? config.appName,
+    appId,
+    appName,
     gatewayUrl: rest.gatewayUrl ?? rest.connectionUrl ?? config.gatewayUrl ?? config.connectionUrl ?? createMobigentGatewayUrl(),
     version: rest.version ?? config.version,
     authToken: rest.authToken ?? config.authToken

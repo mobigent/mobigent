@@ -82,6 +82,11 @@ export type MobigentAppIdentity = {
   version?: string;
 };
 
+export const defaultMobigentAppIdentity: MobigentAppIdentity = {
+  id: "app.mobigent.local",
+  name: "Mobigent App"
+};
+
 export type MobigentExpoConfig = {
   name?: string;
   slug?: string;
@@ -626,15 +631,9 @@ export function resolveMobigentAppIdentity(
   appName?: string,
   version?: string
 ): MobigentAppIdentity {
-  const id = app?.id ?? appId;
-  const name = app?.name ?? appName;
+  const id = app?.id ?? appId ?? defaultMobigentAppIdentity.id;
+  const name = app?.name ?? appName ?? defaultMobigentAppIdentity.name;
   const resolvedVersion = app?.version ?? version;
-
-  if (!id || !name) {
-    throw new Error(
-      'Mobigent app identity is required. Pass app={{ id, name }} or both appId and appName.'
-    );
-  }
 
   return {
     id,

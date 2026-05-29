@@ -38,12 +38,7 @@ The backend developer should only think:
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const backend = await startMobigent({
-  app: {
-    id: "com.example.app",
-    name: "Example App"
-  }
-});
+const backend = await startMobigent();
 ```
 
 For local development, `startMobigent()` can also infer the app id and name from your project.
@@ -52,7 +47,7 @@ For a non-React host or local demo, pass the backend config straight to the SDK:
 
 ```ts
 await connectMobigent({
-  config: backend.defaultApp,
+  connectionUrl: backend.defaultApp.connectionUrl,
   features: [expenses]
 });
 ```
@@ -173,15 +168,13 @@ export const expenses = defineFeature("expense")
   });
 ```
 
-Put the backend-generated config in your app, then wrap the app once:
+Wrap the app once:
 
 ```tsx
 import { setupMobigent } from "@mobigent/react-native";
-import { mobigentConfig } from "./mobigent/config";
 import { expenses } from "./mobigent/expenses";
 
 const { Root } = setupMobigent({
-  config: mobigentConfig,
   features: [expenses]
 });
 
@@ -196,6 +189,8 @@ export default function App() {
 
 Mobigent handles namespacing, schemas, validation, confirmation, connection lifecycle, backend communication, and event queueing.
 
+For local development, the app package uses a safe starter identity when no config is present. For production, pass exact values or drop the backend-generated `mobigent.app.json` into the app and import its typed config.
+
 If you are wiring a Node demo, test host, or another non-React runtime, use the same feature with the one-call connector:
 
 ```ts
@@ -203,15 +198,10 @@ import { startMobigent } from "@mobigent/backend";
 import { connectMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
 
-const backend = await startMobigent({
-  app: {
-    id: "com.example.app",
-    name: "Example App"
-  }
-});
+const backend = await startMobigent();
 
 await connectMobigent({
-  config: backend.defaultApp,
+  connectionUrl: backend.defaultApp.connectionUrl,
   features: [expenses]
 });
 ```

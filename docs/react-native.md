@@ -43,11 +43,9 @@ This exposes:
 
 ```tsx
 import { setupMobigent } from "@mobigent/react-native";
-import { mobigentConfig } from "./mobigent/config";
 import { expenses } from "./mobigent/expenses";
 
 const { Root } = setupMobigent({
-  config: mobigentConfig,
   features: [expenses]
 });
 
@@ -59,6 +57,8 @@ export default function App() {
   );
 }
 ```
+
+That is enough for a local first run. Mobigent uses `app.mobigent.local` until you pass exact production identity or import a backend-generated config.
 
 ## 4. Run The Backend
 
@@ -83,12 +83,12 @@ import { expenses } from "./mobigent/expenses";
 
 const backend = await startMobigent();
 const connection = await connectMobigent({
-  config: backend.defaultApp,
+  connectionUrl: backend.defaultApp.connectionUrl,
   features: [expenses]
 });
 ```
 
-That one call consumes the backend app config, registers the feature, connects to the backend, and returns a `disconnect()` helper.
+That one call registers the feature, connects to the backend, and returns a `disconnect()` helper.
 
 ## What The SDK Handles
 

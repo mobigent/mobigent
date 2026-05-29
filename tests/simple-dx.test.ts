@@ -395,6 +395,54 @@ test("existing app DX can connect without passing the singleton client manually"
   }
 });
 
+test("existing app DX can connect with only features for local demos", async () => {
+  const expenses = feature("expense").write(
+    "create",
+    async (input) => ({
+      id: "EXP-LOCAL",
+      merchant: String(input.merchant),
+      amount: Number(input.amount)
+    }),
+    {
+      input: {
+        merchant: "string",
+        amount: "number"
+      },
+      confirm: true
+    }
+  );
+
+  const backend = await startMobigent({
+    wsPort: 18997,
+    httpPort: 18998,
+    silent: true
+  });
+  let mobigentConnection: { disconnect(): void } | undefined;
+
+  try {
+    mobigentConnection = await connectMobigent({
+      features: expenses,
+      connectionUrl: backend.defaultApp.connectionUrl,
+      createSocket: createNodeSocket,
+      confirm: async () => true
+    });
+
+    await waitFor(() => backend.tools().some((tool) => tool.name === "app_mobigent_local.expense_create"));
+
+    assert.deepEqual(await backend.call("app_mobigent_local.expense_create", {
+      merchant: "Airport Taxi",
+      amount: 42.25
+    }), {
+      id: "EXP-LOCAL",
+      merchant: "Airport Taxi",
+      amount: 42.25
+    });
+  } finally {
+    mobigentConnection?.disconnect();
+    await backend.stop();
+  }
+});
+
 async function waitFor(predicate: () => boolean, timeoutMs = 1_000) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {

@@ -27,10 +27,8 @@ export const expenses = feature("expense")
 
 ```tsx
 import { mobigentApp } from "@mobigent/react-native";
-import { mobigentConfig } from "./mobigent/config";
 
 const { Root } = mobigentApp({
-  config: mobigentConfig,
   features: [expenses]
 });
 ```
@@ -39,19 +37,13 @@ For non-React hosts, demos, and tests:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { mobigent } from "@mobigent/react-native";
 import { connectMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
 
-const backend = await startMobigent({
-  app: {
-    id: "com.example.app",
-    name: "Example App"
-  }
-});
+const backend = await startMobigent();
 
 const connection = await connectMobigent({
-  config: backend.defaultApp,
+  connectionUrl: backend.defaultApp.connectionUrl,
   features: [expenses]
 });
 

@@ -1249,10 +1249,16 @@ test("React Native provider resolves app identity from standard app object", () 
     resolveMobigentAppIdentity({ id: "com.mobigent.app", name: "App Object" }, "ignored", "Ignored", "1.0.0"),
     { id: "com.mobigent.app", name: "App Object", version: "1.0.0" }
   );
-  assert.throws(
-    () => resolveMobigentAppIdentity(undefined, "missing-name"),
-    /Mobigent app identity is required/
-  );
+  assert.deepEqual(resolveMobigentAppIdentity(), {
+    id: "app.mobigent.local",
+    name: "Mobigent App",
+    version: undefined
+  });
+  assert.deepEqual(resolveMobigentAppIdentity(undefined, "missing-name"), {
+    id: "missing-name",
+    name: "Mobigent App",
+    version: undefined
+  });
 });
 
 test("Expo app factory derives modern defaults from Expo config and public env", () => {

@@ -55,15 +55,13 @@ export const expenses = defineFeature("expense")
   });
 ```
 
-Put the backend-generated config in your app, then wrap your existing app once:
+Wrap your existing app once:
 
 ```tsx
 import { setupMobigent } from "@mobigent/react-native";
-import { mobigentConfig } from "./mobigent/config";
 import { expenses } from "./mobigent/expenses";
 
 const { Root } = setupMobigent({
-  config: mobigentConfig,
   features: [expenses]
 });
 
@@ -76,6 +74,8 @@ export default function App() {
 }
 ```
 
+That is enough for local development. Mobigent uses a safe starter app identity until you pass exact production values or import a backend-generated config.
+
 For a non-React demo or test host, connect the same feature in one call:
 
 ```ts
@@ -83,14 +83,9 @@ import { startMobigent } from "@mobigent/backend";
 import { connectMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
 
-const backend = await startMobigent({
-  app: {
-    id: "com.example.app",
-    name: "Example App"
-  }
-});
+const backend = await startMobigent();
 await connectMobigent({
-  config: backend.defaultApp,
+  connectionUrl: backend.defaultApp.connectionUrl,
   features: [expenses]
 });
 ```
