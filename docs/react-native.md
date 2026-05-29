@@ -36,8 +36,10 @@ export const expenses = defineFeature("expense")
 
 This exposes:
 
-- `com_example_app.get_expense_list`
-- `com_example_app.expense_create`
+- backend shorthand `expense.list`
+- backend shorthand `expense.create`
+
+Agent-facing transports still receive stable full tool names, but app and backend code can use the short names.
 
 ## 3. Wrap The App
 

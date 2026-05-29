@@ -96,11 +96,13 @@ export const mobigentConfig = defineMobigentConfig({
 ## Call A Tool From Code
 
 ```ts
-const result = await mobigent.call("com_example_app.expense_create", {
+const result = await mobigent.call("expense.create", {
   merchant: "Airport Taxi",
   amount: 42.25
 });
 ```
+
+Use `feature.action` for writes and `feature.resource` for reads. Mobigent resolves the connected app prefix for you.
 
 ## Connect An Agent
 

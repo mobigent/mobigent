@@ -244,6 +244,17 @@ const appConfig = mobigent.defaultApp;
 
 That one function starts the app connection endpoint, HTTP API, OpenAPI schema, inspector, tool routing, audit trail, and readiness checks.
 
+Call app-owned functions with the same short names you used in the app:
+
+```ts
+await mobigent.call("expense.create", {
+  merchant: "Airport Taxi",
+  amount: 42.25
+});
+
+await mobigent.call("expense.list");
+```
+
 It also gives you agent setup from the same backend object:
 
 ```ts

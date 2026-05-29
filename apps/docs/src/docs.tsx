@@ -96,7 +96,14 @@ console.log(mobigent.urls.inspector);
 console.log(mobigent.urls.openapi);
 
 const appConfig = mobigent.defaultApp;
-const appConfigCode = mobigent.copyAppConfig();`;
+const appConfigCode = mobigent.copyAppConfig();
+
+await mobigent.call("expense.create", {
+  merchant: "Airport Taxi",
+  amount: 42.25
+});
+
+await mobigent.call("expense.list");`;
 
 const backendInitCode = `npm install @mobigent/backend
 npx mobigent-backend init --app-dir ../mobile-app`;

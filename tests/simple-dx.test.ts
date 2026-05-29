@@ -339,7 +339,9 @@ test("existing app DX connects simple app features to backend calls end to end",
 
     await waitFor(() => backend.tools().some((tool) => tool.name === "com_example_existing.expense_create"));
 
-    const result = await backend.call("com_example_existing.expense_create", {
+    assert.equal(backend.resolveToolName("expense.create"), "com_example_existing.expense_create");
+
+    const result = await backend.call("expense.create", {
       merchant: "Airport Taxi",
       amount: 42.25
     });
@@ -349,7 +351,7 @@ test("existing app DX connects simple app features to backend calls end to end",
       merchant: "Airport Taxi",
       amount: 42.25
     });
-    assert.deepEqual(await backend.call("com_example_existing.get_expense_list"), {
+    assert.deepEqual(await backend.call("expense.list"), {
       items: [result]
     });
   } finally {
@@ -400,7 +402,7 @@ test("existing app DX can connect without passing the singleton client manually"
 
     await waitFor(() => backend.tools().some((tool) => tool.name === "com_example_onecall.expense_create"));
 
-    assert.deepEqual(await backend.call("com_example_onecall.expense_create", {
+    assert.deepEqual(await backend.call("expense.create", {
       merchant: "Airport Taxi",
       amount: 42.25
     }), {
@@ -447,7 +449,7 @@ test("existing app DX can connect with only features for local demos", async () 
 
     await waitFor(() => backend.tools().some((tool) => tool.name === "app_mobigent_local.expense_create"));
 
-    assert.deepEqual(await backend.call("app_mobigent_local.expense_create", {
+    assert.deepEqual(await backend.call("expense.create", {
       merchant: "Airport Taxi",
       amount: 42.25
     }), {

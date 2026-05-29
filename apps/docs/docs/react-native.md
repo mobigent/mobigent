@@ -78,8 +78,10 @@ That one call registers the feature, connects to the backend, and returns a `dis
 
 For `appId: "com.example.app"` and `feature("expense")`:
 
-- read `list` becomes `com_example_app.get_expense_list`
-- write `create` becomes `com_example_app.expense_create`
+- backend code can call `expense.list`
+- backend code can call `expense.create`
+
+Agent-facing transports still receive stable full tool names, but app and backend code can use the short names.
 
 ## Advanced
 

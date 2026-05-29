@@ -82,7 +82,8 @@ The returned object includes:
 - `copyAppConfig()`
 - `tools()`
 - `apps()`
-- `call(toolName, input)`
+- `call("expense.create", input)` or `call("expense.list")`
+- `resolveToolName("expense.create")`
 - `stop()`
 
 ## Simple App Helpers

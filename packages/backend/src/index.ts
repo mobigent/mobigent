@@ -8,7 +8,7 @@ import {
   type GatewayAppSession,
   type ToolCallOptions
 } from "@mobigent/gateway";
-import type { JsonObject } from "@mobigent/core";
+import { sanitize, type JsonObject } from "@mobigent/core";
 import {
   createProviderBundle,
   createProviderCatalog,
@@ -113,6 +113,7 @@ export type MobigentBackend = {
   stop(): Promise<void>;
   tools(): ReturnType<BridgeGateway["listTools"]>;
   apps(): GatewayAppSession[];
+  resolveToolName(name: string): string;
   call(toolName: string, input?: unknown, options?: ToolCallOptions): ReturnType<BridgeGateway["callTool"]>;
 };
 
@@ -217,7 +218,9 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     stop: () => stopBackend(httpServer, gateway),
     tools: () => gateway.listTools(),
     apps: () => gateway.listApps(),
-    call: (toolName, input = {}, callOptions) => gateway.callTool(toolName, input as JsonObject, callOptions)
+    resolveToolName: (name) => resolveBackendToolName(gateway.listTools(), name, defaultApp),
+    call: (toolName, input = {}, callOptions) =>
+      gateway.callTool(resolveBackendToolName(gateway.listTools(), toolName, defaultApp), input as JsonObject, callOptions)
   };
 }
 
@@ -345,6 +348,57 @@ function normalizeAgentKind(kind: MobigentAgentKind): ProviderKind {
     default:
       return kind;
   }
+}
+
+function resolveBackendToolName(
+  tools: ReturnType<BridgeGateway["listTools"]>,
+  name: string,
+  defaultApp?: MobigentBackendAppConfig
+) {
+  if (tools.some((tool) => tool.name === name)) {
+    return name;
+  }
+
+  const candidates = createToolNameCandidates(name, defaultApp);
+  for (const candidate of candidates) {
+    if (tools.some((tool) => tool.name === candidate)) {
+      return candidate;
+    }
+  }
+
+  const matchingTools = tools.filter((tool) => candidates.some((candidate) => tool.name.endsWith(`.${candidate}`)));
+  if (matchingTools.length === 1) {
+    return matchingTools[0].name;
+  }
+
+  if (matchingTools.length > 1) {
+    throw new Error(
+      `Mobigent tool name ${name} is ambiguous. Use one of: ${matchingTools.map((tool) => tool.name).join(", ")}`
+    );
+  }
+
+  return name;
+}
+
+function createToolNameCandidates(name: string, defaultApp?: MobigentBackendAppConfig) {
+  const capabilityNames = createCapabilityNameCandidates(name);
+  const appPrefix = defaultApp ? sanitize(defaultApp.appId) : undefined;
+
+  return [
+    ...(appPrefix ? capabilityNames.map((capabilityName) => `${appPrefix}.${capabilityName}`) : []),
+    ...capabilityNames
+  ];
+}
+
+function createCapabilityNameCandidates(name: string) {
+  const normalized = name.replace(/\s+/g, "").replace(/[.:/]+/g, "_");
+  const candidates = [
+    normalized,
+    `get_${normalized}`,
+    `show_${normalized}`
+  ];
+
+  return [...new Set(candidates)];
 }
 
 function stopBackend(server: Server, gateway: BridgeGateway) {

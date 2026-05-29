@@ -79,7 +79,8 @@ The backend object exposes:
 - `agents()`
 - `tools()`
 - `apps()`
-- `call(toolName, input)`
+- `call("expense.create", input)` or `call("expense.list")`
+- `resolveToolName("expense.create")`
 - `stop()`
 
 ## Providers

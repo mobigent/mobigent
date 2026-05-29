@@ -123,6 +123,17 @@ console.log(mobigent.copyAppConfig());
 
 With no options, Mobigent infers a starter app id and app name from your project. Pass `app: { id, name }` when you want exact production values.
 
+Call app-owned functions with the same short names you used in the app:
+
+```ts
+await mobigent.call("expense.create", {
+  merchant: "Airport Taxi",
+  amount: 42.25
+});
+
+await mobigent.call("expense.list");
+```
+
 Need agent setup? Use the same backend object:
 
 ```ts
