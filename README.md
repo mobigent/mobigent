@@ -43,13 +43,10 @@ const backend = await startMobigent();
 
 For local development, `startMobigent()` can also infer the app id and name from your project.
 
-For a non-React host or local demo, pass the backend config straight to the SDK:
+For a non-React host or local demo, pass the feature straight to the SDK:
 
 ```ts
-await connectMobigent({
-  connectionUrl: backend.defaultApp.connectionUrl,
-  features: [expenses]
-});
+await connectMobigent(expenses);
 ```
 
 Everything else, connection URLs, WebSockets, tokens, registration loops, manifests, OpenAPI, MCP, confirmations, retries, audit events, and inspector wiring, is SDK plumbing.
@@ -174,9 +171,7 @@ Wrap the app once:
 import { setupMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
 
-const { Root } = setupMobigent({
-  features: [expenses]
-});
+const { Root } = setupMobigent(expenses);
 
 export default function App() {
   return (
@@ -200,9 +195,8 @@ import { expenses } from "./mobigent/expenses";
 
 const backend = await startMobigent();
 
-await connectMobigent({
+await connectMobigent(expenses, {
   connectionUrl: backend.defaultApp.connectionUrl,
-  features: [expenses]
 });
 ```
 

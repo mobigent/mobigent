@@ -3,6 +3,7 @@ export {
   createSimpleMobigentApp,
   mobigentApp,
   setupMobigent,
+  type MobigentSimpleAppInput,
   type MobigentSimpleAppOptions
 } from "./setup.js";
 
@@ -25,6 +26,7 @@ export {
   type MobigentSimpleConnection,
   type MobigentSimpleConnectionClient,
   type MobigentSimpleConnectionOptions,
+  type MobigentSimpleConnectionSettings,
   type MobigentResolvedConnectionOptions,
   type MobigentSimpleFeature,
   type MobigentSimpleField,

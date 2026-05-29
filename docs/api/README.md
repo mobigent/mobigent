@@ -27,9 +27,7 @@ export const expenses = defineFeature("expense")
 import { setupMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
 
-const { Root } = setupMobigent({
-  features: [expenses]
-});
+const { Root } = setupMobigent(expenses);
 ```
 
 For non-React hosts, demos, and tests:
@@ -40,9 +38,8 @@ import { connectMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
 
 const backend = await startMobigent();
-const connection = await connectMobigent({
+const connection = await connectMobigent(expenses, {
   connectionUrl: backend.defaultApp.connectionUrl,
-  features: [expenses]
 });
 
 connection.disconnect();
@@ -96,8 +93,9 @@ The returned object includes:
 - `read(name, handler)`: exposes app state.
 - `write(name, handler, options)`: exposes confirmed app behavior.
 - `screen(name, handler)`: lets an agent focus a screen or UI surface.
-- `setupMobigent({ config, features })`: wraps a React Native app once.
-- `connectMobigent({ config, features })`: configures, registers features, and connects in one call.
+- `setupMobigent(feature)`: wraps a React Native app once.
+- `setupMobigent({ config, features })`: production form when you need exact app config.
+- `connectMobigent(feature, options)`: configures, registers features, and connects in one call.
 - `registerFeatures(client, features)`: lower-level attach helper when you need manual lifecycle control.
 
 ## Capability Types

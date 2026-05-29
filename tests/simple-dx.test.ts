@@ -16,6 +16,7 @@ import {
   defineMobigentConfig,
   feature,
   mobigent,
+  setupMobigent,
   simpleSchema,
   type MobigentSocketFactory
 } from "@mobigent/react-native";
@@ -58,6 +59,13 @@ test("simple schema helper accepts plain field maps", () => {
   assert.equal(input.type, "object");
   assert.deepEqual(input.required, ["userId", "count", "tags"]);
   assert.equal(input.properties?.tags.type, "array");
+});
+
+test("app setup accepts features directly for the shortest React Native path", () => {
+  const expenses = feature("expense").write("create", async () => ({ ok: true }));
+  const app = setupMobigent(expenses);
+
+  assert.deepEqual(app.options.capabilities, [expenses]);
 });
 
 test("backend helper starts HTTP, OpenAPI, and inspector endpoints from one function", async () => {
@@ -384,9 +392,8 @@ test("existing app DX can connect without passing the singleton client manually"
   let mobigentConnection: { disconnect(): void } | undefined;
 
   try {
-    mobigentConnection = await connectMobigent({
+    mobigentConnection = await connectMobigent(expenses, {
       config: backend.defaultApp,
-      features: expenses,
       createSocket: createNodeSocket,
       confirm: async () => true
     });
@@ -432,8 +439,7 @@ test("existing app DX can connect with only features for local demos", async () 
   let mobigentConnection: { disconnect(): void } | undefined;
 
   try {
-    mobigentConnection = await connectMobigent({
-      features: expenses,
+    mobigentConnection = await connectMobigent(expenses, {
       connectionUrl: backend.defaultApp.connectionUrl,
       createSocket: createNodeSocket,
       confirm: async () => true

@@ -8,7 +8,10 @@ export type MobigentSimpleAppOptions = Omit<AgentAppFactoryOptions, "capabilitie
   modules?: AgentAppFactoryOptions["modules"];
 };
 
-export function mobigentApp(options: MobigentSimpleAppOptions) {
+export type MobigentSimpleAppInput = MobigentSimpleAppOptions | MobigentSimpleFeature | MobigentSimpleFeature[];
+
+export function mobigentApp(input: MobigentSimpleAppInput) {
+  const options = isMobigentFeatureInput(input) ? { features: input } : input;
   const features = toArray(options.features);
   const { config, ...appOptions } = options;
 
@@ -30,6 +33,25 @@ export function mobigentApp(options: MobigentSimpleAppOptions) {
 export const createMobigentRoot = mobigentApp;
 export const createSimpleMobigentApp = mobigentApp;
 export const setupMobigent = mobigentApp;
+
+function isMobigentFeatureInput(value: MobigentSimpleAppInput): value is MobigentSimpleFeature | MobigentSimpleFeature[] {
+  if (Array.isArray(value)) {
+    return value.every(isMobigentFeature);
+  }
+
+  return isMobigentFeature(value);
+}
+
+function isMobigentFeature(value: MobigentSimpleAppInput | MobigentSimpleFeature): value is MobigentSimpleFeature {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      "namespace" in value &&
+      "actions" in value &&
+      "resources" in value &&
+      "components" in value
+  );
+}
 
 function toArray<T>(value: T | T[] | undefined): T[] {
   if (!value) {

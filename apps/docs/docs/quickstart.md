@@ -55,9 +55,7 @@ Wrap the app once:
 import { mobigentApp } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
 
-const { Root } = mobigentApp({
-  features: [expenses]
-});
+const { Root } = mobigentApp(expenses);
 
 export default function App() {
   return (
@@ -77,9 +75,8 @@ import { expenses } from "./mobigent/expenses";
 
 const backend = await startMobigent();
 
-await connectMobigent({
+await connectMobigent(expenses, {
   connectionUrl: backend.defaultApp.connectionUrl,
-  features: [expenses]
 });
 ```
 

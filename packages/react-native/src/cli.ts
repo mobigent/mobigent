@@ -1166,7 +1166,7 @@ function formatCreatedFilesMessage(options: ReactNativeInitCliOptions) {
   if (options.featureOnly) {
     return (
       `Created Mobigent React Native feature ${options.feature} in ${join(options.outDir, "mobigent-features")}.\n` +
-      `Pass ${options.feature}Feature to setupMobigent({ features: [...] }) or MobigentRoot features.\n`
+      `Pass ${options.feature}Feature to setupMobigent(${options.feature}Feature) or MobigentRoot features.\n`
     );
   }
 

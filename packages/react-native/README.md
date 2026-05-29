@@ -73,9 +73,7 @@ com_example_app.expense_create
 import { setupMobigent } from "@mobigent/react-native";
 import { expenses } from "./src/mobigent/expenses";
 
-const { Root } = setupMobigent({
-  features: [expenses]
-});
+const { Root } = setupMobigent(expenses);
 
 export default function App() {
   return (
@@ -96,9 +94,8 @@ import { connectMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
 
 const backend = await startMobigent();
-const connection = await connectMobigent({
+const connection = await connectMobigent(expenses, {
   connectionUrl: backend.defaultApp.connectionUrl,
-  features: [expenses]
 });
 ```
 

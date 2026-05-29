@@ -122,6 +122,10 @@ export type MobigentSimpleConfiguredConnectionOptions = Omit<
   authToken?: string;
 };
 
+export type MobigentSimpleConnectionSettings =
+  | Omit<MobigentSimpleConnectionOptions, "features">
+  | Omit<MobigentSimpleConfiguredConnectionOptions, "features">;
+
 export type MobigentSimpleConnectionClient = MobigentSimpleClient & {
   configure(options: Omit<MobigentSimpleConnectionOptions, "features">): unknown;
   connect(): Promise<void>;
@@ -235,19 +239,29 @@ export async function connectMobigent(
   options: MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions
 ): Promise<MobigentSimpleConnection>;
 export async function connectMobigent(
+  client: MobigentSimpleConnectionClient,
+  features: MobigentSimpleFeature | MobigentSimpleFeature[],
+  options?: MobigentSimpleConnectionSettings
+): Promise<MobigentSimpleConnection>;
+export async function connectMobigent(
   options: MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions
+): Promise<MobigentSimpleConnection>;
+export async function connectMobigent(
+  features: MobigentSimpleFeature | MobigentSimpleFeature[],
+  options?: MobigentSimpleConnectionSettings
 ): Promise<MobigentSimpleConnection>;
 export async function connectMobigent(
   clientOrOptions:
     | MobigentSimpleConnectionClient
     | MobigentSimpleConnectionOptions
-    | MobigentSimpleConfiguredConnectionOptions,
-  maybeOptions?: MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions
+    | MobigentSimpleConfiguredConnectionOptions
+    | MobigentSimpleFeature
+    | MobigentSimpleFeature[],
+  maybeOptions?: MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions | MobigentSimpleConnectionSettings | MobigentSimpleFeature | MobigentSimpleFeature[],
+  maybeSettings?: MobigentSimpleConnectionSettings
 ): Promise<MobigentSimpleConnection> {
-  const client = maybeOptions ? (clientOrOptions as MobigentSimpleConnectionClient) : mobigent;
-  const options = (maybeOptions ?? clientOrOptions) as
-    | MobigentSimpleConnectionOptions
-    | MobigentSimpleConfiguredConnectionOptions;
+  const parsed = parseConnectArgs(clientOrOptions, maybeOptions, maybeSettings);
+  const { client, options } = parsed;
   const { features, ...connectionOptions } = resolveConnectionOptions(options);
 
   client.configure(connectionOptions);
@@ -266,6 +280,84 @@ export async function connectMobigent(
       client.disconnect();
     }
   };
+}
+
+function parseConnectArgs(
+  clientOrOptions:
+    | MobigentSimpleConnectionClient
+    | MobigentSimpleConnectionOptions
+    | MobigentSimpleConfiguredConnectionOptions
+    | MobigentSimpleFeature
+    | MobigentSimpleFeature[],
+  maybeOptions?: MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions | MobigentSimpleConnectionSettings | MobigentSimpleFeature | MobigentSimpleFeature[],
+  maybeSettings?: MobigentSimpleConnectionSettings
+): {
+  client: MobigentSimpleConnectionClient;
+  options: MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions;
+} {
+  if (isMobigentSimpleClient(clientOrOptions)) {
+    const client = clientOrOptions;
+
+    if (isMobigentFeatureInput(maybeOptions)) {
+      return {
+        client,
+        options: {
+          ...(maybeSettings ?? {}),
+          features: maybeOptions
+        } as MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions
+      };
+    }
+
+    return {
+      client,
+      options: maybeOptions as MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions
+    };
+  }
+
+  if (isMobigentFeatureInput(clientOrOptions)) {
+    return {
+      client: mobigent as unknown as MobigentSimpleConnectionClient,
+      options: {
+        ...((maybeOptions as MobigentSimpleConnectionSettings | undefined) ?? {}),
+        features: clientOrOptions
+      } as MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions
+    };
+  }
+
+  return {
+    client: mobigent as unknown as MobigentSimpleConnectionClient,
+    options: clientOrOptions
+  };
+}
+
+function isMobigentSimpleClient(value: unknown): value is MobigentSimpleConnectionClient {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      "configure" in value &&
+      "connect" in value &&
+      "disconnect" in value &&
+      "registerAction" in value
+  );
+}
+
+function isMobigentFeatureInput(value: unknown): value is MobigentSimpleFeature | MobigentSimpleFeature[] {
+  if (Array.isArray(value)) {
+    return value.every(isMobigentFeature);
+  }
+
+  return isMobigentFeature(value);
+}
+
+function isMobigentFeature(value: unknown): value is MobigentSimpleFeature {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      "namespace" in value &&
+      "actions" in value &&
+      "resources" in value &&
+      "components" in value
+  );
 }
 
 function resolveConnectionOptions(

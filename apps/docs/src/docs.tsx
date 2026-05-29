@@ -64,9 +64,7 @@ export const expenses = feature("expense")
 const appCode = `import { mobigentApp } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expense";
 
-const { Root } = mobigentApp({
-  features: [expenses]
-});
+const { Root } = mobigentApp(expenses);
 
 export default function App() {
   return <Root><YourApp /></Root>;
@@ -77,9 +75,8 @@ import { connectMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expense";
 
 const backend = await startMobigentBackend();
-await connectMobigent({
+await connectMobigent(expenses, {
   connectionUrl: backend.defaultApp.connectionUrl,
-  features: [expenses]
 });`;
 
 const gatewayCode = `npx mobigent-http
