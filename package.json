@@ -1,6 +1,6 @@
 {
   "name": "mobigent-repo",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Open-source SDK for exposing mobile app intents and capabilities to AI agents.",
   "type": "module",
   "private": true,

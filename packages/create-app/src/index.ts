@@ -124,7 +124,7 @@ export function installMobigentAppDependencies(options: Pick<CreateMobigentAppOp
   };
 }
 
-const defaultMobigentVersion = "0.1.3";
+const defaultMobigentVersion = "0.1.4";
 
 function createPackageJson(packageName: string, options?: CreateMobigentAppOptions) {
   const packageSource = options?.packageSource ?? "github-release";
@@ -134,6 +134,7 @@ function createPackageJson(packageName: string, options?: CreateMobigentAppOptio
         "@mobigent/core": localPackageSpec(options, "core"),
         "@mobigent/providers": localPackageSpec(options, "providers"),
         "@mobigent/backend": localPackageSpec(options, "backend"),
+        "@mobigent/gateway": localPackageSpec(options, "gateway"),
         "@mobigent/react-native": localPackageSpec(options, "react-native"),
         express: "^5.2.1",
         ws: "^8.21.0"
@@ -142,6 +143,7 @@ function createPackageJson(packageName: string, options?: CreateMobigentAppOptio
       ? {
           "@mobigent/core": releaseTarballSpec("mobigent-core", version),
           "@mobigent/backend": releaseTarballSpec("mobigent-backend", version),
+          "@mobigent/gateway": releaseTarballSpec("mobigent-gateway", version),
           "@mobigent/providers": releaseTarballSpec("mobigent-providers", version),
           "@mobigent/react-native": releaseTarballSpec("mobigent-react-native", version),
           express: "^5.2.1",
@@ -149,6 +151,7 @@ function createPackageJson(packageName: string, options?: CreateMobigentAppOptio
         }
     : {
         "@mobigent/backend": `^${version}`,
+        "@mobigent/gateway": `^${version}`,
         "@mobigent/providers": `^${version}`,
         "@mobigent/react-native": `^${version}`,
         express: "^5.2.1",
