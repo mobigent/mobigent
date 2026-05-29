@@ -273,14 +273,22 @@ npm run dev:mcp
 
 ## Packages
 
-- `@mobigent/core`: protocol and shared types
-- `@mobigent/react-native`: React Native app-side SDK
+Most apps start with two packages:
+
+- `@mobigent/react-native`: app SDK for declaring app functions with `defineFeature()` and `setupMobigent()`
+- `@mobigent/backend`: backend SDK for `startMobigent({ app })`, tool routing, inspector, agent HTTP, and app connections
+
+Useful extras:
+
 - `create-mobigent-app`: one-command starter app with backend, inspector, visible app, and agent playground
+- `@mobigent/providers`: copy-paste setup helpers for ChatGPT Actions, OpenAPI agents, and MCP-compatible local agents
 - `packages/ios`: native Swift Package for iOS apps
 - `packages/android`: native Kotlin/Android SDK
-- `@mobigent/backend`: one-function backend for agent HTTP, OpenAPI, inspector, routing, and app connections
+
+Advanced internals:
+
+- `@mobigent/core`: protocol and shared types
 - `@mobigent/gateway`: lower-level gateway package for custom hosting, HTTP/OpenAPI, and MCP
-- `@mobigent/providers`: provider setup helpers for agent runtimes
 
 ## Examples
 

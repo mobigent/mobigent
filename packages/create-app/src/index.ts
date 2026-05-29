@@ -151,7 +151,6 @@ function createPackageJson(packageName: string, options?: CreateMobigentAppOptio
         }
     : {
         "@mobigent/backend": `^${version}`,
-        "@mobigent/gateway": `^${version}`,
         "@mobigent/providers": `^${version}`,
         "@mobigent/react-native": `^${version}`,
         express: "^5.2.1",
