@@ -31,7 +31,7 @@ try {
     "com.mobigent.runtime",
     "--app-name",
     "Runtime Demo",
-    "--gateway-port",
+    "--connection-port",
     String(gatewayPort),
     "--http-port",
     String(httpPort),

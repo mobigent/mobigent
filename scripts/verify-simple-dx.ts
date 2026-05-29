@@ -24,6 +24,7 @@ assert.deepEqual(
   ["@mobigent/backend", "@mobigent/react-native"],
   "npm starter should expose only the app and backend SDK packages"
 );
+assert.equal(starterPackage.overrides, undefined, "npm starter should not need internal Mobigent package overrides");
 assert.equal(starterPackage.scripts["agent:local"], "mobigent-backend agent claude --format guide");
 assert.doesNotMatch(JSON.stringify(starterPackage.scripts), /mobigent-provider|@mobigent\/providers/);
 

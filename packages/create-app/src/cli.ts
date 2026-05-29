@@ -92,6 +92,7 @@ function parseArgs(argv: string[]): ParsedOptions {
         options.packageName = next();
         break;
       case "--gateway-port":
+      case "--connection-port":
         options.gatewayPort = parsePort(arg, next());
         break;
       case "--http-port":
@@ -159,7 +160,7 @@ function parsePackageSource(value: string) {
 function helpText() {
   return `create-mobigent-app
 
-Create a runnable Mobigent starter with a visible app, gateway, inspector, and agent playground.
+Create a runnable Mobigent starter with a visible app, backend, inspector, and agent playground.
 
 Usage:
   npm exec --package https://github.com/mobigent/mobigent/releases/download/v0.1.12/create-mobigent-app-0.1.12.tgz -- create-mobigent-app my-demo --install
@@ -169,8 +170,9 @@ Options:
   --app-id <id>          App id for the Mobigent manifest. Default: com.mobigent.demo
   --app-name <name>     Visible app name. Default: Mobigent Demo
   --package-name <name> package.json name. Default: target folder name
-  --gateway-port <port> App WebSocket gateway port. Default: 8787
-  --http-port <port>    HTTP/OpenAPI/inspector gateway port. Default: 8788
+  --connection-port <port> App connection port. Default: 8787
+  --gateway-port <port> Backward-compatible alias for --connection-port.
+  --http-port <port>    HTTP/OpenAPI/inspector backend port. Default: 8788
   --app-port <port>     Visible app playground port. Default: 8790
   --no-open             Do not open the browser automatically.
   --local-packages <dir> Link generated app to local Mobigent packages in this repo.

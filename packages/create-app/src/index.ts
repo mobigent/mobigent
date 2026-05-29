@@ -132,20 +132,14 @@ function createPackageJson(packageName: string, options?: CreateMobigentAppOptio
   const agentCommand = "mobigent-backend agent";
   const dependencies = options?.localPackages
       ? {
-        "@mobigent/core": localPackageSpec(options, "core"),
-        "@mobigent/providers": localPackageSpec(options, "providers"),
         "@mobigent/backend": localPackageSpec(options, "backend"),
-        "@mobigent/gateway": localPackageSpec(options, "gateway"),
         "@mobigent/react-native": localPackageSpec(options, "react-native"),
         express: "^5.2.1",
         ws: "^8.21.0"
       }
     : packageSource === "github-release"
       ? {
-          "@mobigent/core": releaseTarballSpec("mobigent-core", version),
           "@mobigent/backend": releaseTarballSpec("mobigent-backend", version),
-          "@mobigent/gateway": releaseTarballSpec("mobigent-gateway", version),
-          "@mobigent/providers": releaseTarballSpec("mobigent-providers", version),
           "@mobigent/react-native": releaseTarballSpec("mobigent-react-native", version),
           express: "^5.2.1",
           ws: "^8.21.0"
@@ -171,6 +165,7 @@ function createPackageJson(packageName: string, options?: CreateMobigentAppOptio
       check: "tsc -p tsconfig.json --noEmit"
     },
     dependencies,
+    overrides: createPackageOverrides(options, version, packageSource),
     devDependencies: {
       "@types/express": "^5.0.6",
       "@types/node": "^25.9.1",
@@ -179,6 +174,30 @@ function createPackageJson(packageName: string, options?: CreateMobigentAppOptio
       typescript: "^6.0.3"
     }
   };
+}
+
+function createPackageOverrides(
+  options: CreateMobigentAppOptions | undefined,
+  version: string,
+  packageSource: "github-release" | "npm"
+) {
+  if (options?.localPackages) {
+    return {
+      "@mobigent/core": localPackageSpec(options, "core"),
+      "@mobigent/gateway": localPackageSpec(options, "gateway"),
+      "@mobigent/providers": localPackageSpec(options, "providers")
+    };
+  }
+
+  if (packageSource === "github-release") {
+    return {
+      "@mobigent/core": releaseTarballSpec("mobigent-core", version),
+      "@mobigent/gateway": releaseTarballSpec("mobigent-gateway", version),
+      "@mobigent/providers": releaseTarballSpec("mobigent-providers", version)
+    };
+  }
+
+  return undefined;
 }
 
 function createTsConfig() {
@@ -202,7 +221,7 @@ function createReadme(options: CreateMobigentAppOptions) {
     packageSource === "local"
       ? "\nThis starter is linked to local Mobigent packages from this repository.\n"
       : packageSource === "github-release"
-        ? "\nThis starter installs Mobigent packages from public GitHub release tarballs, so it works before npmjs publishing is connected.\n"
+        ? "\nThis starter installs the public Mobigent app and backend packages from GitHub release tarballs. Internal package pins are handled for you until npmjs publishing is connected.\n"
         : "";
   const runSteps = options.installDependencies ? "npm run dev" : "npm install\nnpm run dev";
 
@@ -243,7 +262,7 @@ These print copy-paste setup for Claude Desktop/MCP, generic OpenAPI agents, and
 
 - App playground: \`http://localhost:${options.appPort}\`
 - Mobigent inspector: \`http://localhost:${options.httpPort}/inspect\`
-- App connection URL: \`ws://localhost:${options.gatewayPort}\`
+- App connection: \`ws://localhost:${options.gatewayPort}\`
 
 ## What To Edit
 
