@@ -63,7 +63,7 @@ Create a Mobigent starter from the public GitHub release:
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.10/create-mobigent-app-0.1.10.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.11/create-mobigent-app-0.1.11.tgz \
   -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
@@ -93,13 +93,20 @@ That first run is the whole idea: agents do not tap screens or guess UI. Your ap
 For an existing React Native app, install the app SDK:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.10/mobigent-react-native-0.1.10.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.11/mobigent-react-native-0.1.11.tgz
 ```
 
 For a backend/server app, install the backend package:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.10/mobigent-backend-0.1.10.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.11/mobigent-backend-0.1.11.tgz
+```
+
+After npmjs publishing is connected, the normal backend setup is:
+
+```bash
+npm install @mobigent/backend
+npx mobigent-backend init --app-id com.example.app --app-name "Example App"
 ```
 
 From the backend, generate the tiny config file your app imports:
@@ -120,7 +127,7 @@ Until npmjs.com publishing is connected with an `NPM_TOKEN`, packages are publis
 Install directly from the public release tarball:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.10/mobigent-react-native-0.1.10.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.11/mobigent-react-native-0.1.11.tgz
 ```
 
 Or install from npmjs after npm publishing is connected:
@@ -201,6 +208,15 @@ await connectMobigent(mobigent, {
 ```
 
 ## Add It To A Backend
+
+Create the backend entrypoint:
+
+```bash
+npm install @mobigent/backend
+npx mobigent-backend init --app-id com.example.app --app-name "Example App"
+```
+
+Or write it manually:
 
 ```ts
 import { startMobigentBackend } from "@mobigent/backend";

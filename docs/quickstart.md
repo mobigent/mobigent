@@ -6,7 +6,7 @@ This guide gets you from an app with no agent interface to a working Mobigent lo
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.10/create-mobigent-app-0.1.10.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.11/create-mobigent-app-0.1.11.tgz \
   -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
@@ -95,6 +95,13 @@ await connectMobigent(mobigent, {
 ```
 
 ## 3. Run The Backend
+
+Generate the backend entrypoint:
+
+```bash
+npm install @mobigent/backend
+npx mobigent-backend init --app-id com.example.app --app-name "Example App"
+```
 
 In your server:
 

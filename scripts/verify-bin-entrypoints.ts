@@ -11,12 +11,16 @@ try {
   await mkdir(binDir, { recursive: true });
 
   await linkBin("create-mobigent-app", "packages/create-app/dist/cli.js");
+  await linkBin("mobigent-backend", "packages/backend/dist/cli.js");
   await linkBin("mobigent-provider", "packages/providers/dist/cli.js");
   await linkBin("mobigent", "packages/react-native/dist/cli.js");
   await linkBin("mobigent-init", "packages/react-native/dist/cli.js");
 
   const createApp = await run(join(binDir, "create-mobigent-app"), ["--help"]);
   assert.match(createApp, /create-mobigent-app/);
+
+  const backend = await run(join(binDir, "mobigent-backend"), ["--help"]);
+  assert.match(backend, /mobigent-backend/);
 
   const provider = await run(join(binDir, "mobigent-provider"), [
     "--provider",

@@ -1,6 +1,6 @@
 {
   "name": "@mobigent/core",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "Shared protocol, capability manifest, and type definitions for Mobigent.",
   "type": "module",
   "license": "MIT",

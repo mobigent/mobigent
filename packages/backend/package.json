@@ -1,6 +1,6 @@
 {
   "name": "@mobigent/backend",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "Simple backend helper for running Mobigent gateway, HTTP, OpenAPI, and MCP-ready agent endpoints.",
   "type": "module",
   "license": "MIT",
@@ -27,20 +27,27 @@
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "bin": {
+    "mobigent-backend": "./dist/cli.js"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./cli": {
+      "types": "./dist/cli.d.ts",
+      "import": "./dist/cli.js"
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && chmod +x dist/cli.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prepublishOnly": "npm run build && npm run typecheck"
   },
   "dependencies": {
-    "@mobigent/core": "0.1.10",
-    "@mobigent/gateway": "0.1.10"
+    "@mobigent/core": "0.1.11",
+    "@mobigent/gateway": "0.1.11"
   },
   "devDependencies": {
     "@types/node": "^25.9.1"

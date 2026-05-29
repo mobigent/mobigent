@@ -20,7 +20,7 @@ The SDK handles namespacing, JSON Schema generation, validation, confirmation, c
 Until npmjs publishing is connected, install from the public GitHub release:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.10/mobigent-react-native-0.1.10.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.11/mobigent-react-native-0.1.11.tgz
 ```
 
 After npmjs publishing is enabled:

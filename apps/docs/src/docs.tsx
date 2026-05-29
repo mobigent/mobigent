@@ -24,7 +24,7 @@ npx mobigent init \\
   --out-dir src`;
 
 const demoCode = `npm exec --yes \\
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.10/create-mobigent-app-0.1.10.tgz \\
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.11/create-mobigent-app-0.1.11.tgz \\
   -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
@@ -112,6 +112,11 @@ const appConfigCode = mobigent.appConfigModule({
   appId: "com.example.app",
   appName: "Example App"
 });`;
+
+const backendInitCode = `npm install @mobigent/backend
+npx mobigent-backend init \\
+  --app-id com.example.app \\
+  --app-name "Example App"`;
 
 const securityDoctorCode = `npx mobigent security-doctor \\
   --app-id com.example.app \\
@@ -595,8 +600,8 @@ function Docs() {
           <p>Use the backend SDK in Node. The lower-level CLI stays available when you want a separate gateway process.</p>
         </div>
         <div className="codeGrid three">
+          <Code title="Backend init" code={backendInitCode} />
           <Code title="Backend SDK" code={backendCode} />
-          <Code title="CLI fallback" code={gatewayCode} />
           <div className="apiList endpointList">
             {gatewayEndpoints.map(([name, text]) => (
               <Row key={name} title={name} text={text} />

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import WebSocket from "ws";
 import { formatMobigentAppConfigModule, startMobigentBackend } from "@mobigent/backend";
+import { createMobigentBackendFiles } from "@mobigent/backend/cli";
 import {
   connectMobigent,
   defineMobigentConfig,
@@ -78,6 +79,24 @@ test("backend helper starts HTTP, OpenAPI, and inspector endpoints from one func
   } finally {
     await backend.stop();
   }
+});
+
+test("backend init helper creates a copy-paste server entrypoint", () => {
+  const files = createMobigentBackendFiles({
+    appId: "com.example.app",
+    appName: "Example App",
+    outDir: "src",
+    fileName: "mobigent.ts",
+    envFile: ".env.mobigent",
+    force: false,
+    dryRun: true
+  });
+
+  assert.deepEqual(files.map((file) => file.path), ["src/mobigent.ts", ".env.mobigent"]);
+  assert.match(files[0]?.contents ?? "", /startMobigentBackend/);
+  assert.match(files[0]?.contents ?? "", /mobigent\.app/);
+  assert.match(files[0]?.contents ?? "", /appConfigModule/);
+  assert.match(files[1]?.contents ?? "", /MOBIGENT_AUTH_TOKEN/);
 });
 
 test("app config helpers create typed copy-paste app config", () => {

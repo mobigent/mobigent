@@ -2,6 +2,13 @@
 
 Run Mobigent from normal Node code.
 
+```bash
+npm install @mobigent/backend
+npx mobigent-backend init --app-id com.example.app --app-name "Example App"
+```
+
+That creates `src/mobigent.ts` and `.env.mobigent`.
+
 ```ts
 import { startMobigentBackend } from "@mobigent/backend";
 

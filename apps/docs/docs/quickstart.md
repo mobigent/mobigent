@@ -8,7 +8,7 @@ The easiest path is the starter:
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.10/create-mobigent-app-0.1.10.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.11/create-mobigent-app-0.1.11.tgz \
   -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
@@ -29,7 +29,7 @@ You should see app, backend, readiness, and tool checks pass.
 Install the app SDK and scaffold the small Mobigent folder:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.10/mobigent-react-native-0.1.10.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.11/mobigent-react-native-0.1.11.tgz
 npx mobigent init --app-id com.example.app --app-name "Example App" --feature expense --out-dir src
 ```
 
@@ -90,13 +90,14 @@ await connectMobigent(mobigent, {
 
 ## Backend
 
-Install the backend SDK:
+Install the backend SDK and generate the backend entrypoint:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.10/mobigent-backend-0.1.10.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.11/mobigent-backend-0.1.11.tgz
+npx mobigent-backend init --app-id com.example.app --app-name "Example App"
 ```
 
-Start Mobigent:
+Or write it manually:
 
 ```ts
 import { startMobigentBackend } from "@mobigent/backend";

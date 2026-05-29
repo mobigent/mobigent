@@ -12,7 +12,7 @@ Current public fallback before npmjs publishing is connected:
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.10/create-mobigent-app-0.1.10.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.11/create-mobigent-app-0.1.11.tgz \
   -- create-mobigent-app my-demo --install
 ```
 
@@ -71,7 +71,7 @@ The release workflow will publish through OIDC when `NPM_TOKEN` is absent and `N
 
 The release workflow fails if neither `NPM_TOKEN` nor `NPM_TRUSTED_PUBLISHING=true` is configured. A green release should mean the npmjs.com path was actually attempted, not silently skipped.
 
-The publish script is idempotent per version: if `@mobigent/react-native@0.1.10` already exists, it skips that package and continues. This makes reruns safer after a partial publish.
+The publish script is idempotent per version: if `@mobigent/react-native@0.1.11` already exists, it skips that package and continues. This makes reruns safer after a partial publish.
 
 For local maintainer publishing after `npm login`:
 
