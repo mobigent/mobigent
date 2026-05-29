@@ -21,9 +21,10 @@ const starterPackage = JSON.parse(
 
 assert.deepEqual(
   Object.keys(starterPackage.dependencies).filter((name) => name.startsWith("@mobigent/")).sort(),
-  ["@mobigent/backend", "@mobigent/providers", "@mobigent/react-native"],
-  "npm starter should expose only app/backend SDK packages plus optional provider setup helpers"
+  ["@mobigent/backend", "@mobigent/react-native"],
+  "npm starter should expose only the app and backend SDK packages"
 );
+assert.match(starterPackage.scripts["agent:local"], /npm exec --yes --package @mobigent\/providers@\^1\.2\.3 -- mobigent-provider/);
 
 const backendFile = createMobigentBackendFiles({
   appId: "com.example.app",

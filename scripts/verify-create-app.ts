@@ -120,10 +120,14 @@ try {
   assert.equal(npmInit.code, 0, npmInit.stderr);
   const npmPackageJson = JSON.parse(await readFile(join(npmTarget, "package.json"), "utf8"));
   assert.equal(npmPackageJson.dependencies["@mobigent/backend"], "^1.2.3");
-  assert.equal(npmPackageJson.dependencies["@mobigent/providers"], "^1.2.3");
   assert.equal(npmPackageJson.dependencies["@mobigent/react-native"], "^1.2.3");
   assert.equal("@mobigent/core" in npmPackageJson.dependencies, false);
   assert.equal("@mobigent/gateway" in npmPackageJson.dependencies, false);
+  assert.equal("@mobigent/providers" in npmPackageJson.dependencies, false);
+  assert.match(
+    npmPackageJson.scripts["agent:local"],
+    /npm exec --yes --package @mobigent\/providers@\^1\.2\.3 -- mobigent-provider/
+  );
 
   const installMessage = run([join(dir, "install-message-demo"), "--install", "--no-open", "--dry-run"]);
   assert.equal(installMessage.code, 0, installMessage.stderr);

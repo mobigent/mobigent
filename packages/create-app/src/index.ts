@@ -129,6 +129,7 @@ const defaultMobigentVersion = "0.1.12";
 function createPackageJson(packageName: string, options?: CreateMobigentAppOptions) {
   const packageSource = options?.packageSource ?? "github-release";
   const version = options?.packageVersion ?? defaultMobigentVersion;
+  const providerCommand = createProviderCommand(packageSource, version);
   const dependencies = options?.localPackages
       ? {
         "@mobigent/core": localPackageSpec(options, "core"),
@@ -151,7 +152,6 @@ function createPackageJson(packageName: string, options?: CreateMobigentAppOptio
         }
     : {
         "@mobigent/backend": `^${version}`,
-        "@mobigent/providers": `^${version}`,
         "@mobigent/react-native": `^${version}`,
         express: "^5.2.1",
         ws: "^8.21.0"
@@ -165,9 +165,9 @@ function createPackageJson(packageName: string, options?: CreateMobigentAppOptio
     scripts: {
       dev: "tsx src/server.ts",
       doctor: "tsx src/doctor.ts",
-      "agent:local": "mobigent-provider --provider claude-desktop --command mobigent-mcp --format guide",
-      "agent:openapi": `mobigent-provider --provider openapi --base-url http://localhost:${options?.httpPort ?? 8788} --format guide`,
-      "agent:chatgpt": "mobigent-provider --provider chatgpt-actions --base-url https://your-public-gateway.example --format guide",
+      "agent:local": `${providerCommand} --provider claude-desktop --command mobigent-mcp --format guide`,
+      "agent:openapi": `${providerCommand} --provider openapi --base-url http://localhost:${options?.httpPort ?? 8788} --format guide`,
+      "agent:chatgpt": `${providerCommand} --provider chatgpt-actions --base-url https://your-public-gateway.example --format guide`,
       check: "tsc -p tsconfig.json --noEmit"
     },
     dependencies,
@@ -179,6 +179,14 @@ function createPackageJson(packageName: string, options?: CreateMobigentAppOptio
       typescript: "^6.0.3"
     }
   };
+}
+
+function createProviderCommand(packageSource: "github-release" | "npm", version: string) {
+  if (packageSource === "npm") {
+    return `npm exec --yes --package @mobigent/providers@^${version} -- mobigent-provider`;
+  }
+
+  return "mobigent-provider";
 }
 
 function createTsConfig() {
