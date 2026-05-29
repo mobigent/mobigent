@@ -17,11 +17,11 @@ import { createRoot } from "react-dom/client";
 import "./styles.css";
 
 const quickstart = `npm install \\
-  https://github.com/mobigent/mobigent/releases/download/v0.1.7/mobigent-react-native-0.1.7.tgz \\
-  https://github.com/mobigent/mobigent/releases/download/v0.1.7/mobigent-backend-0.1.7.tgz`;
+  https://github.com/mobigent/mobigent/releases/download/v0.1.8/mobigent-react-native-0.1.8.tgz \\
+  https://github.com/mobigent/mobigent/releases/download/v0.1.8/mobigent-backend-0.1.8.tgz`;
 
 const demoCode = `npm exec --yes \\
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.7/create-mobigent-app-0.1.7.tgz \\
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.8/create-mobigent-app-0.1.8.tgz \\
   -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
@@ -57,13 +57,12 @@ export const expenses = feature("expense")
     confirm: true
   });`;
 
-const appCode = `import Constants from "expo-constants";
-import { mobigentApp } from "@mobigent/react-native/app";
+const appCode = `import { mobigentApp } from "@mobigent/react-native/app";
+import { mobigentConfig } from "./mobigent/config";
 import { expenses } from "./mobigent/expense";
 
 const { Root } = mobigentApp({
-  appId: Constants.expoConfig?.ios?.bundleIdentifier ?? "com.example.app",
-  appName: Constants.expoConfig?.name ?? "Example App",
+  config: mobigentConfig,
   features: [expenses]
 });
 
@@ -71,14 +70,17 @@ export default function App() {
   return <Root><YourApp /></Root>;
 }`;
 
-const connectCode = `import { mobigent } from "@mobigent/react-native";
+const connectCode = `import { startMobigentBackend } from "@mobigent/backend";
+import { mobigent } from "@mobigent/react-native";
 import { connectMobigent } from "@mobigent/react-native/simple";
 import { expenses } from "./mobigent/expense";
 
+const backend = await startMobigentBackend();
 await connectMobigent(mobigent, {
-  appId: "com.example.app",
-  appName: "Example App",
-  gatewayUrl: "ws://localhost:8787",
+  config: backend.app({
+    appId: "com.example.app",
+    appName: "Example App"
+  }),
   features: [expenses]
 });`;
 
@@ -96,7 +98,12 @@ const backendCode = `import { startMobigentBackend } from "@mobigent/backend";
 const mobigent = await startMobigentBackend();
 
 console.log(mobigent.urls.inspector);
-console.log(mobigent.urls.openapi);`;
+console.log(mobigent.urls.openapi);
+
+const appConfig = mobigent.app({
+  appId: "com.example.app",
+  appName: "Example App"
+});`;
 
 const securityDoctorCode = `npx mobigent-init \\
   --security-doctor \\
@@ -277,7 +284,7 @@ const nativeUrls = [
 const firstRunChecks = [
   ["Install", "Add the app package to React Native and the backend package to your server."],
   ["Expose", "`feature()` turns real app functions into typed agent capabilities."],
-  ["Connect", "`mobigentApp()` or `connectMobigent()` attaches features and keeps the manifest updated."],
+  ["Connect", "`mobigent.app()` creates config; `mobigentApp()` or `connectMobigent()` consumes it."],
   ["Discover", "The backend exposes tools through HTTP, OpenAPI, provider helpers, and MCP."],
   ["Approve", "Risky actions pause inside the app before handlers run."],
   ["Audit", "Calls, approvals, denials, errors, and events appear in `/audit`."]
@@ -312,7 +319,7 @@ const packages = [
 const reactNativeApis = [
   ["feature()", "Creates a small feature surface with read, write, and screen helpers."],
   ["mobigentApp()", "Wraps the existing React Native app once and connects features."],
-  ["connectMobigent()", "Configures, registers features, and connects a non-React host in one call."],
+  ["connectMobigent()", "Consumes backend app config, registers features, and connects a non-React host in one call."],
   ["registerFeatures()", "Attaches features manually when you need custom lifecycle control."],
   ["read()", "Exposes read-only app data to agents."],
   ["write()", "Exposes a confirmed app action with plain input fields."],

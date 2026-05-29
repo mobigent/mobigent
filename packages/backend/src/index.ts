@@ -11,6 +11,7 @@ import type { JsonObject } from "@mobigent/core";
 export type MobigentBackendOptions = {
   wsPort?: number;
   httpPort?: number;
+  appToken?: string;
   authToken?: string;
   apiKey?: string;
   agentApiKeys?: Record<string, string>;
@@ -27,6 +28,23 @@ export type MobigentBackendOptions = {
   silent?: boolean;
 };
 
+export type MobigentBackendAppConfigOptions = {
+  appId: string;
+  appName: string;
+  version?: string;
+  gatewayUrl?: string;
+  appToken?: string;
+  authToken?: string;
+};
+
+export type MobigentBackendAppConfig = {
+  appId: string;
+  appName: string;
+  gatewayUrl: string;
+  version?: string;
+  authToken?: string;
+};
+
 export type MobigentBackend = {
   gateway: BridgeGateway;
   httpServer: Server;
@@ -36,6 +54,8 @@ export type MobigentBackend = {
     inspector: string;
     openapi: string;
   };
+  app(options: MobigentBackendAppConfigOptions): MobigentBackendAppConfig;
+  appConfig(options: MobigentBackendAppConfigOptions): MobigentBackendAppConfig;
   stop(): Promise<void>;
   tools(): ReturnType<BridgeGateway["listTools"]>;
   apps(): GatewayAppSession[];
@@ -46,9 +66,10 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
   const wsPort = options.wsPort ?? Number(process.env.MOBIGENT_WS_PORT ?? 8787);
   const httpPort = options.httpPort ?? Number(process.env.MOBIGENT_HTTP_PORT ?? 8788);
   const host = options.host ?? "localhost";
+  const appToken = options.appToken ?? options.authToken ?? process.env.MOBIGENT_AUTH_TOKEN;
   const gateway = new BridgeGateway({
     port: wsPort,
-    authToken: options.authToken ?? process.env.MOBIGENT_AUTH_TOKEN,
+    authToken: appToken,
     auditLogPath: options.auditLogPath ?? process.env.MOBIGENT_AUDIT_LOG_PATH,
     auditRedactKeys: options.auditRedactKeys,
     allowedAppIds: options.allowedAppIds,
@@ -83,10 +104,20 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     console.log(`OpenAPI: ${urls.openapi}`);
   }
 
+  const appConfig = (appOptions: MobigentBackendAppConfigOptions): MobigentBackendAppConfig => ({
+    appId: appOptions.appId,
+    appName: appOptions.appName,
+    gatewayUrl: appOptions.gatewayUrl ?? urls.websocket,
+    version: appOptions.version,
+    authToken: appOptions.appToken ?? appOptions.authToken ?? appToken
+  });
+
   return {
     gateway,
     httpServer,
     urls,
+    app: appConfig,
+    appConfig,
     stop: () => stopBackend(httpServer, gateway),
     tools: () => gateway.listTools(),
     apps: () => gateway.listApps(),

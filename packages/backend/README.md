@@ -9,6 +9,11 @@ const mobigent = await startMobigentBackend();
 
 console.log(mobigent.urls.inspector);
 console.log(mobigent.urls.openapi);
+
+const appConfig = mobigent.app({
+  appId: "com.example.app",
+  appName: "Example App"
+});
 ```
 
 This starts:
@@ -20,6 +25,19 @@ This starts:
 - tool routing
 - readiness checks
 - audit events
+
+## App Config
+
+Use `mobigent.app()` to create the small config object your app SDK needs:
+
+```ts
+const appConfig = mobigent.app({
+  appId: "com.example.app",
+  appName: "Example App"
+});
+```
+
+That config includes the app id, app name, WebSocket URL, version, and app token when `appToken` or `MOBIGENT_AUTH_TOKEN` is configured.
 
 ## Call A Tool From Code
 

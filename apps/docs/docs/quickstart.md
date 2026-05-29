@@ -8,7 +8,7 @@ The easiest path is the starter:
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.7/create-mobigent-app-0.1.7.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.8/create-mobigent-app-0.1.8.tgz \
   -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
@@ -29,7 +29,7 @@ You should see app, backend, readiness, and tool checks pass.
 Install the app SDK:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.7/mobigent-react-native-0.1.7.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.8/mobigent-react-native-0.1.8.tgz
 ```
 
 Create one feature:
@@ -52,11 +52,11 @@ Wrap the app once:
 
 ```tsx
 import { mobigentApp } from "@mobigent/react-native/app";
+import { mobigentConfig } from "./mobigent/config";
 import { expenses } from "./mobigent/expenses";
 
 const { Root } = mobigentApp({
-  appId: "com.example.app",
-  appName: "Example App",
+  config: mobigentConfig,
   features: [expenses]
 });
 
@@ -72,14 +72,17 @@ export default function App() {
 For a non-React demo or test host, connect the same feature in one call:
 
 ```ts
+import { startMobigentBackend } from "@mobigent/backend";
 import { mobigent } from "@mobigent/react-native";
 import { connectMobigent } from "@mobigent/react-native/simple";
 import { expenses } from "./mobigent/expenses";
 
+const backend = await startMobigentBackend();
 await connectMobigent(mobigent, {
-  appId: "com.example.app",
-  appName: "Example App",
-  gatewayUrl: "ws://localhost:8787",
+  config: backend.app({
+    appId: "com.example.app",
+    appName: "Example App"
+  }),
   features: [expenses]
 });
 ```
@@ -89,7 +92,7 @@ await connectMobigent(mobigent, {
 Install the backend SDK:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.7/mobigent-backend-0.1.7.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.8/mobigent-backend-0.1.8.tgz
 ```
 
 Start Mobigent:
@@ -101,6 +104,11 @@ const mobigent = await startMobigentBackend();
 
 console.log(mobigent.urls.inspector);
 console.log(mobigent.urls.openapi);
+
+const appConfig = mobigent.app({
+  appId: "com.example.app",
+  appName: "Example App"
+});
 ```
 
 Open the inspector URL. When the app connects, its tools appear there.

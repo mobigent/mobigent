@@ -20,7 +20,7 @@ The SDK handles namespacing, JSON Schema generation, validation, confirmation, c
 Until npmjs publishing is connected, install from the public GitHub release:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.7/mobigent-react-native-0.1.7.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.8/mobigent-react-native-0.1.8.tgz
 ```
 
 After npmjs publishing is enabled:
@@ -61,11 +61,11 @@ com_example_app.expense_create
 
 ```tsx
 import { mobigentApp } from "@mobigent/react-native/app";
+import { mobigentConfig } from "./src/mobigent/config";
 import { expenses } from "./src/mobigent/expenses";
 
 const { Root } = mobigentApp({
-  appId: "com.example.app",
-  appName: "Example App",
+  config: mobigentConfig,
   features: [expenses]
 });
 
@@ -83,14 +83,17 @@ Run a Mobigent backend from your server with `@mobigent/backend`, then open the 
 For a Node demo, test host, or another non-React runtime, use the same feature without manual registration:
 
 ```ts
+import { startMobigentBackend } from "@mobigent/backend";
 import { mobigent } from "@mobigent/react-native";
 import { connectMobigent } from "@mobigent/react-native/simple";
 import { expenses } from "./mobigent/expenses";
 
+const backend = await startMobigentBackend();
 const connection = await connectMobigent(mobigent, {
-  appId: "com.example.app",
-  appName: "Example App",
-  gatewayUrl: "ws://localhost:8787",
+  config: backend.app({
+    appId: "com.example.app",
+    appName: "Example App"
+  }),
   features: [expenses]
 });
 ```

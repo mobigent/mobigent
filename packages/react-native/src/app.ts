@@ -1,7 +1,8 @@
 import { createAgentApp, type AgentAppFactoryOptions } from "./ui.js";
-import type { MobigentSimpleFeature } from "./simple.js";
+import type { MobigentSimpleAppConfig, MobigentSimpleFeature } from "./simple.js";
 
 export type MobigentSimpleAppOptions = Omit<AgentAppFactoryOptions, "capabilities" | "modules"> & {
+  config?: MobigentSimpleAppConfig;
   features?: MobigentSimpleFeature | MobigentSimpleFeature[];
   capabilities?: AgentAppFactoryOptions["capabilities"];
   modules?: AgentAppFactoryOptions["modules"];
@@ -9,9 +10,15 @@ export type MobigentSimpleAppOptions = Omit<AgentAppFactoryOptions, "capabilitie
 
 export function mobigentApp(options: MobigentSimpleAppOptions) {
   const features = toArray(options.features);
+  const { config, ...appOptions } = options;
 
   return createAgentApp({
-    ...options,
+    ...appOptions,
+    appId: appOptions.appId ?? config?.appId,
+    appName: appOptions.appName ?? config?.appName,
+    gatewayUrl: appOptions.gatewayUrl ?? config?.gatewayUrl,
+    version: appOptions.version ?? config?.version,
+    authToken: appOptions.authToken ?? config?.authToken,
     capabilities: [
       ...toArray(options.capabilities),
       ...features
@@ -31,8 +38,10 @@ export {
   simpleSchema,
   toSchema,
   type MobigentSimpleActionOptions,
+  type MobigentSimpleAppConfig,
   type MobigentSimpleClient,
   type MobigentSimpleComponentOptions,
+  type MobigentSimpleConfiguredConnectionOptions,
   type MobigentSimpleConnection,
   type MobigentSimpleConnectionClient,
   type MobigentSimpleConnectionOptions,

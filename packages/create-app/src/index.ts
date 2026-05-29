@@ -124,7 +124,7 @@ export function installMobigentAppDependencies(options: Pick<CreateMobigentAppOp
   };
 }
 
-const defaultMobigentVersion = "0.1.7";
+const defaultMobigentVersion = "0.1.8";
 
 function createPackageJson(packageName: string, options?: CreateMobigentAppOptions) {
   const packageSource = options?.packageSource ?? "github-release";
@@ -276,6 +276,10 @@ const backend = await startMobigentBackend({
   wsPort: gatewayPort,
   httpPort
 });
+const appConfig = backend.app({
+  appId: ${JSON.stringify(options.appId)},
+  appName: ${JSON.stringify(options.appName)}
+});
 
 const app = express();
 app.use(express.json());
@@ -308,9 +312,7 @@ const appServer = app.listen(appPort, () => {
 });
 
 const mobigentConnection = await connectMobigent(mobigent, {
-  appId: ${JSON.stringify(options.appId)},
-  appName: ${JSON.stringify(options.appName)},
-  gatewayUrl: \`ws://localhost:\${gatewayPort}\`,
+  config: appConfig,
   features: expenseFeature,
   createSocket: createNodeSocket,
   confirm: async ({ input }) => {

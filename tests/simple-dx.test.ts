@@ -49,6 +49,7 @@ test("backend helper starts HTTP, OpenAPI, and inspector endpoints from one func
   const backend = await startMobigentBackend({
     wsPort: 18987,
     httpPort: 18988,
+    appToken: "dev-token",
     silent: true
   });
 
@@ -57,6 +58,13 @@ test("backend helper starts HTTP, OpenAPI, and inspector endpoints from one func
     assert.equal(health.ok, true);
     assert.equal(backend.urls.websocket, "ws://localhost:18987");
     assert.equal(backend.urls.openapi, "http://localhost:18988/openapi.json");
+    assert.deepEqual(backend.app({ appId: "com.example.app", appName: "Example App" }), {
+      appId: "com.example.app",
+      appName: "Example App",
+      gatewayUrl: "ws://localhost:18987",
+      authToken: "dev-token",
+      version: undefined
+    });
   } finally {
     await backend.stop();
   }
@@ -102,9 +110,10 @@ test("existing app DX connects simple app features to backend calls end to end",
 
   try {
     mobigentConnection = await connectMobigent(mobigent, {
-      appId: "com.example.existing",
-      appName: "Existing App",
-      gatewayUrl: backend.urls.websocket,
+      config: backend.app({
+        appId: "com.example.existing",
+        appName: "Existing App"
+      }),
       features: expenses,
       createSocket: createNodeSocket,
       confirm: async () => true

@@ -475,7 +475,7 @@ export function createGatewayConfig(
 ): MobigentGatewayConfig {
   return {
     name: "Mobigent Gateway",
-    version: "0.1.7",
+    version: "0.1.8",
     baseUrl,
     protocol: {
       currentVersion: 1,
@@ -675,7 +675,7 @@ export function createOpenApiSpec(
       title: "Mobigent Gateway",
       description:
         "Expose mobile app capabilities to AI agents through typed, permissioned actions. /openapi.json is agent-scoped when x-mobigent-agent or ?agentId= is provided.",
-      version: "0.1.7"
+      version: "0.1.8"
     },
     servers: [
       {

@@ -93,6 +93,23 @@ export type MobigentSimpleConnectionOptions = {
   heartbeat?: boolean | MobigentHeartbeatOptions;
 };
 
+export type MobigentSimpleAppConfig = Pick<
+  MobigentSimpleConnectionOptions,
+  "appId" | "appName" | "gatewayUrl" | "version" | "authToken"
+>;
+
+export type MobigentSimpleConfiguredConnectionOptions = Omit<
+  MobigentSimpleConnectionOptions,
+  "appId" | "appName" | "gatewayUrl" | "version" | "authToken"
+> & {
+  config: MobigentSimpleAppConfig;
+  appId?: string;
+  appName?: string;
+  gatewayUrl?: string;
+  version?: string;
+  authToken?: string;
+};
+
 export type MobigentSimpleConnectionClient = MobigentSimpleClient & {
   configure(options: Omit<MobigentSimpleConnectionOptions, "features">): unknown;
   connect(): Promise<void>;
@@ -192,9 +209,9 @@ export const registerFeature = registerFeatures;
 
 export async function connectMobigent(
   client: MobigentSimpleConnectionClient,
-  options: MobigentSimpleConnectionOptions
+  options: MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions
 ): Promise<MobigentSimpleConnection> {
-  const { features, ...connectionOptions } = options;
+  const { features, ...connectionOptions } = resolveConnectionOptions(options);
 
   client.configure(connectionOptions);
   const unregisterFeatures = registerFeatures(client, features);
@@ -211,6 +228,25 @@ export async function connectMobigent(
       unregisterFeatures();
       client.disconnect();
     }
+  };
+}
+
+function resolveConnectionOptions(
+  options: MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions
+): MobigentSimpleConnectionOptions {
+  if (!("config" in options)) {
+    return options;
+  }
+
+  const { config, ...rest } = options;
+
+  return {
+    ...rest,
+    appId: rest.appId ?? config.appId,
+    appName: rest.appName ?? config.appName,
+    gatewayUrl: rest.gatewayUrl ?? config.gatewayUrl,
+    version: rest.version ?? config.version,
+    authToken: rest.authToken ?? config.authToken
   };
 }
 

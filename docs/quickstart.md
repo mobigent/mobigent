@@ -6,7 +6,7 @@ This guide gets you from an app with no agent interface to a working Mobigent lo
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.7/create-mobigent-app-0.1.7.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.8/create-mobigent-app-0.1.8.tgz \
   -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
@@ -48,15 +48,15 @@ export const expenses = feature("expense")
   });
 ```
 
-Wrap your existing app once:
+Put the backend-generated config in your app, then wrap your existing app once:
 
 ```tsx
 import { mobigentApp } from "@mobigent/react-native/app";
+import { mobigentConfig } from "./mobigent/config";
 import { expenses } from "./mobigent/expenses";
 
 const { Root } = mobigentApp({
-  appId: "com.example.app",
-  appName: "Example App",
+  config: mobigentConfig,
   features: [expenses]
 });
 
@@ -72,14 +72,17 @@ export default function App() {
 For a non-React demo or test host, connect the same feature in one call:
 
 ```ts
+import { startMobigentBackend } from "@mobigent/backend";
 import { mobigent } from "@mobigent/react-native";
 import { connectMobigent } from "@mobigent/react-native/simple";
 import { expenses } from "./mobigent/expenses";
 
+const backend = await startMobigentBackend();
 await connectMobigent(mobigent, {
-  appId: "com.example.app",
-  appName: "Example App",
-  gatewayUrl: "ws://localhost:8787",
+  config: backend.app({
+    appId: "com.example.app",
+    appName: "Example App"
+  }),
   features: [expenses]
 });
 ```
@@ -94,6 +97,11 @@ import { startMobigentBackend } from "@mobigent/backend";
 const mobigent = await startMobigentBackend();
 
 console.log(mobigent.urls.inspector);
+
+const appConfig = mobigent.app({
+  appId: "com.example.app",
+  appName: "Example App"
+});
 ```
 
 For local checks:

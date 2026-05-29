@@ -9,7 +9,7 @@ Use Mobigent like normal app code: expose a few real functions, wrap the app onc
 ## Install
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.7/mobigent-react-native-0.1.7.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.8/mobigent-react-native-0.1.8.tgz
 ```
 
 ## Create A Feature
@@ -33,11 +33,11 @@ export const expenses = feature("expense")
 
 ```tsx
 import { mobigentApp } from "@mobigent/react-native/app";
+import { mobigentConfig } from "./mobigent/config";
 import { expenses } from "./mobigent/expenses";
 
 const { Root } = mobigentApp({
-  appId: "com.example.app",
-  appName: "Example App",
+  config: mobigentConfig,
   features: [expenses]
 });
 
@@ -65,19 +65,22 @@ Open the inspector URL printed by the backend. When the app connects, the featur
 If you are running a local demo, test host, or another runtime where you are using the singleton `mobigent` client directly:
 
 ```ts
+import { startMobigentBackend } from "@mobigent/backend";
 import { mobigent } from "@mobigent/react-native";
 import { connectMobigent } from "@mobigent/react-native/simple";
 import { expenses } from "./mobigent/expenses";
 
+const backend = await startMobigentBackend();
 const connection = await connectMobigent(mobigent, {
-  appId: "com.example.app",
-  appName: "Example App",
-  gatewayUrl: "ws://localhost:8787",
+  config: backend.app({
+    appId: "com.example.app",
+    appName: "Example App"
+  }),
   features: [expenses]
 });
 ```
 
-That one call configures the app identity, registers the feature, connects to the backend, and returns a `disconnect()` helper.
+That one call consumes the backend app config, registers the feature, connects to the backend, and returns a `disconnect()` helper.
 
 ## Tool Names
 

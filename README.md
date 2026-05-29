@@ -38,21 +38,24 @@ The backend developer should only think:
 ```ts
 import { startMobigentBackend } from "@mobigent/backend";
 
-await startMobigentBackend();
+const backend = await startMobigentBackend();
 ```
 
-For a non-React host or local demo, connect the app in one call:
+For a non-React host or local demo, let the backend create the app config and pass it to the SDK:
 
 ```ts
-await connectMobigent(mobigent, {
+const appConfig = backend.app({
   appId: "com.example.app",
-  appName: "Example App",
-  gatewayUrl: "ws://localhost:8787",
+  appName: "Example App"
+});
+
+await connectMobigent(mobigent, {
+  config: appConfig,
   features: [expenses]
 });
 ```
 
-Everything else, WebSockets, registration loops, manifests, OpenAPI, MCP, confirmations, retries, audit events, and inspector wiring, is SDK plumbing.
+Everything else, WebSockets, tokens, registration loops, manifests, OpenAPI, MCP, confirmations, retries, audit events, and inspector wiring, is SDK plumbing.
 
 ## Quick Start
 
@@ -60,7 +63,7 @@ Create a Mobigent starter from the public GitHub release:
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.7/create-mobigent-app-0.1.7.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.8/create-mobigent-app-0.1.8.tgz \
   -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
@@ -90,13 +93,13 @@ That first run is the whole idea: agents do not tap screens or guess UI. Your ap
 For an existing React Native app, install the app SDK:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.7/mobigent-react-native-0.1.7.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.8/mobigent-react-native-0.1.8.tgz
 ```
 
 For a backend/server app, install the backend package:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.7/mobigent-backend-0.1.7.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.8/mobigent-backend-0.1.8.tgz
 ```
 
 ## Install Packages
@@ -106,7 +109,7 @@ Until npmjs.com publishing is connected with an `NPM_TOKEN`, packages are publis
 Install directly from the public release tarball:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.7/mobigent-react-native-0.1.7.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.8/mobigent-react-native-0.1.8.tgz
 ```
 
 Or install from npmjs after npm publishing is connected:
@@ -138,15 +141,15 @@ export const expenses = feature("expense")
   });
 ```
 
-Wrap the app once:
+Put the backend-generated config in your app, then wrap the app once:
 
 ```tsx
 import { mobigentApp } from "@mobigent/react-native/app";
+import { mobigentConfig } from "./mobigent/config";
 import { expenses } from "./mobigent/expenses";
 
 const { Root } = mobigentApp({
-  appId: "com.example.app",
-  appName: "Example App",
+  config: mobigentConfig,
   features: [expenses]
 });
 
@@ -164,14 +167,17 @@ Mobigent handles namespacing, schemas, validation, confirmation, connection life
 If you are wiring a Node demo, test host, or another non-React runtime, use the same feature with the one-call connector:
 
 ```ts
+import { startMobigentBackend } from "@mobigent/backend";
 import { mobigent } from "@mobigent/react-native";
 import { connectMobigent } from "@mobigent/react-native/simple";
 import { expenses } from "./mobigent/expenses";
 
+const backend = await startMobigentBackend();
 await connectMobigent(mobigent, {
-  appId: "com.example.app",
-  appName: "Example App",
-  gatewayUrl: "ws://localhost:8787",
+  config: backend.app({
+    appId: "com.example.app",
+    appName: "Example App"
+  }),
   features: [expenses]
 });
 ```
@@ -185,6 +191,11 @@ const mobigent = await startMobigentBackend();
 
 console.log(mobigent.urls.inspector);
 console.log(mobigent.urls.openapi);
+
+const appConfig = mobigent.app({
+  appId: "com.example.app",
+  appName: "Example App"
+});
 ```
 
 That one function starts the app connection endpoint, HTTP API, OpenAPI schema, inspector, tool routing, audit trail, and readiness checks.

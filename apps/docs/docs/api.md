@@ -27,10 +27,10 @@ export const expenses = feature("expense")
 
 ```tsx
 import { mobigentApp } from "@mobigent/react-native/app";
+import { mobigentConfig } from "./mobigent/config";
 
 const { Root } = mobigentApp({
-  appId: "com.example.app",
-  appName: "Example App",
+  config: mobigentConfig,
   features: [expenses]
 });
 ```
@@ -38,14 +38,17 @@ const { Root } = mobigentApp({
 For non-React hosts, demos, and tests:
 
 ```ts
+import { startMobigentBackend } from "@mobigent/backend";
 import { mobigent } from "@mobigent/react-native";
 import { connectMobigent } from "@mobigent/react-native/simple";
 import { expenses } from "./mobigent/expenses";
 
+const backend = await startMobigentBackend();
 const connection = await connectMobigent(mobigent, {
-  appId: "com.example.app",
-  appName: "Example App",
-  gatewayUrl: "ws://localhost:8787",
+  config: backend.app({
+    appId: "com.example.app",
+    appName: "Example App"
+  }),
   features: [expenses]
 });
 
@@ -58,8 +61,8 @@ connection.disconnect();
 - `read(name, handler)`: exposes app state.
 - `write(name, handler, options)`: exposes confirmed app behavior.
 - `screen(name, handler)`: lets an agent focus a screen or UI surface.
-- `mobigentApp(options)`: wraps a React Native app once.
-- `connectMobigent(client, options)`: configures, registers features, and connects in one call.
+- `mobigentApp({ config, features })`: wraps a React Native app once.
+- `connectMobigent(client, { config, features })`: configures, registers features, and connects in one call.
 - `registerFeatures(client, features)`: lower-level attach helper when you need manual lifecycle control.
 
 ## Backend
@@ -73,6 +76,8 @@ const mobigent = await startMobigentBackend();
 The backend object exposes:
 
 - `urls`
+- `app({ appId, appName })`
+- `appConfig({ appId, appName })`
 - `tools()`
 - `apps()`
 - `call(toolName, input)`
