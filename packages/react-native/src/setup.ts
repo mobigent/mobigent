@@ -29,6 +29,7 @@ export function mobigentApp(options: MobigentSimpleAppOptions) {
 
 export const createMobigentRoot = mobigentApp;
 export const createSimpleMobigentApp = mobigentApp;
+export const setupMobigent = mobigentApp;
 
 function toArray<T>(value: T | T[] | undefined): T[] {
   if (!value) {

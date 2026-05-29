@@ -28,7 +28,7 @@ Mobigent has two normal packages:
 The app developer should only think:
 
 ```txt
-feature("expense")
+defineFeature("expense")
   .read("list", listExpenses)
   .write("create", createExpense, { input: { merchant: "string", amount: "number" } })
 ```
@@ -36,21 +36,21 @@ feature("expense")
 The backend developer should only think:
 
 ```ts
-import { startMobigentBackend } from "@mobigent/backend";
+import { startMobigent } from "@mobigent/backend";
 
-const backend = await startMobigentBackend();
+const backend = await startMobigent({
+  app: {
+    id: "com.example.app",
+    name: "Example App"
+  }
+});
 ```
 
-For a non-React host or local demo, let the backend create the app config and pass it to the SDK:
+For a non-React host or local demo, pass the backend config straight to the SDK:
 
 ```ts
-const appConfig = backend.app({
-  appId: "com.example.app",
-  appName: "Example App"
-});
-
-await connectMobigent(mobigent, {
-  config: appConfig,
+await connectMobigent({
+  config: backend.defaultApp,
   features: [expenses]
 });
 ```
@@ -112,12 +112,15 @@ npx mobigent-backend init --app-id com.example.app --app-name "Example App"
 From the backend, generate the tiny config file your app imports:
 
 ```ts
-const backend = await startMobigentBackend({ appToken: "dev-token" });
+const backend = await startMobigent({
+  appToken: "dev-token",
+  app: {
+    id: "com.example.app",
+    name: "Example App"
+  }
+});
 
-console.log(backend.appConfigModule({
-  appId: "com.example.app",
-  appName: "Example App"
-}));
+console.log(backend.copyAppConfig());
 ```
 
 ## Install Packages
@@ -151,9 +154,9 @@ npx mobigent init --app-id com.example.app --app-name "Example App" --feature ex
 Create one feature file:
 
 ```ts
-import { feature } from "@mobigent/react-native";
+import { defineFeature } from "@mobigent/react-native";
 
-export const expenses = feature("expense")
+export const expenses = defineFeature("expense")
   .read("list", async () => ({
     items: await listExpenses()
   }))
@@ -169,11 +172,11 @@ export const expenses = feature("expense")
 Put the backend-generated config in your app, then wrap the app once:
 
 ```tsx
-import { mobigentApp } from "@mobigent/react-native";
+import { setupMobigent } from "@mobigent/react-native";
 import { mobigentConfig } from "./mobigent/config";
 import { expenses } from "./mobigent/expenses";
 
-const { Root } = mobigentApp({
+const { Root } = setupMobigent({
   config: mobigentConfig,
   features: [expenses]
 });
@@ -192,17 +195,19 @@ Mobigent handles namespacing, schemas, validation, confirmation, connection life
 If you are wiring a Node demo, test host, or another non-React runtime, use the same feature with the one-call connector:
 
 ```ts
-import { startMobigentBackend } from "@mobigent/backend";
-import { mobigent } from "@mobigent/react-native";
+import { startMobigent } from "@mobigent/backend";
 import { connectMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
 
-const backend = await startMobigentBackend();
-await connectMobigent(mobigent, {
-  config: backend.app({
-    appId: "com.example.app",
-    appName: "Example App"
-  }),
+const backend = await startMobigent({
+  app: {
+    id: "com.example.app",
+    name: "Example App"
+  }
+});
+
+await connectMobigent({
+  config: backend.defaultApp,
   features: [expenses]
 });
 ```
@@ -219,17 +224,19 @@ npx mobigent-backend init --app-id com.example.app --app-name "Example App"
 Or write it manually:
 
 ```ts
-import { startMobigentBackend } from "@mobigent/backend";
+import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigentBackend();
+const mobigent = await startMobigent({
+  app: {
+    id: "com.example.app",
+    name: "Example App"
+  }
+});
 
 console.log(mobigent.urls.inspector);
 console.log(mobigent.urls.openapi);
 
-const appConfig = mobigent.app({
-  appId: "com.example.app",
-  appName: "Example App"
-});
+const appConfig = mobigent.defaultApp;
 ```
 
 That one function starts the app connection endpoint, HTTP API, OpenAPI schema, inspector, tool routing, audit trail, and readiness checks.

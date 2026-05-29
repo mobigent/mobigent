@@ -26,6 +26,18 @@ export type MobigentBackendOptions = {
   cleanupIntervalMs?: number;
   host?: string;
   silent?: boolean;
+  app?: MobigentBackendDefaultAppOptions;
+};
+
+export type MobigentBackendDefaultAppOptions = {
+  id?: string;
+  name?: string;
+  appId?: string;
+  appName?: string;
+  version?: string;
+  gatewayUrl?: string;
+  appToken?: string;
+  authToken?: string;
 };
 
 export type MobigentBackendAppConfigOptions = {
@@ -61,12 +73,26 @@ export type MobigentBackend = {
   app(options: MobigentBackendAppConfigOptions): MobigentBackendAppConfig;
   appConfig(options: MobigentBackendAppConfigOptions): MobigentBackendAppConfig;
   appConfigModule(options: MobigentBackendAppConfigModuleOptions): string;
+  defaultApp?: MobigentBackendAppConfig;
+  appConfigCode?: string;
+  copyAppConfig(): string;
   stop(): Promise<void>;
   tools(): ReturnType<BridgeGateway["listTools"]>;
   apps(): GatewayAppSession[];
   call(toolName: string, input?: unknown, options?: ToolCallOptions): ReturnType<BridgeGateway["callTool"]>;
 };
 
+export type MobigentBackendWithApp = MobigentBackend & {
+  defaultApp: MobigentBackendAppConfig;
+  appConfigCode: string;
+};
+
+export type MobigentBackendOptionsWithApp = MobigentBackendOptions & {
+  app: MobigentBackendDefaultAppOptions;
+};
+
+export async function startMobigentBackend(options: MobigentBackendOptionsWithApp): Promise<MobigentBackendWithApp>;
+export async function startMobigentBackend(options?: MobigentBackendOptions): Promise<MobigentBackend>;
 export async function startMobigentBackend(options: MobigentBackendOptions = {}): Promise<MobigentBackend> {
   const wsPort = options.wsPort ?? Number(process.env.MOBIGENT_WS_PORT ?? 8787);
   const httpPort = options.httpPort ?? Number(process.env.MOBIGENT_HTTP_PORT ?? 8788);
@@ -120,6 +146,8 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     formatMobigentAppConfigModule(appConfig(appOptions), {
       exportName: appOptions.exportName
     });
+  const defaultApp = options.app ? appConfig(normalizeDefaultApp(options.app)) : undefined;
+  const appConfigCode = defaultApp ? formatMobigentAppConfigModule(defaultApp) : undefined;
 
   return {
     gateway,
@@ -128,6 +156,19 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     app: appConfig,
     appConfig,
     appConfigModule,
+    defaultApp,
+    appConfigCode,
+    copyAppConfig: () => {
+      if (appConfigCode) {
+        return appConfigCode;
+      }
+      return formatMobigentAppConfigModule(
+        appConfig({
+          appId: "com.example.app",
+          appName: "Example App"
+        })
+      );
+    },
     stop: () => stopBackend(httpServer, gateway),
     tools: () => gateway.listTools(),
     apps: () => gateway.listApps(),
@@ -151,6 +192,8 @@ export const ${exportName} = defineMobigentConfig(${JSON.stringify(config, null,
 export const mobigentBackend = {
   start: startMobigentBackend
 };
+export const startMobigent: typeof startMobigentBackend = startMobigentBackend;
+export const createMobigentBackend: typeof startMobigentBackend = startMobigentBackend;
 
 function listen(app: ReturnType<typeof createHttpApp>, port: number) {
   return new Promise<Server>((resolve, reject) => {
@@ -163,6 +206,24 @@ function assertValidExportName(value: string) {
   if (!/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(value)) {
     throw new Error(`Invalid Mobigent app config export name: ${value}`);
   }
+}
+
+function normalizeDefaultApp(app: MobigentBackendDefaultAppOptions): MobigentBackendAppConfigOptions {
+  const appId = app.appId ?? app.id;
+  const appName = app.appName ?? app.name;
+
+  if (!appId || !appName) {
+    throw new Error("Mobigent backend app config requires app.id/appId and app.name/appName.");
+  }
+
+  return {
+    appId,
+    appName,
+    version: app.version,
+    gatewayUrl: app.gatewayUrl,
+    appToken: app.appToken,
+    authToken: app.authToken
+  };
 }
 
 function stopBackend(server: Server, gateway: BridgeGateway) {

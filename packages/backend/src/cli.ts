@@ -182,25 +182,23 @@ function defaultOptions(): MobigentBackendInitOptions {
 }
 
 function createBackendFile(options: MobigentBackendInitOptions) {
-  return `import { startMobigentBackend } from "@mobigent/backend";
+  return `import { startMobigent } from "@mobigent/backend";
 
-export const mobigent = await startMobigentBackend({
+export const mobigent = await startMobigent({
   appToken: process.env.MOBIGENT_AUTH_TOKEN,
-  apiKey: process.env.MOBIGENT_HTTP_API_KEY
+  apiKey: process.env.MOBIGENT_HTTP_API_KEY,
+  app: {
+    id: ${JSON.stringify(options.appId)},
+    name: ${JSON.stringify(options.appName)}
+  }
 });
 
-export const mobigentConfig = mobigent.app({
-  appId: ${JSON.stringify(options.appId)},
-  appName: ${JSON.stringify(options.appName)}
-});
+export const mobigentConfig = mobigent.defaultApp;
 
 console.log("Mobigent inspector:", mobigent.urls.inspector);
 console.log("Mobigent OpenAPI:", mobigent.urls.openapi);
-console.log("Copy this into your app config when you need a static file:");
-console.log(mobigent.appConfigModule({
-  appId: ${JSON.stringify(options.appId)},
-  appName: ${JSON.stringify(options.appName)}
-}));
+console.log("Copy this into your app when you need a static config file:");
+console.log(mobigent.copyAppConfig());
 `;
 }
 

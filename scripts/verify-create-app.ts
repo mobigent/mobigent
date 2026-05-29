@@ -82,18 +82,18 @@ try {
   assert.equal(packageJson.devDependencies["@types/express"], "^5.0.6");
 
   const server = await readFile(join(target, "src", "server.ts"), "utf8");
-  assert.match(server, /appId: "com.mobigent.expense"/);
-  assert.match(server, /appName: "Expense Demo"/);
+  assert.match(server, /id: "com.mobigent.expense"/);
+  assert.match(server, /name: "Expense Demo"/);
   assert.match(server, /Run agent request/);
   assert.match(server, /How this demo works/);
   assert.match(server, /You edit one file/);
   assert.match(server, /src\/capabilities\.ts/);
-  assert.match(server, /startMobigentBackend/);
+  assert.match(server, /startMobigent/);
   assert.match(server, /backend\.call/);
   assert.match(server, /MOBIGENT_DEMO_OPEN/);
 
   const capabilities = await readFile(join(target, "src", "capabilities.ts"), "utf8");
-  assert.match(capabilities, /feature\("expense"\)/);
+  assert.match(capabilities, /defineFeature\("expense"\)/);
   assert.match(capabilities, /\.write\(/);
   assert.match(capabilities, /amount: "number"/);
   assert.match(capabilities, /createExpense/);

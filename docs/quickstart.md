@@ -41,9 +41,9 @@ npx mobigent init --app-id com.example.app --app-name "Example App" --feature ex
 Create a feature file:
 
 ```ts
-import { feature } from "@mobigent/react-native";
+import { defineFeature } from "@mobigent/react-native";
 
-export const expenses = feature("expense")
+export const expenses = defineFeature("expense")
   .read("list", async () => ({ items: await listExpenses() }))
   .write("create", async (input) => createExpense(input), {
     input: {
@@ -58,11 +58,11 @@ export const expenses = feature("expense")
 Put the backend-generated config in your app, then wrap your existing app once:
 
 ```tsx
-import { mobigentApp } from "@mobigent/react-native";
+import { setupMobigent } from "@mobigent/react-native";
 import { mobigentConfig } from "./mobigent/config";
 import { expenses } from "./mobigent/expenses";
 
-const { Root } = mobigentApp({
+const { Root } = setupMobigent({
   config: mobigentConfig,
   features: [expenses]
 });
@@ -79,17 +79,18 @@ export default function App() {
 For a non-React demo or test host, connect the same feature in one call:
 
 ```ts
-import { startMobigentBackend } from "@mobigent/backend";
-import { mobigent } from "@mobigent/react-native";
+import { startMobigent } from "@mobigent/backend";
 import { connectMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
 
-const backend = await startMobigentBackend();
-await connectMobigent(mobigent, {
-  config: backend.app({
-    appId: "com.example.app",
-    appName: "Example App"
-  }),
+const backend = await startMobigent({
+  app: {
+    id: "com.example.app",
+    name: "Example App"
+  }
+});
+await connectMobigent({
+  config: backend.defaultApp,
   features: [expenses]
 });
 ```
@@ -106,21 +107,20 @@ npx mobigent-backend init --app-id com.example.app --app-name "Example App"
 In your server:
 
 ```ts
-import { startMobigentBackend } from "@mobigent/backend";
+import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigentBackend();
+const mobigent = await startMobigent({
+  app: {
+    id: "com.example.app",
+    name: "Example App"
+  }
+});
 
 console.log(mobigent.urls.inspector);
 
-const appConfig = mobigent.app({
-  appId: "com.example.app",
-  appName: "Example App"
-});
+const appConfig = mobigent.defaultApp;
 
-console.log(mobigent.appConfigModule({
-  appId: "com.example.app",
-  appName: "Example App"
-}));
+console.log(mobigent.copyAppConfig());
 ```
 
 For local checks:

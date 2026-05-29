@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import WebSocket from "ws";
-import { formatMobigentAppConfigModule, startMobigentBackend } from "@mobigent/backend";
+import { formatMobigentAppConfigModule, startMobigent, startMobigentBackend } from "@mobigent/backend";
 import { createMobigentBackendFiles } from "@mobigent/backend/cli";
 import {
   connectMobigent,
@@ -65,7 +65,7 @@ test("backend helper starts HTTP, OpenAPI, and inspector endpoints from one func
     assert.equal(health.ok, true);
     assert.equal(backend.urls.websocket, "ws://localhost:18987");
     assert.equal(backend.urls.openapi, "http://localhost:18988/openapi.json");
-    assert.deepEqual(backend.app({ appId: "com.example.app", appName: "Example App" }), {
+  assert.deepEqual(backend.app({ appId: "com.example.app", appName: "Example App" }), {
       appId: "com.example.app",
       appName: "Example App",
       gatewayUrl: "ws://localhost:18987",
@@ -76,6 +76,33 @@ test("backend helper starts HTTP, OpenAPI, and inspector endpoints from one func
       backend.appConfigModule({ appId: "com.example.app", appName: "Example App" }),
       /export const mobigentConfig = defineMobigentConfig/
     );
+  } finally {
+    await backend.stop();
+  }
+});
+
+test("backend SDK can start with one app config like normal backend plumbing", async () => {
+  const backend = await startMobigent({
+    wsPort: 18991,
+    httpPort: 18992,
+    appToken: "dev-token",
+    app: {
+      id: "com.example.simple",
+      name: "Simple App"
+    },
+    silent: true
+  });
+
+  try {
+    assert.deepEqual(backend.defaultApp, {
+      appId: "com.example.simple",
+      appName: "Simple App",
+      gatewayUrl: "ws://localhost:18991",
+      authToken: "dev-token",
+      version: undefined
+    });
+    assert.match(backend.copyAppConfig(), /com.example.simple/);
+    assert.match(backend.appConfigCode ?? "", /defineMobigentConfig/);
   } finally {
     await backend.stop();
   }
@@ -93,9 +120,9 @@ test("backend init helper creates a copy-paste server entrypoint", () => {
   });
 
   assert.deepEqual(files.map((file) => file.path), ["src/mobigent.ts", ".env.mobigent"]);
-  assert.match(files[0]?.contents ?? "", /startMobigentBackend/);
-  assert.match(files[0]?.contents ?? "", /mobigent\.app/);
-  assert.match(files[0]?.contents ?? "", /appConfigModule/);
+  assert.match(files[0]?.contents ?? "", /startMobigent/);
+  assert.match(files[0]?.contents ?? "", /defaultApp/);
+  assert.match(files[0]?.contents ?? "", /copyAppConfig/);
   assert.match(files[1]?.contents ?? "", /MOBIGENT_AUTH_TOKEN/);
 });
 
@@ -183,6 +210,63 @@ test("existing app DX connects simple app features to backend calls end to end",
     });
     assert.deepEqual(await backend.call("com_example_existing.get_expense_list"), {
       items: [result]
+    });
+  } finally {
+    mobigentConnection?.disconnect();
+    await backend.stop();
+  }
+});
+
+test("existing app DX can connect without passing the singleton client manually", async () => {
+  const created: Array<{ id: string; merchant: string; amount: number }> = [];
+  const expenses = feature("expense").write(
+    "create",
+    async (input) => {
+      const expense = {
+        id: `EXP-${created.length + 1}`,
+        merchant: String(input.merchant),
+        amount: Number(input.amount)
+      };
+      created.push(expense);
+      return expense;
+    },
+    {
+      input: {
+        merchant: "string",
+        amount: "number"
+      },
+      confirm: true
+    }
+  );
+
+  const backend = await startMobigent({
+    wsPort: 18993,
+    httpPort: 18994,
+    app: {
+      id: "com.example.onecall",
+      name: "One Call App"
+    },
+    silent: true
+  });
+  let mobigentConnection: { disconnect(): void } | undefined;
+
+  try {
+    mobigentConnection = await connectMobigent({
+      config: backend.defaultApp,
+      features: expenses,
+      createSocket: createNodeSocket,
+      confirm: async () => true
+    });
+
+    await waitFor(() => backend.tools().some((tool) => tool.name === "com_example_onecall.expense_create"));
+
+    assert.deepEqual(await backend.call("com_example_onecall.expense_create", {
+      merchant: "Airport Taxi",
+      amount: 42.25
+    }), {
+      id: "EXP-1",
+      merchant: "Airport Taxi",
+      amount: 42.25
     });
   } finally {
     mobigentConnection?.disconnect();

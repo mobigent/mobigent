@@ -5,7 +5,7 @@ Make a React Native app callable by AI agents with normal app functions.
 Mobigent's React Native package should feel like this:
 
 ```ts
-feature("expense")
+defineFeature("expense")
   .read("list", listExpenses)
   .write("create", createExpense, {
     input: { merchant: "string", amount: "number" },
@@ -42,9 +42,9 @@ It creates a Mobigent root wrapper and one feature file. You can also create the
 Create `src/mobigent/expenses.ts`:
 
 ```ts
-import { feature } from "@mobigent/react-native";
+import { defineFeature } from "@mobigent/react-native";
 
-export const expenses = feature("expense")
+export const expenses = defineFeature("expense")
   .read("list", async () => ({
     items: await listExpenses()
   }))
@@ -68,11 +68,11 @@ com_example_app.expense_create
 ## Wrap Your Existing App
 
 ```tsx
-import { mobigentApp } from "@mobigent/react-native";
+import { setupMobigent } from "@mobigent/react-native";
 import { mobigentConfig } from "./src/mobigent/config";
 import { expenses } from "./src/mobigent/expenses";
 
-const { Root } = mobigentApp({
+const { Root } = setupMobigent({
   config: mobigentConfig,
   features: [expenses]
 });
@@ -91,17 +91,18 @@ Run a Mobigent backend from your server with `@mobigent/backend`, then open the 
 For a Node demo, test host, or another non-React runtime, use the same feature without manual registration:
 
 ```ts
-import { startMobigentBackend } from "@mobigent/backend";
-import { mobigent } from "@mobigent/react-native";
+import { startMobigent } from "@mobigent/backend";
 import { connectMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
 
-const backend = await startMobigentBackend();
-const connection = await connectMobigent(mobigent, {
-  config: backend.app({
-    appId: "com.example.app",
-    appName: "Example App"
-  }),
+const backend = await startMobigent({
+  app: {
+    id: "com.example.app",
+    name: "Example App"
+  }
+});
+const connection = await connectMobigent({
+  config: backend.defaultApp,
   features: [expenses]
 });
 ```
@@ -182,4 +183,4 @@ The package still includes lower-level APIs for mature apps:
 - `schema.*`
 - diagnostics and status hooks
 
-Use these when you need screen-scoped capabilities, custom provider placement, custom confirmation UI, manifest signing, or advanced environment switching. New apps should start with `feature()` and `mobigentApp()`.
+Use these when you need screen-scoped capabilities, custom provider placement, custom confirmation UI, manifest signing, or advanced environment switching. New apps should start with `defineFeature()` and `setupMobigent()`.

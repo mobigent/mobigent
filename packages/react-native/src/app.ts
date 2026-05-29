@@ -2,12 +2,15 @@ export {
   createMobigentRoot,
   createSimpleMobigentApp,
   mobigentApp,
+  setupMobigent,
   type MobigentSimpleAppOptions
 } from "./setup.js";
 
 export {
   agentFeature,
   connectMobigent,
+  createFeature,
+  defineFeature,
   defineMobigentConfig,
   feature,
   registerFeature,

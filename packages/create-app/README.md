@@ -15,7 +15,7 @@ The starter opens a browser page where one click calls a Mobigent tool and updat
 Edit `src/capabilities.ts` first. That file contains the sample app state and one simple Mobigent feature:
 
 ```ts
-feature("expense")
+defineFeature("expense")
   .read("list", listExpenses)
   .write("create", createExpense, { input: { amount: "number", merchant: "string" } })
 ```

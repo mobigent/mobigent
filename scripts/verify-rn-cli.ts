@@ -45,13 +45,13 @@ try {
   const rootFile = await readFile(join(dir, "mobigent.tsx"), "utf8");
   assert.match(rootFile, /MobigentRoot/);
   assert.match(rootFile, /@mobigent\/react-native/);
-  assert.match(rootFile, /mobigentApp/);
+  assert.match(rootFile, /setupMobigent/);
   assert.match(rootFile, /features: \[taskFeature\]/);
   assert.match(rootFile, /ConfirmationComponent: MobigentAgentApproval/);
   assert.match(await readFile(join(dir, "mobigent-confirmation.tsx"), "utf8"), /useMobigentConfirmation/);
   assert.match(
     await readFile(join(dir, "mobigent-features", "task.ts"), "utf8"),
-    /feature\("task"\)/
+    /defineFeature\("task"\)/
   );
 
   const doctor = run([

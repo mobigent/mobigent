@@ -259,8 +259,8 @@ When you move this into a real mobile app, start by copying the shape from \`src
 function createServerFile(options: CreateMobigentAppOptions) {
   return `import { spawn } from "node:child_process";
 import express from "express";
-import { startMobigentBackend } from "@mobigent/backend";
-import { connectMobigent, mobigent } from "@mobigent/react-native";
+import { startMobigent } from "@mobigent/backend";
+import { connectMobigent } from "@mobigent/react-native";
 import { expenseFeature, expenses, parsePrompt } from "./capabilities.js";
 import { createNodeSocket } from "./nodeSocket.js";
 
@@ -271,13 +271,13 @@ const httpPort = ${options.httpPort};
 const appPort = ${options.appPort};
 const toolName = "${toolName(options.appId, "expense_create")}";
 
-const backend = await startMobigentBackend({
+const backend = await startMobigent({
   wsPort: gatewayPort,
-  httpPort
-});
-const appConfig = backend.app({
-  appId: ${JSON.stringify(options.appId)},
-  appName: ${JSON.stringify(options.appName)}
+  httpPort,
+  app: {
+    id: ${JSON.stringify(options.appId)},
+    name: ${JSON.stringify(options.appName)}
+  }
 });
 
 const app = express();
@@ -310,8 +310,8 @@ const appServer = app.listen(appPort, () => {
   openBrowser(\`http://localhost:\${appPort}\`);
 });
 
-const mobigentConnection = await connectMobigent(mobigent, {
-  config: appConfig,
+const mobigentConnection = await connectMobigent({
+  config: backend.defaultApp,
   features: expenseFeature,
   createSocket: createNodeSocket,
   confirm: async ({ input }) => {
@@ -516,7 +516,7 @@ function renderPage() {
 }
 
 function createCapabilitiesFile() {
-  return `import { feature, mobigent } from "@mobigent/react-native";
+  return `import { defineFeature, mobigent } from "@mobigent/react-native";
 
 export type Expense = {
   id: string;
@@ -537,7 +537,7 @@ export const expenses: Expense[] = [
   }
 ];
 
-export const expenseFeature = feature("expense")
+export const expenseFeature = defineFeature("expense")
   .read("list", async () => ({ expenses }), {
     description: "Read expenses from the app.",
     output: { expenses: ["object"] }

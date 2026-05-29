@@ -16,6 +16,8 @@ import type {
   MobigentManifestSigner,
   MobigentReconnectOptions
 } from "./AgentBridge.js";
+import { mobigent } from "./AgentBridge.js";
+import { createMobigentGatewayUrl } from "./gatewayUrl.js";
 import { schema } from "./schema.js";
 import type { MobigentSocketFactory } from "./transport.js";
 
@@ -81,7 +83,7 @@ export type MobigentSimpleClient = {
 export type MobigentSimpleConnectionOptions = {
   appId: string;
   appName: string;
-  gatewayUrl: string;
+  gatewayUrl?: string;
   features: MobigentSimpleFeature | MobigentSimpleFeature[];
   version?: string;
   authToken?: string;
@@ -167,6 +169,8 @@ export function feature(namespace: string): MobigentSimpleFeature {
 }
 
 export const agentFeature = feature;
+export const defineFeature = feature;
+export const createFeature = feature;
 
 export function registerFeatures(
   client: MobigentSimpleClient,
@@ -214,7 +218,21 @@ export const registerFeature = registerFeatures;
 export async function connectMobigent(
   client: MobigentSimpleConnectionClient,
   options: MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions
+): Promise<MobigentSimpleConnection>;
+export async function connectMobigent(
+  options: MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions
+): Promise<MobigentSimpleConnection>;
+export async function connectMobigent(
+  clientOrOptions:
+    | MobigentSimpleConnectionClient
+    | MobigentSimpleConnectionOptions
+    | MobigentSimpleConfiguredConnectionOptions,
+  maybeOptions?: MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions
 ): Promise<MobigentSimpleConnection> {
+  const client = maybeOptions ? (clientOrOptions as MobigentSimpleConnectionClient) : mobigent;
+  const options = (maybeOptions ?? clientOrOptions) as
+    | MobigentSimpleConnectionOptions
+    | MobigentSimpleConfiguredConnectionOptions;
   const { features, ...connectionOptions } = resolveConnectionOptions(options);
 
   client.configure(connectionOptions);
@@ -237,9 +255,12 @@ export async function connectMobigent(
 
 function resolveConnectionOptions(
   options: MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions
-): MobigentSimpleConnectionOptions {
+): MobigentSimpleConnectionOptions & { gatewayUrl: string } {
   if (!("config" in options)) {
-    return options;
+    return {
+      ...options,
+      gatewayUrl: options.gatewayUrl ?? createMobigentGatewayUrl()
+    };
   }
 
   const { config, ...rest } = options;
@@ -248,7 +269,7 @@ function resolveConnectionOptions(
     ...rest,
     appId: rest.appId ?? config.appId,
     appName: rest.appName ?? config.appName,
-    gatewayUrl: rest.gatewayUrl ?? config.gatewayUrl,
+    gatewayUrl: rest.gatewayUrl ?? config.gatewayUrl ?? createMobigentGatewayUrl(),
     version: rest.version ?? config.version,
     authToken: rest.authToken ?? config.authToken
   };

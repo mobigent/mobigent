@@ -10,9 +10,9 @@ Lower-level protocol packages still exist, but most developers should not need t
 ## App API
 
 ```ts
-import { feature } from "@mobigent/react-native";
+import { defineFeature } from "@mobigent/react-native";
 
-export const expenses = feature("expense")
+export const expenses = defineFeature("expense")
   .read("list", async () => ({ items: await listExpenses() }))
   .write("create", async (input) => createExpense(input), {
     input: {
@@ -24,11 +24,11 @@ export const expenses = feature("expense")
 ```
 
 ```tsx
-import { mobigentApp } from "@mobigent/react-native";
+import { setupMobigent } from "@mobigent/react-native";
 import { mobigentConfig } from "./mobigent/config";
 import { expenses } from "./mobigent/expenses";
 
-const { Root } = mobigentApp({
+const { Root } = setupMobigent({
   config: mobigentConfig,
   features: [expenses]
 });
@@ -37,17 +37,18 @@ const { Root } = mobigentApp({
 For non-React hosts, demos, and tests:
 
 ```ts
-import { startMobigentBackend } from "@mobigent/backend";
-import { mobigent } from "@mobigent/react-native";
+import { startMobigent } from "@mobigent/backend";
 import { connectMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
 
-const backend = await startMobigentBackend();
-const connection = await connectMobigent(mobigent, {
-  config: backend.app({
-    appId: "com.example.app",
-    appName: "Example App"
-  }),
+const backend = await startMobigent({
+  app: {
+    id: "com.example.app",
+    name: "Example App"
+  }
+});
+const connection = await connectMobigent({
+  config: backend.defaultApp,
   features: [expenses]
 });
 
@@ -57,22 +58,20 @@ connection.disconnect();
 ## Backend API
 
 ```ts
-import { startMobigentBackend } from "@mobigent/backend";
+import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigentBackend();
+const mobigent = await startMobigent({
+  app: {
+    id: "com.example.app",
+    name: "Example App"
+  }
+});
 
 console.log(mobigent.urls.inspector);
 console.log(mobigent.urls.openapi);
 
-const appConfig = mobigent.app({
-  appId: "com.example.app",
-  appName: "Example App"
-});
-
-const appConfigCode = mobigent.appConfigModule({
-  appId: "com.example.app",
-  appName: "Example App"
-});
+const appConfig = mobigent.defaultApp;
+const appConfigCode = mobigent.copyAppConfig();
 ```
 
 The returned object includes:
@@ -83,7 +82,7 @@ The returned object includes:
 - `urls.openapi`
 - `app({ appId, appName })`
 - `appConfig({ appId, appName })`
-- `appConfigModule({ appId, appName })`
+- `copyAppConfig()`
 - `tools()`
 - `apps()`
 - `call(toolName, input)`
@@ -91,13 +90,13 @@ The returned object includes:
 
 ## Simple App Helpers
 
-- `feature(namespace)`: creates a small app feature.
+- `defineFeature(namespace)`: creates a small app feature.
 - `defineMobigentConfig(config)`: gives app config a stable SDK type.
 - `read(name, handler)`: exposes app state.
 - `write(name, handler, options)`: exposes confirmed app behavior.
 - `screen(name, handler)`: lets an agent focus a screen or UI surface.
-- `mobigentApp({ config, features })`: wraps a React Native app once.
-- `connectMobigent(client, { config, features })`: configures, registers features, and connects in one call.
+- `setupMobigent({ config, features })`: wraps a React Native app once.
+- `connectMobigent({ config, features })`: configures, registers features, and connects in one call.
 - `registerFeatures(client, features)`: lower-level attach helper when you need manual lifecycle control.
 
 ## Capability Types
@@ -107,7 +106,7 @@ The returned object includes:
 Expose app state without changing anything:
 
 ```ts
-feature("cart").read("current", async () => getCart());
+defineFeature("cart").read("current", async () => getCart());
 ```
 
 ### Write
@@ -115,7 +114,7 @@ feature("cart").read("current", async () => getCart());
 Expose app behavior that changes state:
 
 ```ts
-feature("cart").write("checkout", async (input) => checkout(input), {
+defineFeature("cart").write("checkout", async (input) => checkout(input), {
   input: { paymentMethodId: "string" },
   confirm: "Place order?"
 });
@@ -126,7 +125,7 @@ feature("cart").write("checkout", async (input) => checkout(input), {
 Expose a focusable app surface:
 
 ```ts
-feature("expense").screen("detail", async (props) => {
+defineFeature("expense").screen("detail", async (props) => {
   navigation.navigate("ExpenseDetail", { id: props.id });
   return { focused: true };
 }, {

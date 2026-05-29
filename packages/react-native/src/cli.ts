@@ -367,17 +367,17 @@ export function createReactNativeDoctorReport(options: ReactNativeInitCliOptions
   pushPackageJsonCheck(checks, packageJsonPath);
 
   pushFileCheck(checks, rootPath, "root_file", (contents) =>
-    contents.includes("mobigentApp") &&
+    contents.includes("setupMobigent") &&
     contents.includes("features:") &&
     contents.includes("MobigentRoot")
       ? "Root file exports a MobigentRoot with simple feature registration."
       : "Root file exists but does not look like the standard MobigentRoot scaffold."
   );
   pushFileCheck(checks, featurePath, "feature_file", (contents) =>
-    contents.includes(`feature("${options.feature}")`) &&
+    contents.includes(`defineFeature("${options.feature}")`) &&
     contents.includes(`export const ${options.feature}Feature`) &&
     contents.includes(".write(")
-      ? `Feature file exposes ${options.feature}Feature with feature().`
+      ? `Feature file exposes ${options.feature}Feature with defineFeature().`
       : "Feature file exists but does not look like the standard feature scaffold."
   );
   if (options.customConfirmation) {
@@ -773,11 +773,11 @@ function createMobigentRootFile(options: ReactNativeInitCliOptions) {
     : "";
 
 return `import type { ReactNode } from "react";
-import { mobigentApp, type MobigentAppRootProps } from "@mobigent/react-native";
+import { setupMobigent, type MobigentAppRootProps } from "@mobigent/react-native";
 import { ${options.feature}Feature } from "./mobigent-features/${options.feature}";
 ${confirmationImport}
 
-const { Root } = mobigentApp({
+const { Root } = setupMobigent({
   appId: ${JSON.stringify(options.appId)},
   appName: ${JSON.stringify(options.appName)}${versionLine},
   gatewayUrl: process.env.EXPO_PUBLIC_MOBIGENT_GATEWAY_URL ?? ${gatewayUrl},
@@ -806,11 +806,11 @@ function createMobigentExpoRootFile(options: ReactNativeInitCliOptions) {
     : "";
 
 return `import type { ReactNode } from "react";
-import { mobigentApp, type MobigentAppRootProps } from "@mobigent/react-native";
+import { setupMobigent, type MobigentAppRootProps } from "@mobigent/react-native";
 import { ${options.feature}Feature } from "./mobigent-features/${options.feature}";
 ${confirmationImport}
 
-const { Root } = mobigentApp({
+const { Root } = setupMobigent({
   appId: ${JSON.stringify(options.appId)},
   appName: ${JSON.stringify(options.appName)}${versionLine},
   gatewayUrl: process.env.EXPO_PUBLIC_MOBIGENT_GATEWAY_URL ?? "ws://localhost:8787",
@@ -960,7 +960,7 @@ const styles = StyleSheet.create({
 }
 
 function createFeatureFile(feature: string) {
-  return `import { feature } from "@mobigent/react-native";
+  return `import { defineFeature } from "@mobigent/react-native";
 
 type ${feature}Record = {
   id: string;
@@ -970,7 +970,7 @@ type ${feature}Record = {
 
 const ${feature}Records = new Map<string, ${feature}Record>();
 
-export const ${feature}Feature = feature(${JSON.stringify(feature)})
+export const ${feature}Feature = defineFeature(${JSON.stringify(feature)})
   .read("list", async () => ({ items: Array.from(${feature}Records.values()) }), {
     description: "List ${feature} records.",
     output: {
@@ -1015,7 +1015,7 @@ function formatCreatedFilesMessage(options: ReactNativeInitCliOptions) {
   if (options.featureOnly) {
     return (
       `Created Mobigent React Native feature ${options.feature} in ${join(options.outDir, "mobigent-features")}.\n` +
-      `Pass ${options.feature}Feature to mobigentApp({ features: [...] }) or MobigentRoot features.\n`
+      `Pass ${options.feature}Feature to setupMobigent({ features: [...] }) or MobigentRoot features.\n`
     );
   }
 

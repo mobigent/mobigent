@@ -204,10 +204,11 @@ export class Mobigent {
 
     this.manualDisconnect = false;
     this.setConnectionState(this.reconnectAttempts > 0 ? "reconnecting" : "connecting");
-    this.socket = (this.options.createSocket ?? createDefaultSocket)(this.options.gatewayUrl);
+    const socket = (this.options.createSocket ?? createDefaultSocket)(this.options.gatewayUrl);
+    this.socket = socket;
 
     try {
-      await onceOpen(this.socket);
+      await onceOpen(socket);
     } catch (error) {
       this.recordError(error);
       if (!this.getReconnectOptions().enabled) {
@@ -219,15 +220,15 @@ export class Mobigent {
     this.reconnectAttempts = 0;
     this.setConnectionState("connected");
 
-    onMessage(this.socket, (raw) => {
+    onMessage(socket, (raw) => {
       try {
         void this.handleMessage(JSON.parse(raw) as BridgeMessage).catch((error) => this.recordError(error));
       } catch (error) {
         this.recordError(error);
       }
     });
-    onClose(this.socket, () => this.handleSocketClose());
-    onError(this.socket, (error) => {
+    onClose(socket, () => this.handleSocketClose(socket));
+    onError(socket, (error) => {
       this.recordError(error);
       if (!this.getReconnectOptions().enabled) {
         this.setConnectionState("error");
@@ -593,7 +594,11 @@ export class Mobigent {
     }
   }
 
-  private handleSocketClose() {
+  private handleSocketClose(socket?: MobigentSocket) {
+    if (socket && this.socket && socket !== this.socket) {
+      return;
+    }
+
     this.stopHeartbeat();
     this.socket = undefined;
 
