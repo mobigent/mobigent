@@ -193,6 +193,7 @@ test("backend SDK writes app config when appDir is provided", async () => {
 
     try {
       assert.equal(backend.appConfigPath, join(appDir, "mobigent.app.json"));
+      assert.equal(backend.appConfigModulePath, undefined);
       const config = JSON.parse(await readFile(join(appDir, "mobigent.app.json"), "utf8"));
       assert.deepEqual(config, {
         appId: "com.example.mobile",
@@ -234,6 +235,37 @@ test("backend SDK infers default app identity from appDir", async () => {
       const config = JSON.parse(await readFile(join(appDir, "mobigent.app.json"), "utf8"));
       assert.equal(config.appId, "app.acme.travel.wallet.mobile");
       assert.equal(config.appName, "Travel Wallet Mobile");
+    } finally {
+      await backend.stop();
+    }
+  } finally {
+    await rm(dir, { force: true, recursive: true });
+  }
+});
+
+test("backend SDK writes React Native app config module when requested", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "mobigent-backend-app-config-module-"));
+  const appDir = join(dir, "mobile-app");
+
+  try {
+    const backend = await startMobigent({
+      wsPort: 19005,
+      httpPort: 19006,
+      appDir,
+      appConfigModuleFile: join("src", "mobigent-config.ts"),
+      app: {
+        id: "com.example.mobile",
+        name: "Mobile App"
+      },
+      silent: true
+    });
+
+    try {
+      assert.equal(backend.appConfigPath, join(appDir, "mobigent.app.json"));
+      assert.equal(backend.appConfigModulePath, join(appDir, "src", "mobigent-config.ts"));
+      const configModule = await readFile(join(appDir, "src", "mobigent-config.ts"), "utf8");
+      assert.match(configModule, /defineMobigentConfig/);
+      assert.match(configModule, /com\.example\.mobile/);
     } finally {
       await backend.stop();
     }
@@ -285,10 +317,14 @@ test("backend init helper bakes appDir into generated backend code", () => {
     "src/mobigent.ts",
     ".env.mobigent",
     "mobigent.app.json",
-    "../mobile-app/mobigent.app.json"
+    "../mobile-app/mobigent.app.json",
+    "../mobile-app/src/mobigent-config.ts"
   ]);
   assert.match(backendFile, /appDir: "\.\.\/mobile-app"/);
+  assert.match(backendFile, /appConfigModuleFile: "src\/mobigent-config\.ts"/);
   assert.match(backendFile, /mobigent\.appConfigPath/);
+  assert.match(backendFile, /mobigent\.appConfigModulePath/);
+  assert.match(files.find((file) => file.path === "../mobile-app/src/mobigent-config.ts")?.contents ?? "", /defineMobigentConfig/);
 });
 
 test("backend init CLI infers app identity and prints the short app init command", async () => {

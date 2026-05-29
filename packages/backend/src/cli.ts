@@ -17,6 +17,7 @@ export type MobigentBackendInitOptions = {
   envFile: string;
   configFile: string;
   appDir?: string;
+  appConfigModuleFile?: string;
   connectionUrl: string;
   authToken: string;
   force: boolean;
@@ -44,6 +45,7 @@ export type MobigentBackendAgentOptions = {
 };
 
 export function createMobigentBackendFiles(options: MobigentBackendInitOptions): MobigentBackendGeneratedFile[] {
+  const appConfigModuleFile = resolveAppConfigModuleFile(options);
   const files = [
     {
       path: join(options.outDir, options.fileName),
@@ -66,6 +68,16 @@ export function createMobigentBackendFiles(options: MobigentBackendInitOptions):
         path: appConfigPath,
         contents: createAppConfigFile(options)
       });
+    }
+
+    if (appConfigModuleFile) {
+      const appConfigModulePath = join(options.appDir, appConfigModuleFile);
+      if (!files.some((file) => file.path === appConfigModulePath)) {
+        files.push({
+          path: appConfigModulePath,
+          contents: createAppConfigModuleFile(options)
+        });
+      }
     }
   }
 
@@ -213,6 +225,10 @@ function parseArgs(argv: string[]) {
         break;
       case "--app-dir":
         options.appDir = next();
+        options.appConfigModuleFile ||= join("src", "mobigent-config.ts");
+        break;
+      case "--app-config-module":
+        options.appConfigModuleFile = next();
         break;
       case "--gateway-url":
       case "--connection-url":
@@ -308,6 +324,7 @@ function defaultOptions(): MobigentBackendInitOptions {
     envFile: ".env.mobigent",
     configFile: "mobigent.app.json",
     appDir: undefined,
+    appConfigModuleFile: undefined,
     connectionUrl: "ws://localhost:8787",
     authToken: "dev-token",
     force: false,
@@ -338,11 +355,15 @@ function formatAgentSetup(options: MobigentBackendAgentOptions) {
 
 function createBackendFile(options: MobigentBackendInitOptions) {
   const appDirLine = options.appDir ? `  appDir: ${JSON.stringify(options.appDir)},\n` : "";
+  const appConfigModuleFile = resolveAppConfigModuleFile(options);
+  const appConfigModuleLine = appConfigModuleFile
+    ? `  appConfigModuleFile: ${JSON.stringify(appConfigModuleFile)},\n`
+    : "";
 
   return `import { startMobigent } from "@mobigent/backend";
 
 export const mobigent = await startMobigent({
-${appDirLine}  app: {
+${appDirLine}${appConfigModuleLine}  app: {
     id: ${JSON.stringify(options.appId)},
     name: ${JSON.stringify(options.appName)}
   },
@@ -356,6 +377,9 @@ console.log("Mobigent inspector:", mobigent.urls.inspector);
 console.log("Mobigent OpenAPI:", mobigent.urls.openapi);
 if (mobigent.appConfigPath) {
   console.log("Mobigent app config:", mobigent.appConfigPath);
+}
+if (mobigent.appConfigModulePath) {
+  console.log("Mobigent app config module:", mobigent.appConfigModulePath);
 }
 `;
 }
@@ -383,13 +407,22 @@ function createAppConfigFile(options: MobigentBackendInitOptions) {
   )}\n`;
 }
 
+function createAppConfigModuleFile(options: MobigentBackendInitOptions) {
+  return `import { defineMobigentConfig } from "@mobigent/react-native";
+
+export const mobigentConfig = defineMobigentConfig(${createAppConfigFile(options).trim()});
+`;
+}
+
 function formatSuccessMessage(options: MobigentBackendInitOptions, files: MobigentBackendGeneratedFile[]) {
+  const appConfigModuleFile = resolveAppConfigModuleFile(options);
+
   return `Created Mobigent backend files:
 ${files.map((file) => `  ${file.path}`).join("\n")}
 
 Then in your app:
   npx mobigent init --feature expense --out-dir src
-${options.appDir ? `\nMobigent already wrote ${join(options.appDir, "mobigent.app.json")}, so the app initializer will auto-detect the backend connection.\n` : "\nIf your app is beside this backend folder, the app initializer will auto-detect mobigent.app.json. For custom layouts, run: npx mobigent init --feature expense --out-dir src --backend-dir ../server\n"}
+${options.appDir ? `\nMobigent already wrote ${join(options.appDir, "mobigent.app.json")} and ${join(options.appDir, appConfigModuleFile ?? join("src", "mobigent-config.ts"))}, so the app wrapper can import the backend connection directly.\n` : "\nIf your app is beside this backend folder, the app initializer will auto-detect mobigent.app.json. For custom layouts, run: npx mobigent init --feature expense --out-dir src --backend-dir ../server\n"}
 
 Run:
   node --env-file=${options.envFile} --import tsx ${join(options.outDir, options.fileName)}
@@ -397,6 +430,10 @@ Run:
 Then open:
   http://localhost:8788/inspect
 `;
+}
+
+function resolveAppConfigModuleFile(options: Pick<MobigentBackendInitOptions, "appDir" | "appConfigModuleFile">) {
+  return options.appConfigModuleFile ?? (options.appDir ? join("src", "mobigent-config.ts") : undefined);
 }
 
 function helpText() {
@@ -418,7 +455,8 @@ Options:
   --file <name>       Backend file name. Default: mobigent.ts.
   --env <path>        Env file path. Default: .env.mobigent.
   --config-file <path> App config JSON for mobile init. Default: mobigent.app.json.
-  --app-dir <path>    Also write mobigent.app.json into an existing app project.
+  --app-dir <path>    Also write app config files into an existing app project.
+  --app-config-module <path> React Native config module inside --app-dir. Default: src/mobigent-config.ts.
   --connection-url <url> App connection URL written to config. Default: ws://localhost:8787.
   --gateway-url <url> Backward-compatible alias for --connection-url.
   --auth-token <token> App auth token written to config. Default: dev-token.

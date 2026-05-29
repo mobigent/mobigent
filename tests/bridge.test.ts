@@ -2053,19 +2053,22 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
     contract: false
   });
   const rootFile = files.find((file) => file.path === join("src", "mobigent.tsx"));
+  const starterConfigFile = files.find((file) => file.path === join("src", "mobigent-config.ts"));
   const featureFile = files.find((file) => file.path === join("src", "mobigent-features", "expense.ts"));
 
   assert.ok(rootFile);
+  assert.ok(starterConfigFile);
   assert.ok(featureFile);
   assert.match(rootFile.contents, /setupMobigent/);
   assert.match(rootFile.contents, /@mobigent\/react-native/);
+  assert.match(rootFile.contents, /config: mobigentConfig/);
   assert.match(rootFile.contents, /features: \[expenseFeature\]/);
   assert.doesNotMatch(rootFile.contents, /createMobigentEnvironmentFromEnv/);
   assert.doesNotMatch(rootFile.contents, /createMobigentCapabilityRegistry/);
   assert.match(rootFile.contents, /MobigentRootProps/);
   assert.doesNotMatch(rootFile.contents, /mobigentEnvironment/);
   assert.doesNotMatch(rootFile.contents, /mobigentCapabilities/);
-  assert.match(rootFile.contents, /com.mobigent.demo/);
+  assert.match(starterConfigFile.contents, /com.mobigent.demo/);
   assert.doesNotMatch(rootFile.contents, /modules: \[expenseModule\]/);
   assert.doesNotMatch(rootFile.contents, /\.\.\.mobigentEnvironment/);
   assert.match(rootFile.contents, /expenseFeature/);

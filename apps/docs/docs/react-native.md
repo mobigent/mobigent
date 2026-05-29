@@ -12,7 +12,7 @@ Use Mobigent like normal app code: expose a few real functions, wrap the app onc
 npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-react-native-0.1.12.tgz
 ```
 
-If your backend is in a sibling folder named `backend`, `server`, `api`, `agent-server`, or `mobigent-backend`, the app initializer finds `mobigent.app.json` automatically. For custom layouts, pass `--backend-dir ../server`.
+If your backend was started with `appDir`, it writes the app config module that the wrapper imports. If your backend is in a sibling folder named `backend`, `server`, `api`, `agent-server`, or `mobigent-backend`, the app initializer finds `mobigent.app.json` automatically. For custom layouts, pass `--backend-dir ../server`.
 
 ## Create A Feature
 
@@ -59,7 +59,7 @@ const mobigent = await startMobigent({
 await mobigent.ready();
 ```
 
-`appDir` lets the backend SDK infer identity from the mobile app and write `mobigent.app.json` there for you. `mobigent.ready()` waits until the app is connected and has exposed at least one function.
+`appDir` lets the backend SDK infer identity from the mobile app and write `mobigent.app.json` plus `src/mobigent-config.ts` there for you. `mobigent.ready()` waits until the app is connected and has exposed at least one function.
 
 ## Non-React Host Or Demo
 

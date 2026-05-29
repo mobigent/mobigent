@@ -128,9 +128,10 @@ console.log(mobigent.urls.inspector);
 const appConfig = mobigent.defaultApp;
 
 console.log(mobigent.appConfigPath);
+console.log(mobigent.appConfigModulePath);
 ```
 
-With no options, Mobigent infers a starter app id and app name from your project. With `appDir`, it infers from the mobile app project and writes `mobigent.app.json` there for you. Pass `app: { id, name }` only when you want exact production values.
+With no options, Mobigent infers a starter app id and app name from your project. With `appDir`, it infers from the mobile app project and writes `mobigent.app.json` plus `src/mobigent-config.ts` there for you. Pass `app: { id, name }` only when you want exact production values.
 
 `mobigent.ready()` waits until the app is connected and has exposed at least one function. If the app is not running yet, it tells you exactly what is missing.
 

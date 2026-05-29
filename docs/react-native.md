@@ -58,7 +58,7 @@ export default function App() {
 }
 ```
 
-That is enough for a local first run. Mobigent uses `app.mobigent.local` until you pass exact production identity or import a backend-generated config.
+That is enough for a local first run. The generated wrapper imports `src/mobigent-config.ts`. If your backend was started with `appDir`, Mobigent keeps that file updated for you.
 
 ## 4. Run The Backend
 
@@ -73,7 +73,7 @@ const mobigent = await startMobigent({
 await mobigent.ready();
 ```
 
-Mobigent infers a starter app id and app name from your project. With `appDir`, it infers from the mobile app project and writes `mobigent.app.json` there for you. Pass `app: { id, name }` only when you want exact production values. `mobigent.ready()` waits until the app is connected and has exposed at least one function.
+Mobigent infers a starter app id and app name from your project. With `appDir`, it infers from the mobile app project and writes `mobigent.app.json` plus `src/mobigent-config.ts` there for you. Pass `app: { id, name }` only when you want exact production values. `mobigent.ready()` waits until the app is connected and has exposed at least one function.
 
 ## Non-React Host Or Demo
 

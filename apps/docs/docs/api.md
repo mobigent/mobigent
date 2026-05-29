@@ -73,6 +73,7 @@ The backend object exposes:
 
 - `urls`
 - `appConfigPath`
+- `appConfigModulePath`
 - `app({ appId, appName })`
 - `appConfig({ appId, appName })`
 - `appConfigModule({ appId, appName })`

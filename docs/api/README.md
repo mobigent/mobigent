@@ -60,9 +60,10 @@ const mobigent = await startMobigent({
 
 console.log(mobigent.urls.inspector);
 console.log(mobigent.urls.openapi);
+console.log(mobigent.appConfigPath);
+console.log(mobigent.appConfigModulePath);
 
 const appConfig = mobigent.defaultApp;
-const appConfigCode = mobigent.copyAppConfig();
 ```
 
 For local development, `startMobigent()` can infer `defaultApp` from your project name:
@@ -79,9 +80,10 @@ The returned object includes:
 - `urls.inspector`
 - `urls.openapi`
 - `appConfigPath`
+- `appConfigModulePath`
 - `app({ appId, appName })`
 - `appConfig({ appId, appName })`
-- `copyAppConfig()`
+- `copyAppConfig()` for advanced manual config generation
 - `tools()`
 - `apps()`
 - `call("expense.create", input)` or `call("expense.list")`

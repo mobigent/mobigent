@@ -39,7 +39,7 @@ npm install @mobigent/react-native
 npx mobigent init --feature expense --out-dir src
 ```
 
-That command works before you have a backend config file. It infers a starter app id/name from `package.json`, creates a Mobigent root wrapper, and creates one feature file. When your backend writes `mobigent.app.json`, the initializer auto-detects it from the app, parent folders, or common sibling backend folders such as `../backend`. For custom layouts, use `--backend-dir ../server`.
+That command works before you have a backend config file. It infers a starter app id/name from `package.json`, creates a Mobigent root wrapper, creates `src/mobigent-config.ts`, and creates one feature file. When your backend runs with `appDir`, it keeps that config module updated for the app. If `mobigent.app.json` already exists, the initializer auto-detects it from the app, parent folders, or common sibling backend folders such as `../backend`. For custom layouts, use `--backend-dir ../server`.
 
 Create `src/mobigent/expenses.ts`:
 
@@ -84,7 +84,7 @@ export default function App() {
 }
 ```
 
-Run a Mobigent backend from your server with `@mobigent/backend`, then open the inspector URL it prints. Local development uses the default app identity `app.mobigent.local`. For production, pass `appId`/`appName` or use a backend-generated config file.
+Run a Mobigent backend from your server with `@mobigent/backend`, then open the inspector URL it prints. For the simplest setup, start the backend with `appDir: "../mobile-app"` so it writes the same `src/mobigent-config.ts` file that this wrapper imports.
 
 For a Node demo, test host, or another non-React runtime, use the same feature without manual registration:
 

@@ -43,7 +43,7 @@ const backendFile = createMobigentBackendFiles({
 
 assert.match(backendFile, /startMobigent/);
 assert.match(backendFile, /app: \{/);
-assert.doesNotMatch(backendFile, /BridgeGateway|createHttpApp|mobigent\.appConfigModule|copyAppConfig|Copy this/);
+assert.doesNotMatch(backendFile, /BridgeGateway|createHttpApp|mobigent\.appConfigModule\(|copyAppConfig|Copy this/);
 
 const backendWithAppDir = createMobigentBackendFiles({
   appId: "com.example.app",
@@ -61,6 +61,11 @@ const backendWithAppDir = createMobigentBackendFiles({
 const backendWithAppDirFile = backendWithAppDir.find((file) => file.path === "src/mobigent.ts")?.contents ?? "";
 assert.match(backendWithAppDirFile, /appDir: "\.\.\/mobile-app"/);
 assert.match(backendWithAppDirFile, /mobigent\.appConfigPath/);
+assert.match(backendWithAppDirFile, /appConfigModuleFile: "src\/mobigent-config\.ts"/);
+assert.ok(
+  backendWithAppDir.some((file) => file.path === "../mobile-app/src/mobigent-config.ts"),
+  "backend appDir flow should write the React Native config module too"
+);
 
 const rnFiles = createReactNativeStarterFiles({
   appId: "com.example.app",
@@ -90,6 +95,7 @@ const starterCapabilities = createMobigentAppFiles({
 }).find((file) => file.path === "src/capabilities.ts")?.contents ?? "";
 
 assert.match(rnRoot, /setupMobigent/);
+assert.match(rnRoot, /config: mobigentConfig/);
 assert.doesNotMatch(rnRoot, /MobigentProvider|createAgentApp|createAgentModule/);
 assert.match(rnFeature, /defineFeature\("expense"\)/);
 assert.doesNotMatch(rnFeature, /defineMobigentAction|createAgentModule|registerAction/);
