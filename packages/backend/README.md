@@ -4,10 +4,11 @@ Run Mobigent from normal Node code.
 
 ```bash
 npm install @mobigent/backend
-npx mobigent-backend init --app-id com.example.app
+npx mobigent-backend init
 ```
 
 That creates `src/mobigent.ts`, `.env.mobigent`, and `mobigent.app.json`.
+Mobigent infers a starter app id and app name from the project. Override them with `--app-id` and `--app-name` when you want exact production values.
 
 ```ts
 import { startMobigent } from "@mobigent/backend";

@@ -137,7 +137,7 @@ test("backend init helper creates a copy-paste server entrypoint", () => {
   assert.match(files[2]?.contents ?? "", /"gatewayUrl": "ws:\/\/localhost:8787"/);
 });
 
-test("backend init CLI infers app name and prints the short app init command", async () => {
+test("backend init CLI infers app identity and prints the short app init command", async () => {
   const dir = await mkdtemp(join(tmpdir(), "mobigent-backend-cli-"));
   const previousCwd = process.cwd();
   let stdout = "";
@@ -151,7 +151,7 @@ test("backend init CLI infers app name and prints the short app init command", a
     );
     process.chdir(dir);
     const code = runMobigentBackendCli(
-      ["--app", "com.example.expense", "--dry-run"],
+      ["--dry-run"],
       { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
       { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
     );
@@ -159,6 +159,7 @@ test("backend init CLI infers app name and prints the short app init command", a
     assert.equal(code, 0, stderr);
     const files = JSON.parse(stdout).files as Array<{ path: string; contents: string }>;
     const config = JSON.parse(files.find((file) => file.path === "mobigent.app.json")?.contents ?? "{}");
+    assert.equal(config.appId, "app.example.expense.hub");
     assert.equal(config.appName, "Expense Hub");
 
     stdout = "";

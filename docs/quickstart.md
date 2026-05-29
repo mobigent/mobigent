@@ -101,8 +101,10 @@ Generate the backend entrypoint and app config:
 
 ```bash
 npm install @mobigent/backend
-npx mobigent-backend init --app-id com.example.app
+npx mobigent-backend init
 ```
+
+Mobigent infers starter app identity from the project. Pass `--app-id` and `--app-name` only when you want exact production values.
 
 That creates `mobigent.app.json`. Put that file in the app project, then the app init command auto-detects it:
 

@@ -179,11 +179,9 @@ function parseArgs(argv: string[]) {
     }
   }
 
-  options.appName ||= inferAppName();
-
-  if (!options.appId) {
-    throw new Error("--app-id is required.\n\n" + helpText());
-  }
+  const projectName = findProjectName();
+  options.appId ||= inferAppId(projectName);
+  options.appName ||= inferAppName(projectName);
 
   return options;
 }
@@ -268,11 +266,11 @@ function helpText() {
 Create a tiny backend entrypoint for @mobigent/backend.
 
 Usage:
-  mobigent-backend init --app-id com.example.app
+  mobigent-backend init
   mobigent-backend --app com.example.app --app-name "Example App"
 
 Options:
-  --app-id, --app <id> App id used by the mobile SDK config. Required.
+  --app-id, --app <id> App id used by the mobile SDK config. Default: inferred from package or folder.
   --app-name <name>   Human-readable app name. Default: nearest package name or folder name.
   --out-dir <path>    Output directory. Default: src.
   --file <name>       Backend file name. Default: mobigent.ts.
@@ -286,7 +284,7 @@ Options:
 `;
 }
 
-function inferAppName(startDir = process.cwd()): string {
+function findProjectName(startDir = process.cwd()): string {
   let dir = startDir;
 
   while (true) {
@@ -295,7 +293,7 @@ function inferAppName(startDir = process.cwd()): string {
       try {
         const parsed = JSON.parse(readFileSync(packageJsonPath, "utf8")) as { name?: unknown };
         if (typeof parsed.name === "string" && parsed.name.trim()) {
-          return titleFromName(parsed.name);
+          return parsed.name;
         }
       } catch {
         break;
@@ -309,7 +307,22 @@ function inferAppName(startDir = process.cwd()): string {
     dir = parent;
   }
 
-  return titleFromName(basename(startDir) || "Mobigent App");
+  return basename(startDir) || "mobigent-app";
+}
+
+function inferAppName(projectName: string): string {
+  return titleFromName(projectName);
+}
+
+function inferAppId(projectName: string): string {
+  const withoutNpmScope = projectName.replace(/^@/, "");
+  const segments = withoutNpmScope
+    .split(/[/.]+/)
+    .flatMap((segment) => segment.split(/[-_\s]+/))
+    .map((segment) => segment.toLowerCase().replace(/[^a-z0-9]+/g, ""))
+    .filter(Boolean);
+
+  return ["app", ...(segments.length > 0 ? segments : ["mobigent"])].join(".");
 }
 
 function titleFromName(value: string): string {
