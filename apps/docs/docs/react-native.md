@@ -8,7 +8,43 @@ Register app capabilities with `@mobigent/react-native`.
 
 ## React-first integration
 
-Use the Expo-first React API for normal app integration. Define one agent module per product area with `createAgentModule({ namespace })`; the SDK handles namespacing, registration, safety preflight, and lifecycle cleanup.
+Use the simple API for normal app integration. Define one feature per product area with `feature("name")`, then wrap your existing app once with `mobigentApp()`. The SDK handles namespacing, schema generation, registration, confirmation, reconnects, event queueing, and lifecycle cleanup.
+
+```ts
+import { feature } from "@mobigent/react-native/simple";
+
+export const expenses = feature("expense")
+  .read("list", async () => ({ items: await listExpenses() }))
+  .write("create", async (input) => createExpense(input), {
+    input: {
+      merchant: "string",
+      amount: "number",
+      notes: "string"
+    },
+    confirm: true
+  });
+```
+
+```tsx
+import { mobigentApp } from "@mobigent/react-native/app";
+import { expenses } from "./mobigent/expenses";
+
+const { Root } = mobigentApp({
+  appId: "com.example.expenses",
+  appName: "Example Expenses",
+  features: [expenses]
+});
+
+export default function App() {
+  return (
+    <Root>
+      <YourApp />
+    </Root>
+  );
+}
+```
+
+The generated lower-level module API remains available for advanced setups, but new integrations should start with the simple API.
 
 Generate the standard app shell and first feature module with:
 
@@ -501,7 +537,7 @@ mobigent.configure({
 });
 
 mobigent.registerAction({
-  name: "create_expense",
+  name: "expense_create",
   description: "Create a new expense report.",
   inputSchema: {
     type: "object",

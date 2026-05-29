@@ -16,17 +16,12 @@ import {
 import { createRoot } from "react-dom/client";
 import "./styles.css";
 
-const quickstart = `npm install https://github.com/mobigent/mobigent/releases/download/v0.1.2/mobigent-react-native-0.1.2.tgz
-
-npx mobigent-init \\
-  --app-id com.example.app \\
-  --app-name "Example App" \\
-  --feature expense \\
-  --out-dir src \\
-  --expo-router`;
+const quickstart = `npm install \\
+  https://github.com/mobigent/mobigent/releases/download/v0.1.3/mobigent-react-native-0.1.3.tgz \\
+  https://github.com/mobigent/mobigent/releases/download/v0.1.3/mobigent-backend-0.1.3.tgz`;
 
 const demoCode = `npm exec --yes \\
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.2/create-mobigent-app-0.1.2.tgz \\
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.3/create-mobigent-app-0.1.3.tgz \\
   -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
@@ -48,34 +43,28 @@ npm run dev
 npm run doctor
 npm run agent:local`;
 
-const moduleCode = `import { createAgentModule, schema } from "@mobigent/react-native/app";
+const moduleCode = `import { feature } from "@mobigent/react-native/simple";
 
-export const expenseModule = createAgentModule({
-  namespace: "expense",
-  actions: [{
-    name: "create",
-    description: "Create an expense after approval.",
-    inputSchema: schema.object({
-      merchant: schema.string(),
-      amount: schema.number()
-    }, { required: "all" }),
-    confirmation: { required: true, risk: "medium" },
-    handler: async (input) => createExpense(input)
-  }],
-  resources: [{
-    name: "list",
-    description: "Read saved expenses.",
-    read: async () => ({ items: await listExpenses() })
-  }]
-});`;
+export const expenses = feature("expense")
+  .read("list", async () => ({
+    items: await listExpenses()
+  }))
+  .write("create", async (input) => createExpense(input), {
+    input: {
+      merchant: "string",
+      amount: "number"
+    },
+    confirm: true
+  });`;
 
 const appCode = `import Constants from "expo-constants";
-import { createAgentExpoApp } from "@mobigent/react-native/app";
-import { expenseModule } from "./mobigent/expense";
+import { mobigentApp } from "@mobigent/react-native/app";
+import { expenses } from "./mobigent/expense";
 
-const { Root } = createAgentExpoApp({
-  expo: Constants.expoConfig,
-  modules: [expenseModule]
+const { Root } = mobigentApp({
+  appId: Constants.expoConfig?.ios?.bundleIdentifier ?? "com.example.app",
+  appName: Constants.expoConfig?.name ?? "Example App",
+  features: [expenses]
 });
 
 export default function App() {
@@ -90,6 +79,13 @@ curl http://localhost:8788/openapi.json
 open http://localhost:8788/inspect
 
 npx mobigent-mcp`;
+
+const backendCode = `import { startMobigentBackend } from "@mobigent/backend";
+
+const mobigent = await startMobigentBackend();
+
+console.log(mobigent.urls.inspector);
+console.log(mobigent.urls.openapi);`;
 
 const securityDoctorCode = `npx mobigent-init \\
   --security-doctor \\
@@ -268,16 +264,17 @@ const nativeUrls = [
 ];
 
 const firstRunChecks = [
-  ["Generate", "`mobigent-init` creates a root wrapper, feature module, optional approval UI, and Expo Router layout."],
-  ["Connect", "The app sends hello and manifest messages to the gateway over WebSocket."],
-  ["Discover", "The gateway exposes tools through HTTP, OpenAPI, provider helpers, and MCP."],
+  ["Install", "Add the app package to React Native and the backend package to your server."],
+  ["Expose", "`feature()` turns real app functions into typed agent capabilities."],
+  ["Connect", "The SDK connects the app to the Mobigent backend and keeps the manifest updated."],
+  ["Discover", "The backend exposes tools through HTTP, OpenAPI, provider helpers, and MCP."],
   ["Approve", "Risky actions pause inside the app before handlers run."],
   ["Audit", "Calls, approvals, denials, errors, and events appear in `/audit`."]
 ];
 
 const model = [
   ["App SDK", "Lives inside the mobile app and declares safe capabilities."],
-  ["Gateway", "Keeps app sessions alive and exposes capabilities as HTTP, OpenAPI, or MCP."],
+  ["Backend SDK", "Keeps app sessions alive and exposes capabilities as HTTP, OpenAPI, or MCP."],
   ["Agent", "Discovers tools, calls them, and receives typed results instead of touching the UI."],
   ["User", "Approves risky actions inside the app before handlers run."]
 ];
@@ -291,8 +288,9 @@ const capabilities = [
 ];
 
 const packages = [
-  ["create-mobigent-app", "Starter generator", "Creates a runnable app with gateway, inspector, visible state, and an agent playground."],
+  ["create-mobigent-app", "Starter generator", "Creates a runnable app with backend, inspector, visible state, and an agent playground."],
   ["@mobigent/react-native", "App-side SDK", "Expo/React Native roots, modules, hooks, UI helpers, confirmation flow."],
+  ["@mobigent/backend", "Backend SDK", "One function starts the app connection endpoint, HTTP API, OpenAPI, inspector, and routing."],
   ["Mobigent iOS", "Swift package", "Native iOS client with actions, resources, components, confirmations, reconnect, heartbeat, and events."],
   ["Mobigent Android", "Kotlin library", "Native Android client with the same gateway protocol and local emulator-friendly defaults."],
   ["@mobigent/gateway", "Agent bridge", "WebSocket app sessions, HTTP API, OpenAPI schema, MCP stdio server."],
@@ -301,11 +299,10 @@ const packages = [
 ];
 
 const reactNativeApis = [
-  ["createAgentExpoApp()", "Expo-first app wrapper that reads Expo config and env settings."],
-  ["createAgentApp()", "Framework-neutral React Native root for app identity and connection setup."],
-  ["createAgentModule()", "Groups actions, resources, events, and surfaces under one namespace."],
-  ["defineAgentAction()", "Declares a single callable operation with schema, policy, and handler."],
-  ["defineAgentResource()", "Declares readable app state or records."],
+  ["feature()", "Creates a small feature surface with read, write, and screen helpers."],
+  ["mobigentApp()", "Wraps the existing React Native app once and connects features."],
+  ["read()", "Exposes read-only app data to agents."],
+  ["write()", "Exposes a confirmed app action with plain input fields."],
   ["useAgentScreen()", "Makes screen-owned capabilities available only while the screen is mounted."],
   ["useMobigentStatus()", "Reads connection state for badges, diagnostics, and debugging."],
   ["MobigentStatusBadge", "Optional UI component for local development visibility."]
@@ -442,8 +439,8 @@ function Docs() {
       <section id="quickstart" className="section codeSection">
         <div className="sectionHeader compact">
           <span className="eyebrow"><Rocket size={15} /> Quickstart</span>
-          <h2>Start with Expo, add one module, run the gateway.</h2>
-          <p>Use this path for the first integration. After it works, add more modules by feature area.</p>
+          <h2>Install two packages, expose one app function.</h2>
+          <p>Use this path for the first integration. After it works, add more features by product area.</p>
         </div>
         <div className="codeGrid docsCodeGrid">
           <Code title="1. Install and scaffold" code={quickstart} />
@@ -456,7 +453,7 @@ function Docs() {
         <div className="sectionHeader">
           <span className="eyebrow"><Code2 size={15} /> SDK surface</span>
           <h2>What Mobigent exposes.</h2>
-          <p>The SDK is small on purpose: declare capabilities in the app, expose them through the gateway, then connect any provider that can call tools.</p>
+          <p>The SDK is small on purpose: declare capabilities in the app, run one backend helper, then connect any provider that can call tools.</p>
         </div>
 
         <div className="docsGrid packageGrid">
@@ -564,12 +561,13 @@ function Docs() {
 
       <section className="section codeSection">
         <div className="sectionHeader compact">
-          <span className="eyebrow"><Network size={15} /> Gateway</span>
-          <h2>One gateway, multiple agent protocols.</h2>
-          <p>Run HTTP/OpenAPI for hosted providers and ChatGPT Actions. Run MCP for local MCP-compatible clients.</p>
+          <span className="eyebrow"><Network size={15} /> Backend</span>
+          <h2>One backend function, multiple agent protocols.</h2>
+          <p>Use the backend SDK in Node. The lower-level CLI stays available when you want a separate gateway process.</p>
         </div>
-        <div className="codeGrid two">
-          <Code title="Run and inspect" code={gatewayCode} />
+        <div className="codeGrid three">
+          <Code title="Backend SDK" code={backendCode} />
+          <Code title="CLI fallback" code={gatewayCode} />
           <div className="apiList endpointList">
             {gatewayEndpoints.map(([name, text]) => (
               <Row key={name} title={name} text={text} />

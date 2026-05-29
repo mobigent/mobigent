@@ -1,6 +1,6 @@
 {
   "name": "mobigent-repo",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Open-source SDK for exposing mobile app intents and capabilities to AI agents.",
   "type": "module",
   "private": true,
@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
-    "build:sdk": "npm run build -w @mobigent/core -w @mobigent/providers -w @mobigent/gateway -w @mobigent/react-native -w create-mobigent-app",
+    "build:sdk": "npm run build -w @mobigent/core -w @mobigent/providers -w @mobigent/gateway -w @mobigent/backend -w @mobigent/react-native -w create-mobigent-app",
     "typecheck": "npm run build:sdk && npm run typecheck --workspaces --if-present",
     "test": "npm run build:sdk && node --test --import tsx tests/*.test.ts",
     "verify": "npm run typecheck && npm test && npm run bin:smoke && npm run rn-cli:smoke && npm run create-app:smoke && npm run create-app:runtime && npm run pack:check && npm run docs:build",

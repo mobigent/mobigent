@@ -20,7 +20,7 @@ export function createMcpServer(
   const server = new Server(
     {
       name: options.name ?? "mobigent",
-      version: options.version ?? "0.1.2"
+      version: options.version ?? "0.1.3"
     },
     {
       capabilities: {

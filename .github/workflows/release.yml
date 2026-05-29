@@ -61,6 +61,7 @@ jobs:
           fi
           npm publish --workspace @mobigent/core --access public --provenance
           npm publish --workspace @mobigent/providers --access public --provenance
+          npm publish --workspace @mobigent/backend --access public --provenance
           npm publish --workspace @mobigent/react-native --access public --provenance
           npm publish --workspace @mobigent/gateway --access public --provenance
           npm publish --workspace create-mobigent-app --access public --provenance
@@ -84,6 +85,7 @@ jobs:
         run: |
           npm publish --workspace @mobigent/core --registry=https://npm.pkg.github.com
           npm publish --workspace @mobigent/providers --registry=https://npm.pkg.github.com
+          npm publish --workspace @mobigent/backend --registry=https://npm.pkg.github.com
           npm publish --workspace @mobigent/react-native --registry=https://npm.pkg.github.com
           npm publish --workspace @mobigent/gateway --registry=https://npm.pkg.github.com
           echo "Skipping create-mobigent-app for GitHub Packages because npm packages there must be scoped."
@@ -104,6 +106,7 @@ jobs:
           mkdir -p release-artifacts
           npm pack --workspace @mobigent/core --pack-destination release-artifacts
           npm pack --workspace @mobigent/providers --pack-destination release-artifacts
+          npm pack --workspace @mobigent/backend --pack-destination release-artifacts
           npm pack --workspace @mobigent/react-native --pack-destination release-artifacts
           npm pack --workspace @mobigent/gateway --pack-destination release-artifacts
           npm pack --workspace create-mobigent-app --pack-destination release-artifacts

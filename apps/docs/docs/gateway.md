@@ -57,7 +57,7 @@ Useful endpoints:
 HTTP calls can include provider identity, request correlation, idempotency, and timeout headers:
 
 ```bash
-curl -X POST http://localhost:8788/tools/com_example_app.create_expense/call \
+curl -X POST http://localhost:8788/tools/com_example_app.expense_create/call \
   -H "content-type: application/json" \
   -H "authorization: Bearer http-secret" \
   -H "x-mobigent-agent: chatgpt-actions" \

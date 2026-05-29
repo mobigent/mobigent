@@ -538,7 +538,7 @@ const client = createMobigentHttpClient({
 });
 
 await client.callTool(
-  "com_example_app.create_expense",
+  "com_example_app.expense_create",
   { amount: 42, merchant: "Taxi" },
   {
     idempotencyKey: "expense-create-123",
@@ -558,7 +558,7 @@ Provider clients throw `MobigentHttpError` for HTTP, network, and malformed gate
 
 ```ts
 try {
-  await executeMobigentTool("com_example_app.create_expense", {
+  await executeMobigentTool("com_example_app.expense_create", {
     amount: "not a number"
   });
 } catch (error) {

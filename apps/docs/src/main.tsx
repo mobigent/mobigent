@@ -85,7 +85,7 @@ function App() {
         </div>
         <div className="launchCard">
           <strong>Build the first feature in minutes.</strong>
-          <p>Start with Expo, add a module, run the gateway, and your agent can call real app logic.</p>
+          <p>Install the app package, expose one function, run the backend, and your agent can call real app logic.</p>
           <a className="primaryButton" href="./docs.html">
             Open docs
             <ArrowRight size={17} />

@@ -124,16 +124,16 @@ export function installMobigentAppDependencies(options: Pick<CreateMobigentAppOp
   };
 }
 
-const defaultMobigentVersion = "0.1.2";
+const defaultMobigentVersion = "0.1.3";
 
 function createPackageJson(packageName: string, options?: CreateMobigentAppOptions) {
   const packageSource = options?.packageSource ?? "github-release";
   const version = options?.packageVersion ?? defaultMobigentVersion;
   const dependencies = options?.localPackages
-    ? {
+      ? {
         "@mobigent/core": localPackageSpec(options, "core"),
         "@mobigent/providers": localPackageSpec(options, "providers"),
-        "@mobigent/gateway": localPackageSpec(options, "gateway"),
+        "@mobigent/backend": localPackageSpec(options, "backend"),
         "@mobigent/react-native": localPackageSpec(options, "react-native"),
         express: "^5.2.1",
         ws: "^8.21.0"
@@ -141,14 +141,14 @@ function createPackageJson(packageName: string, options?: CreateMobigentAppOptio
     : packageSource === "github-release"
       ? {
           "@mobigent/core": releaseTarballSpec("mobigent-core", version),
-          "@mobigent/gateway": releaseTarballSpec("mobigent-gateway", version),
+          "@mobigent/backend": releaseTarballSpec("mobigent-backend", version),
           "@mobigent/providers": releaseTarballSpec("mobigent-providers", version),
           "@mobigent/react-native": releaseTarballSpec("mobigent-react-native", version),
           express: "^5.2.1",
           ws: "^8.21.0"
         }
     : {
-        "@mobigent/gateway": `^${version}`,
+        "@mobigent/backend": `^${version}`,
         "@mobigent/providers": `^${version}`,
         "@mobigent/react-native": `^${version}`,
         express: "^5.2.1",
@@ -217,7 +217,7 @@ ${runSteps}
 
 ${options.openBrowser ? `The demo opens \`http://localhost:${options.appPort}\` automatically.` : `Open \`http://localhost:${options.appPort}\` after the dev server starts.`}
 
-Click \`Run agent request\`. The request calls the Mobigent gateway tool endpoint, runs the app-owned action, and updates visible app state.
+Click \`Run agent request\`. The request calls the app-owned Mobigent action and updates visible app state.
 
 In another terminal, run this anytime:
 
@@ -225,7 +225,7 @@ In another terminal, run this anytime:
 npm run doctor
 \`\`\`
 
-It checks the visible app, gateway health, readiness, and exposed Mobigent tool.
+It checks the visible app, backend health, readiness, and exposed Mobigent tool.
 
 Then choose an agent path:
 
@@ -240,25 +240,25 @@ These print copy-paste setup for Claude Desktop/MCP, generic OpenAPI agents, and
 ## What Is Running
 
 - App playground: \`http://localhost:${options.appPort}\`
-- Gateway inspector: \`http://localhost:${options.httpPort}/inspect\`
-- App WebSocket gateway: \`ws://localhost:${options.gatewayPort}\`
+- Mobigent inspector: \`http://localhost:${options.httpPort}/inspect\`
+- App connection URL: \`ws://localhost:${options.gatewayPort}\`
 
 ## What To Edit
 
-- \`src/capabilities.ts\`: app state, Mobigent actions/resources, schemas, and handlers
-- \`src/server.ts\`: demo UI, gateway process, and local agent playground
+- \`src/capabilities.ts\`: app state plus the Mobigent feature you expose to agents
+- \`src/server.ts\`: demo UI, Mobigent backend, and local agent playground
 - \`src/nodeSocket.ts\`: Node WebSocket transport for the local demo
 
-When you move this into a real mobile app, start by copying the shape from \`src/capabilities.ts\` and replacing the in-memory handlers with your app's real data/functions.
+When you move this into a real mobile app, start by copying the shape from \`src/capabilities.ts\` and replacing the in-memory functions with your app's real functions.
 `;
 }
 
 function createServerFile(options: CreateMobigentAppOptions) {
   return `import { spawn } from "node:child_process";
 import express from "express";
-import { BridgeGateway, createHttpApp } from "@mobigent/gateway";
+import { startMobigentBackend } from "@mobigent/backend";
 import { mobigent } from "@mobigent/react-native";
-import { expenses, parsePrompt, registerMobigentCapabilities } from "./capabilities.js";
+import { expenseFeature, expenses, parsePrompt } from "./capabilities.js";
 import { createNodeSocket } from "./nodeSocket.js";
 
 let lastAgentRun: unknown;
@@ -266,14 +266,11 @@ let lastAgentRun: unknown;
 const gatewayPort = ${options.gatewayPort};
 const httpPort = ${options.httpPort};
 const appPort = ${options.appPort};
-const toolName = "${toolName(options.appId, "create_expense")}";
+const toolName = "${toolName(options.appId, "expense_create")}";
 
-const gateway = new BridgeGateway(gatewayPort);
-gateway.start();
-
-const gatewayHttp = createHttpApp(gateway);
-const gatewayServer = gatewayHttp.listen(httpPort, () => {
-  console.log(\`Mobigent inspector: http://localhost:\${httpPort}/inspect\`);
+const backend = await startMobigentBackend({
+  wsPort: gatewayPort,
+  httpPort
 });
 
 const app = express();
@@ -291,14 +288,9 @@ app.post("/agent/run", async (req, res) => {
   };
 
   try {
-    const response = await fetch(\`http://localhost:\${httpPort}/tools/\${toolName}/call\`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(input)
-    });
-    const body = await response.json();
-    lastAgentRun = { ...run, response: body };
-    res.status(response.ok ? 200 : response.status).json(lastAgentRun);
+    const response = await backend.call(toolName, input);
+    lastAgentRun = { ...run, response };
+    res.json(lastAgentRun);
   } catch (error) {
     lastAgentRun = { ...run, error: error instanceof Error ? error.message : String(error) };
     res.status(500).json(lastAgentRun);
@@ -324,7 +316,13 @@ mobigent.configure({
   }
 });
 
-registerMobigentCapabilities();
+for (const action of expenseFeature.actions) {
+  mobigent.registerAction(action);
+}
+
+for (const resource of expenseFeature.resources) {
+  mobigent.registerResource(resource);
+}
 
 await mobigent.connect();
 
@@ -341,8 +339,7 @@ function openBrowser(url: string) {
 
 function shutdown() {
   mobigent.disconnect();
-  gateway.stop();
-  gatewayServer.close();
+  void backend.stop();
   appServer.close();
   process.exit(0);
 }
@@ -432,12 +429,12 @@ function renderPage() {
       <aside class="panel agentPanel">
         <header>
           <h2>Agent playground</h2>
-          <p>Click once. This posts to the Mobigent gateway and updates the app.</p>
+          <p>Click once. This calls the app-owned Mobigent action and updates the app.</p>
         </header>
         <label for="prompt">Agent request</label>
         <textarea id="prompt">Create a $42.80 meals expense at Expo Coffee with notes: Created from the Mobigent starter</textarea>
         <button id="run">Run agent request</button>
-        <div class="hint">Calls <strong>\${toolName}</strong>. <a class="link" href="http://localhost:${options.httpPort}/inspect" target="_blank" rel="noreferrer">Open inspector</a>.</div>
+        <div class="hint">Calls <strong>\${toolName}</strong>. <a class="link" href="\${backend.urls.inspector}" target="_blank" rel="noreferrer">Open inspector</a>.</div>
         <div class="result"><pre id="result">Waiting for an agent request...</pre></div>
       </aside>
     </section>
@@ -445,17 +442,17 @@ function renderPage() {
       <div class="panel step">
         <span>1</span>
         <h3>Agent calls a tool</h3>
-        <p>The playground posts to <code>/tools/\${toolName}/call</code>.</p>
+        <p>The playground calls <code>backend.call("\${toolName}")</code>.</p>
       </div>
       <div class="panel step">
         <span>2</span>
-        <h3>Gateway routes it</h3>
-        <p>Mobigent sends the request to the connected app over WebSocket.</p>
+        <h3>Backend routes it</h3>
+        <p>Mobigent sends the request to the connected app.</p>
       </div>
       <div class="panel step">
         <span>3</span>
         <h3>App owns the action</h3>
-        <p><code>src/capabilities.ts</code> runs <code>create_expense</code> and updates state.</p>
+        <p><code>src/capabilities.ts</code> runs <code>createExpense</code> and updates state.</p>
       </div>
       <div class="panel step">
         <span>4</span>
@@ -523,7 +520,8 @@ function renderPage() {
 }
 
 function createCapabilitiesFile() {
-  return `import { mobigent, schema } from "@mobigent/react-native";
+  return `import { mobigent } from "@mobigent/react-native";
+import { feature } from "@mobigent/react-native/simple";
 
 export type Expense = {
   id: string;
@@ -544,29 +542,14 @@ export const expenses: Expense[] = [
   }
 ];
 
-export function registerMobigentCapabilities() {
-  mobigent.registerAction({
-    name: "create_expense",
-    description: "Create an expense in the app.",
-    inputSchema: schema.object(
-      {
-        amount: schema.number({ description: "Expense amount." }),
-        merchant: schema.string({ description: "Merchant name." }),
-        category: schema.string({ description: "Expense category." }),
-        notes: schema.string({ description: "Optional notes." })
-      },
-      { required: ["amount", "merchant", "category"] }
-    ),
-    confirmation: {
-      required: true,
-      title: "Create expense?",
-      risk: "medium"
-    },
-    policy: {
-      foregroundOnly: true,
-      requiresUser: true
-    },
-    handler: async (input) => {
+export const expenseFeature = feature("expense")
+  .read("list", async () => ({ expenses }), {
+    description: "Read expenses from the app.",
+    output: { expenses: ["object"] }
+  })
+  .write(
+    "create",
+    async (input) => {
       const expense = await createExpense({
         amount: Number(input.amount),
         merchant: String(input.merchant),
@@ -576,22 +559,27 @@ export function registerMobigentCapabilities() {
 
       mobigent.emit("expense.created", { id: expense.id, amount: expense.amount, merchant: expense.merchant });
       return expense;
-    }
-  });
-
-  mobigent.registerResource({
-    name: "expenses",
-    description: "Read expenses from the app.",
-    outputSchema: schema.object(
-      {
-        expenses: schema.array(schema.object())
+    },
+    {
+      description: "Create an expense in the app.",
+      input: {
+        amount: "number",
+        merchant: "string",
+        category: ["Meals", "Travel", "Software", "Office", "Lodging", "Transport", "Shopping"],
+        notes: "string"
       },
-      { required: ["expenses"] }
-    ),
-    policy: { readOnly: true },
-    read: async () => ({ expenses })
-  });
-}
+      output: {
+        id: "string",
+        amount: "number",
+        merchant: "string",
+        category: "string",
+        notes: "string",
+        createdAt: "string"
+      },
+      confirm: "Create expense?",
+      risk: "medium"
+    }
+  );
 
 export async function createExpense(input: {
   amount: number;
@@ -633,7 +621,7 @@ function titleCase(value: string) {
 }
 
 function createDoctorFile(options: CreateMobigentAppOptions) {
-  const tool = toolName(options.appId, "create_expense");
+  const tool = toolName(options.appId, "expense_create");
   return `const appUrl = "http://localhost:${options.appPort}";
 const gatewayUrl = "http://localhost:${options.httpPort}";
 const expectedTool = "${tool}";
@@ -653,12 +641,12 @@ await check("App playground", async () => {
     : "reachable but state shape is unexpected";
 });
 
-await check("Gateway health", async () => {
+await check("Backend health", async () => {
   const body = await getJson<{ status?: { tools?: number; appsWithManifests?: number } }>(\`\${gatewayUrl}/health\`);
   return \`\${body.status?.appsWithManifests ?? 0} app manifest(s), \${body.status?.tools ?? 0} tool(s)\`;
 });
 
-await check("Gateway readiness", async () => {
+await check("Backend readiness", async () => {
   const body = await getJson<{ ok?: boolean }>(\`\${gatewayUrl}/ready?minApps=1&minTools=1\`);
   if (!body.ok) {
     throw new Error("gateway is reachable but not ready for one app and one tool yet");

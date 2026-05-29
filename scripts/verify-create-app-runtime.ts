@@ -68,13 +68,13 @@ try {
       return false;
     }
     const body = (await response.json()) as { tools?: Array<{ name: string }> };
-    return Boolean(body.tools?.some((tool) => tool.name === "com_mobigent_runtime.create_expense"));
+    return Boolean(body.tools?.some((tool) => tool.name === "com_mobigent_runtime.expense_create"));
   }, () => `starter did not expose tools in time.\n${serverOutput}`);
 
   const doctor = await run("npm", ["run", "doctor"], target);
   assert.match(doctor, /Mobigent starter doctor: PASS/);
-  assert.match(doctor, /PASS Gateway readiness: ready for agent startup/);
-  assert.match(doctor, /PASS Expense tool: com_mobigent_runtime.create_expense/);
+  assert.match(doctor, /PASS Backend readiness: ready for agent startup/);
+  assert.match(doctor, /PASS Expense tool: com_mobigent_runtime.expense_create/);
 
   const localAgent = await run("npm", ["run", "agent:local"], target);
   assert.match(localAgent, /Claude Desktop/);
@@ -92,14 +92,12 @@ try {
   }
   const runBody = (await runResponse.json()) as {
     response?: {
-      result?: {
-        merchant?: string;
-        amount?: number;
-      };
+      merchant?: string;
+      amount?: number;
     };
   };
-  assert.equal(runBody.response?.result?.merchant, "Runtime Cafe");
-  assert.equal(runBody.response?.result?.amount, 33.2);
+  assert.equal(runBody.response?.merchant, "Runtime Cafe");
+  assert.equal(runBody.response?.amount, 33.2);
 
   const stateResponse = await fetch(`http://localhost:${appPort}/state`);
   assert.equal(stateResponse.ok, true);

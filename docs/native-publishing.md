@@ -4,7 +4,7 @@ The repository publishes release artifacts from GitHub Actions when a SemVer tag
 
 Current release channels:
 
-- GitHub Release tarballs for `@mobigent/core`, `@mobigent/providers`, `@mobigent/react-native`, and `@mobigent/gateway`
+- GitHub Release tarballs for `@mobigent/core`, `@mobigent/backend`, `@mobigent/providers`, `@mobigent/react-native`, and `@mobigent/gateway`
 - GitHub Packages for the same npm packages under the `@mobigent` scope
 - Swift Package Manager through Git tags
 
@@ -35,7 +35,7 @@ Local integration before tagging:
 Future tagged integration:
 
 ```swift
-.package(url: "https://github.com/mobigent/mobigent", from: "0.1.2")
+.package(url: "https://github.com/mobigent/mobigent", from: "0.1.3")
 ```
 
 ## Android
@@ -71,6 +71,6 @@ Future Maven Central integration:
 
 ```kotlin
 dependencies {
-  implementation("io.mobigent:mobigent-android:0.1.2")
+  implementation("io.mobigent:mobigent-android:0.1.3")
 }
 ```

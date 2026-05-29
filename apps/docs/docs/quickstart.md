@@ -52,7 +52,7 @@ Then call:
 
 ```bash
 curl http://localhost:8788/tools
-curl -X POST http://localhost:8788/tools/com_mobigent_expenses.create_expense/call \
+curl -X POST http://localhost:8788/tools/com_mobigent_expenses.expense_create/call \
   -H "content-type: application/json" \
   -d '{"amount":42.25,"merchant":"Airport Taxi","category":"Travel"}'
 ```

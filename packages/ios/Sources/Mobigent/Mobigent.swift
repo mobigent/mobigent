@@ -375,7 +375,7 @@ public final class MobigentClient {
         appId: String,
         appName: String,
         gatewayURL: URL,
-        version: String = "0.1.2",
+        version: String = "0.1.3",
         authToken: String? = nil,
         reconnect: MobigentReconnectOptions = .init(),
         heartbeat: MobigentHeartbeatOptions = .init(),

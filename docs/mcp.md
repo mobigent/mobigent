@@ -75,7 +75,7 @@ An app action:
 
 ```ts
 mobigent.registerAction({
-  name: "create_expense",
+  name: "expense_create",
   description: "Create a new expense report.",
   inputSchema: {
     type: "object",
@@ -92,7 +92,7 @@ mobigent.registerAction({
 becomes an MCP tool named:
 
 ```text
-com_example_expenses.create_expense
+com_example_expenses.expense_create
 ```
 
 Resource providers become read-only tools using the `get_` prefix.

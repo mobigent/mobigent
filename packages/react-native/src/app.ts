@@ -1,3 +1,41 @@
+import { createAgentApp, type AgentAppFactoryOptions } from "./ui.js";
+import type { MobigentSimpleFeature } from "./simple.js";
+
+export type MobigentSimpleAppOptions = Omit<AgentAppFactoryOptions, "capabilities" | "modules"> & {
+  features?: MobigentSimpleFeature | MobigentSimpleFeature[];
+  capabilities?: AgentAppFactoryOptions["capabilities"];
+  modules?: AgentAppFactoryOptions["modules"];
+};
+
+export function mobigentApp(options: MobigentSimpleAppOptions) {
+  const features = toArray(options.features);
+
+  return createAgentApp({
+    ...options,
+    capabilities: [
+      ...toArray(options.capabilities),
+      ...features
+    ],
+    modules: options.modules
+  });
+}
+
+export const createSimpleMobigentApp = mobigentApp;
+
+export {
+  agentFeature,
+  feature,
+  simpleSchema,
+  toSchema,
+  type MobigentSimpleActionOptions,
+  type MobigentSimpleComponentOptions,
+  type MobigentSimpleFeature,
+  type MobigentSimpleField,
+  type MobigentSimpleObjectSchema,
+  type MobigentSimpleResourceOptions,
+  type MobigentSimpleSchema
+} from "./simple.js";
+
 export {
   AgentAction,
   AgentComponent,
@@ -74,3 +112,11 @@ export {
   type MobigentDiagnosticsPanelProps,
   type MobigentStatusBadgeProps
 } from "./ui.js";
+
+function toArray<T>(value: T | T[] | undefined): T[] {
+  if (!value) {
+    return [];
+  }
+
+  return Array.isArray(value) ? value : [value];
+}

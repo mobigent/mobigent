@@ -49,7 +49,7 @@ In the Custom GPT builder:
 Start the app before importing the schema. Mobigent generates one explicit OpenAPI operation per connected tool, for example:
 
 ```text
-POST /tools/com_mobigent_expenses.create_expense/call
+POST /tools/com_mobigent_expenses.expense_create/call
 ```
 
 It also keeps the generic compatibility operation:

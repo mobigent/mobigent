@@ -1,5 +1,6 @@
 export {
   BridgeGateway,
+  type AgentProfile,
   type AuditEvent,
   type AuditEventType,
   type GatewayAppSession,

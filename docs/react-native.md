@@ -1,80 +1,58 @@
 # React Native Integration
 
-Mobigent has two React Native layers:
+For normal app integration, use the simple API first:
 
-- `@mobigent/react-native`: headless SDK, provider, hooks, confirmation controller.
-- `@mobigent/react-native/ui`: optional default React Native confirmation modal.
+- `@mobigent/react-native/simple`: declare app features with plain functions.
+- `@mobigent/react-native/app`: wrap the existing app once.
+- `@mobigent/react-native`: lower-level SDK, provider, hooks, and confirmation controller.
 
-The root package is safe to import in tests and Node-based tooling because it does not load `react-native` UI components.
+The lower-level APIs are still available, but most apps should start with `feature()` and `mobigentApp()`.
 
 ## Basic App Setup
 
+Create one feature file:
+
+```ts
+import { feature } from "@mobigent/react-native/simple";
+
+export const expenses = feature("expense")
+  .read("list", async () => ({ items: await listExpenses() }))
+  .write("create", async (input) => createExpense(input), {
+    input: {
+      merchant: "string",
+      amount: "number",
+      notes: "string"
+    },
+    confirm: true
+  });
+```
+
+Wrap the existing app once:
+
 ```tsx
-import { MobigentProvider, useMobigent } from "@mobigent/react-native";
-import { MobigentConfirmationModal } from "@mobigent/react-native/ui";
+import { mobigentApp } from "@mobigent/react-native/app";
+import { expenses } from "./mobigent/expenses";
 
-function Capabilities() {
-  const { bridge } = useMobigent();
+const { Root } = mobigentApp({
+  appId: "com.example.expenses",
+  appName: "Example Expenses",
+  features: [expenses]
+});
 
-  useEffect(() => {
-    bridge.registerAction({
-      name: "create_expense",
-      description: "Create a new expense report.",
-      inputSchema: {
-        type: "object",
-        properties: {
-          amount: { type: "number" },
-          merchant: { type: "string" }
-        },
-        required: ["amount", "merchant"]
-      },
-      confirmation: {
-        required: true,
-        title: "Create expense?",
-        risk: "medium"
-      },
-      handler: async (input) => {
-        return createExpense(input);
-      }
-    });
-
-    bridge.registerComponent({
-      name: "expense_detail",
-      description: "Expense detail screen.",
-      propsSchema: {
-        type: "object",
-        properties: {
-          expenseId: { type: "string" }
-        },
-        required: ["expenseId"]
-      },
-      focus: async (props) => {
-        navigation.navigate("ExpenseDetail", { expenseId: props.expenseId });
-        return { focused: true };
-      }
-    });
-  }, [bridge]);
-
-  return null;
-}
-
-export function App() {
+export default function App() {
   return (
-    <MobigentProvider
-      appId="com.example.expenses"
-      appName="Example Expenses"
-      gatewayUrl="ws://localhost:8787"
-      authToken="dev-secret"
-    >
-      <Capabilities />
-      <MobigentConfirmationModal />
+    <Root>
       <YourApp />
-    </MobigentProvider>
+    </Root>
   );
 }
 ```
 
+Mobigent handles namespacing, schema generation, confirmation, connection lifecycle, reconnects, event queueing, and manifest updates.
+
 ## Lifecycle Cleanup
+
+Simple app-level features normally do not need cleanup. If a screen owns a temporary capability, use the lower-level hook API and unregister it on unmount:
 
 When a screen or hook owns a capability, clean it up on unmount:
 

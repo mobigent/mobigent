@@ -29,13 +29,17 @@ const packages: PackageExpectation[] = [
     requiredBins: ["dist/server.js", "dist/http-server.js", "dist/mcp-server.js"]
   },
   {
+    path: "packages/backend",
+    requiredFiles: ["README.md", "package.json", "dist/index.js", "dist/index.d.ts"]
+  },
+  {
     path: "packages/providers",
     requiredFiles: ["README.md", "package.json", "dist/index.js", "dist/index.d.ts", "dist/cli.js", "dist/cli.d.ts"],
     requiredBins: ["dist/cli.js"]
   },
   {
     path: "packages/react-native",
-    requiredFiles: ["README.md", "package.json", "dist/index.js", "dist/index.d.ts", "dist/cli.js", "dist/cli.d.ts", "dist/expo.js", "dist/expo.d.ts", "dist/ui.js", "dist/ui.d.ts"],
+    requiredFiles: ["README.md", "package.json", "dist/index.js", "dist/index.d.ts", "dist/cli.js", "dist/cli.d.ts", "dist/expo.js", "dist/expo.d.ts", "dist/simple.js", "dist/simple.d.ts", "dist/ui.js", "dist/ui.d.ts"],
     requiredBins: ["dist/cli.js"]
   },
   {

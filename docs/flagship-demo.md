@@ -6,7 +6,7 @@ For a new project from the public GitHub release:
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.2/create-mobigent-app-0.1.2.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.3/create-mobigent-app-0.1.3.tgz \
   -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
@@ -27,16 +27,16 @@ cd my-demo
 npm run dev
 ```
 
-The demo runs a local gateway, connects a visible expense app, and opens the simplest adoption story:
+The demo runs the Mobigent backend, connects a visible expense app, and opens the simplest adoption story:
 
 - App state on the left
 - Agent request box on the right
 - One button that calls the app through Mobigent
 - Inspector link for the gateway details
 
-Generated starters also include `npm run doctor`. Run it in another terminal while `npm run dev` is running to confirm the visible app, gateway health, readiness, and expected tool are all working. Then run `npm run agent:local`, `npm run agent:openapi`, or `npm run agent:chatgpt` for copy-paste agent setup.
+Generated starters also include `npm run doctor`. Run it in another terminal while `npm run dev` is running to confirm the visible app, backend health, readiness, and expected tool are all working. Then run `npm run agent:local`, `npm run agent:openapi`, or `npm run agent:chatgpt` for copy-paste agent setup.
 
-For the first real adaptation, edit `src/capabilities.ts`. It holds the sample Mobigent action, resource, schemas, and handler separately from the demo server/UI.
+For the first real adaptation, edit `src/capabilities.ts`. It holds the sample `feature("expense")` definition separately from the demo server/UI.
 
 If your system blocks auto-open, open the app manually:
 

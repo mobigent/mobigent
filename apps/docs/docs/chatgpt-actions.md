@@ -21,7 +21,7 @@ https://your-public-domain.example/openapi.json?agentId=chatgpt-actions
 The OpenAPI schema maps each visible app action or resource to an HTTP operation. Start the app before importing the schema so `/openapi.json?agentId=chatgpt-actions` includes concrete operations like:
 
 ```text
-POST /tools/com_mobigent_expenses.create_expense/call
+POST /tools/com_mobigent_expenses.expense_create/call
 ```
 
 Mobigent also keeps the generic compatibility operation:

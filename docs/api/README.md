@@ -17,7 +17,7 @@ An app-owned function that an agent can call.
 import { mobigent } from "@mobigent/react-native";
 
 mobigent.registerAction({
-  name: "create_expense",
+  name: "expense_create",
   description: "Create an expense.",
   inputSchema: {
     type: "object",
@@ -61,7 +61,7 @@ mobigent.emit("expense.created", { id: "EXP-1" });
 const gateway = new BridgeGateway({ port: 8787, authToken: "secret" });
 gateway.start();
 gateway.listTools();
-await gateway.callTool("com_example_app.create_expense", { amount: 10 }, {
+await gateway.callTool("com_example_app.expense_create", { amount: 10 }, {
   agentId: "openai-responses",
   idempotencyKey: "expense-create-123",
   requestId: "provider-call-123"
