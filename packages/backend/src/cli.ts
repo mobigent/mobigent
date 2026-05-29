@@ -235,7 +235,7 @@ function parseArgs(argv: string[]) {
     }
   }
 
-  const projectName = findProjectName();
+  const projectName = findProjectName(options.appDir ?? process.cwd());
   options.appId ||= inferAppId(projectName);
   options.appName ||= inferAppName(projectName);
 

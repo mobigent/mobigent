@@ -316,6 +316,29 @@ test("backend init CLI infers app identity and prints the short app init command
     assert.equal(config.appId, "app.example.expense.hub");
     assert.equal(config.appName, "Expense Hub");
 
+    const inferredAppDir = join(dir, "apps", "wallet-mobile");
+    await mkdir(inferredAppDir, { recursive: true });
+    await writeFile(
+      join(inferredAppDir, "package.json"),
+      JSON.stringify({ name: "@example/wallet-mobile" }),
+      "utf8"
+    );
+
+    stdout = "";
+    stderr = "";
+    const appDirDryRunCode = runMobigentBackendCli(
+      ["--app-dir", inferredAppDir, "--dry-run"],
+      { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
+      { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
+    );
+    assert.equal(appDirDryRunCode, 0, stderr);
+    const appDirFiles = JSON.parse(stdout).files as Array<{ path: string; contents: string }>;
+    const appDirConfig = JSON.parse(
+      appDirFiles.find((file) => file.path === join(inferredAppDir, "mobigent.app.json"))?.contents ?? "{}"
+    );
+    assert.equal(appDirConfig.appId, "app.example.wallet.mobile");
+    assert.equal(appDirConfig.appName, "Wallet Mobile");
+
     stdout = "";
     stderr = "";
     const writeCode = runMobigentBackendCli(

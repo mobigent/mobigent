@@ -10,7 +10,7 @@ npx mobigent-backend init --app-dir ../mobile-app
 That creates `src/mobigent.ts`, `.env.mobigent`, and `mobigent.app.json`.
 When `--app-dir` is present, it also writes `../mobile-app/mobigent.app.json` so the app SDK can auto-detect the connection.
 If your app is in a sibling folder and this backend folder is named `backend`, `server`, `api`, `agent-server`, or `mobigent-backend`, the app initializer can auto-detect the backend config without `--app-dir`.
-Mobigent infers a starter app id and app name from the project. Override them with `--app-id` and `--app-name` when you want exact production values.
+Mobigent infers a starter app id and app name from the app project when `--app-dir` is present. Override them with `--app-id` and `--app-name` when you want exact production values.
 
 ```ts
 import { startMobigent } from "@mobigent/backend";

@@ -95,7 +95,7 @@ npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobig
 npx mobigent-backend init --app-dir ../mobile-app
 ```
 
-Mobigent infers starter app identity from the project. Pass `--app-id` and `--app-name` only when you want exact production values.
+Mobigent infers starter app identity from the app project when `--app-dir` is present. Pass `--app-id` and `--app-name` only when you want exact production values.
 
 Or write it manually:
 

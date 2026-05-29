@@ -102,7 +102,7 @@ npm install @mobigent/backend
 npx mobigent-backend init --app-dir ../mobile-app
 ```
 
-Mobigent infers starter app identity from the project. Pass `--app-id` and `--app-name` only when you want exact production values.
+Mobigent infers starter app identity from the app project when `--app-dir` is present. Pass `--app-id` and `--app-name` only when you want exact production values.
 
 That creates `mobigent.app.json` with a simple `connectionUrl`. The app initializer auto-detects that file from the app project, parent folders, and common sibling backend folders. With `--app-dir`, Mobigent also writes that config directly into the app project:
 
