@@ -13,7 +13,7 @@ defineFeature("expense")
   });
 ```
 
-The SDK handles namespacing, JSON Schema generation, validation, confirmation, connection lifecycle, reconnects, heartbeat, event queueing, and manifest updates.
+The SDK handles namespacing, JSON Schema generation, validation, confirmation, connection lifecycle, reconnects, heartbeat, event queueing, and tool discovery updates.
 New app configs use `connectionUrl`; existing `gatewayUrl` configs still work.
 
 ## Install
@@ -132,20 +132,12 @@ Advanced integrations can still pass full JSON Schema, Zod adapters, or lower-le
 Emit app events after important work:
 
 ```ts
-import { useMobigentEvent } from "@mobigent/react-native";
+import { emitMobigentEvent } from "@mobigent/react-native";
 
-function ExpenseButton() {
-  const emit = useMobigentEvent();
-
-  return (
-    <Button
-      title="Create"
-      onPress={async () => {
-        const expense = await createExpenseFromUi();
-        emit("expense.created", { id: expense.id });
-      }}
-    />
-  );
+async function saveExpense(input) {
+  const expense = await createExpense(input);
+  emitMobigentEvent("expense.created", { id: expense.id });
+  return expense;
 }
 ```
 

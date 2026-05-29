@@ -15,6 +15,7 @@ Mobigent infers a starter app id and app name from the project. Override them wi
 import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent();
+await mobigent.ready();
 
 console.log(mobigent.urls.inspector);
 console.log(mobigent.urls.openapi);
@@ -42,6 +43,8 @@ This starts:
 - tool routing
 - readiness checks
 - audit events
+
+`mobigent.ready()` waits until at least one app has connected and exposed a function. Use it before backend-driven tests, demos, or server code that immediately calls app functions.
 
 It also gives agent setup from the same object:
 

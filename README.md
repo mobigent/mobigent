@@ -39,6 +39,7 @@ The backend developer should only think:
 import { startMobigent } from "@mobigent/backend";
 
 const backend = await startMobigent();
+await backend.ready();
 ```
 
 For local development, `startMobigent()` can also infer the app id and name from your project.
@@ -49,7 +50,7 @@ For a non-React host or local demo, pass the feature straight to the SDK:
 await connectMobigent(expenses);
 ```
 
-Everything else, connection URLs, WebSockets, tokens, registration loops, manifests, OpenAPI, MCP, confirmations, retries, audit events, and inspector wiring, is SDK plumbing.
+Everything else, connection URLs, sockets, tokens, registration loops, tool discovery, confirmations, retries, audit events, agent setup, and inspector wiring, is SDK plumbing.
 
 ## Quick Start
 
@@ -243,6 +244,12 @@ const appConfig = mobigent.defaultApp;
 ```
 
 That one function starts the app connection endpoint, HTTP API, OpenAPI schema, inspector, tool routing, audit trail, and readiness checks.
+
+Wait for the app when your server needs to call app functions immediately:
+
+```ts
+await mobigent.ready();
+```
 
 Call app-owned functions with the same short names you used in the app:
 

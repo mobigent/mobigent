@@ -145,6 +145,10 @@ export type MobigentSimpleConnection = {
   disconnect(): void;
 };
 
+export function emitMobigentEvent(name: string, payload: JsonObject = {}) {
+  return mobigent.emit(name, payload);
+}
+
 export function feature(namespace: string): MobigentSimpleFeature {
   const actions: MobigentActionRegistration[] = [];
   const resources: MobigentResourceRegistration[] = [];

@@ -91,6 +91,7 @@ npx mobigent-mcp`;
 const backendCode = `import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent();
+await mobigent.ready();
 
 console.log(mobigent.urls.inspector);
 console.log(mobigent.urls.openapi);
@@ -269,11 +270,11 @@ client.confirmationHandler { request ->
 client.connect()`;
 
 const nativeLifecycle = [
-  ["1. Create a client", "Give Mobigent the app id, app name, version, and connection URL."],
+  ["1. Create a client", "Give Mobigent the app id, app name, version, and backend connection URL."],
   ["2. Register capabilities", "Add actions for writes, resources for reads, and components for screen context."],
   ["3. Add confirmations", "Mark risky actions and let the native app render the approval UI."],
-  ["4. Connect", "The SDK sends hello and manifest messages, then waits for calls."],
-  ["5. Emit events", "Send app events such as expense.created or sync.failed back through the gateway."]
+  ["4. Connect", "The SDK connects to the backend and exposes the registered functions."],
+  ["5. Emit events", "Send app events such as expense.created or sync.failed back to the agent."]
 ];
 
 const nativeUrls = [
@@ -287,15 +288,15 @@ const firstRunChecks = [
   ["Install", "Add the app package to React Native and the backend package to your server."],
   ["Expose", "`feature()` turns real app functions into typed agent capabilities."],
   ["Connect", "`mobigent.defaultApp` creates config; `mobigentApp()` or `connectMobigent()` consumes it."],
-  ["Discover", "The backend exposes tools through HTTP, OpenAPI, provider helpers, and MCP."],
+  ["Wait", "`mobigent.ready()` tells backend code when the app is connected and callable."],
   ["Approve", "Risky actions pause inside the app before handlers run."],
   ["Audit", "Calls, approvals, denials, errors, and events appear in `/audit`."]
 ];
 
 const model = [
-  ["App SDK", "Lives inside the mobile app and declares safe capabilities."],
-  ["Backend SDK", "Keeps app sessions alive and exposes capabilities as HTTP, OpenAPI, or MCP."],
-  ["Agent", "Discovers tools, calls them, and receives typed results instead of touching the UI."],
+  ["App package", "Lives inside the mobile app and exposes real app functions."],
+  ["Backend package", "Runs the bridge, waits for the app, and gives agents a clean callable API."],
+  ["Agent", "Calls typed functions and receives typed results instead of touching the UI."],
   ["User", "Approves risky actions inside the app before handlers run."]
 ];
 
@@ -310,7 +311,7 @@ const capabilities = [
 const packages = [
   ["create-mobigent-app", "Starter generator", "Creates a runnable app with backend, inspector, visible state, and an agent playground."],
   ["@mobigent/react-native", "App-side SDK", "Expo/React Native roots, modules, hooks, UI helpers, confirmation flow."],
-  ["@mobigent/backend", "Backend SDK", "One function starts the app connection endpoint, HTTP API, OpenAPI, inspector, and routing."],
+  ["@mobigent/backend", "Backend SDK", "One function starts the backend, exposes agent setup, waits for app readiness, and routes calls."],
   ["Mobigent iOS", "Swift package", "Native iOS client with actions, resources, components, confirmations, reconnect, heartbeat, and events."],
   ["Mobigent Android", "Kotlin library", "Native Android client with the same gateway protocol and local emulator-friendly defaults."],
   ["@mobigent/gateway", "Advanced internals", "Lower-level WebSocket app sessions, HTTP API, OpenAPI schema, and MCP server."],
@@ -323,6 +324,7 @@ const reactNativeApis = [
   ["defineMobigentConfig()", "Keeps copied app config typed and portable."],
   ["mobigentApp()", "Wraps the existing React Native app once and connects features."],
   ["connectMobigent()", "Consumes backend app config, registers features, and connects a non-React host in one call."],
+  ["emitMobigentEvent()", "Queues or sends app events without touching the lower-level client."],
   ["registerFeatures()", "Attaches features manually when you need custom lifecycle control."],
   ["read()", "Exposes read-only app data to agents."],
   ["write()", "Exposes a confirmed app action with plain input fields."],
@@ -425,7 +427,7 @@ function Docs() {
           <h1>Everything you need to make a mobile app agent-ready.</h1>
           <p>
             Mobigent lets a mobile app expose typed actions, resources, screens, and approval flows to AI
-            agents through HTTP, OpenAPI, or MCP. The app stays the source of truth.
+            agents through a backend package that handles the bridge details. The app stays the source of truth.
           </p>
         </div>
       </section>
@@ -509,7 +511,7 @@ function Docs() {
         <div className="sectionHeader">
           <span className="eyebrow"><Smartphone size={15} /> Native quickstart</span>
           <h2>Drop Mobigent into a native app and expose real app behavior.</h2>
-          <p>Start with one read resource and one confirmed write action. Once the gateway sees the manifest, the same tools become available through HTTP, OpenAPI, ChatGPT Actions, and MCP.</p>
+          <p>Start with one read resource and one confirmed write action. Once the app connects, the backend makes those functions available to agent runtimes.</p>
         </div>
         <div className="codeGrid two nativeCodeGrid">
           <Code title="iOS install" code={iosInstallCode} />

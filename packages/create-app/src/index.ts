@@ -534,7 +534,7 @@ function renderPage() {
 }
 
 function createCapabilitiesFile() {
-  return `import { defineFeature, mobigent } from "@mobigent/react-native";
+  return `import { defineFeature, emitMobigentEvent } from "@mobigent/react-native";
 
 export type Expense = {
   id: string;
@@ -570,7 +570,7 @@ export const expenseFeature = defineFeature("expense")
         notes: input.notes ? String(input.notes) : undefined
       });
 
-      mobigent.emit("expense.created", { id: expense.id, amount: expense.amount, merchant: expense.merchant });
+      emitMobigentEvent("expense.created", { id: expense.id, amount: expense.amount, merchant: expense.merchant });
       return expense;
     },
     {

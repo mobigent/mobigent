@@ -113,6 +113,7 @@ In your server:
 import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent();
+await mobigent.ready();
 
 console.log(mobigent.urls.inspector);
 
@@ -122,6 +123,8 @@ console.log(mobigent.copyAppConfig());
 ```
 
 With no options, Mobigent infers a starter app id and app name from your project. Pass `app: { id, name }` when you want exact production values.
+
+`mobigent.ready()` waits until the app is connected and has exposed at least one function. If the app is not running yet, it tells you exactly what is missing.
 
 Call app-owned functions with the same short names you used in the app:
 

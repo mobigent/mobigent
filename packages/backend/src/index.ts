@@ -69,6 +69,13 @@ export type MobigentBackendAppConfig = {
   authToken?: string;
 };
 
+export type MobigentBackendReadyOptions = {
+  minApps?: number;
+  minTools?: number;
+  timeoutMs?: number;
+  intervalMs?: number;
+};
+
 export type MobigentBackendAppConfigModuleOptions = MobigentBackendAppConfigOptions & {
   exportName?: string;
 };
@@ -111,6 +118,7 @@ export type MobigentBackend = {
   appConfigCode?: string;
   copyAppConfig(): string;
   stop(): Promise<void>;
+  ready(options?: MobigentBackendReadyOptions): Promise<ReturnType<BridgeGateway["getStatus"]>>;
   tools(): ReturnType<BridgeGateway["listTools"]>;
   apps(): GatewayAppSession[];
   resolveToolName(name: string): string;
@@ -216,6 +224,7 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     appConfigCode,
     copyAppConfig: () => appConfigCode,
     stop: () => stopBackend(httpServer, gateway),
+    ready: (readyOptions) => waitForBackendReady(gateway, readyOptions),
     tools: () => gateway.listTools(),
     apps: () => gateway.listApps(),
     resolveToolName: (name) => resolveBackendToolName(gateway.listTools(), name, defaultApp),
@@ -411,5 +420,43 @@ function stopBackend(server: Server, gateway: BridgeGateway) {
       }
       resolve();
     });
+  });
+}
+
+function waitForBackendReady(gateway: BridgeGateway, options: MobigentBackendReadyOptions = {}) {
+  const minApps = options.minApps ?? 1;
+  const minTools = options.minTools ?? 1;
+  const timeoutMs = options.timeoutMs ?? 10_000;
+  const intervalMs = options.intervalMs ?? 100;
+  const startedAt = Date.now();
+
+  return new Promise<ReturnType<BridgeGateway["getStatus"]>>((resolve, reject) => {
+    let timer: NodeJS.Timeout | undefined;
+
+    const check = () => {
+      const status = gateway.getStatus();
+      if (status.appsWithManifests >= minApps && status.tools >= minTools) {
+        if (timer) {
+          clearTimeout(timer);
+        }
+        resolve(status);
+        return;
+      }
+
+      if (Date.now() - startedAt >= timeoutMs) {
+        reject(
+          new Error(
+            `Mobigent backend is waiting for ${minApps} connected app(s) and ${minTools} exposed tool(s). ` +
+              `Current state: ${status.appsWithManifests} app(s), ${status.tools} tool(s). ` +
+              "Start the app, wrap it with setupMobigent(), and make sure it uses the backend app config."
+          )
+        );
+        return;
+      }
+
+      timer = setTimeout(check, intervalMs);
+    };
+
+    check();
   });
 }

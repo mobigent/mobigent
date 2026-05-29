@@ -68,9 +68,10 @@ In your backend:
 import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent();
+await mobigent.ready();
 ```
 
-Mobigent infers a starter app id and app name from your project. Pass `app: { id, name }` when you want exact production values. Open the inspector URL printed by the backend. When the app connects, the feature tools appear there.
+Mobigent infers a starter app id and app name from your project. Pass `app: { id, name }` when you want exact production values. `mobigent.ready()` waits until the app is connected and has exposed at least one function.
 
 ## Non-React Host Or Demo
 
@@ -98,7 +99,7 @@ That one call registers the feature, connects to the backend, and returns a `dis
 - confirmation before risky writes
 - reconnects and heartbeat
 - queued app events
-- manifest updates
+- tool discovery updates
 - diagnostics/status hooks
 
 ## Field Types

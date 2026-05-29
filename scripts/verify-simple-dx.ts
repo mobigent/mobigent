@@ -58,10 +58,25 @@ const rnFiles = createReactNativeStarterFiles({
 });
 const rnRoot = rnFiles.find((file) => file.path === "src/mobigent.tsx")?.contents ?? "";
 const rnFeature = rnFiles.find((file) => file.path === "src/mobigent-features/expense.ts")?.contents ?? "";
+const starterCapabilities = createMobigentAppFiles({
+  targetDir: "demo",
+  appId: "com.example.app",
+  appName: "Example App",
+  gatewayPort: 8787,
+  httpPort: 8788,
+  appPort: 8790,
+  openBrowser: false,
+  force: false,
+  dryRun: true,
+  packageSource: "npm",
+  packageVersion: "1.2.3"
+}).find((file) => file.path === "src/capabilities.ts")?.contents ?? "";
 
 assert.match(rnRoot, /setupMobigent/);
 assert.doesNotMatch(rnRoot, /MobigentProvider|createAgentApp|createAgentModule/);
 assert.match(rnFeature, /defineFeature\("expense"\)/);
 assert.doesNotMatch(rnFeature, /defineMobigentAction|createAgentModule|registerAction/);
+assert.match(starterCapabilities, /emitMobigentEvent/);
+assert.doesNotMatch(starterCapabilities, /import \{ defineFeature, mobigent \}/);
 
 console.log("Mobigent simple DX guardrails passed.");

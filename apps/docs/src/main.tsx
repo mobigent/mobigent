@@ -2,7 +2,13 @@ import { ArrowRight, Check, Github, Lock, PlugZap, Radio, ShieldCheck, Smartphon
 import { createRoot } from "react-dom/client";
 import "./styles.css";
 
-const quickstart = `npx mobigent-init --app-id com.example.app --app-name "Example App" --feature expense --out-dir src --expo-router`;
+const quickstart = `# backend
+npm install @mobigent/backend
+npx mobigent-backend init --app-dir ../mobile-app
+
+# app
+npm install @mobigent/react-native
+npx mobigent init --feature expense --out-dir src`;
 
 function App() {
   return (
@@ -16,8 +22,8 @@ function App() {
           </div>
           <h1>The bridge between AI agents and real app capability.</h1>
           <p>
-            Mobigent gives mobile apps a clean, typed interface for agents. Expose actions, resources,
-            screens, and approvals without asking agents to poke around your UI.
+            Install the app package, install the backend package, expose real app functions, and let
+            Mobigent handle the bridge, approvals, retries, tool discovery, and agent setup.
           </p>
           <div className="heroActions">
             <a className="primaryButton" href="./docs.html">
@@ -31,7 +37,7 @@ function App() {
           </div>
           <div className="proof">
             <span><Check size={15} /> Expo-first</span>
-            <span><Check size={15} /> MCP + OpenAPI</span>
+            <span><Check size={15} /> Backend package</span>
             <span><Check size={15} /> In-app approval</span>
           </div>
         </div>
@@ -85,7 +91,7 @@ function App() {
         </div>
         <div className="launchCard">
           <strong>Build the first feature in minutes.</strong>
-          <p>Install the app package, expose one function, run the backend, and your agent can call real app logic.</p>
+          <p>Install two packages, expose one function, run the backend, and your agent can call real app logic.</p>
           <a className="primaryButton" href="./docs.html">
             Open docs
             <ArrowRight size={17} />

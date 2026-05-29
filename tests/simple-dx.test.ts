@@ -14,6 +14,7 @@ import { createMobigentBackendFiles, runMobigentBackendCli } from "@mobigent/bac
 import {
   connectMobigent,
   defineMobigentConfig,
+  emitMobigentEvent,
   feature,
   mobigent,
   setupMobigent,
@@ -68,6 +69,12 @@ test("app setup accepts features directly for the shortest React Native path", (
   assert.deepEqual(app.options.capabilities, [expenses]);
 });
 
+test("simple event helper hides the low-level singleton from app feature files", () => {
+  const sentOrQueued = emitMobigentEvent("expense.created", { id: "EXP-1" });
+
+  assert.equal(typeof sentOrQueued, "boolean");
+});
+
 test("backend helper starts HTTP, OpenAPI, and inspector endpoints from one function", async () => {
   const backend = await startMobigentBackend({
     wsPort: 18987,
@@ -96,6 +103,7 @@ test("backend helper starts HTTP, OpenAPI, and inspector endpoints from one func
     assert.equal(backend.agent("chatgpt").endpoints.openApi, "http://localhost:18988/openapi.json");
     assert.equal(backend.agent("claude").provider.id, "claude-desktop");
     assert.ok(backend.agents().some((agent) => agent.provider.id === "openai-responses"));
+    await assert.rejects(backend.ready({ timeoutMs: 5, intervalMs: 1 }), /waiting for 1 connected app/);
   } finally {
     await backend.stop();
   }
@@ -337,7 +345,9 @@ test("existing app DX connects simple app features to backend calls end to end",
       confirm: async () => true
     });
 
-    await waitFor(() => backend.tools().some((tool) => tool.name === "com_example_existing.expense_create"));
+    const status = await backend.ready();
+    assert.equal(status.appsWithManifests, 1);
+    assert.equal(status.tools, 2);
 
     assert.equal(backend.resolveToolName("expense.create"), "com_example_existing.expense_create");
 

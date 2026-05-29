@@ -36,6 +36,7 @@ export {
   createFeature,
   defineFeature,
   defineMobigentConfig,
+  emitMobigentEvent,
   feature,
   registerFeature,
   registerFeatures,
