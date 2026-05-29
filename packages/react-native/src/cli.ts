@@ -224,7 +224,7 @@ export function createReactNativeCapabilityContract(options: ReactNativeInitCliO
     appId: options.appId,
     appName: options.appName,
     sdk: "react-native",
-    version: options.appVersion ?? "0.1.9",
+    version: options.appVersion ?? "0.1.10",
     actions: [
       {
         name: `${options.feature}_create`,
@@ -367,21 +367,17 @@ export function createReactNativeDoctorReport(options: ReactNativeInitCliOptions
   pushPackageJsonCheck(checks, packageJsonPath);
 
   pushFileCheck(checks, rootPath, "root_file", (contents) =>
-    (contents.includes("createAgentApp") ||
-      contents.includes("createAgentExpoApp") ||
-      contents.includes("createMobigentApp") ||
-      contents.includes("createMobigentExpoApp")) &&
-    contents.includes("modules:") &&
+    contents.includes("mobigentApp") &&
+    contents.includes("features:") &&
     contents.includes("MobigentRoot")
-      ? "Root file exports an MobigentRoot with standard module registration."
+      ? "Root file exports a MobigentRoot with simple feature registration."
       : "Root file exists but does not look like the standard MobigentRoot scaffold."
   );
   pushFileCheck(checks, featurePath, "feature_file", (contents) =>
-    (contents.includes(`namespace: "${options.feature}"`) ||
-      contents.includes(`createAgentFeature("${options.feature}")`) ||
-      contents.includes(`createMobigentFeature("${options.feature}")`)) &&
-    contents.includes(`export const ${options.feature}Module = createAgentModule`)
-      ? `Feature file exposes ${options.feature}Module with createAgentModule().`
+    contents.includes(`feature("${options.feature}")`) &&
+    contents.includes(`export const ${options.feature}Feature`) &&
+    contents.includes(".write(")
+      ? `Feature file exposes ${options.feature}Feature with feature().`
       : "Feature file exists but does not look like the standard feature scaffold."
   );
   if (options.customConfirmation) {
@@ -454,7 +450,8 @@ export function runReactNativeInitCli(
   commandName = basename(process.argv[1] ?? "mobigent-rn-init")
 ) {
   try {
-    const options = parseArgs(argv, { expo: isExpoFirstCommand(commandName) });
+    const normalized = normalizeMobigentCommand(argv, commandName);
+    const options = parseArgs(normalized.argv, { expo: isExpoFirstCommand(normalized.commandName) });
 
     if (options.help) {
       output.write(helpText());
@@ -566,6 +563,37 @@ export function runReactNativeInitCli(
   } catch (error) {
     errorOutput.write(`${error instanceof Error ? error.message : String(error)}\n`);
     return 1;
+  }
+}
+
+function normalizeMobigentCommand(argv: string[], commandName: string) {
+  if (commandName !== "mobigent") {
+    return { argv, commandName };
+  }
+
+  const [command, ...rest] = argv;
+  if (!command || command.startsWith("-")) {
+    return { argv, commandName };
+  }
+
+  switch (command) {
+    case "init":
+      return { argv: rest, commandName };
+    case "doctor":
+      return { argv: ["--doctor", ...rest], commandName };
+    case "security-doctor":
+      return { argv: ["--security-doctor", ...rest], commandName };
+    case "manifest":
+      return { argv: ["--manifest", ...rest], commandName };
+    case "contract":
+      return { argv: ["--contract", ...rest], commandName };
+    case "env":
+    case "env-template":
+      return { argv: ["--env-template", ...rest], commandName };
+    case "help":
+      return { argv: ["--help"], commandName };
+    default:
+      throw new Error(`Unknown mobigent command ${command}\n\n${helpText()}`);
   }
 }
 
@@ -735,10 +763,8 @@ function createMobigentRootFile(options: ReactNativeInitCliOptions) {
     return createMobigentExpoRootFile(options);
   }
 
-  const versionLine = options.appVersion ? `,\n    version: ${JSON.stringify(options.appVersion)}` : "";
-  const environmentFallback = options.gatewayUrl
-    ? `{\n    gatewayUrl: ${JSON.stringify(options.gatewayUrl)}\n  }`
-    : `{ mode: "local" }`;
+  const versionLine = options.appVersion ? `,\n  version: ${JSON.stringify(options.appVersion)}` : "";
+  const gatewayUrl = JSON.stringify(options.gatewayUrl ?? "ws://localhost:8787");
   const confirmationImport = options.customConfirmation
     ? `import { MobigentAgentApproval } from "./mobigent-confirmation";\n`
     : "";
@@ -747,28 +773,20 @@ function createMobigentRootFile(options: ReactNativeInitCliOptions) {
     : "";
 
 return `import type { ReactNode } from "react";
-import { createAgentApp, createAgentEnvironmentFromEnv, type AgentAppRootProps } from "@mobigent/react-native/app";
-import { ${options.feature}Module } from "./mobigent-features/${options.feature}";
+import { mobigentApp, type MobigentAppRootProps } from "@mobigent/react-native";
+import { ${options.feature}Feature } from "./mobigent-features/${options.feature}";
 ${confirmationImport}
 
-export const mobigentApp = {
-  id: ${JSON.stringify(options.appId)},
-  name: ${JSON.stringify(options.appName)}${versionLine}
-} as const;
-
-export const mobigentEnvironment = createAgentEnvironmentFromEnv({
-  fallback: ${environmentFallback}
-});
-
-const { Root } = createAgentApp({
-  app: mobigentApp,
+const { Root } = mobigentApp({
+  appId: ${JSON.stringify(options.appId)},
+  appName: ${JSON.stringify(options.appName)}${versionLine},
+  gatewayUrl: process.env.EXPO_PUBLIC_MOBIGENT_GATEWAY_URL ?? ${gatewayUrl},
   reconnect: { enabled: true, maxAttempts: 20 },
   heartbeat: true,
-  modules: [${options.feature}Module],
-  ...mobigentEnvironment${confirmationOption}
+  features: [${options.feature}Feature]${confirmationOption}
 });
 
-export type MobigentRootProps = Omit<AgentAppRootProps, "children"> & {
+export type MobigentRootProps = Omit<MobigentAppRootProps, "children"> & {
   children: ReactNode;
 };
 
@@ -779,7 +797,7 @@ export function MobigentRoot(props: MobigentRootProps) {
 }
 
 function createMobigentExpoRootFile(options: ReactNativeInitCliOptions) {
-  const versionLine = options.appVersion ? `,\n    version: ${JSON.stringify(options.appVersion)}` : "";
+  const versionLine = options.appVersion ? `,\n  version: ${JSON.stringify(options.appVersion)}` : "";
   const confirmationImport = options.customConfirmation
     ? `import { MobigentAgentApproval } from "./mobigent-confirmation";\n`
     : "";
@@ -788,23 +806,20 @@ function createMobigentExpoRootFile(options: ReactNativeInitCliOptions) {
     : "";
 
 return `import type { ReactNode } from "react";
-import Constants from "expo-constants";
-import { createAgentExpoApp, type AgentAppRootProps } from "@mobigent/react-native/app";
-import { ${options.feature}Module } from "./mobigent-features/${options.feature}";
+import { mobigentApp, type MobigentAppRootProps } from "@mobigent/react-native";
+import { ${options.feature}Feature } from "./mobigent-features/${options.feature}";
 ${confirmationImport}
 
-export const mobigentApp = {
-  id: ${JSON.stringify(options.appId)},
-  name: ${JSON.stringify(options.appName)}${versionLine}
-} as const;
-
-const { Root } = createAgentExpoApp({
-  app: mobigentApp,
-  expo: Constants.expoConfig,
-  modules: [${options.feature}Module]${confirmationOption}
+const { Root } = mobigentApp({
+  appId: ${JSON.stringify(options.appId)},
+  appName: ${JSON.stringify(options.appName)}${versionLine},
+  gatewayUrl: process.env.EXPO_PUBLIC_MOBIGENT_GATEWAY_URL ?? "ws://localhost:8787",
+  reconnect: { enabled: true, maxAttempts: 20 },
+  heartbeat: true,
+  features: [${options.feature}Feature]${confirmationOption}
 });
 
-export type MobigentRootProps = Omit<AgentAppRootProps, "children"> & {
+export type MobigentRootProps = Omit<MobigentAppRootProps, "children"> & {
   children: ReactNode;
 };
 
@@ -849,7 +864,7 @@ export function createReactNativeEnvTemplate(options: Pick<ReactNativeInitCliOpt
   const gatewayUrl = options.gatewayUrl ?? "ws://localhost:8787";
 
   return `# Mobigent React Native environment
-# createAgentEnvironmentFromEnv() reads MOBIGENT_*, EXPO_PUBLIC_MOBIGENT_*, and REACT_NATIVE_MOBIGENT_*.
+# Mobigent reads MOBIGENT_*, EXPO_PUBLIC_MOBIGENT_*, and REACT_NATIVE_MOBIGENT_*.
 # MODE can be local, device, hosted, or disabled.
 EXPO_PUBLIC_MOBIGENT_MODE=local
 EXPO_PUBLIC_MOBIGENT_GATEWAY_URL=${gatewayUrl}
@@ -872,7 +887,7 @@ EXPO_PUBLIC_MOBIGENT_GATEWAY_URL=${gatewayUrl}
 
 function createConfirmationFile() {
   return `import { Button, Modal, StyleSheet, Text, View } from "react-native";
-import { useMobigentConfirmation, type MobigentConfirmationComponentProps } from "@mobigent/react-native/app";
+import { useMobigentConfirmation, type MobigentConfirmationComponentProps } from "@mobigent/react-native";
 
 export function MobigentAgentApproval({
   approveLabel = "Approve",
@@ -945,7 +960,7 @@ const styles = StyleSheet.create({
 }
 
 function createFeatureFile(feature: string) {
-  return `import { createAgentModule, schema } from "@mobigent/react-native/app";
+  return `import { feature } from "@mobigent/react-native";
 
 type ${feature}Record = {
   id: string;
@@ -955,58 +970,35 @@ type ${feature}Record = {
 
 const ${feature}Records = new Map<string, ${feature}Record>();
 
-const ${feature}RecordSchema = schema.object(
-  {
-    id: schema.string({ description: "Stable app record id." }),
-    title: schema.string({ description: "Human-readable title." }),
-    createdAt: schema.string({ description: "ISO timestamp for when the record was created." })
-  },
-  { required: "all" }
-);
-
-export const ${feature}Module = createAgentModule({
-  namespace: ${JSON.stringify(feature)},
-  actions: [
-    {
-      name: "create",
-      description: "Create a ${feature}.",
-      inputSchema: schema.object(
-        {
-          title: schema.string({ description: "Human-readable title." })
-        },
-        { required: "all" }
-      ),
-      outputSchema: ${feature}RecordSchema,
-      confirmation: {
-        required: true,
-        risk: "medium"
-      },
-      handler: async (input) => {
-        const record = {
-          id: \`${feature}-\${Date.now()}\`,
-          title: String(input.title),
-          createdAt: new Date().toISOString()
-        };
-
-        ${feature}Records.set(record.id, record);
-        return record;
-      }
+export const ${feature}Feature = feature(${JSON.stringify(feature)})
+  .read("list", async () => ({ items: Array.from(${feature}Records.values()) }), {
+    description: "List ${feature} records.",
+    output: {
+      items: ["object"]
     }
-  ],
-  resources: [
-    {
-      name: "list",
-      description: "List ${feature} records.",
-      outputSchema: schema.object(
-        {
-          items: schema.array(${feature}RecordSchema)
-        },
-        { required: ["items"] }
-      ),
-      read: async () => ({ items: Array.from(${feature}Records.values()) })
-    }
-  ]
-});
+  })
+  .write("create", async (input) => {
+    const record = {
+      id: \`${feature}-\${Date.now()}\`,
+      title: String(input.title),
+      createdAt: new Date().toISOString()
+    };
+
+    ${feature}Records.set(record.id, record);
+    return record;
+  }, {
+    description: "Create a ${feature}.",
+    input: {
+      title: "string"
+    },
+    output: {
+      id: "string",
+      title: "string",
+      createdAt: "string"
+    },
+    confirm: true,
+    risk: "medium"
+  });
 `;
 }
 
@@ -1023,7 +1015,7 @@ function formatCreatedFilesMessage(options: ReactNativeInitCliOptions) {
   if (options.featureOnly) {
     return (
       `Created Mobigent React Native feature ${options.feature} in ${join(options.outDir, "mobigent-features")}.\n` +
-      `Pass ${options.feature}Module to MobigentRoot modules, or render <AgentModules modules={${options.feature}Module} /> from the owning route.\n`
+      `Pass ${options.feature}Feature to mobigentApp({ features: [...] }) or MobigentRoot features.\n`
     );
   }
 
@@ -1344,6 +1336,8 @@ function helpText() {
   return `Mobigent React Native initializer
 
 Usage:
+  mobigent init --app-id com.example.app --app-name "Example App" --feature expense --out-dir src
+  mobigent doctor --app-id com.example.app --app-name "Example App" --feature expense --out-dir src --app-root .
   mobigent-init --app-id com.example.app --app-name "Example App" --feature expense --out-dir src
   mobigent-init --app-id com.example.app --app-name "Example App" --feature expense --out-dir src --expo-router
   mobigent-expo-init --app-id com.example.app --app-name "Example App" --feature expense --out-dir src
@@ -1372,7 +1366,7 @@ Options:
   --app-root <path>      React Native app root for package.json doctor checks. Default: current directory.
   --out-dir <path>       Output directory. Default: src.
   --gateway-url <url>    WebSocket gateway URL for doctor checks.
-  --expo                 Generate an Expo-first root using createAgentExpoApp().
+  --expo                 Generate an Expo-friendly root.
   --react-native, --bare Generate a bare React Native root from an Expo-first command.
   --expo-router          Also generate app/_layout.tsx for Expo Router.
   --custom-confirmation  Generate and wire an editable confirmation component.

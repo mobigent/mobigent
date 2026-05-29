@@ -21,7 +21,7 @@ The package targets iOS 15+ and Swift 5.9+.
 After tagged releases begin, Swift Package Manager will be able to consume the public Git tag directly:
 
 ```swift
-.package(url: "https://github.com/mobigent/mobigent", from: "0.1.9")
+.package(url: "https://github.com/mobigent/mobigent", from: "0.1.10")
 ```
 
 ## Create A Client

@@ -16,12 +16,15 @@ import {
 import { createRoot } from "react-dom/client";
 import "./styles.css";
 
-const quickstart = `npm install \\
-  https://github.com/mobigent/mobigent/releases/download/v0.1.9/mobigent-react-native-0.1.9.tgz \\
-  https://github.com/mobigent/mobigent/releases/download/v0.1.9/mobigent-backend-0.1.9.tgz`;
+const quickstart = `npm install @mobigent/react-native @mobigent/backend
+npx mobigent init \\
+  --app-id com.example.app \\
+  --app-name "Example App" \\
+  --feature expense \\
+  --out-dir src`;
 
 const demoCode = `npm exec --yes \\
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.9/create-mobigent-app-0.1.9.tgz \\
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.10/create-mobigent-app-0.1.10.tgz \\
   -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
@@ -43,7 +46,7 @@ npm run dev
 npm run doctor
 npm run agent:local`;
 
-const moduleCode = `import { feature } from "@mobigent/react-native/simple";
+const moduleCode = `import { feature } from "@mobigent/react-native";
 
 export const expenses = feature("expense")
   .read("list", async () => ({
@@ -57,7 +60,7 @@ export const expenses = feature("expense")
     confirm: true
   });`;
 
-const appCode = `import { mobigentApp } from "@mobigent/react-native/app";
+const appCode = `import { mobigentApp } from "@mobigent/react-native";
 import { mobigentConfig } from "./mobigent/config";
 import { expenses } from "./mobigent/expense";
 
@@ -72,7 +75,7 @@ export default function App() {
 
 const connectCode = `import { startMobigentBackend } from "@mobigent/backend";
 import { mobigent } from "@mobigent/react-native";
-import { connectMobigent } from "@mobigent/react-native/simple";
+import { connectMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expense";
 
 const backend = await startMobigentBackend();
@@ -110,8 +113,7 @@ const appConfigCode = mobigent.appConfigModule({
   appName: "Example App"
 });`;
 
-const securityDoctorCode = `npx mobigent-init \\
-  --security-doctor \\
+const securityDoctorCode = `npx mobigent security-doctor \\
   --app-id com.example.app \\
   --app-name "Example App" \\
   --feature expense \\

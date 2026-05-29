@@ -51,7 +51,7 @@ console.log(mobigent.appConfigModule({
 It prints:
 
 ```ts
-import { defineMobigentConfig } from "@mobigent/react-native/simple";
+import { defineMobigentConfig } from "@mobigent/react-native";
 
 export const mobigentConfig = defineMobigentConfig({
   "appId": "com.example.app",

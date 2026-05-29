@@ -8,7 +8,7 @@ The easiest path is the starter:
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.9/create-mobigent-app-0.1.9.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.10/create-mobigent-app-0.1.10.tgz \
   -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
@@ -26,16 +26,17 @@ You should see app, backend, readiness, and tool checks pass.
 
 ## Existing React Native App
 
-Install the app SDK:
+Install the app SDK and scaffold the small Mobigent folder:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.9/mobigent-react-native-0.1.9.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.10/mobigent-react-native-0.1.10.tgz
+npx mobigent init --app-id com.example.app --app-name "Example App" --feature expense --out-dir src
 ```
 
 Create one feature:
 
 ```ts
-import { feature } from "@mobigent/react-native/simple";
+import { feature } from "@mobigent/react-native";
 
 export const expenses = feature("expense")
   .read("list", async () => ({ items: await listExpenses() }))
@@ -51,7 +52,7 @@ export const expenses = feature("expense")
 Wrap the app once:
 
 ```tsx
-import { mobigentApp } from "@mobigent/react-native/app";
+import { mobigentApp } from "@mobigent/react-native";
 import { mobigentConfig } from "./mobigent/config";
 import { expenses } from "./mobigent/expenses";
 
@@ -74,7 +75,7 @@ For a non-React demo or test host, connect the same feature in one call:
 ```ts
 import { startMobigentBackend } from "@mobigent/backend";
 import { mobigent } from "@mobigent/react-native";
-import { connectMobigent } from "@mobigent/react-native/simple";
+import { connectMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
 
 const backend = await startMobigentBackend();
@@ -92,7 +93,7 @@ await connectMobigent(mobigent, {
 Install the backend SDK:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.9/mobigent-backend-0.1.9.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.10/mobigent-backend-0.1.10.tgz
 ```
 
 Start Mobigent:

@@ -20,7 +20,7 @@ The SDK handles namespacing, JSON Schema generation, validation, confirmation, c
 Until npmjs publishing is connected, install from the public GitHub release:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.9/mobigent-react-native-0.1.9.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.10/mobigent-react-native-0.1.10.tgz
 ```
 
 After npmjs publishing is enabled:
@@ -31,10 +31,18 @@ npm install @mobigent/react-native
 
 ## Add One Feature
 
+In an existing app, start with the initializer:
+
+```bash
+npx mobigent init --app-id com.example.app --app-name "Example App" --feature expense --out-dir src
+```
+
+It creates a Mobigent root wrapper and one feature file. You can also create the feature by hand.
+
 Create `src/mobigent/expenses.ts`:
 
 ```ts
-import { feature } from "@mobigent/react-native/simple";
+import { feature } from "@mobigent/react-native";
 
 export const expenses = feature("expense")
   .read("list", async () => ({
@@ -60,7 +68,7 @@ com_example_app.expense_create
 ## Wrap Your Existing App
 
 ```tsx
-import { mobigentApp } from "@mobigent/react-native/app";
+import { mobigentApp } from "@mobigent/react-native";
 import { mobigentConfig } from "./src/mobigent/config";
 import { expenses } from "./src/mobigent/expenses";
 
@@ -85,7 +93,7 @@ For a Node demo, test host, or another non-React runtime, use the same feature w
 ```ts
 import { startMobigentBackend } from "@mobigent/backend";
 import { mobigent } from "@mobigent/react-native";
-import { connectMobigent } from "@mobigent/react-native/simple";
+import { connectMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
 
 const backend = await startMobigentBackend();
@@ -116,7 +124,7 @@ input: {
 Use `simpleSchema()` when you want the generated JSON Schema directly:
 
 ```ts
-import { simpleSchema } from "@mobigent/react-native/simple";
+import { simpleSchema } from "@mobigent/react-native";
 
 const inputSchema = simpleSchema({
   merchant: "string",
@@ -131,7 +139,7 @@ Advanced integrations can still pass full JSON Schema, Zod adapters, or lower-le
 Emit app events after important work:
 
 ```ts
-import { useMobigentEvent } from "@mobigent/react-native/app";
+import { useMobigentEvent } from "@mobigent/react-native";
 
 function ExpenseButton() {
   const emit = useMobigentEvent();

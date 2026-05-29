@@ -12,7 +12,7 @@ Most integrations use two packages:
 ## React Native
 
 ```ts
-import { feature } from "@mobigent/react-native/simple";
+import { feature } from "@mobigent/react-native";
 
 export const expenses = feature("expense")
   .read("list", async () => ({ items: await listExpenses() }))
@@ -26,7 +26,7 @@ export const expenses = feature("expense")
 ```
 
 ```tsx
-import { mobigentApp } from "@mobigent/react-native/app";
+import { mobigentApp } from "@mobigent/react-native";
 import { mobigentConfig } from "./mobigent/config";
 
 const { Root } = mobigentApp({
@@ -40,7 +40,7 @@ For non-React hosts, demos, and tests:
 ```ts
 import { startMobigentBackend } from "@mobigent/backend";
 import { mobigent } from "@mobigent/react-native";
-import { connectMobigent } from "@mobigent/react-native/simple";
+import { connectMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
 
 const backend = await startMobigentBackend();

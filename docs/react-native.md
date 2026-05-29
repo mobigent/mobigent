@@ -5,13 +5,13 @@ Use Mobigent like normal app code: expose a few real functions, wrap the app onc
 ## 1. Install
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.9/mobigent-react-native-0.1.9.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.10/mobigent-react-native-0.1.10.tgz
 ```
 
 ## 2. Create A Feature
 
 ```ts
-import { feature } from "@mobigent/react-native/simple";
+import { feature } from "@mobigent/react-native";
 
 export const expenses = feature("expense")
   .read("list", async () => ({ items: await listExpenses() }))
@@ -33,7 +33,7 @@ This exposes:
 ## 3. Wrap The App
 
 ```tsx
-import { mobigentApp } from "@mobigent/react-native/app";
+import { mobigentApp } from "@mobigent/react-native";
 import { mobigentConfig } from "./mobigent/config";
 import { expenses } from "./mobigent/expenses";
 
@@ -70,7 +70,7 @@ If you are running a local demo, test host, or another runtime where you are usi
 ```ts
 import { startMobigentBackend } from "@mobigent/backend";
 import { mobigent } from "@mobigent/react-native";
-import { connectMobigent } from "@mobigent/react-native/simple";
+import { connectMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
 
 const backend = await startMobigentBackend();

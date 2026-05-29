@@ -2,8 +2,14 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import WebSocket from "ws";
 import { formatMobigentAppConfigModule, startMobigentBackend } from "@mobigent/backend";
-import { mobigent, type MobigentSocketFactory } from "@mobigent/react-native";
-import { connectMobigent, defineMobigentConfig, feature, simpleSchema } from "@mobigent/react-native/simple";
+import {
+  connectMobigent,
+  defineMobigentConfig,
+  feature,
+  mobigent,
+  simpleSchema,
+  type MobigentSocketFactory
+} from "@mobigent/react-native";
 
 const createNodeSocket: MobigentSocketFactory = (url) => new WebSocket(url);
 
@@ -83,7 +89,7 @@ test("app config helpers create typed copy-paste app config", () => {
   });
 
   assert.equal(config.appId, "com.example.app");
-  assert.equal(formatMobigentAppConfigModule(config), `import { defineMobigentConfig } from "@mobigent/react-native/simple";
+  assert.equal(formatMobigentAppConfigModule(config), `import { defineMobigentConfig } from "@mobigent/react-native";
 
 export const mobigentConfig = defineMobigentConfig({
   "appId": "com.example.app",

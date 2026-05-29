@@ -6,7 +6,7 @@ This guide gets you from an app with no agent interface to a working Mobigent lo
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.9/create-mobigent-app-0.1.9.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.10/create-mobigent-app-0.1.10.tgz \
   -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
@@ -31,10 +31,17 @@ The demo starts a Mobigent backend, connects a sample expense app, calls a confi
 
 ## 2. Add One Feature To An Existing App
 
+Install the app SDK and scaffold the small Mobigent folder:
+
+```bash
+npm install @mobigent/react-native
+npx mobigent init --app-id com.example.app --app-name "Example App" --feature expense --out-dir src
+```
+
 Create a feature file:
 
 ```ts
-import { feature } from "@mobigent/react-native/simple";
+import { feature } from "@mobigent/react-native";
 
 export const expenses = feature("expense")
   .read("list", async () => ({ items: await listExpenses() }))
@@ -51,7 +58,7 @@ export const expenses = feature("expense")
 Put the backend-generated config in your app, then wrap your existing app once:
 
 ```tsx
-import { mobigentApp } from "@mobigent/react-native/app";
+import { mobigentApp } from "@mobigent/react-native";
 import { mobigentConfig } from "./mobigent/config";
 import { expenses } from "./mobigent/expenses";
 
@@ -74,7 +81,7 @@ For a non-React demo or test host, connect the same feature in one call:
 ```ts
 import { startMobigentBackend } from "@mobigent/backend";
 import { mobigent } from "@mobigent/react-native";
-import { connectMobigent } from "@mobigent/react-native/simple";
+import { connectMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
 
 const backend = await startMobigentBackend();

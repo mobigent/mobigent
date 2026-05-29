@@ -63,7 +63,7 @@ Create a Mobigent starter from the public GitHub release:
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.9/create-mobigent-app-0.1.9.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.10/create-mobigent-app-0.1.10.tgz \
   -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
@@ -93,13 +93,13 @@ That first run is the whole idea: agents do not tap screens or guess UI. Your ap
 For an existing React Native app, install the app SDK:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.9/mobigent-react-native-0.1.9.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.10/mobigent-react-native-0.1.10.tgz
 ```
 
 For a backend/server app, install the backend package:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.9/mobigent-backend-0.1.9.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.10/mobigent-backend-0.1.10.tgz
 ```
 
 From the backend, generate the tiny config file your app imports:
@@ -120,7 +120,7 @@ Until npmjs.com publishing is connected with an `NPM_TOKEN`, packages are publis
 Install directly from the public release tarball:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.9/mobigent-react-native-0.1.9.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.10/mobigent-react-native-0.1.10.tgz
 ```
 
 Or install from npmjs after npm publishing is connected:
@@ -134,10 +134,17 @@ Maintainer note: npmjs publishing is tracked in [docs/npm-publishing.md](./docs/
 
 ## Add It To An Existing React Native App
 
+Install the app package, then let the SDK create the tiny Mobigent folder:
+
+```bash
+npm install @mobigent/react-native
+npx mobigent init --app-id com.example.app --app-name "Example App" --feature expense --out-dir src
+```
+
 Create one feature file:
 
 ```ts
-import { feature } from "@mobigent/react-native/simple";
+import { feature } from "@mobigent/react-native";
 
 export const expenses = feature("expense")
   .read("list", async () => ({
@@ -155,7 +162,7 @@ export const expenses = feature("expense")
 Put the backend-generated config in your app, then wrap the app once:
 
 ```tsx
-import { mobigentApp } from "@mobigent/react-native/app";
+import { mobigentApp } from "@mobigent/react-native";
 import { mobigentConfig } from "./mobigent/config";
 import { expenses } from "./mobigent/expenses";
 
@@ -180,7 +187,7 @@ If you are wiring a Node demo, test host, or another non-React runtime, use the 
 ```ts
 import { startMobigentBackend } from "@mobigent/backend";
 import { mobigent } from "@mobigent/react-native";
-import { connectMobigent } from "@mobigent/react-native/simple";
+import { connectMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
 
 const backend = await startMobigentBackend();

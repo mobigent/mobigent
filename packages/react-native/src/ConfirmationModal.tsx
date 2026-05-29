@@ -1,4 +1,4 @@
-import { Button, Modal, Platform, StyleSheet, Text, View } from "react-native";
+import type * as ReactNativeRuntime from "react-native";
 import {
   composeMobigentCapabilities,
   createMobigentEnvironmentFromExpoConfig,
@@ -24,6 +24,16 @@ import {
   type MobigentStatusLevel
 } from "./provider.js";
 import { useEffect, useMemo, type ComponentType, type ReactNode } from "react";
+
+declare const require: (id: string) => unknown;
+
+function getReactNative() {
+  return require("react-native") as typeof ReactNativeRuntime;
+}
+
+function getReactNativePlatformOS() {
+  return getReactNative().Platform.OS;
+}
 
 export type MobigentConfirmationModalProps = {
   approveLabel?: string;
@@ -177,7 +187,7 @@ export function MobigentApp({
   const resolvedProviderProps =
     providerProps.gatewayUrl || providerProps.gateway
       ? providerProps
-      : { ...providerProps, gateway: { platform: Platform.OS } };
+      : { ...providerProps, gateway: { platform: getReactNativePlatformOS() } };
 
   useEffect(() => {
     if (preflightReport) {
@@ -219,6 +229,7 @@ export function MobigentConfirmationModal({
   approveLabel = "Approve",
   rejectLabel = "Reject"
 }: MobigentConfirmationModalProps) {
+  const { Button, Modal, Text, View } = getReactNative();
   const { request, approve, reject } = useMobigentConfirmation();
 
   return (
@@ -247,6 +258,7 @@ export function MobigentStatusBadge({
   showCount = true,
   label
 }: MobigentStatusBadgeProps) {
+  const { Text, View } = getReactNative();
   const currentStatus = status ?? useMobigentStatus();
   const tone = statusBadgeTone[currentStatus.level];
   const text = label ?? currentStatus.label;
@@ -268,6 +280,7 @@ export function MobigentDiagnosticsPanel({
   showControls = true,
   showIssues = true
 }: MobigentDiagnosticsPanelProps) {
+  const { Button, Text, View } = getReactNative();
   const diagnostics = useMobigentDiagnostics();
   const status = useMobigentStatus();
   const { connect, disconnect, connected, connectionState } = useMobigentConnection();
@@ -310,6 +323,8 @@ export function MobigentDiagnosticsPanel({
 }
 
 function DiagnosticsMetric({ label, value }: { label: string; value: number }) {
+  const { Text, View } = getReactNative();
+
   return (
     <View style={styles.metric}>
       <Text style={styles.metricValue}>{value}</Text>
@@ -433,12 +448,12 @@ function createMobigentExpoEnvironmentFallback(
   fallback: MobigentEnvironmentFromEnvOptions["fallback"]
 ) {
   const expoEnvironment = createMobigentEnvironmentFromExpoConfig(expo, {
-    platform: Platform.OS,
+    platform: getReactNativePlatformOS(),
     ...fallback
   });
 
   return {
-    platform: Platform.OS,
+    platform: getReactNativePlatformOS(),
     ...fallback,
     enabled: expoEnvironment.enabled ?? fallback?.enabled,
     gateway: undefined,
@@ -471,7 +486,7 @@ function resolveMobigentExpoEnvironmentMode(
   return "local";
 }
 
-const styles = StyleSheet.create({
+const styles = {
   backdrop: {
     flex: 1,
     alignItems: "center",
@@ -590,7 +605,7 @@ const styles = StyleSheet.create({
   diagnosticsActions: {
     alignSelf: "flex-start"
   }
-});
+} as const;
 
 const statusBadgeTone: Record<
   MobigentStatusLevel,

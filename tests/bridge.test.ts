@@ -2050,24 +2050,23 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
 
   assert.ok(rootFile);
   assert.ok(featureFile);
-  assert.match(rootFile.contents, /createAgentApp/);
-  assert.match(rootFile.contents, /@mobigent\/react-native\/app/);
-  assert.match(rootFile.contents, /createAgentEnvironmentFromEnv/);
+  assert.match(rootFile.contents, /mobigentApp/);
+  assert.match(rootFile.contents, /@mobigent\/react-native/);
+  assert.match(rootFile.contents, /features: \[expenseFeature\]/);
   assert.doesNotMatch(rootFile.contents, /createMobigentEnvironmentFromEnv/);
   assert.doesNotMatch(rootFile.contents, /createMobigentCapabilityRegistry/);
   assert.match(rootFile.contents, /MobigentRootProps/);
-  assert.match(rootFile.contents, /mobigentApp/);
-  assert.match(rootFile.contents, /mobigentEnvironment/);
+  assert.doesNotMatch(rootFile.contents, /mobigentEnvironment/);
   assert.doesNotMatch(rootFile.contents, /mobigentCapabilities/);
   assert.match(rootFile.contents, /com.mobigent.demo/);
-  assert.match(rootFile.contents, /modules: \[expenseModule\]/);
-  assert.match(rootFile.contents, /\.\.\.mobigentEnvironment/);
-  assert.match(rootFile.contents, /expenseModule/);
-  assert.match(featureFile.contents, /createAgentModule/);
-  assert.match(featureFile.contents, /@mobigent\/react-native\/app/);
-  assert.match(featureFile.contents, /namespace: "expense"/);
-  assert.match(featureFile.contents, /export const expenseModule/);
-  assert.doesNotMatch(featureFile.contents, /expense\.action/);
+  assert.doesNotMatch(rootFile.contents, /modules: \[expenseModule\]/);
+  assert.doesNotMatch(rootFile.contents, /\.\.\.mobigentEnvironment/);
+  assert.match(rootFile.contents, /expenseFeature/);
+  assert.doesNotMatch(featureFile.contents, /createAgentModule/);
+  assert.match(featureFile.contents, /@mobigent\/react-native/);
+  assert.match(featureFile.contents, /feature\("expense"\)/);
+  assert.match(featureFile.contents, /export const expenseFeature/);
+  assert.match(featureFile.contents, /\.write\("create"/);
 
   const expoFiles = createReactNativeStarterFiles({
     appId: "com.mobigent.expo",
@@ -2084,10 +2083,10 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   });
   const expoRootFile = expoFiles.find((file) => file.path === join("src", "mobigent.tsx"));
   assert.ok(expoRootFile);
-  assert.match(expoRootFile.contents, /expo-constants/);
-  assert.match(expoRootFile.contents, /createAgentExpoApp/);
-  assert.match(expoRootFile.contents, /@mobigent\/react-native\/app/);
-  assert.match(expoRootFile.contents, /Constants\.expoConfig/);
+  assert.doesNotMatch(expoRootFile.contents, /expo-constants/);
+  assert.match(expoRootFile.contents, /mobigentApp/);
+  assert.match(expoRootFile.contents, /@mobigent\/react-native/);
+  assert.doesNotMatch(expoRootFile.contents, /Constants\.expoConfig/);
   assert.doesNotMatch(expoRootFile.contents, /createMobigentEnvironmentFromEnv/);
 
   const expoRouterFiles = createReactNativeStarterFiles({
@@ -2119,8 +2118,8 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
     featureOnlyFiles.map((file) => file.path),
     [join("src", "mobigent-features", "invoice.ts")]
   );
-  assert.match(featureOnlyFiles[0]?.contents ?? "", /namespace: "invoice"/);
-  assert.match(featureOnlyFiles[0]?.contents ?? "", /export const invoiceModule/);
+  assert.match(featureOnlyFiles[0]?.contents ?? "", /feature\("invoice"\)/);
+  assert.match(featureOnlyFiles[0]?.contents ?? "", /export const invoiceFeature/);
 
   const featureOnlyStarterFiles = createReactNativeStarterFiles({
     appId: "",
@@ -2208,8 +2207,8 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
 	  );
 	  assert.equal(initDryRunCode, 0);
 	  assert.equal(stderr, "");
-	  assert.match(stdout, /createAgentExpoApp/);
-	  assert.match(stdout, /expo-constants/);
+	  assert.match(stdout, /mobigentApp/);
+	  assert.doesNotMatch(stdout, /expo-constants/);
 
 	  stdout = "";
 	  stderr = "";
@@ -2232,7 +2231,7 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
 	  );
 	  assert.equal(initBareDryRunCode, 0);
 	  assert.equal(stderr, "");
-	  assert.match(stdout, /createAgentApp/);
+	  assert.match(stdout, /mobigentApp/);
 	  assert.doesNotMatch(stdout, /expo-constants/);
 
 	  stdout = "";
@@ -2255,8 +2254,8 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   );
   assert.equal(expoDryRunCode, 0);
   assert.equal(stderr, "");
-  assert.match(stdout, /createAgentExpoApp/);
-  assert.match(stdout, /expo-constants/);
+  assert.match(stdout, /mobigentApp/);
+  assert.doesNotMatch(stdout, /expo-constants/);
 
   stdout = "";
   stderr = "";
@@ -2302,7 +2301,7 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   );
   assert.equal(featureOnlyCode, 0);
   assert.equal(stderr, "");
-  assert.match(stdout, /invoiceModule/);
+  assert.match(stdout, /invoiceFeature/);
   assert.doesNotMatch(stdout, /mobigent\.tsx/);
 
   const dir = await mkdtemp(join(tmpdir(), "mobigent-rn-init-"));
@@ -2322,10 +2321,10 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   );
 
   assert.equal(writeCode, 0);
-  assert.match(await readFile(join(dir, "mobigent.tsx"), "utf8"), /taskModule/);
+  assert.match(await readFile(join(dir, "mobigent.tsx"), "utf8"), /taskFeature/);
   const taskFeatureFile = await readFile(join(dir, "mobigent-features", "task.ts"), "utf8");
-  assert.match(taskFeatureFile, /namespace: "task"/);
-  assert.match(taskFeatureFile, /export const taskModule/);
+  assert.match(taskFeatureFile, /feature\("task"\)/);
+  assert.match(taskFeatureFile, /export const taskFeature/);
   await rm(dir, { force: true, recursive: true });
 
   assert.equal(

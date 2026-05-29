@@ -124,7 +124,7 @@ export function installMobigentAppDependencies(options: Pick<CreateMobigentAppOp
   };
 }
 
-const defaultMobigentVersion = "0.1.9";
+const defaultMobigentVersion = "0.1.10";
 
 function createPackageJson(packageName: string, options?: CreateMobigentAppOptions) {
   const packageSource = options?.packageSource ?? "github-release";
@@ -260,8 +260,7 @@ function createServerFile(options: CreateMobigentAppOptions) {
   return `import { spawn } from "node:child_process";
 import express from "express";
 import { startMobigentBackend } from "@mobigent/backend";
-import { mobigent } from "@mobigent/react-native";
-import { connectMobigent } from "@mobigent/react-native/simple";
+import { connectMobigent, mobigent } from "@mobigent/react-native";
 import { expenseFeature, expenses, parsePrompt } from "./capabilities.js";
 import { createNodeSocket } from "./nodeSocket.js";
 
@@ -517,8 +516,7 @@ function renderPage() {
 }
 
 function createCapabilitiesFile() {
-  return `import { mobigent } from "@mobigent/react-native";
-import { feature } from "@mobigent/react-native/simple";
+  return `import { feature, mobigent } from "@mobigent/react-native";
 
 export type Expense = {
   id: string;

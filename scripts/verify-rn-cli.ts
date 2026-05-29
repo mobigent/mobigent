@@ -23,7 +23,7 @@ try {
     join(dir, "package.json"),
     JSON.stringify({
       dependencies: {
-        "@mobigent/react-native": "0.1.9",
+        "@mobigent/react-native": "0.1.10",
         "react-native": "0.74.0"
       }
     }),
@@ -44,13 +44,14 @@ try {
   assert.equal(init.code, 0, init.stderr);
   const rootFile = await readFile(join(dir, "mobigent.tsx"), "utf8");
   assert.match(rootFile, /MobigentRoot/);
-  assert.match(rootFile, /@mobigent\/react-native\/app/);
-  assert.match(rootFile, /createAgentEnvironmentFromEnv/);
+  assert.match(rootFile, /@mobigent\/react-native/);
+  assert.match(rootFile, /mobigentApp/);
+  assert.match(rootFile, /features: \[taskFeature\]/);
   assert.match(rootFile, /ConfirmationComponent: MobigentAgentApproval/);
   assert.match(await readFile(join(dir, "mobigent-confirmation.tsx"), "utf8"), /useMobigentConfirmation/);
   assert.match(
     await readFile(join(dir, "mobigent-features", "task.ts"), "utf8"),
-    /namespace: "task"/
+    /feature\("task"\)/
   );
 
   const doctor = run([

@@ -23,6 +23,35 @@ export {
   type ConfirmationRequest
 } from "./confirmation.js";
 export {
+  createMobigentRoot,
+  createSimpleMobigentApp,
+  mobigentApp,
+  type MobigentSimpleAppOptions
+} from "./setup.js";
+export {
+  agentFeature,
+  connectMobigent,
+  defineMobigentConfig,
+  feature,
+  registerFeature,
+  registerFeatures,
+  simpleSchema,
+  toSchema,
+  type MobigentSimpleActionOptions,
+  type MobigentSimpleAppConfig,
+  type MobigentSimpleClient,
+  type MobigentSimpleComponentOptions,
+  type MobigentSimpleConfiguredConnectionOptions,
+  type MobigentSimpleConnection,
+  type MobigentSimpleConnectionClient,
+  type MobigentSimpleConnectionOptions,
+  type MobigentSimpleFeature,
+  type MobigentSimpleField,
+  type MobigentSimpleObjectSchema,
+  type MobigentSimpleResourceOptions,
+  type MobigentSimpleSchema
+} from "./simple.js";
+export {
   arraySchema,
   booleanSchema,
   enumSchema,
@@ -185,6 +214,32 @@ export {
   type MobigentStatus,
   type MobigentStatusLevel
 } from "./provider.js";
+export {
+  AgentApp,
+  MobigentApp,
+  MobigentConfirmationModal,
+  MobigentDiagnosticsPanel,
+  MobigentStatusBadge,
+  createAgentApp,
+  createAgentExpoApp,
+  createMobigentApp,
+  createMobigentAppPreflight,
+  createMobigentExpoApp,
+  type AgentAppFactoryOptions,
+  type AgentAppProps,
+  type AgentAppRootProps,
+  type AgentExpoAppOptions,
+  type MobigentAppFactory,
+  type MobigentAppFactoryOptions,
+  type MobigentAppPreflightOptions,
+  type MobigentAppProps,
+  type MobigentAppRootProps,
+  type MobigentConfirmationComponentProps,
+  type MobigentConfirmationModalProps,
+  type MobigentDiagnosticsPanelProps,
+  type MobigentExpoAppOptions,
+  type MobigentStatusBadgeProps
+} from "./ui.js";
 export type { MobigentSocket, MobigentSocketFactory } from "./transport.js";
 export type {
   ActionDefinition,
