@@ -28,7 +28,8 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "mobigent-backend": "./dist/cli.js"
+    "mobigent-backend": "./dist/cli.js",
+    "mobigent-mcp": "./dist/mcp.js"
   },
   "exports": {
     ".": {
@@ -41,11 +42,12 @@
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && chmod +x dist/cli.js",
+    "build": "tsc -p tsconfig.json && chmod +x dist/cli.js dist/mcp.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prepublishOnly": "npm run build && npm run typecheck"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@mobigent/core": "0.1.12",
     "@mobigent/gateway": "0.1.12",
     "@mobigent/providers": "0.1.12"

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { chmod, mkdir, mkdtemp, rm, symlink } from "node:fs/promises";
+import { chmod, mkdir, mkdtemp, rm, stat, symlink } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
@@ -12,6 +12,7 @@ try {
 
   await linkBin("create-mobigent-app", "packages/create-app/dist/cli.js");
   await linkBin("mobigent-backend", "packages/backend/dist/cli.js");
+  await linkBin("mobigent-mcp", "packages/backend/dist/mcp.js");
   await linkBin("mobigent-provider", "packages/providers/dist/cli.js");
   await linkBin("mobigent", "packages/react-native/dist/cli.js");
   await linkBin("mobigent-init", "packages/react-native/dist/cli.js");
@@ -21,6 +22,9 @@ try {
 
   const backend = await run(join(binDir, "mobigent-backend"), ["--help"]);
   assert.match(backend, /mobigent-backend/);
+
+  const backendMcp = await stat(join(binDir, "mobigent-mcp"));
+  assert.equal(Boolean(backendMcp.mode & 0o111), true, "mobigent-mcp should be executable.");
 
   const provider = await run(join(binDir, "mobigent-provider"), [
     "--provider",

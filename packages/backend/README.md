@@ -44,6 +44,12 @@ console.log(mobigent.agent("claude").guide);
 console.log(mobigent.agent("openai").runtimeEnv);
 ```
 
+For local MCP agents, this package ships the `mobigent-mcp` command too. That means a backend install is enough:
+
+```bash
+npx mobigent-backend agent claude
+```
+
 ## App Config
 
 Pass `app` to `startMobigent()` to create the small config object your app SDK needs:

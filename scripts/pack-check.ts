@@ -30,8 +30,8 @@ const packages: PackageExpectation[] = [
   },
   {
     path: "packages/backend",
-    requiredFiles: ["README.md", "package.json", "dist/index.js", "dist/index.d.ts", "dist/cli.js", "dist/cli.d.ts"],
-    requiredBins: ["dist/cli.js"]
+    requiredFiles: ["README.md", "package.json", "dist/index.js", "dist/index.d.ts", "dist/cli.js", "dist/cli.d.ts", "dist/mcp.js", "dist/mcp.d.ts"],
+    requiredBins: ["dist/cli.js", "dist/mcp.js"]
   },
   {
     path: "packages/providers",
