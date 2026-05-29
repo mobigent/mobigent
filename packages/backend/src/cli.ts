@@ -2,6 +2,12 @@
 import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  createProviderBundle,
+  createProviderCatalog,
+  filterProviderCatalog,
+  type ProviderKind
+} from "@mobigent/providers";
 
 export type MobigentBackendInitOptions = {
   appId: string;
@@ -19,6 +25,21 @@ export type MobigentBackendInitOptions = {
 export type MobigentBackendGeneratedFile = {
   path: string;
   contents: string;
+};
+
+export type MobigentBackendAgentKind =
+  | ProviderKind
+  | "chatgpt"
+  | "claude"
+  | "openai"
+  | "openapi-actions"
+  | "openapi-agent";
+
+export type MobigentBackendAgentOptions = {
+  kind: MobigentBackendAgentKind;
+  baseUrl: string;
+  auth: "none" | "bearer" | "api-key";
+  format: "guide" | "json";
 };
 
 export function createMobigentBackendFiles(options: MobigentBackendInitOptions): MobigentBackendGeneratedFile[] {
@@ -70,6 +91,11 @@ export function runMobigentBackendCli(
       return 0;
     }
 
+    if (normalized.command === "agent") {
+      output.write(formatAgentSetup(parseAgentArgs(normalized.args)));
+      return 0;
+    }
+
     if (normalized.command !== "init") {
       throw new Error(`Unknown mobigent backend command ${normalized.command}\n\n${helpText()}`);
     }
@@ -98,7 +124,8 @@ function normalizeCommand(argv: string[], commandName: string) {
     return {
       command: "help",
       help: true,
-      options: defaultOptions()
+      options: defaultOptions(),
+      args: []
     };
   }
 
@@ -106,7 +133,8 @@ function normalizeCommand(argv: string[], commandName: string) {
     return {
       command,
       help: true,
-      options: defaultOptions()
+      options: defaultOptions(),
+      args: rest
     };
   }
 
@@ -114,14 +142,25 @@ function normalizeCommand(argv: string[], commandName: string) {
     return {
       command: "init",
       help: false,
-      options: parseArgs(rest)
+      options: parseArgs(rest),
+      args: rest
+    };
+  }
+
+  if (command === "agent") {
+    return {
+      command,
+      help: false,
+      options: defaultOptions(),
+      args
     };
   }
 
   return {
     command,
     help: false,
-    options: parseArgs(args)
+    options: parseArgs(args),
+    args
   };
 }
 
@@ -186,6 +225,63 @@ function parseArgs(argv: string[]) {
   return options;
 }
 
+function parseAgentArgs(argv: string[]): MobigentBackendAgentOptions {
+  const options: MobigentBackendAgentOptions = {
+    kind: "chatgpt-actions",
+    baseUrl: "http://localhost:8788",
+    auth: "none",
+    format: "guide"
+  };
+
+  for (let index = 0; index < argv.length; index += 1) {
+    const arg = argv[index];
+    const next = () => {
+      const value = argv[index + 1];
+      if (!value || value.startsWith("--")) {
+        throw new Error(`Missing value for ${arg}`);
+      }
+      index += 1;
+      return value;
+    };
+
+    switch (arg) {
+      case "--provider":
+      case "--agent":
+        options.kind = next() as MobigentBackendAgentKind;
+        break;
+      case "--base-url":
+      case "--url":
+      case "--public-url":
+        options.baseUrl = next();
+        break;
+      case "--auth": {
+        const auth = next();
+        if (auth !== "none" && auth !== "bearer" && auth !== "api-key") {
+          throw new Error("--auth must be none, bearer, or api-key.");
+        }
+        options.auth = auth;
+        break;
+      }
+      case "--format": {
+        const format = next();
+        if (format !== "guide" && format !== "json") {
+          throw new Error("--format must be guide or json.");
+        }
+        options.format = format;
+        break;
+      }
+      default:
+        if (arg.startsWith("--")) {
+          throw new Error(`Unknown option ${arg}\n\n${helpText()}`);
+        }
+        options.kind = arg as MobigentBackendAgentKind;
+        break;
+    }
+  }
+
+  return options;
+}
+
 function defaultOptions(): MobigentBackendInitOptions {
   return {
     appId: "",
@@ -199,6 +295,27 @@ function defaultOptions(): MobigentBackendInitOptions {
     force: false,
     dryRun: false
   };
+}
+
+function formatAgentSetup(options: MobigentBackendAgentOptions) {
+  const id = normalizeAgentKind(options.kind);
+  const catalog = createProviderCatalog({
+    mcp: {
+      command: "mobigent-mcp"
+    },
+    openApi: {
+      baseUrl: options.baseUrl,
+      auth: options.auth
+    }
+  });
+  const [provider] = filterProviderCatalog(catalog, { ids: [id] });
+
+  if (!provider) {
+    throw new Error(`Mobigent agent provider is not available: ${options.kind}`);
+  }
+
+  const bundle = createProviderBundle(provider);
+  return options.format === "json" ? `${JSON.stringify(bundle, null, 2)}\n` : `${bundle.guide}\n`;
 }
 
 function createBackendFile(options: MobigentBackendInitOptions) {
@@ -268,6 +385,9 @@ Create a tiny backend entrypoint for @mobigent/backend.
 Usage:
   mobigent-backend init
   mobigent-backend --app com.example.app --app-name "Example App"
+  mobigent-backend agent chatgpt --base-url https://your-public-backend.example
+  mobigent-backend agent claude
+  mobigent-backend agent openai --base-url http://localhost:8788 --format json
 
 Options:
   --app-id, --app <id> App id used by the mobile SDK config. Default: inferred from package or folder.
@@ -280,8 +400,28 @@ Options:
   --auth-token <token> App auth token written to config. Default: dev-token.
   --force             Overwrite generated files.
   --dry-run           Print generated files as JSON.
+  agent <kind>        Print agent setup for chatgpt, claude, cursor, openai, openapi, or a provider id.
+  --base-url <url>    Agent setup base URL. Default: http://localhost:8788.
+  --auth <mode>       Agent setup auth mode: none, bearer, or api-key. Default: none.
+  --format <format>   Agent setup output: guide or json. Default: guide.
   -h, --help          Show help.
 `;
+}
+
+function normalizeAgentKind(kind: MobigentBackendAgentKind): ProviderKind {
+  switch (kind) {
+    case "chatgpt":
+    case "openapi-actions":
+      return "chatgpt-actions";
+    case "claude":
+      return "claude-desktop";
+    case "openai":
+      return "openai-responses";
+    case "openapi-agent":
+      return "openapi";
+    default:
+      return kind;
+  }
 }
 
 function findProjectName(startDir = process.cwd()): string {

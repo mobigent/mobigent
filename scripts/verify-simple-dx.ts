@@ -24,7 +24,8 @@ assert.deepEqual(
   ["@mobigent/backend", "@mobigent/react-native"],
   "npm starter should expose only the app and backend SDK packages"
 );
-assert.match(starterPackage.scripts["agent:local"], /npm exec --yes --package @mobigent\/providers@\^1\.2\.3 -- mobigent-provider/);
+assert.equal(starterPackage.scripts["agent:local"], "mobigent-backend agent claude --format guide");
+assert.doesNotMatch(JSON.stringify(starterPackage.scripts), /mobigent-provider|@mobigent\/providers/);
 
 const backendFile = createMobigentBackendFiles({
   appId: "com.example.app",

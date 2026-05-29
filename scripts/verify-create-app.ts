@@ -53,11 +53,11 @@ try {
   assert.equal(packageJson.name, "expense-demo");
   assert.equal(packageJson.scripts.dev, "tsx src/server.ts");
   assert.equal(packageJson.scripts.doctor, "tsx src/doctor.ts");
-  assert.equal(packageJson.scripts["agent:local"], "mobigent-provider --provider claude-desktop --command mobigent-mcp --format guide");
-  assert.equal(packageJson.scripts["agent:openapi"], "mobigent-provider --provider openapi --base-url http://localhost:8788 --format guide");
+  assert.equal(packageJson.scripts["agent:local"], "mobigent-backend agent claude --format guide");
+  assert.equal(packageJson.scripts["agent:openapi"], "mobigent-backend agent openapi --base-url http://localhost:8788 --format guide");
   assert.equal(
     packageJson.scripts["agent:chatgpt"],
-    "mobigent-provider --provider chatgpt-actions --base-url https://your-public-gateway.example --format guide"
+    "mobigent-backend agent chatgpt --base-url https://your-public-backend.example --format guide"
   );
   assert.equal(
     packageJson.dependencies["@mobigent/core"],
@@ -124,10 +124,8 @@ try {
   assert.equal("@mobigent/core" in npmPackageJson.dependencies, false);
   assert.equal("@mobigent/gateway" in npmPackageJson.dependencies, false);
   assert.equal("@mobigent/providers" in npmPackageJson.dependencies, false);
-  assert.match(
-    npmPackageJson.scripts["agent:local"],
-    /npm exec --yes --package @mobigent\/providers@\^1\.2\.3 -- mobigent-provider/
-  );
+  assert.equal(npmPackageJson.scripts["agent:local"], "mobigent-backend agent claude --format guide");
+  assert.doesNotMatch(JSON.stringify(npmPackageJson.scripts), /mobigent-provider|@mobigent\/providers/);
 
   const installMessage = run([join(dir, "install-message-demo"), "--install", "--no-open", "--dry-run"]);
   assert.equal(installMessage.code, 0, installMessage.stderr);

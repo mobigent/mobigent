@@ -179,6 +179,31 @@ test("backend init CLI infers app identity and prints the short app init command
   }
 });
 
+test("backend CLI prints agent setup without a separate provider command", () => {
+  let stdout = "";
+  let stderr = "";
+  const chatgptCode = runMobigentBackendCli(
+    ["agent", "chatgpt", "--base-url", "https://example.test"],
+    { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
+    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
+  );
+
+  assert.equal(chatgptCode, 0, stderr);
+  assert.match(stdout, /ChatGPT Actions/);
+  assert.match(stdout, /https:\/\/example\.test\/openapi\.json/);
+
+  stdout = "";
+  stderr = "";
+  const claudeCode = runMobigentBackendCli(
+    ["agent", "claude", "--format", "json"],
+    { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
+    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
+  );
+
+  assert.equal(claudeCode, 0, stderr);
+  assert.equal(JSON.parse(stdout).provider.id, "claude-desktop");
+});
+
 test("app config helpers create typed copy-paste app config", () => {
   const config = defineMobigentConfig({
     appId: "com.example.app",
