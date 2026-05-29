@@ -20,7 +20,7 @@ The SDK handles namespacing, JSON Schema generation, validation, confirmation, c
 Until npmjs publishing is connected, install from the public GitHub release:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.6/mobigent-react-native-0.1.6.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.7/mobigent-react-native-0.1.7.tgz
 ```
 
 After npmjs publishing is enabled:
@@ -79,6 +79,21 @@ export default function App() {
 ```
 
 Run a Mobigent backend from your server with `@mobigent/backend`, then open the inspector URL it prints.
+
+For a Node demo, test host, or another non-React runtime, use the same feature without manual registration:
+
+```ts
+import { mobigent } from "@mobigent/react-native";
+import { connectMobigent } from "@mobigent/react-native/simple";
+import { expenses } from "./mobigent/expenses";
+
+const connection = await connectMobigent(mobigent, {
+  appId: "com.example.app",
+  appName: "Example App",
+  gatewayUrl: "ws://localhost:8787",
+  features: [expenses]
+});
+```
 
 ## Field Types
 

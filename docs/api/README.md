@@ -34,6 +34,23 @@ const { Root } = mobigentApp({
 });
 ```
 
+For non-React hosts, demos, and tests:
+
+```ts
+import { mobigent } from "@mobigent/react-native";
+import { connectMobigent } from "@mobigent/react-native/simple";
+import { expenses } from "./mobigent/expenses";
+
+const connection = await connectMobigent(mobigent, {
+  appId: "com.example.app",
+  appName: "Example App",
+  gatewayUrl: "ws://localhost:8787",
+  features: [expenses]
+});
+
+connection.disconnect();
+```
+
 ## Backend API
 
 ```ts
@@ -55,6 +72,16 @@ The returned object includes:
 - `apps()`
 - `call(toolName, input)`
 - `stop()`
+
+## Simple App Helpers
+
+- `feature(namespace)`: creates a small app feature.
+- `read(name, handler)`: exposes app state.
+- `write(name, handler, options)`: exposes confirmed app behavior.
+- `screen(name, handler)`: lets an agent focus a screen or UI surface.
+- `mobigentApp(options)`: wraps a React Native app once.
+- `connectMobigent(client, options)`: configures, registers features, and connects in one call.
+- `registerFeatures(client, features)`: lower-level attach helper when you need manual lifecycle control.
 
 ## Capability Types
 
@@ -110,4 +137,3 @@ Full JSON Schema and lower-level `schema.*` helpers are still available for adva
 - `@mobigent/core`: shared protocol, manifests, schemas, and validation.
 - `@mobigent/gateway`: lower-level gateway, HTTP/OpenAPI server, and MCP stdio server.
 - `@mobigent/providers`: provider setup helpers and runtime adapters.
-

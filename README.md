@@ -41,7 +41,18 @@ import { startMobigentBackend } from "@mobigent/backend";
 await startMobigentBackend();
 ```
 
-Everything else, WebSockets, manifests, OpenAPI, MCP, confirmations, retries, audit events, and inspector wiring, is SDK plumbing.
+For a non-React host or local demo, connect the app in one call:
+
+```ts
+await connectMobigent(mobigent, {
+  appId: "com.example.app",
+  appName: "Example App",
+  gatewayUrl: "ws://localhost:8787",
+  features: [expenses]
+});
+```
+
+Everything else, WebSockets, registration loops, manifests, OpenAPI, MCP, confirmations, retries, audit events, and inspector wiring, is SDK plumbing.
 
 ## Quick Start
 
@@ -49,7 +60,7 @@ Create a Mobigent starter from the public GitHub release:
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.6/create-mobigent-app-0.1.6.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.7/create-mobigent-app-0.1.7.tgz \
   -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
@@ -79,13 +90,13 @@ That first run is the whole idea: agents do not tap screens or guess UI. Your ap
 For an existing React Native app, install the app SDK:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.6/mobigent-react-native-0.1.6.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.7/mobigent-react-native-0.1.7.tgz
 ```
 
 For a backend/server app, install the backend package:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.6/mobigent-backend-0.1.6.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.7/mobigent-backend-0.1.7.tgz
 ```
 
 ## Install Packages
@@ -95,7 +106,7 @@ Until npmjs.com publishing is connected with an `NPM_TOKEN`, packages are publis
 Install directly from the public release tarball:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.6/mobigent-react-native-0.1.6.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.7/mobigent-react-native-0.1.7.tgz
 ```
 
 Or install from npmjs after npm publishing is connected:
@@ -149,6 +160,21 @@ export default function App() {
 ```
 
 Mobigent handles namespacing, schemas, validation, confirmation, connection lifecycle, backend communication, and event queueing.
+
+If you are wiring a Node demo, test host, or another non-React runtime, use the same feature with the one-call connector:
+
+```ts
+import { mobigent } from "@mobigent/react-native";
+import { connectMobigent } from "@mobigent/react-native/simple";
+import { expenses } from "./mobigent/expenses";
+
+await connectMobigent(mobigent, {
+  appId: "com.example.app",
+  appName: "Example App",
+  gatewayUrl: "ws://localhost:8787",
+  features: [expenses]
+});
+```
 
 ## Add It To A Backend
 

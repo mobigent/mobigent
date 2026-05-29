@@ -35,6 +35,33 @@ const { Root } = mobigentApp({
 });
 ```
 
+For non-React hosts, demos, and tests:
+
+```ts
+import { mobigent } from "@mobigent/react-native";
+import { connectMobigent } from "@mobigent/react-native/simple";
+import { expenses } from "./mobigent/expenses";
+
+const connection = await connectMobigent(mobigent, {
+  appId: "com.example.app",
+  appName: "Example App",
+  gatewayUrl: "ws://localhost:8787",
+  features: [expenses]
+});
+
+connection.disconnect();
+```
+
+## Simple App Helpers
+
+- `feature(namespace)`: creates a small app feature.
+- `read(name, handler)`: exposes app state.
+- `write(name, handler, options)`: exposes confirmed app behavior.
+- `screen(name, handler)`: lets an agent focus a screen or UI surface.
+- `mobigentApp(options)`: wraps a React Native app once.
+- `connectMobigent(client, options)`: configures, registers features, and connects in one call.
+- `registerFeatures(client, features)`: lower-level attach helper when you need manual lifecycle control.
+
 ## Backend
 
 ```ts
@@ -58,4 +85,3 @@ The backend object exposes:
 ## Advanced
 
 `@mobigent/core` and `@mobigent/gateway` are lower-level packages for protocol work, custom gateway hosting, MCP stdio, and advanced security controls.
-

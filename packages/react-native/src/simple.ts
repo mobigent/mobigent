@@ -10,7 +10,14 @@ import {
   type MobigentResourceReader,
   type MobigentResourceRegistration
 } from "./provider.js";
+import type {
+  MobigentEventQueueOptions,
+  MobigentHeartbeatOptions,
+  MobigentManifestSigner,
+  MobigentReconnectOptions
+} from "./AgentBridge.js";
 import { schema } from "./schema.js";
+import type { MobigentSocketFactory } from "./transport.js";
 
 export type MobigentSimpleField =
   | "string"
@@ -62,6 +69,40 @@ export type MobigentSimpleFeature = MobigentCapabilityKit & {
   capabilities(): MobigentCapabilityKit;
 };
 
+export type MobigentSimpleClient = {
+  registerAction(action: MobigentActionRegistration): unknown;
+  registerResource(resource: MobigentResourceRegistration): unknown;
+  registerComponent(component: MobigentComponentRegistration): unknown;
+  unregisterAction?(name: string): unknown;
+  unregisterResource?(name: string): unknown;
+  unregisterComponent?(name: string): unknown;
+};
+
+export type MobigentSimpleConnectionOptions = {
+  appId: string;
+  appName: string;
+  gatewayUrl: string;
+  features: MobigentSimpleFeature | MobigentSimpleFeature[];
+  version?: string;
+  authToken?: string;
+  confirm?: (request: { action: unknown; input: JsonObject }) => Promise<boolean> | boolean;
+  signManifest?: MobigentManifestSigner;
+  createSocket?: MobigentSocketFactory;
+  reconnect?: boolean | MobigentReconnectOptions;
+  eventQueue?: boolean | MobigentEventQueueOptions;
+  heartbeat?: boolean | MobigentHeartbeatOptions;
+};
+
+export type MobigentSimpleConnectionClient = MobigentSimpleClient & {
+  configure(options: Omit<MobigentSimpleConnectionOptions, "features">): unknown;
+  connect(): Promise<void>;
+  disconnect(): unknown;
+};
+
+export type MobigentSimpleConnection = {
+  disconnect(): void;
+};
+
 export function feature(namespace: string): MobigentSimpleFeature {
   const actions: MobigentActionRegistration[] = [];
   const resources: MobigentResourceRegistration[] = [];
@@ -105,6 +146,73 @@ export function feature(namespace: string): MobigentSimpleFeature {
 }
 
 export const agentFeature = feature;
+
+export function registerFeatures(
+  client: MobigentSimpleClient,
+  features: MobigentSimpleFeature | MobigentSimpleFeature[]
+): () => void {
+  const featureList = Array.isArray(features) ? features : [features];
+  const registeredActions: MobigentActionRegistration[] = [];
+  const registeredResources: MobigentResourceRegistration[] = [];
+  const registeredComponents: MobigentComponentRegistration[] = [];
+
+  for (const item of featureList) {
+    for (const action of item.actions) {
+      client.registerAction(action);
+      registeredActions.push(action);
+    }
+
+    for (const resource of item.resources) {
+      client.registerResource(resource);
+      registeredResources.push(resource);
+    }
+
+    for (const component of item.components) {
+      client.registerComponent(component);
+      registeredComponents.push(component);
+    }
+  }
+
+  return () => {
+    for (const component of [...registeredComponents].reverse()) {
+      client.unregisterComponent?.(component.name);
+    }
+
+    for (const resource of [...registeredResources].reverse()) {
+      client.unregisterResource?.(resource.name);
+    }
+
+    for (const action of [...registeredActions].reverse()) {
+      client.unregisterAction?.(action.name);
+    }
+  };
+}
+
+export const registerFeature = registerFeatures;
+
+export async function connectMobigent(
+  client: MobigentSimpleConnectionClient,
+  options: MobigentSimpleConnectionOptions
+): Promise<MobigentSimpleConnection> {
+  const { features, ...connectionOptions } = options;
+
+  client.configure(connectionOptions);
+  const unregisterFeatures = registerFeatures(client, features);
+
+  try {
+    await client.connect();
+  } catch (error) {
+    unregisterFeatures();
+    throw error;
+  }
+
+  return {
+    disconnect() {
+      unregisterFeatures();
+      client.disconnect();
+    }
+  };
+}
 
 function toAction(
   namespace: string,

@@ -6,7 +6,7 @@ This guide gets you from an app with no agent interface to a working Mobigent lo
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.6/create-mobigent-app-0.1.6.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.7/create-mobigent-app-0.1.7.tgz \
   -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
@@ -67,6 +67,21 @@ export default function App() {
     </Root>
   );
 }
+```
+
+For a non-React demo or test host, connect the same feature in one call:
+
+```ts
+import { mobigent } from "@mobigent/react-native";
+import { connectMobigent } from "@mobigent/react-native/simple";
+import { expenses } from "./mobigent/expenses";
+
+await connectMobigent(mobigent, {
+  appId: "com.example.app",
+  appName: "Example App",
+  gatewayUrl: "ws://localhost:8787",
+  features: [expenses]
+});
 ```
 
 ## 3. Run The Backend

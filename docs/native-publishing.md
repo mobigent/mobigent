@@ -35,7 +35,7 @@ Local integration before tagging:
 Future tagged integration:
 
 ```swift
-.package(url: "https://github.com/mobigent/mobigent", from: "0.1.6")
+.package(url: "https://github.com/mobigent/mobigent", from: "0.1.7")
 ```
 
 ## Android
@@ -71,6 +71,6 @@ Future Maven Central integration:
 
 ```kotlin
 dependencies {
-  implementation("io.mobigent:mobigent-android:0.1.6")
+  implementation("io.mobigent:mobigent-android:0.1.7")
 }
 ```

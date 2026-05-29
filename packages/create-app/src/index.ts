@@ -124,7 +124,7 @@ export function installMobigentAppDependencies(options: Pick<CreateMobigentAppOp
   };
 }
 
-const defaultMobigentVersion = "0.1.6";
+const defaultMobigentVersion = "0.1.7";
 
 function createPackageJson(packageName: string, options?: CreateMobigentAppOptions) {
   const packageSource = options?.packageSource ?? "github-release";
@@ -261,6 +261,7 @@ function createServerFile(options: CreateMobigentAppOptions) {
 import express from "express";
 import { startMobigentBackend } from "@mobigent/backend";
 import { mobigent } from "@mobigent/react-native";
+import { connectMobigent } from "@mobigent/react-native/simple";
 import { expenseFeature, expenses, parsePrompt } from "./capabilities.js";
 import { createNodeSocket } from "./nodeSocket.js";
 
@@ -306,28 +307,19 @@ const appServer = app.listen(appPort, () => {
   openBrowser(\`http://localhost:\${appPort}\`);
 });
 
-mobigent.configure({
+const mobigentConnection = await connectMobigent(mobigent, {
   appId: ${JSON.stringify(options.appId)},
   appName: ${JSON.stringify(options.appName)},
   gatewayUrl: \`ws://localhost:\${gatewayPort}\`,
+  features: expenseFeature,
   createSocket: createNodeSocket,
-  confirm: async ({ action, input }) => {
-    console.log(\`\\n[approval] \${action.confirmation?.title ?? action.name}\`);
+  confirm: async ({ input }) => {
+    console.log("\\n[approval] App approval required");
     console.log(JSON.stringify(input, null, 2));
     console.log("[approval] approved by the starter host\\n");
     return true;
   }
 });
-
-for (const action of expenseFeature.actions) {
-  mobigent.registerAction(action);
-}
-
-for (const resource of expenseFeature.resources) {
-  mobigent.registerResource(resource);
-}
-
-await mobigent.connect();
 
 function openBrowser(url: string) {
   if (${options.openBrowser ? "false" : "true"} || process.env.MOBIGENT_DEMO_OPEN === "0") {
@@ -341,7 +333,7 @@ function openBrowser(url: string) {
 }
 
 function shutdown() {
-  mobigent.disconnect();
+  mobigentConnection.disconnect();
   void backend.stop();
   appServer.close();
   process.exit(0);

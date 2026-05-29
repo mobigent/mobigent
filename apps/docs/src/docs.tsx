@@ -17,11 +17,11 @@ import { createRoot } from "react-dom/client";
 import "./styles.css";
 
 const quickstart = `npm install \\
-  https://github.com/mobigent/mobigent/releases/download/v0.1.6/mobigent-react-native-0.1.6.tgz \\
-  https://github.com/mobigent/mobigent/releases/download/v0.1.6/mobigent-backend-0.1.6.tgz`;
+  https://github.com/mobigent/mobigent/releases/download/v0.1.7/mobigent-react-native-0.1.7.tgz \\
+  https://github.com/mobigent/mobigent/releases/download/v0.1.7/mobigent-backend-0.1.7.tgz`;
 
 const demoCode = `npm exec --yes \\
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.6/create-mobigent-app-0.1.6.tgz \\
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.7/create-mobigent-app-0.1.7.tgz \\
   -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
@@ -70,6 +70,17 @@ const { Root } = mobigentApp({
 export default function App() {
   return <Root><YourApp /></Root>;
 }`;
+
+const connectCode = `import { mobigent } from "@mobigent/react-native";
+import { connectMobigent } from "@mobigent/react-native/simple";
+import { expenses } from "./mobigent/expense";
+
+await connectMobigent(mobigent, {
+  appId: "com.example.app",
+  appName: "Example App",
+  gatewayUrl: "ws://localhost:8787",
+  features: [expenses]
+});`;
 
 const gatewayCode = `npx mobigent-http
 
@@ -266,7 +277,7 @@ const nativeUrls = [
 const firstRunChecks = [
   ["Install", "Add the app package to React Native and the backend package to your server."],
   ["Expose", "`feature()` turns real app functions into typed agent capabilities."],
-  ["Connect", "The SDK connects the app to the Mobigent backend and keeps the manifest updated."],
+  ["Connect", "`mobigentApp()` or `connectMobigent()` attaches features and keeps the manifest updated."],
   ["Discover", "The backend exposes tools through HTTP, OpenAPI, provider helpers, and MCP."],
   ["Approve", "Risky actions pause inside the app before handlers run."],
   ["Audit", "Calls, approvals, denials, errors, and events appear in `/audit`."]
@@ -301,6 +312,8 @@ const packages = [
 const reactNativeApis = [
   ["feature()", "Creates a small feature surface with read, write, and screen helpers."],
   ["mobigentApp()", "Wraps the existing React Native app once and connects features."],
+  ["connectMobigent()", "Configures, registers features, and connects a non-React host in one call."],
+  ["registerFeatures()", "Attaches features manually when you need custom lifecycle control."],
   ["read()", "Exposes read-only app data to agents."],
   ["write()", "Exposes a confirmed app action with plain input fields."],
   ["useAgentScreen()", "Makes screen-owned capabilities available only while the screen is mounted."],
@@ -446,6 +459,7 @@ function Docs() {
           <Code title="1. Install and scaffold" code={quickstart} />
           <Code title="2. Define app capability" code={moduleCode} />
           <Code title="3. Wrap the app" code={appCode} />
+          <Code title="Alternative: connect a demo host" code={connectCode} />
         </div>
       </section>
 

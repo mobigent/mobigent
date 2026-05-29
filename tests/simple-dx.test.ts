@@ -3,7 +3,7 @@ import test from "node:test";
 import WebSocket from "ws";
 import { startMobigentBackend } from "@mobigent/backend";
 import { mobigent, type MobigentSocketFactory } from "@mobigent/react-native";
-import { feature, simpleSchema } from "@mobigent/react-native/simple";
+import { connectMobigent, feature, simpleSchema } from "@mobigent/react-native/simple";
 
 const createNodeSocket: MobigentSocketFactory = (url) => new WebSocket(url);
 
@@ -98,24 +98,18 @@ test("existing app DX connects simple app features to backend calls end to end",
     httpPort: 18990,
     silent: true
   });
+  let mobigentConnection: { disconnect(): void } | undefined;
 
   try {
-    mobigent.configure({
+    mobigentConnection = await connectMobigent(mobigent, {
       appId: "com.example.existing",
       appName: "Existing App",
       gatewayUrl: backend.urls.websocket,
+      features: expenses,
       createSocket: createNodeSocket,
       confirm: async () => true
     });
 
-    for (const action of expenses.actions) {
-      mobigent.registerAction(action);
-    }
-    for (const resource of expenses.resources) {
-      mobigent.registerResource(resource);
-    }
-
-    await mobigent.connect();
     await waitFor(() => backend.tools().some((tool) => tool.name === "com_example_existing.expense_create"));
 
     const result = await backend.call("com_example_existing.expense_create", {
@@ -132,13 +126,7 @@ test("existing app DX connects simple app features to backend calls end to end",
       items: [result]
     });
   } finally {
-    for (const action of expenses.actions) {
-      mobigent.unregisterAction(action.name);
-    }
-    for (const resource of expenses.resources) {
-      mobigent.unregisterResource(resource.name);
-    }
-    mobigent.disconnect();
+    mobigentConnection?.disconnect();
     await backend.stop();
   }
 });

@@ -24,11 +24,18 @@ export const createSimpleMobigentApp = mobigentApp;
 
 export {
   agentFeature,
+  connectMobigent,
   feature,
+  registerFeature,
+  registerFeatures,
   simpleSchema,
   toSchema,
   type MobigentSimpleActionOptions,
+  type MobigentSimpleClient,
   type MobigentSimpleComponentOptions,
+  type MobigentSimpleConnection,
+  type MobigentSimpleConnectionClient,
+  type MobigentSimpleConnectionOptions,
   type MobigentSimpleFeature,
   type MobigentSimpleField,
   type MobigentSimpleObjectSchema,

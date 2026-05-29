@@ -9,7 +9,7 @@ Use Mobigent like normal app code: expose a few real functions, wrap the app onc
 ## Install
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.6/mobigent-react-native-0.1.6.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.7/mobigent-react-native-0.1.7.tgz
 ```
 
 ## Create A Feature
@@ -60,6 +60,25 @@ const mobigent = await startMobigentBackend();
 
 Open the inspector URL printed by the backend. When the app connects, the feature tools appear there.
 
+## Non-React Host Or Demo
+
+If you are running a local demo, test host, or another runtime where you are using the singleton `mobigent` client directly:
+
+```ts
+import { mobigent } from "@mobigent/react-native";
+import { connectMobigent } from "@mobigent/react-native/simple";
+import { expenses } from "./mobigent/expenses";
+
+const connection = await connectMobigent(mobigent, {
+  appId: "com.example.app",
+  appName: "Example App",
+  gatewayUrl: "ws://localhost:8787",
+  features: [expenses]
+});
+```
+
+That one call configures the app identity, registers the feature, connects to the backend, and returns a `disconnect()` helper.
+
 ## Tool Names
 
 For `appId: "com.example.app"` and `feature("expense")`:
@@ -70,4 +89,3 @@ For `appId: "com.example.app"` and `feature("expense")`:
 ## Advanced
 
 The lower-level provider, hooks, manual registration, `createAgentModule()`, and `schema.*` APIs are still available. Use them for screen-scoped capabilities, custom confirmation UI, advanced environment switching, and manifest signing.
-

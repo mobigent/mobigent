@@ -8,7 +8,7 @@ The easiest path is the starter:
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.6/create-mobigent-app-0.1.6.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.7/create-mobigent-app-0.1.7.tgz \
   -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
@@ -29,7 +29,7 @@ You should see app, backend, readiness, and tool checks pass.
 Install the app SDK:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.6/mobigent-react-native-0.1.6.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.7/mobigent-react-native-0.1.7.tgz
 ```
 
 Create one feature:
@@ -69,12 +69,27 @@ export default function App() {
 }
 ```
 
+For a non-React demo or test host, connect the same feature in one call:
+
+```ts
+import { mobigent } from "@mobigent/react-native";
+import { connectMobigent } from "@mobigent/react-native/simple";
+import { expenses } from "./mobigent/expenses";
+
+await connectMobigent(mobigent, {
+  appId: "com.example.app",
+  appName: "Example App",
+  gatewayUrl: "ws://localhost:8787",
+  features: [expenses]
+});
+```
+
 ## Backend
 
 Install the backend SDK:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.6/mobigent-backend-0.1.6.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.7/mobigent-backend-0.1.7.tgz
 ```
 
 Start Mobigent:
@@ -89,4 +104,3 @@ console.log(mobigent.urls.openapi);
 ```
 
 Open the inspector URL. When the app connects, its tools appear there.
-
