@@ -1,6 +1,6 @@
 {
   "name": "create-mobigent-app",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "Create a runnable Mobigent starter with a visible app, gateway, inspector, and agent playground.",
   "type": "module",
   "license": "MIT",

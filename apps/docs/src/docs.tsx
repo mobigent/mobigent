@@ -24,7 +24,7 @@ npx mobigent init \\
   --out-dir src`;
 
 const demoCode = `npm exec --yes \\
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.11/create-mobigent-app-0.1.11.tgz \\
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.12/create-mobigent-app-0.1.12.tgz \\
   -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev

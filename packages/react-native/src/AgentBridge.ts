@@ -146,7 +146,7 @@ export class Mobigent {
 
   configure(options: AgentBridgeOptions) {
     this.options = {
-      version: "0.1.11",
+      version: "0.1.12",
       ...options
     };
     this.lastError = undefined;
@@ -240,7 +240,7 @@ export class Mobigent {
       appId: this.options.appId,
       appName: this.options.appName,
       sdk: "react-native",
-      version: this.options.version ?? "0.1.11",
+      version: this.options.version ?? "0.1.12",
       protocolVersion: mobigentProtocolVersion,
       authToken: this.options.authToken
     });
@@ -286,7 +286,7 @@ export class Mobigent {
       appId: this.options.appId,
       appName: this.options.appName,
       sdk: "react-native",
-      version: this.options.version ?? "0.1.11",
+      version: this.options.version ?? "0.1.12",
       protocolVersion: mobigentProtocolVersion,
       actions: [...this.actions.values()].map(({ handler: _handler, ...action }) => action),
       resources: [...this.resources.values()].map(({ read: _read, ...resource }) => resource),
