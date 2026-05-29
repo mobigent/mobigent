@@ -61,23 +61,23 @@ try {
   );
   assert.equal(
     packageJson.dependencies["@mobigent/core"],
-    "https://github.com/mobigent/mobigent/releases/download/v0.1.4/mobigent-core-0.1.4.tgz"
+    "https://github.com/mobigent/mobigent/releases/download/v0.1.5/mobigent-core-0.1.5.tgz"
   );
   assert.equal(
     packageJson.dependencies["@mobigent/backend"],
-    "https://github.com/mobigent/mobigent/releases/download/v0.1.4/mobigent-backend-0.1.4.tgz"
+    "https://github.com/mobigent/mobigent/releases/download/v0.1.5/mobigent-backend-0.1.5.tgz"
   );
   assert.equal(
     packageJson.dependencies["@mobigent/gateway"],
-    "https://github.com/mobigent/mobigent/releases/download/v0.1.4/mobigent-gateway-0.1.4.tgz"
+    "https://github.com/mobigent/mobigent/releases/download/v0.1.5/mobigent-gateway-0.1.5.tgz"
   );
   assert.equal(
     packageJson.dependencies["@mobigent/providers"],
-    "https://github.com/mobigent/mobigent/releases/download/v0.1.4/mobigent-providers-0.1.4.tgz"
+    "https://github.com/mobigent/mobigent/releases/download/v0.1.5/mobigent-providers-0.1.5.tgz"
   );
   assert.equal(
     packageJson.dependencies["@mobigent/react-native"],
-    "https://github.com/mobigent/mobigent/releases/download/v0.1.4/mobigent-react-native-0.1.4.tgz"
+    "https://github.com/mobigent/mobigent/releases/download/v0.1.5/mobigent-react-native-0.1.5.tgz"
   );
   assert.equal(packageJson.devDependencies["@types/express"], "^5.0.6");
 

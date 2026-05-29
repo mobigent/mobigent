@@ -106,7 +106,7 @@ ${next}
 
 ${openLine}
 Click "Run agent request" to watch a Mobigent tool call update the app.
-Run "npm run doctor" in another terminal to confirm the app, gateway, readiness check, and tool discovery are healthy.
+Run "npm run doctor" in another terminal to confirm the app, backend, readiness check, and tool discovery are healthy.
 `;
 }
 
@@ -124,7 +124,7 @@ export function installMobigentAppDependencies(options: Pick<CreateMobigentAppOp
   };
 }
 
-const defaultMobigentVersion = "0.1.4";
+const defaultMobigentVersion = "0.1.5";
 
 function createPackageJson(packageName: string, options?: CreateMobigentAppOptions) {
   const packageSource = options?.packageSource ?? "github-release";
@@ -479,7 +479,7 @@ function renderPage() {
 
     runButton.addEventListener("click", async () => {
       runButton.disabled = true;
-      resultOutput.textContent = "Calling Mobigent gateway...";
+      resultOutput.textContent = "Calling Mobigent backend...";
       try {
         const response = await fetch("/agent/run", {
           method: "POST",
@@ -652,7 +652,7 @@ await check("Backend health", async () => {
 await check("Backend readiness", async () => {
   const body = await getJson<{ ok?: boolean }>(\`\${gatewayUrl}/ready?minApps=1&minTools=1\`);
   if (!body.ok) {
-    throw new Error("gateway is reachable but not ready for one app and one tool yet");
+    throw new Error("backend is reachable but not ready for one app and one tool yet");
   }
   return "ready for agent startup";
 });

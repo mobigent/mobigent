@@ -1688,7 +1688,7 @@ function validateCapabilityManifestShape(
     appId: app.id,
     appName: app.name,
     sdk: "react-native",
-    version: app.version ?? options.version ?? "0.1.4",
+    version: app.version ?? options.version ?? "0.1.5",
     actions: capabilities.actions.map(stripCapabilityRuntimeHandlers),
     resources: capabilities.resources.map(stripCapabilityRuntimeHandlers),
     components: capabilities.components.map(stripCapabilityRuntimeHandlers)
