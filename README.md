@@ -153,6 +153,8 @@ npm install @mobigent/react-native
 npx mobigent init --feature expense --out-dir src
 ```
 
+You do not need to invent an app id for local development. If `mobigent.app.json` exists, the app package uses it. If it does not, the initializer infers a starter app id and app name from `package.json`, then you can replace them later with production values.
+
 Create one feature file:
 
 ```ts

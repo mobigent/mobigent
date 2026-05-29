@@ -125,6 +125,7 @@ import {
   createReactNativeSecurityDoctorReport,
   createReactNativeFeatureFiles,
   createReactNativeStarterFiles,
+  inferReactNativeAppIdentity,
   runReactNativeInitCli,
   validateReactNativeCapabilityContractFile,
   validateReactNativeIntegrationManifestFile
@@ -2189,20 +2190,17 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   assert.match(customRootFile.contents, /ConfirmationComponent: MobigentAgentApproval/);
   assert.match(confirmationFile.contents, /useMobigentConfirmation/);
 
+  const inferredDir = await mkdtemp(join(tmpdir(), "mobigent-rn-infer-"));
+  await writeFile(join(inferredDir, "package.json"), JSON.stringify({ name: "@acme/mobile-wallet" }), "utf8");
+  assert.deepEqual(inferReactNativeAppIdentity(inferredDir), {
+    appId: "app.acme.mobile.wallet",
+    appName: "Mobile Wallet"
+  });
+
   let stdout = "";
   let stderr = "";
   const dryRunCode = runReactNativeInitCli(
-    [
-      "--app-id",
-      "com.mobigent.demo",
-      "--app-name",
-      "Demo App",
-      "--feature",
-      "expense",
-      "--out-dir",
-      "src",
-      "--dry-run"
-    ],
+    ["--feature", "expense", "--out-dir", "src", "--app-root", inferredDir, "--dry-run"],
     { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
     { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
   );
@@ -2211,6 +2209,9 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
 	  assert.equal(stderr, "");
 	  assert.match(stdout, /mobigent\.tsx/);
 	  assert.match(stdout, /mobigent-features/);
+	  assert.match(stdout, /app\.acme\.mobile\.wallet/);
+	  assert.match(stdout, /Mobile Wallet/);
+	  await rm(inferredDir, { force: true, recursive: true });
 
 	  stdout = "";
 	  stderr = "";

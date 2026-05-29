@@ -62,11 +62,12 @@ export const expenses = feature("expense")
   });`;
 
 const appCode = `import { mobigentApp } from "@mobigent/react-native";
-import { mobigentConfig } from "./mobigent/config";
 import { expenses } from "./mobigent/expense";
 
 const { Root } = mobigentApp({
-  config: mobigentConfig,
+  // Optional: add config from mobigent.app.json when your backend is ready.
+  appId: "app.example.mobile",
+  appName: "Example Mobile",
   features: [expenses]
 });
 
@@ -108,9 +109,7 @@ const appConfig = mobigent.defaultApp;
 const appConfigCode = mobigent.copyAppConfig();`;
 
 const backendInitCode = `npm install @mobigent/backend
-npx mobigent-backend init \\
-  --app-id com.example.app \\
-  --app-name "Example App"`;
+npx mobigent-backend init`;
 
 const securityDoctorCode = `npx mobigent security-doctor \\
   --app-id com.example.app \\

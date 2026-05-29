@@ -757,24 +757,17 @@ function parseArgs(
     options.gatewayUrl ||= options.appConfig.connectionUrl ?? options.appConfig.gatewayUrl;
   }
 
-  if (
-    !options.doctor &&
-    !options.securityDoctor &&
-    !options.manifest &&
-    !options.writeManifestPath &&
+  const shouldInferIdentity =
     !options.validateManifestPath &&
-    !options.contract &&
-    !options.writeContractPath &&
-    !options.platformActions &&
     !options.validateContractPath &&
     !options.envTemplate &&
     !options.writeEnvPath &&
-    !options.featureOnly &&
-    (!options.appId || !options.appName)
-  ) {
-    throw new Error(
-      `--app-id and --app-name are required unless ${defaultAppConfigFile} is available.\n\n` + helpText()
-    );
+    !options.featureOnly;
+
+  if (shouldInferIdentity && (!options.appId || !options.appName)) {
+    const inferred = inferReactNativeAppIdentity(options.appRoot ?? process.cwd());
+    options.appId ||= inferred.appId;
+    options.appName ||= inferred.appName;
   }
 
   if (
@@ -813,7 +806,7 @@ function createMobigentRootFile(options: ReactNativeInitCliOptions) {
     ? "  config: mobigentConfig"
     : `  appId: ${JSON.stringify(options.appId)},
   appName: ${JSON.stringify(options.appName)}${versionLine},
-  gatewayUrl: process.env.EXPO_PUBLIC_MOBIGENT_GATEWAY_URL ?? ${gatewayUrl}`;
+  connectionUrl: process.env.EXPO_PUBLIC_MOBIGENT_CONNECTION_URL ?? process.env.EXPO_PUBLIC_MOBIGENT_GATEWAY_URL ?? ${gatewayUrl}`;
 
 return `import type { ReactNode } from "react";
 import { setupMobigent, type MobigentAppRootProps } from "@mobigent/react-native";
@@ -851,7 +844,7 @@ function createMobigentExpoRootFile(options: ReactNativeInitCliOptions) {
     ? "  config: mobigentConfig"
     : `  appId: ${JSON.stringify(options.appId)},
   appName: ${JSON.stringify(options.appName)}${versionLine},
-  gatewayUrl: process.env.EXPO_PUBLIC_MOBIGENT_GATEWAY_URL ?? "ws://localhost:8787"`;
+  connectionUrl: process.env.EXPO_PUBLIC_MOBIGENT_CONNECTION_URL ?? process.env.EXPO_PUBLIC_MOBIGENT_GATEWAY_URL ?? "ws://localhost:8787"`;
 
 return `import type { ReactNode } from "react";
 import { setupMobigent, type MobigentAppRootProps } from "@mobigent/react-native";
@@ -947,6 +940,61 @@ function findDefaultReactNativeAppConfig(startDir = process.cwd()): string | und
   }
 }
 
+export function inferReactNativeAppIdentity(startDir = process.cwd()): Pick<ReactNativeInitCliOptions, "appId" | "appName"> {
+  const projectName = findReactNativeProjectName(startDir);
+
+  return {
+    appId: inferReactNativeAppId(projectName),
+    appName: inferReactNativeAppName(projectName)
+  };
+}
+
+function findReactNativeProjectName(startDir: string): string {
+  let dir = startDir;
+
+  while (true) {
+    const packageJsonPath = join(dir, "package.json");
+    if (existsSync(packageJsonPath)) {
+      try {
+        const parsed = JSON.parse(readFileSync(packageJsonPath, "utf8")) as { name?: unknown };
+        if (typeof parsed.name === "string" && parsed.name.trim()) {
+          return parsed.name;
+        }
+      } catch {
+        break;
+      }
+    }
+
+    const parent = dirname(dir);
+    if (parent === dir) {
+      break;
+    }
+    dir = parent;
+  }
+
+  return basename(startDir) || "mobigent-app";
+}
+
+function inferReactNativeAppId(projectName: string): string {
+  const withoutNpmScope = projectName.replace(/^@/, "");
+  const segments = withoutNpmScope
+    .split(/[/.]+/)
+    .flatMap((segment) => segment.split(/[-_\s]+/))
+    .map((segment) => segment.toLowerCase().replace(/[^a-z0-9]+/g, ""))
+    .filter(Boolean);
+
+  return ["app", ...(segments.length > 0 ? segments : ["mobigent"])].join(".");
+}
+
+function inferReactNativeAppName(projectName: string): string {
+  const name = projectName
+    .replace(/^@[^/]+\//, "")
+    .replace(/[-_.]+/g, " ")
+    .trim();
+
+  return (name || "Mobigent App").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
 function isReactNativeAppConfig(value: unknown): value is ReactNativeAppConfigFile {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     return false;
@@ -969,6 +1017,7 @@ export function createReactNativeEnvTemplate(options: Pick<ReactNativeInitCliOpt
 # Mobigent reads MOBIGENT_*, EXPO_PUBLIC_MOBIGENT_*, and REACT_NATIVE_MOBIGENT_*.
 # MODE can be local, device, hosted, or disabled.
 EXPO_PUBLIC_MOBIGENT_MODE=local
+EXPO_PUBLIC_MOBIGENT_CONNECTION_URL=${gatewayUrl}
 EXPO_PUBLIC_MOBIGENT_GATEWAY_URL=${gatewayUrl}
 
 # Physical device example:
@@ -1439,31 +1488,26 @@ function helpText() {
 
 Usage:
   mobigent init --feature expense --out-dir src
+  mobigent init --feature expense --out-dir src --expo-router
   mobigent init --app-id com.example.app --app-name "Example App" --feature expense --out-dir src
-  mobigent doctor --app-id com.example.app --app-name "Example App" --feature expense --out-dir src --app-root .
-  mobigent-init --app-id com.example.app --app-name "Example App" --feature expense --out-dir src
-  mobigent-init --app-id com.example.app --app-name "Example App" --feature expense --out-dir src --expo-router
-  mobigent-expo-init --app-id com.example.app --app-name "Example App" --feature expense --out-dir src
-  mobigent-expo-init --app-id com.example.app --app-name "Example App" --feature expense --out-dir src --expo-router
-  mobigent-rn-init --app-id com.example.app --app-name "Example App"
-  mobigent-rn-init --app-id com.example.app --app-name "Example App" --feature expense --out-dir src --expo --dry-run
-  mobigent-rn-init --app-id com.example.app --app-name "Example App" --feature expense --out-dir src --custom-confirmation
+  mobigent doctor --feature expense --out-dir src --app-root .
+  mobigent-rn-init --feature expense --out-dir src --dry-run
+  mobigent-rn-init --feature expense --out-dir src --custom-confirmation
   mobigent-rn-init --feature invoice --out-dir src --feature-only
-  mobigent-rn-init --doctor --app-id com.example.app --app-name "Example App" --feature expense --out-dir src --app-root .
-  mobigent-rn-init --security-doctor --app-id com.example.app --app-name "Example App" --feature expense --custom-confirmation
-  mobigent-rn-init --manifest --app-id com.example.app --app-name "Example App" --feature expense --out-dir src
-  mobigent-rn-init --write-manifest ./mobigent-integration.json --app-id com.example.app --app-name "Example App" --feature expense --out-dir src
+  mobigent-rn-init --security-doctor --feature expense --custom-confirmation
+  mobigent-rn-init --manifest --feature expense --out-dir src
+  mobigent-rn-init --write-manifest ./mobigent-integration.json --feature expense --out-dir src
   mobigent-rn-init --validate-manifest ./mobigent-integration.json
-  mobigent-rn-init --contract --app-id com.example.app --app-name "Example App" --feature expense
-  mobigent-rn-init --platform-actions json --app-id com.example.app --app-name "Example App" --feature expense
-  mobigent-rn-init --write-contract ./mobigent-contract.json --app-id com.example.app --app-name "Example App" --feature expense
+  mobigent-rn-init --contract --feature expense
+  mobigent-rn-init --platform-actions json --feature expense
+  mobigent-rn-init --write-contract ./mobigent-contract.json --feature expense
   mobigent-rn-init --validate-contract ./mobigent-contract.json
   mobigent-rn-init --env-template --gateway-url ws://localhost:8787
   mobigent-rn-init --write-env ./.env.mobigent --gateway-url ws://localhost:8787
 
 Options:
-  --app-id <id>          Mobile app identifier. Required.
-  --app-name <name>      Human-readable app name. Required unless mobigent.app.json is available.
+  --app-id <id>          Mobile app identifier. Default: inferred from package.json.
+  --app-name <name>      Human-readable app name. Default: inferred from package.json.
   --app-version <value>  App version to publish in the capability manifest.
   --config <path>        Read a backend-generated app config. Default: auto-detect mobigent.app.json.
   --feature <name>       Feature module name. Default: expense.

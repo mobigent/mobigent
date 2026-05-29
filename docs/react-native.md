@@ -11,8 +11,11 @@ npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobig
 If your backend was initialized with `mobigent-backend init`, scaffold from its config file:
 
 ```bash
+npm install @mobigent/react-native
 npx mobigent init --feature expense --out-dir src
 ```
+
+No app id ceremony is required for a first run. If `mobigent.app.json` is present, the initializer uses it. If not, it infers a starter app id and app name from your `package.json`, so you can add the wrapper and feature code immediately.
 
 ## 2. Create A Feature
 

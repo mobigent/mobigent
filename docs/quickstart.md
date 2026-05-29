@@ -109,8 +109,11 @@ Mobigent infers starter app identity from the project. Pass `--app-id` and `--ap
 That creates `mobigent.app.json` with a simple `connectionUrl`. Put that file in the app project, then the app init command auto-detects it:
 
 ```bash
+npm install @mobigent/react-native
 npx mobigent init --feature expense --out-dir src
 ```
+
+If you run the app init command before copying `mobigent.app.json`, it still works: Mobigent infers a starter app id/name from the React Native app's `package.json` and uses the local connection URL.
 
 In your server:
 
