@@ -245,7 +245,7 @@ const mobigent = await startMobigent();
 const appConfig = mobigent.defaultApp;
 ```
 
-That one function starts the app connection endpoint, HTTP API, OpenAPI schema, inspector, tool routing, audit trail, and readiness checks. When `appDir` is set, it also writes `../mobile-app/mobigent.app.json`, so the app package can discover the backend connection without manual copying.
+That one function starts the app connection endpoint, HTTP API, OpenAPI schema, inspector, tool routing, audit trail, and readiness checks. When `appDir` is set, it infers identity from the mobile app and writes `../mobile-app/mobigent.app.json`, so the app package can discover the backend connection without manual copying.
 
 Wait for the app when your server needs to call app functions immediately:
 

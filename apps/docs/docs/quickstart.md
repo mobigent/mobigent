@@ -117,6 +117,6 @@ console.log(mobigent.appConfigPath);
 console.log(mobigent.agent("chatgpt").endpoints.openApi);
 ```
 
-With no options, Mobigent infers a starter app id and app name from your project. Pass `appDir` when you want the backend SDK to write `mobigent.app.json` into the app project for you. Pass `app: { id, name }` when you want exact production values.
+With no options, Mobigent infers a starter app id and app name from your project. With `appDir`, it infers from the mobile app project and writes `mobigent.app.json` there for you. Pass `app: { id, name }` only when you want exact production values.
 
 `mobigent.ready()` waits until the app is connected and has exposed at least one function.

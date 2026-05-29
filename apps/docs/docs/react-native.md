@@ -59,7 +59,7 @@ const mobigent = await startMobigent({
 await mobigent.ready();
 ```
 
-`appDir` lets the backend SDK write `mobigent.app.json` into the app project for you. `mobigent.ready()` waits until the app is connected and has exposed at least one function.
+`appDir` lets the backend SDK infer identity from the mobile app and write `mobigent.app.json` there for you. `mobigent.ready()` waits until the app is connected and has exposed at least one function.
 
 ## Non-React Host Or Demo
 

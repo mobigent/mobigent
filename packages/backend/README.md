@@ -26,7 +26,7 @@ console.log(mobigent.urls.openapi);
 const appConfig = mobigent.defaultApp;
 ```
 
-With no options, Mobigent infers a starter app id and app name from the nearest `package.json` or folder. Pass `appDir` when you want the backend SDK to write `../mobile-app/mobigent.app.json` for the app SDK automatically. Pass `app` only when you want exact production values:
+With no options, Mobigent infers a starter app id and app name from the nearest `package.json` or folder. When `appDir` is set, it infers from that app project and writes `../mobile-app/mobigent.app.json` automatically. Pass `app` only when you want exact production values:
 
 ```ts
 const mobigent = await startMobigent({

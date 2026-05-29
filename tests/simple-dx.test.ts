@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -200,6 +200,40 @@ test("backend SDK writes app config when appDir is provided", async () => {
         connectionUrl: "ws://localhost:19001",
         authToken: "dev-token"
       });
+    } finally {
+      await backend.stop();
+    }
+  } finally {
+    await rm(dir, { force: true, recursive: true });
+  }
+});
+
+test("backend SDK infers default app identity from appDir", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "mobigent-backend-appdir-identity-"));
+  const appDir = join(dir, "apps", "travel-wallet-mobile");
+
+  try {
+    await mkdir(appDir, { recursive: true });
+    await writeFile(join(appDir, "package.json"), JSON.stringify({ name: "@acme/travel-wallet-mobile" }), "utf8");
+
+    const backend = await startMobigent({
+      wsPort: 19003,
+      httpPort: 19004,
+      appDir,
+      silent: true
+    });
+
+    try {
+      assert.deepEqual(backend.defaultApp, {
+        appId: "app.acme.travel.wallet.mobile",
+        appName: "Travel Wallet Mobile",
+        connectionUrl: "ws://localhost:19003",
+        authToken: undefined,
+        version: undefined
+      });
+      const config = JSON.parse(await readFile(join(appDir, "mobigent.app.json"), "utf8"));
+      assert.equal(config.appId, "app.acme.travel.wallet.mobile");
+      assert.equal(config.appName, "Travel Wallet Mobile");
     } finally {
       await backend.stop();
     }

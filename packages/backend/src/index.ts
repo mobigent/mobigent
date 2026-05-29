@@ -192,7 +192,7 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     formatMobigentAppConfigModule(appConfig(appOptions), {
       exportName: appOptions.exportName
     });
-  const defaultApp = appConfig(normalizeDefaultApp(options.app ?? inferMobigentAppIdentity()));
+  const defaultApp = appConfig(resolveDefaultAppOptions(options));
   const appConfigCode = formatMobigentAppConfigModule(defaultApp);
   const appConfigPath = writeDefaultAppConfig(options, defaultApp);
   const createAgentCatalog = (agentOptions: MobigentAgentOptions = {}) => createProviderCatalog({
@@ -251,6 +251,14 @@ function writeDefaultAppConfig(options: MobigentBackendOptions, defaultApp: Mobi
   writeFileSync(path, `${JSON.stringify(defaultApp, null, 2)}\n`, "utf8");
 
   return path;
+}
+
+function resolveDefaultAppOptions(options: MobigentBackendOptions): MobigentBackendAppConfigOptions {
+  if (options.app) {
+    return normalizeDefaultApp(options.app);
+  }
+
+  return inferMobigentAppIdentity(options.appDir ?? process.cwd());
 }
 
 export function formatMobigentAppConfigModule(
