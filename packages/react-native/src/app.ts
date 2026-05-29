@@ -32,6 +32,7 @@ export const createSimpleMobigentApp = mobigentApp;
 export {
   agentFeature,
   connectMobigent,
+  defineMobigentConfig,
   feature,
   registerFeature,
   registerFeatures,

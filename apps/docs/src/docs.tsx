@@ -17,11 +17,11 @@ import { createRoot } from "react-dom/client";
 import "./styles.css";
 
 const quickstart = `npm install \\
-  https://github.com/mobigent/mobigent/releases/download/v0.1.8/mobigent-react-native-0.1.8.tgz \\
-  https://github.com/mobigent/mobigent/releases/download/v0.1.8/mobigent-backend-0.1.8.tgz`;
+  https://github.com/mobigent/mobigent/releases/download/v0.1.9/mobigent-react-native-0.1.9.tgz \\
+  https://github.com/mobigent/mobigent/releases/download/v0.1.9/mobigent-backend-0.1.9.tgz`;
 
 const demoCode = `npm exec --yes \\
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.8/create-mobigent-app-0.1.8.tgz \\
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.9/create-mobigent-app-0.1.9.tgz \\
   -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
@@ -101,6 +101,11 @@ console.log(mobigent.urls.inspector);
 console.log(mobigent.urls.openapi);
 
 const appConfig = mobigent.app({
+  appId: "com.example.app",
+  appName: "Example App"
+});
+
+const appConfigCode = mobigent.appConfigModule({
   appId: "com.example.app",
   appName: "Example App"
 });`;
@@ -318,6 +323,7 @@ const packages = [
 
 const reactNativeApis = [
   ["feature()", "Creates a small feature surface with read, write, and screen helpers."],
+  ["defineMobigentConfig()", "Keeps copied app config typed and portable."],
   ["mobigentApp()", "Wraps the existing React Native app once and connects features."],
   ["connectMobigent()", "Consumes backend app config, registers features, and connects a non-React host in one call."],
   ["registerFeatures()", "Attaches features manually when you need custom lifecycle control."],

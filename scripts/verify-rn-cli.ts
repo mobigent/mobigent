@@ -23,7 +23,7 @@ try {
     join(dir, "package.json"),
     JSON.stringify({
       dependencies: {
-        "@mobigent/react-native": "0.1.8",
+        "@mobigent/react-native": "0.1.9",
         "react-native": "0.74.0"
       }
     }),

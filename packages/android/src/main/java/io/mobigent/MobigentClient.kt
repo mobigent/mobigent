@@ -241,7 +241,7 @@ class MobigentClient private constructor(
         private var appId: String = context?.packageName ?: "io.mobigent.app"
         private var appName: String = context?.applicationInfo?.loadLabel(context.packageManager)?.toString() ?: "Android App"
         private var gatewayUrl: String = "ws://10.0.2.2:8787"
-        private var version: String = "0.1.8"
+        private var version: String = "0.1.9"
         private var authToken: String? = null
         private var reconnect: MobigentReconnectOptions = MobigentReconnectOptions()
         private var heartbeat: MobigentHeartbeatOptions = MobigentHeartbeatOptions()

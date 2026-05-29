@@ -58,6 +58,7 @@ connection.disconnect();
 ## Simple App Helpers
 
 - `feature(namespace)`: creates a small app feature.
+- `defineMobigentConfig(config)`: gives app config a stable SDK type.
 - `read(name, handler)`: exposes app state.
 - `write(name, handler, options)`: exposes confirmed app behavior.
 - `screen(name, handler)`: lets an agent focus a screen or UI surface.
@@ -78,6 +79,7 @@ The backend object exposes:
 - `urls`
 - `app({ appId, appName })`
 - `appConfig({ appId, appName })`
+- `appConfigModule({ appId, appName })`
 - `tools()`
 - `apps()`
 - `call(toolName, input)`

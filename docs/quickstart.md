@@ -6,7 +6,7 @@ This guide gets you from an app with no agent interface to a working Mobigent lo
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.8/create-mobigent-app-0.1.8.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.9/create-mobigent-app-0.1.9.tgz \
   -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
@@ -102,6 +102,11 @@ const appConfig = mobigent.app({
   appId: "com.example.app",
   appName: "Example App"
 });
+
+console.log(mobigent.appConfigModule({
+  appId: "com.example.app",
+  appName: "Example App"
+}));
 ```
 
 For local checks:

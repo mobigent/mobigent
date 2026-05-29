@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import WebSocket from "ws";
-import { startMobigentBackend } from "@mobigent/backend";
+import { formatMobigentAppConfigModule, startMobigentBackend } from "@mobigent/backend";
 import { mobigent, type MobigentSocketFactory } from "@mobigent/react-native";
-import { connectMobigent, feature, simpleSchema } from "@mobigent/react-native/simple";
+import { connectMobigent, defineMobigentConfig, feature, simpleSchema } from "@mobigent/react-native/simple";
 
 const createNodeSocket: MobigentSocketFactory = (url) => new WebSocket(url);
 
@@ -65,9 +65,34 @@ test("backend helper starts HTTP, OpenAPI, and inspector endpoints from one func
       authToken: "dev-token",
       version: undefined
     });
+    assert.match(
+      backend.appConfigModule({ appId: "com.example.app", appName: "Example App" }),
+      /export const mobigentConfig = defineMobigentConfig/
+    );
   } finally {
     await backend.stop();
   }
+});
+
+test("app config helpers create typed copy-paste app config", () => {
+  const config = defineMobigentConfig({
+    appId: "com.example.app",
+    appName: "Example App",
+    gatewayUrl: "ws://localhost:8787",
+    authToken: "dev-token"
+  });
+
+  assert.equal(config.appId, "com.example.app");
+  assert.equal(formatMobigentAppConfigModule(config), `import { defineMobigentConfig } from "@mobigent/react-native/simple";
+
+export const mobigentConfig = defineMobigentConfig({
+  "appId": "com.example.app",
+  "appName": "Example App",
+  "gatewayUrl": "ws://localhost:8787",
+  "authToken": "dev-token"
+});
+`);
+  assert.throws(() => formatMobigentAppConfigModule(config, { exportName: "not valid" }), /Invalid/);
 });
 
 test("existing app DX connects simple app features to backend calls end to end", async () => {

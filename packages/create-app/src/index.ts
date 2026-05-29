@@ -124,7 +124,7 @@ export function installMobigentAppDependencies(options: Pick<CreateMobigentAppOp
   };
 }
 
-const defaultMobigentVersion = "0.1.8";
+const defaultMobigentVersion = "0.1.9";
 
 function createPackageJson(packageName: string, options?: CreateMobigentAppOptions) {
   const packageSource = options?.packageSource ?? "github-release";

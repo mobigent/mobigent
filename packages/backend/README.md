@@ -39,6 +39,27 @@ const appConfig = mobigent.app({
 
 That config includes the app id, app name, WebSocket URL, version, and app token when `appToken` or `MOBIGENT_AUTH_TOKEN` is configured.
 
+Use `mobigent.appConfigModule()` when you want a copy-paste TypeScript file for the mobile app:
+
+```ts
+console.log(mobigent.appConfigModule({
+  appId: "com.example.app",
+  appName: "Example App"
+}));
+```
+
+It prints:
+
+```ts
+import { defineMobigentConfig } from "@mobigent/react-native/simple";
+
+export const mobigentConfig = defineMobigentConfig({
+  "appId": "com.example.app",
+  "appName": "Example App",
+  "gatewayUrl": "ws://localhost:8787"
+});
+```
+
 ## Call A Tool From Code
 
 ```ts

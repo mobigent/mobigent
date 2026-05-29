@@ -45,6 +45,10 @@ export type MobigentBackendAppConfig = {
   authToken?: string;
 };
 
+export type MobigentBackendAppConfigModuleOptions = MobigentBackendAppConfigOptions & {
+  exportName?: string;
+};
+
 export type MobigentBackend = {
   gateway: BridgeGateway;
   httpServer: Server;
@@ -56,6 +60,7 @@ export type MobigentBackend = {
   };
   app(options: MobigentBackendAppConfigOptions): MobigentBackendAppConfig;
   appConfig(options: MobigentBackendAppConfigOptions): MobigentBackendAppConfig;
+  appConfigModule(options: MobigentBackendAppConfigModuleOptions): string;
   stop(): Promise<void>;
   tools(): ReturnType<BridgeGateway["listTools"]>;
   apps(): GatewayAppSession[];
@@ -111,6 +116,10 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     version: appOptions.version,
     authToken: appOptions.appToken ?? appOptions.authToken ?? appToken
   });
+  const appConfigModule = (appOptions: MobigentBackendAppConfigModuleOptions) =>
+    formatMobigentAppConfigModule(appConfig(appOptions), {
+      exportName: appOptions.exportName
+    });
 
   return {
     gateway,
@@ -118,11 +127,25 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     urls,
     app: appConfig,
     appConfig,
+    appConfigModule,
     stop: () => stopBackend(httpServer, gateway),
     tools: () => gateway.listTools(),
     apps: () => gateway.listApps(),
     call: (toolName, input = {}, callOptions) => gateway.callTool(toolName, input as JsonObject, callOptions)
   };
+}
+
+export function formatMobigentAppConfigModule(
+  config: MobigentBackendAppConfig,
+  options: { exportName?: string } = {}
+) {
+  const exportName = options.exportName ?? "mobigentConfig";
+  assertValidExportName(exportName);
+
+  return `import { defineMobigentConfig } from "@mobigent/react-native/simple";
+
+export const ${exportName} = defineMobigentConfig(${JSON.stringify(config, null, 2)});
+`;
 }
 
 export const mobigentBackend = {
@@ -134,6 +157,12 @@ function listen(app: ReturnType<typeof createHttpApp>, port: number) {
     const server = app.listen(port, () => resolve(server));
     server.once("error", reject);
   });
+}
+
+function assertValidExportName(value: string) {
+  if (!/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(value)) {
+    throw new Error(`Invalid Mobigent app config export name: ${value}`);
+  }
 }
 
 function stopBackend(server: Server, gateway: BridgeGateway) {

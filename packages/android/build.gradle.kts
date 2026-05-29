@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "io.mobigent"
-version = "0.1.8"
+version = "0.1.9"
 
 android {
     namespace = "io.mobigent"

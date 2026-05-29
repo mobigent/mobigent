@@ -98,6 +98,10 @@ export type MobigentSimpleAppConfig = Pick<
   "appId" | "appName" | "gatewayUrl" | "version" | "authToken"
 >;
 
+export function defineMobigentConfig(config: MobigentSimpleAppConfig): MobigentSimpleAppConfig {
+  return config;
+}
+
 export type MobigentSimpleConfiguredConnectionOptions = Omit<
   MobigentSimpleConnectionOptions,
   "appId" | "appName" | "gatewayUrl" | "version" | "authToken"

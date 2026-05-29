@@ -5,7 +5,7 @@ Use Mobigent like normal app code: expose a few real functions, wrap the app onc
 ## 1. Install
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.8/mobigent-react-native-0.1.8.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.9/mobigent-react-native-0.1.9.tgz
 ```
 
 ## 2. Create A Feature
