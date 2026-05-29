@@ -187,6 +187,8 @@ export default function App() {
 
 Mobigent handles namespacing, schemas, validation, confirmation, connection lifecycle, backend communication, and event queueing.
 
+Need another feature later? Run `npx mobigent init --feature invoice --out-dir src`. Mobigent preserves the existing config and wrapper, creates the new feature file, and adds it to the wrapper.
+
 For local development, the app package uses a safe starter identity when no config is present. For production, pass exact values or drop the backend-generated `mobigent.app.json` into the app and import its typed config.
 
 If you are wiring a Node demo, test host, or another non-React runtime, use the same feature with the one-call connector:

@@ -14,6 +14,8 @@ npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobig
 
 If your backend was started with `appDir`, it writes the app config module that the wrapper imports, and the app initializer preserves that file when you scaffold features later. If your backend is in a sibling folder named `backend`, `server`, `api`, `agent-server`, or `mobigent-backend`, the app initializer finds `mobigent.app.json` automatically. For custom layouts, pass `--backend-dir ../server`.
 
+Run the same init command with a new feature name to expose another app area. Mobigent creates that feature file and appends it to the existing wrapper.
+
 ## Create A Feature
 
 ```ts

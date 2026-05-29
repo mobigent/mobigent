@@ -2394,6 +2394,26 @@ export const mobigentConfig = defineMobigentConfig({
   assert.match(await readFile(join(backendFirstDir, "mobigent.tsx"), "utf8"), /config: mobigentConfig/);
   assert.match(await readFile(join(backendFirstDir, "mobigent-config.ts"), "utf8"), /com.mobigent.backendfirst/);
   assert.doesNotMatch(await readFile(join(backendFirstDir, "mobigent-config.ts"), "utf8"), /com.mobigent.generated/);
+  stderr = "";
+  const secondFeatureCode = runReactNativeInitCli(
+    [
+      "--app-id",
+      "com.mobigent.backendfirst",
+      "--app-name",
+      "Backend First App",
+      "--feature",
+      "invoice",
+      "--out-dir",
+      backendFirstDir
+    ],
+    { write: () => undefined } as NodeJS.WritableStream,
+    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
+  );
+  assert.equal(secondFeatureCode, 0, stderr);
+  const backendFirstRoot = await readFile(join(backendFirstDir, "mobigent.tsx"), "utf8");
+  assert.match(backendFirstRoot, /expenseFeature/);
+  assert.match(backendFirstRoot, /invoiceFeature/);
+  assert.match(await readFile(join(backendFirstDir, "mobigent-features", "invoice.ts"), "utf8"), /defineFeature\("invoice"\)/);
   await rm(backendFirstDir, { force: true, recursive: true });
 
   assert.equal(

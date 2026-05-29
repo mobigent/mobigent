@@ -128,6 +128,22 @@ export const mobigentConfig = defineMobigentConfig({
   assert.match(await readFile(join(backendFirstDir, "mobigent-config.ts"), "utf8"), /com.mobigent.backendfirst/);
   assert.doesNotMatch(await readFile(join(backendFirstDir, "mobigent-config.ts"), "utf8"), /com.mobigent.generated/);
 
+  const secondFeatureInit = run([
+    "--app-id",
+    "com.mobigent.backendfirst",
+    "--app-name",
+    "Backend First App",
+    "--feature",
+    "invoice",
+    "--out-dir",
+    backendFirstDir
+  ]);
+  assert.equal(secondFeatureInit.code, 0, secondFeatureInit.stderr);
+  const backendFirstRoot = await readFile(join(backendFirstDir, "mobigent.tsx"), "utf8");
+  assert.match(backendFirstRoot, /backendfirstFeature/);
+  assert.match(backendFirstRoot, /invoiceFeature/);
+  assert.match(await readFile(join(backendFirstDir, "mobigent-features", "invoice.ts"), "utf8"), /defineFeature\("invoice"\)/);
+
   const workspaceDir = join(dir, "workspace");
   const workspaceBackendDir = join(workspaceDir, "backend");
   const workspaceAppDir = join(workspaceDir, "mobile");

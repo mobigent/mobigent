@@ -47,6 +47,7 @@ export type ReactNativeGeneratedFile = {
   path: string;
   contents: string;
   preserveExisting?: boolean;
+  updateExisting?: (contents: string) => string | undefined;
 };
 
 export type ReactNativeAppConfigFile = {
@@ -140,11 +141,13 @@ export function createReactNativeStarterFiles(options: ReactNativeInitCliOptions
     },
     {
       path: join(options.outDir, "mobigent.tsx"),
-      contents: createMobigentRootFile(options)
+      contents: createMobigentRootFile(options),
+      updateExisting: (contents) => addFeatureToMobigentRoot(contents, options.feature)
     },
     {
       path: join(options.outDir, "mobigent-features", `${options.feature}.ts`),
-      contents: createFeatureFile(options.feature)
+      contents: createFeatureFile(options.feature),
+      preserveExisting: true
     }
   ];
 
@@ -1186,6 +1189,14 @@ export const ${feature}Feature = defineFeature(${JSON.stringify(feature)})
 
 function writeGeneratedFile(file: ReactNativeGeneratedFile, force: boolean) {
   if (!force && existsSync(file.path)) {
+    if (file.updateExisting) {
+      const nextContents = file.updateExisting(readFileSync(file.path, "utf8"));
+      if (nextContents !== undefined) {
+        writeFileSync(file.path, nextContents, "utf8");
+        return;
+      }
+    }
+
     if (file.preserveExisting) {
       return;
     }
@@ -1198,6 +1209,53 @@ function writeGeneratedFile(file: ReactNativeGeneratedFile, force: boolean) {
 
 function toPublicGeneratedFiles(files: ReactNativeGeneratedFile[]) {
   return files.map(({ path, contents }) => ({ path, contents }));
+}
+
+function addFeatureToMobigentRoot(contents: string, feature: string) {
+  const featureBinding = `${feature}Feature`;
+  if (new RegExp(`\\b${escapeRegExp(featureBinding)}\\b`).test(contents)) {
+    return contents;
+  }
+
+  if (!/setupMobigent\(\{/.test(contents) || !/features:\s*\[/.test(contents)) {
+    return undefined;
+  }
+
+  const importLine = `import { ${featureBinding} } from "./mobigent-features/${feature}";`;
+  const lines = contents.split("\n");
+  const lastFeatureImportIndex = findLastFeatureImportIndex(lines);
+  const fallbackImportIndex = lines.findIndex((line) => line.includes("@mobigent/react-native"));
+  const insertIndex = lastFeatureImportIndex >= 0 ? lastFeatureImportIndex + 1 : fallbackImportIndex + 1;
+
+  if (insertIndex <= 0) {
+    return undefined;
+  }
+
+  lines.splice(insertIndex, 0, importLine);
+  const withImport = lines.join("\n");
+
+  return withImport.replace(/features:\s*\[([^\]]*)\]/s, (_match, rawFeatures: string) => {
+    const existingFeatures = rawFeatures
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+    const features = [...existingFeatures, featureBinding];
+    return `features: [${features.join(", ")}]`;
+  });
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function findLastFeatureImportIndex(lines: string[]) {
+  for (let index = lines.length - 1; index >= 0; index -= 1) {
+    if (/from "\.\/mobigent-features\/[^"]+";/.test(lines[index])) {
+      return index;
+    }
+  }
+
+  return -1;
 }
 
 function formatCreatedFilesMessage(options: ReactNativeInitCliOptions) {

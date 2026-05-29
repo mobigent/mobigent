@@ -41,6 +41,8 @@ npx mobigent init --feature expense --out-dir src
 
 That command works before you have a backend config file. It infers a starter app id/name from `package.json`, creates a Mobigent root wrapper, creates `src/mobigent-config.ts`, and creates one feature file. When your backend runs with `appDir`, it keeps that config module updated for the app. If `src/mobigent-config.ts` already exists, the initializer preserves it. If `mobigent.app.json` already exists, the initializer auto-detects it from the app, parent folders, or common sibling backend folders such as `../backend`. For custom layouts, use `--backend-dir ../server`.
 
+Run the same command with a new feature name whenever you want to expose another app area. Mobigent preserves the existing wrapper, adds the new feature import, and appends it to the feature list.
+
 Create `src/mobigent/expenses.ts`:
 
 ```ts

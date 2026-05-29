@@ -60,6 +60,8 @@ export default function App() {
 
 That is enough for a local first run. The generated wrapper imports `src/mobigent-config.ts`. If your backend was started with `appDir`, Mobigent keeps that file updated for you, and the app initializer preserves it when you scaffold features later.
 
+To add another app area later, run the same init command with a new feature name. Mobigent creates the new feature file and appends it to the existing wrapper.
+
 ## 4. Run The Backend
 
 In your backend:
