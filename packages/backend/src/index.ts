@@ -42,6 +42,7 @@ export type MobigentBackendDefaultAppOptions = {
   appId?: string;
   appName?: string;
   version?: string;
+  connectionUrl?: string;
   gatewayUrl?: string;
   appToken?: string;
   authToken?: string;
@@ -51,6 +52,7 @@ export type MobigentBackendAppConfigOptions = {
   appId: string;
   appName: string;
   version?: string;
+  connectionUrl?: string;
   gatewayUrl?: string;
   appToken?: string;
   authToken?: string;
@@ -59,7 +61,8 @@ export type MobigentBackendAppConfigOptions = {
 export type MobigentBackendAppConfig = {
   appId: string;
   appName: string;
-  gatewayUrl: string;
+  connectionUrl: string;
+  gatewayUrl?: string;
   version?: string;
   authToken?: string;
 };
@@ -162,7 +165,7 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
   const appConfig = (appOptions: MobigentBackendAppConfigOptions): MobigentBackendAppConfig => ({
     appId: appOptions.appId,
     appName: appOptions.appName,
-    gatewayUrl: appOptions.gatewayUrl ?? urls.websocket,
+    connectionUrl: appOptions.connectionUrl ?? appOptions.gatewayUrl ?? urls.websocket,
     version: appOptions.version,
     authToken: appOptions.appToken ?? appOptions.authToken ?? appToken
   });
@@ -266,6 +269,7 @@ function normalizeDefaultApp(app: MobigentBackendDefaultAppOptions): MobigentBac
     appId,
     appName,
     version: app.version,
+    connectionUrl: app.connectionUrl,
     gatewayUrl: app.gatewayUrl,
     appToken: app.appToken,
     authToken: app.authToken

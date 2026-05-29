@@ -92,6 +92,7 @@ The returned object includes:
 
 - `defineFeature(namespace)`: creates a small app feature.
 - `defineMobigentConfig(config)`: gives app config a stable SDK type.
+- New configs use `connectionUrl`; existing `gatewayUrl` configs still work.
 - `read(name, handler)`: exposes app state.
 - `write(name, handler, options)`: exposes confirmed app behavior.
 - `screen(name, handler)`: lets an agent focus a screen or UI surface.

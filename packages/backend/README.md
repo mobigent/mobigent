@@ -65,7 +65,7 @@ const mobigent = await startMobigent({
 const appConfig = mobigent.defaultApp;
 ```
 
-That config includes the app id, app name, WebSocket URL, version, and app token when `appToken` or `MOBIGENT_AUTH_TOKEN` is configured.
+That config includes the app id, app name, connection URL, version, and app token when `appToken` or `MOBIGENT_AUTH_TOKEN` is configured.
 
 Put the generated `mobigent.app.json` in the app project, then run:
 
@@ -87,7 +87,7 @@ import { defineMobigentConfig } from "@mobigent/react-native";
 export const mobigentConfig = defineMobigentConfig({
   "appId": "com.example.app",
   "appName": "Example App",
-  "gatewayUrl": "ws://localhost:8787"
+  "connectionUrl": "ws://localhost:8787"
 });
 ```
 

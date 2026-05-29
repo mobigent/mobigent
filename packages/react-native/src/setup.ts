@@ -16,7 +16,7 @@ export function mobigentApp(options: MobigentSimpleAppOptions) {
     ...appOptions,
     appId: appOptions.appId ?? config?.appId,
     appName: appOptions.appName ?? config?.appName,
-    gatewayUrl: appOptions.gatewayUrl ?? config?.gatewayUrl,
+    gatewayUrl: appOptions.gatewayUrl ?? config?.connectionUrl ?? config?.gatewayUrl,
     version: appOptions.version ?? config?.version,
     authToken: appOptions.authToken ?? config?.authToken,
     capabilities: [

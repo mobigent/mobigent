@@ -83,6 +83,7 @@ export type MobigentSimpleClient = {
 export type MobigentSimpleConnectionOptions = {
   appId: string;
   appName: string;
+  connectionUrl?: string;
   gatewayUrl?: string;
   features: MobigentSimpleFeature | MobigentSimpleFeature[];
   version?: string;
@@ -97,7 +98,7 @@ export type MobigentSimpleConnectionOptions = {
 
 export type MobigentSimpleAppConfig = Pick<
   MobigentSimpleConnectionOptions,
-  "appId" | "appName" | "gatewayUrl" | "version" | "authToken"
+  "appId" | "appName" | "connectionUrl" | "gatewayUrl" | "version" | "authToken"
 >;
 
 export function defineMobigentConfig(config: MobigentSimpleAppConfig): MobigentSimpleAppConfig {
@@ -106,11 +107,12 @@ export function defineMobigentConfig(config: MobigentSimpleAppConfig): MobigentS
 
 export type MobigentSimpleConfiguredConnectionOptions = Omit<
   MobigentSimpleConnectionOptions,
-  "appId" | "appName" | "gatewayUrl" | "version" | "authToken"
+  "appId" | "appName" | "connectionUrl" | "gatewayUrl" | "version" | "authToken"
 > & {
   config: MobigentSimpleAppConfig;
   appId?: string;
   appName?: string;
+  connectionUrl?: string;
   gatewayUrl?: string;
   version?: string;
   authToken?: string;
@@ -259,7 +261,7 @@ function resolveConnectionOptions(
   if (!("config" in options)) {
     return {
       ...options,
-      gatewayUrl: options.gatewayUrl ?? createMobigentGatewayUrl()
+      gatewayUrl: options.gatewayUrl ?? options.connectionUrl ?? createMobigentGatewayUrl()
     };
   }
 
@@ -269,7 +271,7 @@ function resolveConnectionOptions(
     ...rest,
     appId: rest.appId ?? config.appId,
     appName: rest.appName ?? config.appName,
-    gatewayUrl: rest.gatewayUrl ?? config.gatewayUrl ?? createMobigentGatewayUrl(),
+    gatewayUrl: rest.gatewayUrl ?? rest.connectionUrl ?? config.gatewayUrl ?? config.connectionUrl ?? createMobigentGatewayUrl(),
     version: rest.version ?? config.version,
     authToken: rest.authToken ?? config.authToken
   };

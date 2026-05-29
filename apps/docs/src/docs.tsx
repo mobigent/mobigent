@@ -16,12 +16,13 @@ import {
 import { createRoot } from "react-dom/client";
 import "./styles.css";
 
-const quickstart = `npm install @mobigent/react-native @mobigent/backend
-npx mobigent init \\
-  --app-id com.example.app \\
-  --app-name "Example App" \\
-  --feature expense \\
-  --out-dir src`;
+const quickstart = `# backend
+npm install @mobigent/backend
+npx mobigent-backend init
+
+# app
+npm install @mobigent/react-native
+npx mobigent init --feature expense --out-dir src`;
 
 const demoCode = `npm exec --yes \\
   --package https://github.com/mobigent/mobigent/releases/download/v0.1.12/create-mobigent-app-0.1.12.tgz \\
@@ -96,22 +97,20 @@ open http://localhost:8788/inspect
 
 npx mobigent-mcp`;
 
-const backendCode = `import { startMobigentBackend } from "@mobigent/backend";
+const backendCode = `import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigentBackend();
+const mobigent = await startMobigent({
+  app: {
+    id: "com.example.app",
+    name: "Example App"
+  }
+});
 
 console.log(mobigent.urls.inspector);
 console.log(mobigent.urls.openapi);
 
-const appConfig = mobigent.app({
-  appId: "com.example.app",
-  appName: "Example App"
-});
-
-const appConfigCode = mobigent.appConfigModule({
-  appId: "com.example.app",
-  appName: "Example App"
-});`;
+const appConfig = mobigent.defaultApp;
+const appConfigCode = mobigent.copyAppConfig();`;
 
 const backendInitCode = `npm install @mobigent/backend
 npx mobigent-backend init \\
@@ -279,10 +278,10 @@ client.confirmationHandler { request ->
 client.connect()`;
 
 const nativeLifecycle = [
-  ["1. Create a client", "Give Mobigent the app id, app name, version, and gateway WebSocket URL."],
+  ["1. Create a client", "Give Mobigent the app id, app name, version, and connection URL."],
   ["2. Register capabilities", "Add actions for writes, resources for reads, and components for screen context."],
   ["3. Add confirmations", "Mark risky actions and let the native app render the approval UI."],
-  ["4. Connect to gateway", "The SDK sends hello and manifest messages, then waits for calls."],
+  ["4. Connect", "The SDK sends hello and manifest messages, then waits for calls."],
   ["5. Emit events", "Send app events such as expense.created or sync.failed back through the gateway."]
 ];
 
@@ -296,7 +295,7 @@ const nativeUrls = [
 const firstRunChecks = [
   ["Install", "Add the app package to React Native and the backend package to your server."],
   ["Expose", "`feature()` turns real app functions into typed agent capabilities."],
-  ["Connect", "`mobigent.app()` creates config; `mobigentApp()` or `connectMobigent()` consumes it."],
+  ["Connect", "`mobigent.defaultApp` creates config; `mobigentApp()` or `connectMobigent()` consumes it."],
   ["Discover", "The backend exposes tools through HTTP, OpenAPI, provider helpers, and MCP."],
   ["Approve", "Risky actions pause inside the app before handlers run."],
   ["Audit", "Calls, approvals, denials, errors, and events appear in `/audit`."]
@@ -323,9 +322,9 @@ const packages = [
   ["@mobigent/backend", "Backend SDK", "One function starts the app connection endpoint, HTTP API, OpenAPI, inspector, and routing."],
   ["Mobigent iOS", "Swift package", "Native iOS client with actions, resources, components, confirmations, reconnect, heartbeat, and events."],
   ["Mobigent Android", "Kotlin library", "Native Android client with the same gateway protocol and local emulator-friendly defaults."],
-  ["@mobigent/gateway", "Agent bridge", "WebSocket app sessions, HTTP API, OpenAPI schema, MCP stdio server."],
-  ["@mobigent/providers", "Agent setup", "Provider descriptors and runtime helpers for popular AI platforms."],
-  ["@mobigent/core", "Protocol", "Shared types, protocol messages, schemas, and validation contracts."]
+  ["@mobigent/gateway", "Advanced internals", "Lower-level WebSocket app sessions, HTTP API, OpenAPI schema, and MCP server."],
+  ["@mobigent/providers", "Advanced internals", "Provider descriptors and runtime helpers behind the backend SDK."],
+  ["@mobigent/core", "Advanced internals", "Shared types, protocol messages, schemas, and validation contracts."]
 ];
 
 const reactNativeApis = [
@@ -343,7 +342,7 @@ const reactNativeApis = [
 
 const nativeApis = [
   ["iOS MobigentClient", "Swift client for registering capabilities, connecting, emitting events, and reading diagnostics."],
-  ["Android MobigentClient.Builder", "Kotlin builder for app identity, gateway URL, reconnect, heartbeat, and transport setup."],
+  ["Android MobigentClient.Builder", "Kotlin builder for app identity, connection URL, reconnect, heartbeat, and transport setup."],
   ["MobigentSchema", "Shared native schema builders for string, number, boolean, object, array, and enum."],
   ["confirmation handler", "Native callback hook so the host app renders its own approval UI."]
 ];
@@ -390,7 +389,7 @@ const safety = [
 
 const developerExperience = [
   ["Inspector", "Open `/inspect` during development to see connected apps, tools, metrics, audit events, and raw gateway snapshot data."],
-  ["Security doctor", "Run `--security-doctor` before sharing a gateway URL to catch unsafe transport and missing approval UI."],
+  ["Security doctor", "Run `--security-doctor` before sharing a hosted connection to catch unsafe transport and missing approval UI."],
   ["Schema adapters", "Use Zod, TypeBox-style JSON Schema, or the built-in helpers without changing the gateway contract."],
   ["Native assistant bridges", "Generate App Intents and Android App Actions plans from the same capability manifest."]
 ];

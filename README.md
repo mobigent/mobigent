@@ -55,7 +55,7 @@ await connectMobigent({
 });
 ```
 
-Everything else, WebSockets, tokens, registration loops, manifests, OpenAPI, MCP, confirmations, retries, audit events, and inspector wiring, is SDK plumbing.
+Everything else, connection URLs, WebSockets, tokens, registration loops, manifests, OpenAPI, MCP, confirmations, retries, audit events, and inspector wiring, is SDK plumbing.
 
 ## Quick Start
 

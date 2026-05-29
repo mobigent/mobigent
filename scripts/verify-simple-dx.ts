@@ -34,7 +34,7 @@ const backendFile = createMobigentBackendFiles({
   fileName: "mobigent.ts",
   envFile: ".env.mobigent",
   configFile: "mobigent.app.json",
-  gatewayUrl: "ws://localhost:8787",
+  connectionUrl: "ws://localhost:8787",
   authToken: "dev-token",
   force: false,
   dryRun: true

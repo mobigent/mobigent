@@ -106,7 +106,7 @@ npx mobigent-backend init
 
 Mobigent infers starter app identity from the project. Pass `--app-id` and `--app-name` only when you want exact production values.
 
-That creates `mobigent.app.json`. Put that file in the app project, then the app init command auto-detects it:
+That creates `mobigent.app.json` with a simple `connectionUrl`. Put that file in the app project, then the app init command auto-detects it:
 
 ```bash
 npx mobigent init --feature expense --out-dir src

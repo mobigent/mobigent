@@ -68,10 +68,10 @@ test("backend helper starts HTTP, OpenAPI, and inspector endpoints from one func
     assert.equal(health.ok, true);
     assert.equal(backend.urls.websocket, "ws://localhost:18987");
     assert.equal(backend.urls.openapi, "http://localhost:18988/openapi.json");
-  assert.deepEqual(backend.app({ appId: "com.example.app", appName: "Example App" }), {
+    assert.deepEqual(backend.app({ appId: "com.example.app", appName: "Example App" }), {
       appId: "com.example.app",
       appName: "Example App",
-      gatewayUrl: "ws://localhost:18987",
+      connectionUrl: "ws://localhost:18987",
       authToken: "dev-token",
       version: undefined
     });
@@ -104,7 +104,7 @@ test("backend SDK can start with one app config like normal backend plumbing", a
     assert.deepEqual(backend.defaultApp, {
       appId: "com.example.simple",
       appName: "Simple App",
-      gatewayUrl: "ws://localhost:18991",
+      connectionUrl: "ws://localhost:18991",
       authToken: "dev-token",
       version: undefined
     });
@@ -123,7 +123,7 @@ test("backend init helper creates a copy-paste server entrypoint", () => {
     fileName: "mobigent.ts",
     envFile: ".env.mobigent",
     configFile: "mobigent.app.json",
-    gatewayUrl: "ws://localhost:8787",
+    connectionUrl: "ws://localhost:8787",
     authToken: "dev-token",
     force: false,
     dryRun: true
@@ -134,7 +134,7 @@ test("backend init helper creates a copy-paste server entrypoint", () => {
   assert.match(files[0]?.contents ?? "", /defaultApp/);
   assert.match(files[0]?.contents ?? "", /copyAppConfig/);
   assert.match(files[1]?.contents ?? "", /MOBIGENT_AUTH_TOKEN/);
-  assert.match(files[2]?.contents ?? "", /"gatewayUrl": "ws:\/\/localhost:8787"/);
+  assert.match(files[2]?.contents ?? "", /"connectionUrl": "ws:\/\/localhost:8787"/);
 });
 
 test("backend init CLI infers app identity and prints the short app init command", async () => {
@@ -208,7 +208,7 @@ test("app config helpers create typed copy-paste app config", () => {
   const config = defineMobigentConfig({
     appId: "com.example.app",
     appName: "Example App",
-    gatewayUrl: "ws://localhost:8787",
+    connectionUrl: "ws://localhost:8787",
     authToken: "dev-token"
   });
 
@@ -218,7 +218,7 @@ test("app config helpers create typed copy-paste app config", () => {
 export const mobigentConfig = defineMobigentConfig({
   "appId": "com.example.app",
   "appName": "Example App",
-  "gatewayUrl": "ws://localhost:8787",
+  "connectionUrl": "ws://localhost:8787",
   "authToken": "dev-token"
 });
 `);

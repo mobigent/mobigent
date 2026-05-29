@@ -14,6 +14,7 @@ defineFeature("expense")
 ```
 
 The SDK handles namespacing, JSON Schema generation, validation, confirmation, connection lifecycle, reconnects, heartbeat, event queueing, and manifest updates.
+New app configs use `connectionUrl`; existing `gatewayUrl` configs still work.
 
 ## Install
 

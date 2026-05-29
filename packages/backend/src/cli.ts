@@ -16,7 +16,7 @@ export type MobigentBackendInitOptions = {
   fileName: string;
   envFile: string;
   configFile: string;
-  gatewayUrl: string;
+  connectionUrl: string;
   authToken: string;
   force: boolean;
   dryRun: boolean;
@@ -199,7 +199,8 @@ function parseArgs(argv: string[]) {
         options.configFile = next();
         break;
       case "--gateway-url":
-        options.gatewayUrl = next();
+      case "--connection-url":
+        options.connectionUrl = next();
         break;
       case "--auth-token":
         options.authToken = next();
@@ -290,7 +291,7 @@ function defaultOptions(): MobigentBackendInitOptions {
     fileName: "mobigent.ts",
     envFile: ".env.mobigent",
     configFile: "mobigent.app.json",
-    gatewayUrl: "ws://localhost:8787",
+    connectionUrl: "ws://localhost:8787",
     authToken: "dev-token",
     force: false,
     dryRun: false
@@ -354,7 +355,7 @@ function createAppConfigFile(options: MobigentBackendInitOptions) {
     {
       appId: options.appId,
       appName: options.appName,
-      gatewayUrl: options.gatewayUrl,
+      connectionUrl: options.connectionUrl,
       authToken: options.authToken
     },
     null,
@@ -396,7 +397,8 @@ Options:
   --file <name>       Backend file name. Default: mobigent.ts.
   --env <path>        Env file path. Default: .env.mobigent.
   --config-file <path> App config JSON for mobile init. Default: mobigent.app.json.
-  --gateway-url <url> App WebSocket URL written to config. Default: ws://localhost:8787.
+  --connection-url <url> App connection URL written to config. Default: ws://localhost:8787.
+  --gateway-url <url> Backward-compatible alias for --connection-url.
   --auth-token <token> App auth token written to config. Default: dev-token.
   --force             Overwrite generated files.
   --dry-run           Print generated files as JSON.

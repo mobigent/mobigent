@@ -59,7 +59,7 @@ try {
     JSON.stringify({
       appId: "com.mobigent.auto",
       appName: "Auto Config App",
-      gatewayUrl: "ws://localhost:8787",
+      connectionUrl: "ws://localhost:8787",
       authToken: "dev-token"
     }),
     "utf8"

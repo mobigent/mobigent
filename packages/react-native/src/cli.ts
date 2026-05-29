@@ -50,7 +50,8 @@ export type ReactNativeGeneratedFile = {
 export type ReactNativeAppConfigFile = {
   appId: string;
   appName: string;
-  gatewayUrl: string;
+  connectionUrl?: string;
+  gatewayUrl?: string;
   version?: string;
   authToken?: string;
 };
@@ -753,7 +754,7 @@ function parseArgs(
     options.appId ||= options.appConfig.appId;
     options.appName ||= options.appConfig.appName;
     options.appVersion ||= options.appConfig.version;
-    options.gatewayUrl ||= options.appConfig.gatewayUrl;
+    options.gatewayUrl ||= options.appConfig.connectionUrl ?? options.appConfig.gatewayUrl;
   }
 
   if (
@@ -923,7 +924,7 @@ function readReactNativeAppConfig(path: string): ReactNativeAppConfigFile {
   }
 
   if (!isReactNativeAppConfig(parsed)) {
-    throw new Error(`Mobigent config ${path} must include appId, appName, and gatewayUrl.`);
+    throw new Error(`Mobigent config ${path} must include appId, appName, and connectionUrl.`);
   }
 
   return parsed;
@@ -955,7 +956,7 @@ function isReactNativeAppConfig(value: unknown): value is ReactNativeAppConfigFi
   return (
     typeof config.appId === "string" &&
     typeof config.appName === "string" &&
-    typeof config.gatewayUrl === "string" &&
+    (typeof config.connectionUrl === "string" || typeof config.gatewayUrl === "string") &&
     (config.version === undefined || typeof config.version === "string") &&
     (config.authToken === undefined || typeof config.authToken === "string")
   );
