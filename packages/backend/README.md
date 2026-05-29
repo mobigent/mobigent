@@ -4,7 +4,7 @@ Run Mobigent from normal Node code.
 
 ```bash
 npm install @mobigent/backend
-npx mobigent-backend init --app-id com.example.app --app-name "Example App"
+npx mobigent-backend init --app-id com.example.app
 ```
 
 That creates `src/mobigent.ts`, `.env.mobigent`, and `mobigent.app.json`.

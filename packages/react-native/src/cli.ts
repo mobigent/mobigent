@@ -1462,7 +1462,7 @@ Usage:
 
 Options:
   --app-id <id>          Mobile app identifier. Required.
-  --app-name <name>      Human-readable app name. Required.
+  --app-name <name>      Human-readable app name. Required unless mobigent.app.json is available.
   --app-version <value>  App version to publish in the capability manifest.
   --config <path>        Read a backend-generated app config. Default: auto-detect mobigent.app.json.
   --feature <name>       Feature module name. Default: expense.

@@ -97,7 +97,7 @@ Install the backend SDK and generate the backend entrypoint:
 
 ```bash
 npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-backend-0.1.12.tgz
-npx mobigent-backend init --app-id com.example.app --app-name "Example App"
+npx mobigent-backend init --app-id com.example.app
 ```
 
 Or write it manually:

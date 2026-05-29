@@ -101,7 +101,7 @@ Generate the backend entrypoint and app config:
 
 ```bash
 npm install @mobigent/backend
-npx mobigent-backend init --app-id com.example.app --app-name "Example App"
+npx mobigent-backend init --app-id com.example.app
 ```
 
 That creates `mobigent.app.json`. Put that file in the app project, then the app init command auto-detects it:

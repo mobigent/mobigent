@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
 import WebSocket from "ws";
 import { formatMobigentAppConfigModule, startMobigent, startMobigentBackend } from "@mobigent/backend";
-import { createMobigentBackendFiles } from "@mobigent/backend/cli";
+import { createMobigentBackendFiles, runMobigentBackendCli } from "@mobigent/backend/cli";
 import {
   connectMobigent,
   defineMobigentConfig,
@@ -132,6 +135,47 @@ test("backend init helper creates a copy-paste server entrypoint", () => {
   assert.match(files[0]?.contents ?? "", /copyAppConfig/);
   assert.match(files[1]?.contents ?? "", /MOBIGENT_AUTH_TOKEN/);
   assert.match(files[2]?.contents ?? "", /"gatewayUrl": "ws:\/\/localhost:8787"/);
+});
+
+test("backend init CLI infers app name and prints the short app init command", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "mobigent-backend-cli-"));
+  const previousCwd = process.cwd();
+  let stdout = "";
+  let stderr = "";
+
+  try {
+    await writeFile(
+      join(dir, "package.json"),
+      JSON.stringify({ name: "@example/expense-hub" }),
+      "utf8"
+    );
+    process.chdir(dir);
+    const code = runMobigentBackendCli(
+      ["--app", "com.example.expense", "--dry-run"],
+      { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
+      { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
+    );
+
+    assert.equal(code, 0, stderr);
+    const files = JSON.parse(stdout).files as Array<{ path: string; contents: string }>;
+    const config = JSON.parse(files.find((file) => file.path === "mobigent.app.json")?.contents ?? "{}");
+    assert.equal(config.appName, "Expense Hub");
+
+    stdout = "";
+    stderr = "";
+    const writeCode = runMobigentBackendCli(
+      ["--app", "com.example.expense", "--app-name", "Expense App"],
+      { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
+      { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
+    );
+    assert.equal(writeCode, 0, stderr);
+    assert.match(stdout, /npx mobigent init --feature expense --out-dir src/);
+    assert.doesNotMatch(stdout, /--config/);
+    assert.match(await readFile(join(dir, "mobigent.app.json"), "utf8"), /Expense App/);
+  } finally {
+    process.chdir(previousCwd);
+    await rm(dir, { force: true, recursive: true });
+  }
 });
 
 test("app config helpers create typed copy-paste app config", () => {

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { existsSync, mkdirSync, realpathSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -141,6 +141,7 @@ function parseArgs(argv: string[]) {
 
     switch (arg) {
       case "--app-id":
+      case "--app":
         options.appId = next();
         break;
       case "--app-name":
@@ -178,8 +179,10 @@ function parseArgs(argv: string[]) {
     }
   }
 
-  if (!options.appId || !options.appName) {
-    throw new Error("--app-id and --app-name are required.\n\n" + helpText());
+  options.appName ||= inferAppName();
+
+  if (!options.appId) {
+    throw new Error("--app-id is required.\n\n" + helpText());
   }
 
   return options;
@@ -248,8 +251,8 @@ function formatSuccessMessage(options: MobigentBackendInitOptions, files: Mobige
   return `Created Mobigent backend files:
 ${files.map((file) => `  ${file.path}`).join("\n")}
 
-Use this config in your app:
-  npx mobigent init --config ${options.configFile} --feature expense --out-dir src
+Then in your app:
+  npx mobigent init --feature expense --out-dir src
 
 Run:
   node --env-file=${options.envFile} --import tsx ${join(options.outDir, options.fileName)}
@@ -265,12 +268,12 @@ function helpText() {
 Create a tiny backend entrypoint for @mobigent/backend.
 
 Usage:
-  mobigent-backend init --app-id com.example.app --app-name "Example App"
-  mobigent-backend --app-id com.example.app --app-name "Example App"
+  mobigent-backend init --app-id com.example.app
+  mobigent-backend --app com.example.app --app-name "Example App"
 
 Options:
-  --app-id <id>       App id used by the mobile SDK config. Required.
-  --app-name <name>   Human-readable app name. Required.
+  --app-id, --app <id> App id used by the mobile SDK config. Required.
+  --app-name <name>   Human-readable app name. Default: nearest package name or folder name.
   --out-dir <path>    Output directory. Default: src.
   --file <name>       Backend file name. Default: mobigent.ts.
   --env <path>        Env file path. Default: .env.mobigent.
@@ -281,6 +284,41 @@ Options:
   --dry-run           Print generated files as JSON.
   -h, --help          Show help.
 `;
+}
+
+function inferAppName(startDir = process.cwd()): string {
+  let dir = startDir;
+
+  while (true) {
+    const packageJsonPath = join(dir, "package.json");
+    if (existsSync(packageJsonPath)) {
+      try {
+        const parsed = JSON.parse(readFileSync(packageJsonPath, "utf8")) as { name?: unknown };
+        if (typeof parsed.name === "string" && parsed.name.trim()) {
+          return titleFromName(parsed.name);
+        }
+      } catch {
+        break;
+      }
+    }
+
+    const parent = dirname(dir);
+    if (parent === dir) {
+      break;
+    }
+    dir = parent;
+  }
+
+  return titleFromName(basename(startDir) || "Mobigent App");
+}
+
+function titleFromName(value: string): string {
+  const name = value
+    .replace(/^@[^/]+\//, "")
+    .replace(/[-_.]+/g, " ")
+    .trim();
+
+  return (name || "Mobigent App").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function isMainModule() {
