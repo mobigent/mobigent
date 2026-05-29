@@ -66,6 +66,8 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TRUSTED_PUBLISHING: ${{ vars.NPM_TRUSTED_PUBLISHING }}
         run: npm run npm:publish
+      - name: Verify npmjs package visibility
+        run: npm run npm:status
 
   publish-github-packages:
     needs: [validate-ios, validate-android]
