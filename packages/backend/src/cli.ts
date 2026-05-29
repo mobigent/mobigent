@@ -9,6 +9,9 @@ export type MobigentBackendInitOptions = {
   outDir: string;
   fileName: string;
   envFile: string;
+  configFile: string;
+  gatewayUrl: string;
+  authToken: string;
   force: boolean;
   dryRun: boolean;
 };
@@ -27,6 +30,10 @@ export function createMobigentBackendFiles(options: MobigentBackendInitOptions):
     {
       path: options.envFile,
       contents: createEnvFile()
+    },
+    {
+      path: options.configFile,
+      contents: createAppConfigFile(options)
     }
   ];
 }
@@ -148,6 +155,15 @@ function parseArgs(argv: string[]) {
       case "--env":
         options.envFile = next();
         break;
+      case "--config-file":
+        options.configFile = next();
+        break;
+      case "--gateway-url":
+        options.gatewayUrl = next();
+        break;
+      case "--auth-token":
+        options.authToken = next();
+        break;
       case "--force":
         options.force = true;
         break;
@@ -176,6 +192,9 @@ function defaultOptions(): MobigentBackendInitOptions {
     outDir: "src",
     fileName: "mobigent.ts",
     envFile: ".env.mobigent",
+    configFile: "mobigent.app.json",
+    gatewayUrl: "ws://localhost:8787",
+    authToken: "dev-token",
     force: false,
     dryRun: false
   };
@@ -212,9 +231,25 @@ MOBIGENT_HTTP_API_KEY=dev-agent-key
 `;
 }
 
+function createAppConfigFile(options: MobigentBackendInitOptions) {
+  return `${JSON.stringify(
+    {
+      appId: options.appId,
+      appName: options.appName,
+      gatewayUrl: options.gatewayUrl,
+      authToken: options.authToken
+    },
+    null,
+    2
+  )}\n`;
+}
+
 function formatSuccessMessage(options: MobigentBackendInitOptions, files: MobigentBackendGeneratedFile[]) {
   return `Created Mobigent backend files:
 ${files.map((file) => `  ${file.path}`).join("\n")}
+
+Use this config in your app:
+  npx mobigent init --config ${options.configFile} --feature expense --out-dir src
 
 Run:
   node --env-file=${options.envFile} --import tsx ${join(options.outDir, options.fileName)}
@@ -239,6 +274,9 @@ Options:
   --out-dir <path>    Output directory. Default: src.
   --file <name>       Backend file name. Default: mobigent.ts.
   --env <path>        Env file path. Default: .env.mobigent.
+  --config-file <path> App config JSON for mobile init. Default: mobigent.app.json.
+  --gateway-url <url> App WebSocket URL written to config. Default: ws://localhost:8787.
+  --auth-token <token> App auth token written to config. Default: dev-token.
   --force             Overwrite generated files.
   --dry-run           Print generated files as JSON.
   -h, --help          Show help.

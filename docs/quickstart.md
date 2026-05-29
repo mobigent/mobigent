@@ -31,11 +31,11 @@ The demo starts a Mobigent backend, connects a sample expense app, calls a confi
 
 ## 2. Add One Feature To An Existing App
 
-Install the app SDK and scaffold the small Mobigent folder:
+Install the app SDK and scaffold the small Mobigent folder from the backend config:
 
 ```bash
 npm install @mobigent/react-native
-npx mobigent init --app-id com.example.app --app-name "Example App" --feature expense --out-dir src
+npx mobigent init --config mobigent.app.json --feature expense --out-dir src
 ```
 
 Create a feature file:
@@ -97,11 +97,17 @@ await connectMobigent({
 
 ## 3. Run The Backend
 
-Generate the backend entrypoint:
+Generate the backend entrypoint and app config:
 
 ```bash
 npm install @mobigent/backend
 npx mobigent-backend init --app-id com.example.app --app-name "Example App"
+```
+
+That creates `mobigent.app.json`. Give that file to the app init command:
+
+```bash
+npx mobigent init --config mobigent.app.json --feature expense --out-dir src
 ```
 
 In your server:

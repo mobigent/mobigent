@@ -8,6 +8,12 @@ Use Mobigent like normal app code: expose a few real functions, wrap the app onc
 npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-react-native-0.1.12.tgz
 ```
 
+If your backend was initialized with `mobigent-backend init`, scaffold from its config file:
+
+```bash
+npx mobigent init --config mobigent.app.json --feature expense --out-dir src
+```
+
 ## 2. Create A Feature
 
 ```ts

@@ -115,15 +115,19 @@ test("backend init helper creates a copy-paste server entrypoint", () => {
     outDir: "src",
     fileName: "mobigent.ts",
     envFile: ".env.mobigent",
+    configFile: "mobigent.app.json",
+    gatewayUrl: "ws://localhost:8787",
+    authToken: "dev-token",
     force: false,
     dryRun: true
   });
 
-  assert.deepEqual(files.map((file) => file.path), ["src/mobigent.ts", ".env.mobigent"]);
+  assert.deepEqual(files.map((file) => file.path), ["src/mobigent.ts", ".env.mobigent", "mobigent.app.json"]);
   assert.match(files[0]?.contents ?? "", /startMobigent/);
   assert.match(files[0]?.contents ?? "", /defaultApp/);
   assert.match(files[0]?.contents ?? "", /copyAppConfig/);
   assert.match(files[1]?.contents ?? "", /MOBIGENT_AUTH_TOKEN/);
+  assert.match(files[2]?.contents ?? "", /"gatewayUrl": "ws:\/\/localhost:8787"/);
 });
 
 test("app config helpers create typed copy-paste app config", () => {

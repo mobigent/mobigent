@@ -2143,6 +2143,31 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   assert.match(envTemplate, /EXPO_PUBLIC_MOBIGENT_MODE=local/);
   assert.match(envTemplate, /EXPO_PUBLIC_MOBIGENT_GATEWAY_URL=ws:\/\/localhost:9000/);
   assert.match(envTemplate, /EXPO_PUBLIC_MOBIGENT_DEVICE_HOST/);
+
+  const configFiles = createReactNativeStarterFiles({
+    appId: "com.mobigent.config",
+    appName: "Config App",
+    appConfig: {
+      appId: "com.mobigent.config",
+      appName: "Config App",
+      gatewayUrl: "ws://localhost:19000",
+      authToken: "dev-token"
+    },
+    feature: "expense",
+    outDir: "src",
+    dryRun: true,
+    force: false,
+    doctor: false,
+    manifest: false,
+    contract: false
+  });
+  const configFile = configFiles.find((file) => file.path === join("src", "mobigent-config.ts"));
+  const configRootFile = configFiles.find((file) => file.path === join("src", "mobigent.tsx"));
+  assert.ok(configFile);
+  assert.ok(configRootFile);
+  assert.match(configFile.contents, /defineMobigentConfig/);
+  assert.match(configRootFile.contents, /config: mobigentConfig/);
+  assert.doesNotMatch(configRootFile.contents, /gatewayUrl: process\.env/);
   assert.match(envTemplate, /EXPO_PUBLIC_MOBIGENT_AUTH_TOKEN/);
 
   const customConfirmationFiles = createReactNativeStarterFiles({

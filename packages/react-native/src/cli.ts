@@ -15,6 +15,8 @@ export type ReactNativeInitCliOptions = {
   appId: string;
   appName: string;
   appVersion?: string;
+  appConfig?: ReactNativeAppConfigFile;
+  configPath?: string;
   feature: string;
   appRoot?: string;
   outDir: string;
@@ -41,6 +43,14 @@ export type ReactNativeInitCliOptions = {
 export type ReactNativeGeneratedFile = {
   path: string;
   contents: string;
+};
+
+export type ReactNativeAppConfigFile = {
+  appId: string;
+  appName: string;
+  gatewayUrl: string;
+  version?: string;
+  authToken?: string;
 };
 
 export type ReactNativeDoctorCheck = {
@@ -127,6 +137,13 @@ export function createReactNativeStarterFiles(options: ReactNativeInitCliOptions
       contents: createFeatureFile(options.feature)
     }
   ];
+
+  if (options.appConfig) {
+    files.unshift({
+      path: join(options.outDir, "mobigent-config.ts"),
+      contents: createMobigentConfigFile(options.appConfig)
+    });
+  }
 
   if (options.customConfirmation) {
     files.push({
@@ -640,6 +657,9 @@ function parseArgs(
       case "--app-version":
         options.appVersion = next();
         break;
+      case "--config":
+        options.configPath = next();
+        break;
       case "--feature":
         options.feature = next();
         break;
@@ -722,6 +742,14 @@ function parseArgs(
     return options;
   }
 
+  if (options.configPath) {
+    options.appConfig = readReactNativeAppConfig(options.configPath);
+    options.appId ||= options.appConfig.appId;
+    options.appName ||= options.appConfig.appName;
+    options.appVersion ||= options.appConfig.version;
+    options.gatewayUrl ||= options.appConfig.gatewayUrl;
+  }
+
   if (
     !options.doctor &&
     !options.securityDoctor &&
@@ -768,19 +796,24 @@ function createMobigentRootFile(options: ReactNativeInitCliOptions) {
   const confirmationImport = options.customConfirmation
     ? `import { MobigentAgentApproval } from "./mobigent-confirmation";\n`
     : "";
+  const configImport = options.appConfig ? `import { mobigentConfig } from "./mobigent-config";\n` : "";
   const confirmationOption = options.customConfirmation
     ? ",\n  ConfirmationComponent: MobigentAgentApproval"
     : "";
+  const identityOptions = options.appConfig
+    ? "  config: mobigentConfig"
+    : `  appId: ${JSON.stringify(options.appId)},
+  appName: ${JSON.stringify(options.appName)}${versionLine},
+  gatewayUrl: process.env.EXPO_PUBLIC_MOBIGENT_GATEWAY_URL ?? ${gatewayUrl}`;
 
 return `import type { ReactNode } from "react";
 import { setupMobigent, type MobigentAppRootProps } from "@mobigent/react-native";
 import { ${options.feature}Feature } from "./mobigent-features/${options.feature}";
+${configImport}
 ${confirmationImport}
 
 const { Root } = setupMobigent({
-  appId: ${JSON.stringify(options.appId)},
-  appName: ${JSON.stringify(options.appName)}${versionLine},
-  gatewayUrl: process.env.EXPO_PUBLIC_MOBIGENT_GATEWAY_URL ?? ${gatewayUrl},
+${identityOptions},
   reconnect: { enabled: true, maxAttempts: 20 },
   heartbeat: true,
   features: [${options.feature}Feature]${confirmationOption}
@@ -801,19 +834,24 @@ function createMobigentExpoRootFile(options: ReactNativeInitCliOptions) {
   const confirmationImport = options.customConfirmation
     ? `import { MobigentAgentApproval } from "./mobigent-confirmation";\n`
     : "";
+  const configImport = options.appConfig ? `import { mobigentConfig } from "./mobigent-config";\n` : "";
   const confirmationOption = options.customConfirmation
     ? ",\n  ConfirmationComponent: MobigentAgentApproval"
     : "";
+  const identityOptions = options.appConfig
+    ? "  config: mobigentConfig"
+    : `  appId: ${JSON.stringify(options.appId)},
+  appName: ${JSON.stringify(options.appName)}${versionLine},
+  gatewayUrl: process.env.EXPO_PUBLIC_MOBIGENT_GATEWAY_URL ?? "ws://localhost:8787"`;
 
 return `import type { ReactNode } from "react";
 import { setupMobigent, type MobigentAppRootProps } from "@mobigent/react-native";
 import { ${options.feature}Feature } from "./mobigent-features/${options.feature}";
+${configImport}
 ${confirmationImport}
 
 const { Root } = setupMobigent({
-  appId: ${JSON.stringify(options.appId)},
-  appName: ${JSON.stringify(options.appName)}${versionLine},
-  gatewayUrl: process.env.EXPO_PUBLIC_MOBIGENT_GATEWAY_URL ?? "ws://localhost:8787",
+${identityOptions},
   reconnect: { enabled: true, maxAttempts: 20 },
   heartbeat: true,
   features: [${options.feature}Feature]${confirmationOption}
@@ -858,6 +896,44 @@ function createRelativeImportPath(fromDir: string, toPathWithoutExtension: strin
   const relativePath = segments.length > 0 ? segments.join("/") : ".";
 
   return relativePath.startsWith(".") ? relativePath : `./${relativePath}`;
+}
+
+function createMobigentConfigFile(config: ReactNativeAppConfigFile) {
+  return `import { defineMobigentConfig } from "@mobigent/react-native";
+
+export const mobigentConfig = defineMobigentConfig(${JSON.stringify(config, null, 2)});
+`;
+}
+
+function readReactNativeAppConfig(path: string): ReactNativeAppConfigFile {
+  let parsed: unknown;
+
+  try {
+    parsed = JSON.parse(readFileSync(path, "utf8"));
+  } catch (error) {
+    throw new Error(`Could not read Mobigent config from ${path}: ${error instanceof Error ? error.message : String(error)}`);
+  }
+
+  if (!isReactNativeAppConfig(parsed)) {
+    throw new Error(`Mobigent config ${path} must include appId, appName, and gatewayUrl.`);
+  }
+
+  return parsed;
+}
+
+function isReactNativeAppConfig(value: unknown): value is ReactNativeAppConfigFile {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return false;
+  }
+
+  const config = value as Record<string, unknown>;
+  return (
+    typeof config.appId === "string" &&
+    typeof config.appName === "string" &&
+    typeof config.gatewayUrl === "string" &&
+    (config.version === undefined || typeof config.version === "string") &&
+    (config.authToken === undefined || typeof config.authToken === "string")
+  );
 }
 
 export function createReactNativeEnvTemplate(options: Pick<ReactNativeInitCliOptions, "gatewayUrl"> = {}) {
@@ -1336,6 +1412,7 @@ function helpText() {
   return `Mobigent React Native initializer
 
 Usage:
+  mobigent init --config mobigent.app.json --feature expense --out-dir src
   mobigent init --app-id com.example.app --app-name "Example App" --feature expense --out-dir src
   mobigent doctor --app-id com.example.app --app-name "Example App" --feature expense --out-dir src --app-root .
   mobigent-init --app-id com.example.app --app-name "Example App" --feature expense --out-dir src
@@ -1362,6 +1439,7 @@ Options:
   --app-id <id>          Mobile app identifier. Required.
   --app-name <name>      Human-readable app name. Required.
   --app-version <value>  App version to publish in the capability manifest.
+  --config <path>        Read backend-generated mobigent.app.json.
   --feature <name>       Feature module name. Default: expense.
   --app-root <path>      React Native app root for package.json doctor checks. Default: current directory.
   --out-dir <path>       Output directory. Default: src.

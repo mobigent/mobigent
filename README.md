@@ -144,11 +144,11 @@ Maintainer note: npmjs publishing is tracked in [docs/npm-publishing.md](./docs/
 
 ## Add It To An Existing React Native App
 
-Install the app package, then let the SDK create the tiny Mobigent folder:
+Install the app package, then let the SDK create the tiny Mobigent folder from the backend config:
 
 ```bash
 npm install @mobigent/react-native
-npx mobigent init --app-id com.example.app --app-name "Example App" --feature expense --out-dir src
+npx mobigent init --config mobigent.app.json --feature expense --out-dir src
 ```
 
 Create one feature file:
@@ -214,11 +214,17 @@ await connectMobigent({
 
 ## Add It To A Backend
 
-Create the backend entrypoint:
+Create the backend entrypoint and app config:
 
 ```bash
 npm install @mobigent/backend
 npx mobigent-backend init --app-id com.example.app --app-name "Example App"
+```
+
+That creates `mobigent.app.json` for the app package to consume:
+
+```bash
+npx mobigent init --config mobigent.app.json --feature expense --out-dir src
 ```
 
 Or write it manually:

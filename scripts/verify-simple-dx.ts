@@ -32,6 +32,9 @@ const backendFile = createMobigentBackendFiles({
   outDir: "src",
   fileName: "mobigent.ts",
   envFile: ".env.mobigent",
+  configFile: "mobigent.app.json",
+  gatewayUrl: "ws://localhost:8787",
+  authToken: "dev-token",
   force: false,
   dryRun: true
 }).find((file) => file.path === "src/mobigent.ts")?.contents ?? "";

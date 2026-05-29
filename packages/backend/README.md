@@ -7,7 +7,7 @@ npm install @mobigent/backend
 npx mobigent-backend init --app-id com.example.app --app-name "Example App"
 ```
 
-That creates `src/mobigent.ts` and `.env.mobigent`.
+That creates `src/mobigent.ts`, `.env.mobigent`, and `mobigent.app.json`.
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
@@ -51,6 +51,12 @@ const appConfig = mobigent.defaultApp;
 ```
 
 That config includes the app id, app name, WebSocket URL, version, and app token when `appToken` or `MOBIGENT_AUTH_TOKEN` is configured.
+
+Use the generated `mobigent.app.json` with the app package:
+
+```bash
+npx mobigent init --config mobigent.app.json --feature expense --out-dir src
+```
 
 Use `mobigent.copyAppConfig()` when you want a copy-paste TypeScript file for the mobile app:
 
