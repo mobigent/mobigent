@@ -47,7 +47,8 @@
   },
   "dependencies": {
     "@mobigent/core": "0.1.12",
-    "@mobigent/gateway": "0.1.12"
+    "@mobigent/gateway": "0.1.12",
+    "@mobigent/providers": "0.1.12"
   },
   "devDependencies": {
     "@types/node": "^25.9.1"

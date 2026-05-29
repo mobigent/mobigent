@@ -38,17 +38,20 @@ const { Root } = mobigentApp({
 For non-React hosts, demos, and tests:
 
 ```ts
-import { startMobigentBackend } from "@mobigent/backend";
+import { startMobigent } from "@mobigent/backend";
 import { mobigent } from "@mobigent/react-native";
 import { connectMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
 
-const backend = await startMobigentBackend();
-const connection = await connectMobigent(mobigent, {
-  config: backend.app({
-    appId: "com.example.app",
-    appName: "Example App"
-  }),
+const backend = await startMobigent({
+  app: {
+    id: "com.example.app",
+    name: "Example App"
+  }
+});
+
+const connection = await connectMobigent({
+  config: backend.defaultApp,
   features: [expenses]
 });
 
@@ -69,9 +72,14 @@ connection.disconnect();
 ## Backend
 
 ```ts
-import { startMobigentBackend } from "@mobigent/backend";
+import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigentBackend();
+const mobigent = await startMobigent({
+  app: {
+    id: "com.example.app",
+    name: "Example App"
+  }
+});
 ```
 
 The backend object exposes:
@@ -80,6 +88,10 @@ The backend object exposes:
 - `app({ appId, appName })`
 - `appConfig({ appId, appName })`
 - `appConfigModule({ appId, appName })`
+- `defaultApp`
+- `copyAppConfig()`
+- `agent("chatgpt" | "claude" | "openai")`
+- `agents()`
 - `tools()`
 - `apps()`
 - `call(toolName, input)`
@@ -87,7 +99,9 @@ The backend object exposes:
 
 ## Providers
 
-`@mobigent/providers` helps generate provider setup guides and adapt Mobigent tools to agent runtimes such as ChatGPT Actions, OpenAI Responses, Anthropic, Gemini, Bedrock, Vercel AI SDK, LangChain, LlamaIndex, Cursor, Claude Desktop, and MCP-compatible clients.
+Most apps use `mobigent.agent("chatgpt")`, `mobigent.agent("claude")`, or `mobigent.agent("openai")` from `@mobigent/backend`.
+
+`@mobigent/providers` is the advanced package behind that helper. Use it directly when you are building setup screens, custom CLIs, or runtime adapters for ChatGPT Actions, OpenAI Responses, Anthropic, Gemini, Bedrock, Vercel AI SDK, LangChain, LlamaIndex, Cursor, Claude Desktop, and MCP-compatible clients.
 
 ## Advanced
 

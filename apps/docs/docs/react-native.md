@@ -53,9 +53,14 @@ export default function App() {
 ## Run The Backend
 
 ```ts
-import { startMobigentBackend } from "@mobigent/backend";
+import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigentBackend();
+const mobigent = await startMobigent({
+  app: {
+    id: "com.example.app",
+    name: "Example App"
+  }
+});
 ```
 
 Open the inspector URL printed by the backend. When the app connects, the feature tools appear there.
@@ -65,17 +70,20 @@ Open the inspector URL printed by the backend. When the app connects, the featur
 If you are running a local demo, test host, or another runtime where you are using the singleton `mobigent` client directly:
 
 ```ts
-import { startMobigentBackend } from "@mobigent/backend";
+import { startMobigent } from "@mobigent/backend";
 import { mobigent } from "@mobigent/react-native";
 import { connectMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
 
-const backend = await startMobigentBackend();
-const connection = await connectMobigent(mobigent, {
-  config: backend.app({
-    appId: "com.example.app",
-    appName: "Example App"
-  }),
+const backend = await startMobigent({
+  app: {
+    id: "com.example.app",
+    name: "Example App"
+  }
+});
+
+const connection = await connectMobigent({
+  config: backend.defaultApp,
   features: [expenses]
 });
 ```

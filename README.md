@@ -247,6 +247,13 @@ const appConfig = mobigent.defaultApp;
 
 That one function starts the app connection endpoint, HTTP API, OpenAPI schema, inspector, tool routing, audit trail, and readiness checks.
 
+It also gives you agent setup from the same backend object:
+
+```ts
+console.log(mobigent.agent("chatgpt").endpoints.openApi);
+console.log(mobigent.agent("claude").guide);
+```
+
 ## Connect An Agent
 
 Start the backend:
@@ -271,7 +278,9 @@ npm run demo:app
 
 That single page includes the app UI, an agent request box, the tool call result, and a link to the inspector.
 
-Use the OpenAPI schema with ChatGPT Actions, or use the MCP server for MCP-compatible agents:
+Use `mobigent.agent("chatgpt")` for ChatGPT Actions setup, `mobigent.agent("claude")` for Claude Desktop setup, or `mobigent.agent("openai")` for server-side OpenAI Responses setup.
+
+The lower-level MCP command is still available for local agent clients:
 
 ```bash
 npm run dev:mcp
@@ -287,7 +296,6 @@ Most apps start with two packages:
 Useful extras:
 
 - `create-mobigent-app`: one-command starter app with backend, inspector, visible app, and agent playground
-- `@mobigent/providers`: copy-paste setup helpers for ChatGPT Actions, OpenAPI agents, and MCP-compatible local agents
 - `packages/ios`: native Swift Package for iOS apps
 - `packages/android`: native Kotlin/Android SDK
 
@@ -295,6 +303,7 @@ Advanced internals:
 
 - `@mobigent/core`: protocol and shared types
 - `@mobigent/gateway`: lower-level gateway package for custom hosting, HTTP/OpenAPI, and MCP
+- `@mobigent/providers`: provider setup helpers behind `mobigent.agent(...)`
 
 ## Examples
 

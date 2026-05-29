@@ -7,6 +7,13 @@ import {
   type ToolCallOptions
 } from "@mobigent/gateway";
 import type { JsonObject } from "@mobigent/core";
+import {
+  createProviderBundle,
+  createProviderCatalog,
+  filterProviderCatalog,
+  type ProviderBundle,
+  type ProviderKind
+} from "@mobigent/providers";
 
 export type MobigentBackendOptions = {
   wsPort?: number;
@@ -61,6 +68,21 @@ export type MobigentBackendAppConfigModuleOptions = MobigentBackendAppConfigOpti
   exportName?: string;
 };
 
+export type MobigentAgentKind =
+  | ProviderKind
+  | "chatgpt"
+  | "claude"
+  | "openai"
+  | "openapi-actions"
+  | "openapi-agent";
+
+export type MobigentAgentOptions = {
+  baseUrl?: string;
+  publicUrl?: string;
+  auth?: "none" | "bearer" | "api-key";
+  agentId?: string;
+};
+
 export type MobigentBackend = {
   gateway: BridgeGateway;
   httpServer: Server;
@@ -73,6 +95,8 @@ export type MobigentBackend = {
   app(options: MobigentBackendAppConfigOptions): MobigentBackendAppConfig;
   appConfig(options: MobigentBackendAppConfigOptions): MobigentBackendAppConfig;
   appConfigModule(options: MobigentBackendAppConfigModuleOptions): string;
+  agent(kind?: MobigentAgentKind, options?: MobigentAgentOptions): ProviderBundle;
+  agents(options?: MobigentAgentOptions): ProviderBundle[];
   defaultApp?: MobigentBackendAppConfig;
   appConfigCode?: string;
   copyAppConfig(): string;
@@ -148,6 +172,15 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     });
   const defaultApp = options.app ? appConfig(normalizeDefaultApp(options.app)) : undefined;
   const appConfigCode = defaultApp ? formatMobigentAppConfigModule(defaultApp) : undefined;
+  const createAgentCatalog = (agentOptions: MobigentAgentOptions = {}) => createProviderCatalog({
+    mcp: {
+      command: "mobigent-mcp"
+    },
+    openApi: {
+      baseUrl: agentOptions.publicUrl ?? agentOptions.baseUrl ?? urls.http,
+      auth: agentOptions.auth ?? (options.apiKey || process.env.MOBIGENT_HTTP_API_KEY ? "api-key" : "none")
+    }
+  });
 
   return {
     gateway,
@@ -156,6 +189,19 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     app: appConfig,
     appConfig,
     appConfigModule,
+    agent: (kind = "chatgpt-actions", agentOptions = {}) => {
+      const id = normalizeAgentKind(kind);
+      const [provider] = filterProviderCatalog(createAgentCatalog(agentOptions), { ids: [id] });
+      if (!provider) {
+        throw new Error(`Mobigent agent provider is not available: ${kind}`);
+      }
+      const bundle = createProviderBundle(provider);
+      if (agentOptions.agentId && bundle.runtimeEnv) {
+        bundle.runtimeEnv.MOBIGENT_AGENT_ID = agentOptions.agentId;
+      }
+      return bundle;
+    },
+    agents: (agentOptions = {}) => createAgentCatalog(agentOptions).map((provider) => createProviderBundle(provider)),
     defaultApp,
     appConfigCode,
     copyAppConfig: () => {
@@ -224,6 +270,22 @@ function normalizeDefaultApp(app: MobigentBackendDefaultAppOptions): MobigentBac
     appToken: app.appToken,
     authToken: app.authToken
   };
+}
+
+function normalizeAgentKind(kind: MobigentAgentKind): ProviderKind {
+  switch (kind) {
+    case "chatgpt":
+    case "openapi-actions":
+      return "chatgpt-actions";
+    case "claude":
+      return "claude-desktop";
+    case "openai":
+      return "openai-responses";
+    case "openapi-agent":
+      return "openapi";
+    default:
+      return kind;
+  }
 }
 
 function stopBackend(server: Server, gateway: BridgeGateway) {

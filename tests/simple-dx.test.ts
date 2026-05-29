@@ -76,6 +76,10 @@ test("backend helper starts HTTP, OpenAPI, and inspector endpoints from one func
       backend.appConfigModule({ appId: "com.example.app", appName: "Example App" }),
       /export const mobigentConfig = defineMobigentConfig/
     );
+    assert.equal(backend.agent("chatgpt").provider.id, "chatgpt-actions");
+    assert.equal(backend.agent("chatgpt").endpoints.openApi, "http://localhost:18988/openapi.json");
+    assert.equal(backend.agent("claude").provider.id, "claude-desktop");
+    assert.ok(backend.agents().some((agent) => agent.provider.id === "openai-responses"));
   } finally {
     await backend.stop();
   }

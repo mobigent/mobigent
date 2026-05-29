@@ -152,4 +152,4 @@ Full JSON Schema and lower-level `schema.*` helpers are still available for adva
 
 - `@mobigent/core`: shared protocol, manifests, schemas, and validation.
 - `@mobigent/gateway`: lower-level gateway, HTTP/OpenAPI server, and MCP stdio server.
-- `@mobigent/providers`: provider setup helpers and runtime adapters.
+- `@mobigent/providers`: provider setup helpers and runtime adapters behind `mobigent.agent(...)`.

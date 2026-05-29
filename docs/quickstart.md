@@ -129,6 +129,13 @@ const appConfig = mobigent.defaultApp;
 console.log(mobigent.copyAppConfig());
 ```
 
+Need agent setup? Use the same backend object:
+
+```ts
+console.log(mobigent.agent("chatgpt").endpoints.openApi);
+console.log(mobigent.agent("claude").guide);
+```
+
 For local checks:
 
 ```bash
