@@ -4,55 +4,89 @@ sidebar_position: 2
 
 # Quickstart
 
-Install dependencies and run the local demo:
+The easiest path is the starter:
 
 ```bash
-npm install
-npm run demo
+npm exec --yes \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.6/create-mobigent-app-0.1.6.tgz \
+  -- create-mobigent-app my-demo --install
+cd my-demo
+npm run dev
 ```
 
-The demo starts a gateway, connects the example expense app, discovers its tools, creates an expense, runs confirmation, and reads the expense list.
+Click **Run agent request**. The demo calls the app-owned `expense_create` action and updates visible app state.
 
-For app and provider setup, generate reviewable integration artifacts:
+In another terminal:
 
 ```bash
-npx mobigent-rn-init --write-manifest ./mobigent-integration.json --app-id com.example.expenses --app-name "Example Expenses" --feature expense --out-dir src
-npx mobigent-rn-init --write-contract ./mobigent-contract.json --app-id com.example.expenses --app-name "Example Expenses" --feature expense
-npx mobigent-provider --write-matrix ./mobigent-providers.json --base-url http://localhost:8788
+npm run doctor
 ```
 
-See [Integration Artifacts](./integration-artifacts.md) for the CI workflow and what each file proves.
+You should see app, backend, readiness, and tool checks pass.
 
-Run the offline agent-side demo:
+## Existing React Native App
+
+Install the app SDK:
 
 ```bash
-npm run demo -w @mobigent/example-agent-server
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.6/mobigent-react-native-0.1.6.tgz
 ```
 
-It shows the same app capability mapped into OpenAI, Anthropic, Gemini, AWS Bedrock Converse, and Vercel AI SDK tool shapes, then executes the tool through the Mobigent HTTP client.
+Create one feature:
 
-Run the provider runtime starter against a live HTTP gateway:
+```ts
+import { feature } from "@mobigent/react-native/simple";
+
+export const expenses = feature("expense")
+  .read("list", async () => ({ items: await listExpenses() }))
+  .write("create", async (input) => createExpense(input), {
+    input: {
+      merchant: "string",
+      amount: "number"
+    },
+    confirm: true
+  });
+```
+
+Wrap the app once:
+
+```tsx
+import { mobigentApp } from "@mobigent/react-native/app";
+import { expenses } from "./mobigent/expenses";
+
+const { Root } = mobigentApp({
+  appId: "com.example.app",
+  appName: "Example App",
+  features: [expenses]
+});
+
+export default function App() {
+  return (
+    <Root>
+      <YourExistingApp />
+    </Root>
+  );
+}
+```
+
+## Backend
+
+Install the backend SDK:
 
 ```bash
-MOBIGENT_PROVIDER=anthropic-tool-use \
-MOBIGENT_MIN_APPS=1 \
-MOBIGENT_MIN_TOOLS=1 \
-MOBIGENT_HTTP_URL=http://localhost:8788 \
-npm run runtime -w @mobigent/example-agent-server
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.6/mobigent-backend-0.1.6.tgz
 ```
 
-For a live HTTP/OpenAPI demo:
+Start Mobigent:
 
-```bash
-npm run dev:http
-npm run dev:app
+```ts
+import { startMobigentBackend } from "@mobigent/backend";
+
+const mobigent = await startMobigentBackend();
+
+console.log(mobigent.urls.inspector);
+console.log(mobigent.urls.openapi);
 ```
 
-Then call:
+Open the inspector URL. When the app connects, its tools appear there.
 
-```bash
-curl http://localhost:8788/tools
-curl -X POST http://localhost:8788/tools/com_mobigent_expenses.expense_create/call \
-  -H "content-type: application/json" \
-  -d '{"amount":42.25,"merchant":"Airport Taxi","category":"Travel"}'
-```

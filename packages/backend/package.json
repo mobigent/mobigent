@@ -1,6 +1,6 @@
 {
   "name": "@mobigent/backend",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Simple backend helper for running Mobigent gateway, HTTP, OpenAPI, and MCP-ready agent endpoints.",
   "type": "module",
   "license": "MIT",
@@ -30,8 +30,8 @@
     "prepublishOnly": "npm run build && npm run typecheck"
   },
   "dependencies": {
-    "@mobigent/core": "0.1.5",
-    "@mobigent/gateway": "0.1.5"
+    "@mobigent/core": "0.1.6",
+    "@mobigent/gateway": "0.1.6"
   },
   "devDependencies": {
     "@types/node": "^25.9.1"

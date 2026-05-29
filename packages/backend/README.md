@@ -1,6 +1,6 @@
 # @mobigent/backend
 
-Run the Mobigent backend from normal Node code.
+Run Mobigent from normal Node code.
 
 ```ts
 import { startMobigentBackend } from "@mobigent/backend";
@@ -8,15 +8,32 @@ import { startMobigentBackend } from "@mobigent/backend";
 const mobigent = await startMobigentBackend();
 
 console.log(mobigent.urls.inspector);
-console.log(await mobigent.tools());
+console.log(mobigent.urls.openapi);
 ```
 
 This starts:
 
-- the app WebSocket endpoint
-- the agent HTTP API
+- app connections
+- agent HTTP API
 - OpenAPI schema
 - inspector
-- gateway routing
+- tool routing
+- readiness checks
+- audit events
 
-Use this when you want Mobigent to feel like normal backend plumbing instead of a stack of separate gateway commands.
+## Call A Tool From Code
+
+```ts
+const result = await mobigent.call("com_example_app.expense_create", {
+  merchant: "Airport Taxi",
+  amount: 42.25
+});
+```
+
+## Stop
+
+```ts
+await mobigent.stop();
+```
+
+Use this package when you want Mobigent to feel like backend plumbing, not a stack of separate gateway commands.

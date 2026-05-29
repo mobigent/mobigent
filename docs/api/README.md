@@ -1,81 +1,113 @@
 # API Reference
 
-## Packages
+Start with the two-package path:
 
-- `@mobigent/core`: shared protocol and type definitions.
-- `@mobigent/react-native`: app SDK, provider, hooks, confirmation controller, transport.
-- `@mobigent/react-native/ui`: optional React Native confirmation modal.
-- `@mobigent/gateway`: local gateway, HTTP/OpenAPI server, MCP server.
+- `@mobigent/react-native`: app SDK for exposing app functions.
+- `@mobigent/backend`: backend SDK for the agent-facing API, inspector, OpenAPI, MCP-ready routing, and app connections.
 
-## Core Concepts
+Lower-level protocol packages still exist, but most developers should not need them on day one.
 
-### Action
-
-An app-owned function that an agent can call.
+## App API
 
 ```ts
-import { mobigent } from "@mobigent/react-native";
+import { feature } from "@mobigent/react-native/simple";
 
-mobigent.registerAction({
-  name: "expense_create",
-  description: "Create an expense.",
-  inputSchema: {
-    type: "object",
-    properties: {
-      amount: { type: "number" },
-      merchant: { type: "string" }
+export const expenses = feature("expense")
+  .read("list", async () => ({ items: await listExpenses() }))
+  .write("create", async (input) => createExpense(input), {
+    input: {
+      merchant: "string",
+      amount: "number"
     },
-    required: ["amount", "merchant"]
-  },
-  confirmation: { required: true, risk: "medium" },
-  handler: async (input) => ({ id: "EXP-1", ...input })
+    confirm: true
+  });
+```
+
+```tsx
+import { mobigentApp } from "@mobigent/react-native/app";
+import { expenses } from "./mobigent/expenses";
+
+const { Root } = mobigentApp({
+  appId: "com.example.app",
+  appName: "Example App",
+  features: [expenses]
 });
 ```
 
-Action input is validated against `inputSchema` before confirmation or handler execution. Invalid agent input returns an error and never reaches app business logic.
-
-### Resource
-
-A read-only or read-mostly provider exposed as a `get_` tool.
+## Backend API
 
 ```ts
-mobigent.registerResource({
-  name: "expenses",
-  description: "Current expense list.",
-  policy: { readOnly: true },
-  read: async () => ({ expenses: [] })
+import { startMobigentBackend } from "@mobigent/backend";
+
+const mobigent = await startMobigentBackend();
+
+console.log(mobigent.urls.inspector);
+console.log(mobigent.urls.openapi);
+```
+
+The returned object includes:
+
+- `urls.websocket`
+- `urls.http`
+- `urls.inspector`
+- `urls.openapi`
+- `tools()`
+- `apps()`
+- `call(toolName, input)`
+- `stop()`
+
+## Capability Types
+
+### Read
+
+Expose app state without changing anything:
+
+```ts
+feature("cart").read("current", async () => getCart());
+```
+
+### Write
+
+Expose app behavior that changes state:
+
+```ts
+feature("cart").write("checkout", async (input) => checkout(input), {
+  input: { paymentMethodId: "string" },
+  confirm: "Place order?"
 });
 ```
 
-### Event
+### Screen
 
-App-originated notifications sent to the gateway.
-
-```ts
-mobigent.emit("expense.created", { id: "EXP-1" });
-```
-
-## Gateway APIs
+Expose a focusable app surface:
 
 ```ts
-const gateway = new BridgeGateway({ port: 8787, authToken: "secret" });
-gateway.start();
-gateway.listTools();
-await gateway.callTool("com_example_app.expense_create", { amount: 10 }, {
-  agentId: "openai-responses",
-  idempotencyKey: "expense-create-123",
-  requestId: "provider-call-123"
+feature("expense").screen("detail", async (props) => {
+  navigation.navigate("ExpenseDetail", { id: props.id });
+  return { focused: true };
+}, {
+  props: { id: "string" }
 });
 ```
 
-## MCP
+## Field Maps
 
 ```ts
-const mcpServer = createMcpServer(gateway);
+{
+  title: "string",
+  amount: "number",
+  count: "integer",
+  approved: "boolean",
+  category: ["Meals", "Travel", "Office"],
+  tags: ["string"]
+}
 ```
 
-## HTTP
+Full JSON Schema and lower-level `schema.*` helpers are still available for advanced shapes.
 
-```ts
-const app = createHttpApp(gateway);
-```
+## Advanced Packages
+
+- `@mobigent/core`: shared protocol, manifests, schemas, and validation.
+- `@mobigent/gateway`: lower-level gateway, HTTP/OpenAPI server, and MCP stdio server.
+- `@mobigent/providers`: provider setup helpers and runtime adapters.
+

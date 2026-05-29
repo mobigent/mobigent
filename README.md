@@ -49,7 +49,7 @@ Create a Mobigent starter from the public GitHub release:
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.5/create-mobigent-app-0.1.5.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.6/create-mobigent-app-0.1.6.tgz \
   -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev
@@ -79,13 +79,13 @@ That first run is the whole idea: agents do not tap screens or guess UI. Your ap
 For an existing React Native app, install the app SDK:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.5/mobigent-react-native-0.1.5.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.6/mobigent-react-native-0.1.6.tgz
 ```
 
 For a backend/server app, install the backend package:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.5/mobigent-backend-0.1.5.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.6/mobigent-backend-0.1.6.tgz
 ```
 
 ## Install Packages
@@ -95,7 +95,7 @@ Until npmjs.com publishing is connected with an `NPM_TOKEN`, packages are publis
 Install directly from the public release tarball:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.5/mobigent-react-native-0.1.5.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.6/mobigent-react-native-0.1.6.tgz
 ```
 
 Or install from npmjs after npm publishing is connected:
@@ -145,7 +145,7 @@ export default function App() {
 }
 ```
 
-Mobigent handles namespacing, schemas, validation, confirmation, connection lifecycle, gateway communication, and event queueing.
+Mobigent handles namespacing, schemas, validation, confirmation, connection lifecycle, backend communication, and event queueing.
 
 ## Add It To A Backend
 
@@ -198,7 +198,7 @@ npm run dev:mcp
 - `packages/ios`: native Swift Package for iOS apps
 - `packages/android`: native Kotlin/Android SDK
 - `@mobigent/backend`: one-function backend for agent HTTP, OpenAPI, inspector, routing, and app connections
-- `@mobigent/gateway`: local gateway, HTTP API, OpenAPI, and MCP bridge
+- `@mobigent/gateway`: lower-level gateway package for custom hosting, HTTP/OpenAPI, and MCP
 - `@mobigent/providers`: provider setup helpers for agent runtimes
 
 ## Examples
@@ -228,7 +228,7 @@ npm run dev:mcp
 
 ## Developer Workflow Highlights
 
-- Open `http://localhost:8788/inspect` to see apps, tools, metrics, audit events, and gateway snapshot data.
+- Open `http://localhost:8788/inspect` to see apps, tools, metrics, audit events, and backend snapshot data.
 - Run `npx mobigent-init --security-doctor ...` before exposing a hosted gateway.
 - Use `fromZod()` or `fromTypeBox()` when you already have schemas.
 - Run `npx mobigent-init --platform-actions json ...` to generate iOS App Intents and Android App Actions bridge plans.

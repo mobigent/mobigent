@@ -96,14 +96,14 @@ These outputs are bridge plans, not magic app-store configuration. Review them, 
 Tagged releases attach public package tarballs to GitHub Releases:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.5/mobigent-react-native-0.1.5.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.6/mobigent-react-native-0.1.6.tgz
 ```
 
 Use the starter tarball for the easiest first run:
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.5/create-mobigent-app-0.1.5.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.6/create-mobigent-app-0.1.6.tgz \
   -- create-mobigent-app my-demo --install
 ```
 
