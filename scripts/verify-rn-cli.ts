@@ -46,6 +46,7 @@ try {
   assert.match(rootFile, /MobigentRoot/);
   assert.match(rootFile, /@mobigent\/react-native/);
   assert.match(rootFile, /setupMobigent/);
+  assert.match(rootFile, /withMobigentApp/);
   assert.match(rootFile, /features: \[taskFeature\]/);
   assert.match(rootFile, /ConfirmationComponent: MobigentAgentApproval/);
   assert.match(await readFile(join(dir, "mobigent-confirmation.tsx"), "utf8"), /useMobigentConfirmation/);

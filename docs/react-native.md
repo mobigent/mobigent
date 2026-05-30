@@ -44,19 +44,14 @@ Agent-facing transports still receive stable full tool names, but app and backen
 ## 3. Wrap The App
 
 ```tsx
-import { setupMobigent } from "@mobigent/react-native";
+import { withMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
+import App from "./App";
 
-const { Root } = setupMobigent(expenses);
-
-export default function App() {
-  return (
-    <Root>
-      <YourExistingApp />
-    </Root>
-  );
-}
+export default withMobigent(App, expenses);
 ```
+
+If you prefer an explicit provider component, `setupMobigent(expenses)` still returns `{ Root }`.
 
 That is enough for a local first run. The generated wrapper imports `src/mobigent-config.ts`. If your backend was started with `appDir`, Mobigent keeps that file updated for you, and the app initializer preserves it when you scaffold features later.
 

@@ -72,19 +72,14 @@ com_example_app.expense_create
 ## Wrap Your Existing App
 
 ```tsx
-import { setupMobigent } from "@mobigent/react-native";
+import { withMobigent } from "@mobigent/react-native";
 import { expenses } from "./src/mobigent/expenses";
+import App from "./App";
 
-const { Root } = setupMobigent(expenses);
-
-export default function App() {
-  return (
-    <Root>
-      <YourExistingApp />
-    </Root>
-  );
-}
+export default withMobigent(App, expenses);
 ```
+
+If you prefer an explicit provider component, `setupMobigent(expenses)` still returns `{ Root }`.
 
 Run a Mobigent backend from your server with `@mobigent/backend`, then open the inspector URL it prints. For the simplest setup, start the backend with `appDir: "../mobile-app"` so it writes the same `src/mobigent-config.ts` file that this wrapper imports.
 

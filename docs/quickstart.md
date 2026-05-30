@@ -64,19 +64,14 @@ export const expenses = defineFeature("expense")
 Wrap your existing app once:
 
 ```tsx
-import { setupMobigent } from "@mobigent/react-native";
+import { withMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
+import App from "./App";
 
-const { Root } = setupMobigent(expenses);
-
-export default function App() {
-  return (
-    <Root>
-      <YourExistingApp />
-    </Root>
-  );
-}
+export default withMobigent(App, expenses);
 ```
+
+If you prefer an explicit provider component, `setupMobigent(expenses)` still returns `{ Root }`.
 
 That is enough for local development. Mobigent uses a safe starter app identity until you pass exact production values or import a backend-generated config.
 

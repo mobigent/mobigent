@@ -24,11 +24,15 @@ export {
 } from "./confirmation.js";
 export {
   createMobigentRoot,
+  createMobigentWrapper,
   createSimpleMobigentApp,
   mobigentApp,
   setupMobigent,
+  withMobigent,
+  wrapMobigent,
   type MobigentSimpleAppInput,
-  type MobigentSimpleAppOptions
+  type MobigentSimpleAppOptions,
+  type MobigentWithAppOptions
 } from "./setup.js";
 export {
   agentFeature,

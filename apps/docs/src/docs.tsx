@@ -69,14 +69,11 @@ export const expenses = feature("expense")
     confirm: true
   });`;
 
-const appCode = `import { mobigentApp } from "@mobigent/react-native";
+const appCode = `import { withMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expense";
+import App from "./App";
 
-const { Root } = mobigentApp(expenses);
-
-export default function App() {
-  return <Root><YourApp /></Root>;
-}`;
+export default withMobigent(App, expenses);`;
 
 const gatewayCode = `npx mobigent-http
 
@@ -323,7 +320,8 @@ const packages = [
 const reactNativeApis = [
   ["feature()", "Creates a small feature surface with read, write, and screen helpers."],
   ["defineMobigentConfig()", "Keeps copied app config typed and portable."],
-  ["mobigentApp()", "Wraps the existing React Native app once and connects features."],
+  ["withMobigent()", "Wraps the existing React Native app in one normal function call."],
+  ["mobigentApp()", "Returns an explicit Root provider when you prefer JSX wrapping."],
   ["connectMobigent()", "Consumes backend app config, registers features, and connects a non-React host in one call."],
   ["emitMobigentEvent()", "Queues or sends app events without touching the lower-level client."],
   ["registerFeatures()", "Attaches features manually when you need custom lifecycle control."],

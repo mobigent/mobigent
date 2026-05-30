@@ -2063,6 +2063,7 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   assert.match(rootFile.contents, /@mobigent\/react-native/);
   assert.match(rootFile.contents, /config: mobigentConfig/);
   assert.match(rootFile.contents, /features: \[expenseFeature\]/);
+  assert.match(rootFile.contents, /withMobigentApp/);
   assert.doesNotMatch(rootFile.contents, /createMobigentEnvironmentFromEnv/);
   assert.doesNotMatch(rootFile.contents, /createMobigentCapabilityRegistry/);
   assert.match(rootFile.contents, /MobigentRootProps/);

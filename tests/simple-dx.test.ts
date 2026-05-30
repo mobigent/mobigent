@@ -19,6 +19,7 @@ import {
   mobigent,
   setupMobigent,
   simpleSchema,
+  withMobigent,
   type MobigentSocketFactory
 } from "@mobigent/react-native";
 
@@ -67,6 +68,18 @@ test("app setup accepts features directly for the shortest React Native path", (
   const app = setupMobigent(expenses);
 
   assert.deepEqual(app.options.capabilities, [expenses]);
+});
+
+test("withMobigent wraps an existing React Native app with one normal function call", () => {
+  const expenses = feature("expense").write("create", async () => ({ ok: true }));
+  function ExistingApp() {
+    return null;
+  }
+
+  const WrappedApp = withMobigent(ExistingApp, expenses);
+
+  assert.equal(typeof WrappedApp, "function");
+  assert.equal(WrappedApp.displayName, "withMobigent(ExistingApp)");
 });
 
 test("simple event helper hides the low-level singleton from app feature files", () => {

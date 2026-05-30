@@ -171,19 +171,14 @@ export const expenses = defineFeature("expense")
 Wrap the app once:
 
 ```tsx
-import { setupMobigent } from "@mobigent/react-native";
+import { withMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
+import App from "./App";
 
-const { Root } = setupMobigent(expenses);
-
-export default function App() {
-  return (
-    <Root>
-      <YourExistingApp />
-    </Root>
-  );
-}
+export default withMobigent(App, expenses);
 ```
+
+Prefer provider-style JSX? `setupMobigent(expenses)` still returns `{ Root }`.
 
 Mobigent handles namespacing, schemas, validation, confirmation, connection lifecycle, backend communication, and event queueing.
 
@@ -310,7 +305,7 @@ npm run dev:mcp
 
 Most apps start with two packages:
 
-- `@mobigent/react-native`: app SDK for declaring app functions with `defineFeature()` and `setupMobigent()`
+- `@mobigent/react-native`: app SDK for declaring app functions with `defineFeature()` and wrapping apps with `withMobigent()`
 - `@mobigent/backend`: backend SDK for `startMobigent()`, tool routing, inspector, agent HTTP, and app connections
 
 Useful extras:

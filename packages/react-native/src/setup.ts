@@ -1,4 +1,5 @@
-import { createAgentApp, type AgentAppFactoryOptions } from "./ui.js";
+import { createElement, type ComponentType } from "react";
+import { createAgentApp, type AgentAppFactoryOptions, type AgentAppRootProps } from "./ui.js";
 import type { MobigentSimpleAppConfig, MobigentSimpleFeature } from "./simple.js";
 
 export type MobigentSimpleAppOptions = Omit<AgentAppFactoryOptions, "capabilities" | "modules"> & {
@@ -9,6 +10,10 @@ export type MobigentSimpleAppOptions = Omit<AgentAppFactoryOptions, "capabilitie
 };
 
 export type MobigentSimpleAppInput = MobigentSimpleAppOptions | MobigentSimpleFeature | MobigentSimpleFeature[];
+
+export type MobigentWithAppOptions = MobigentSimpleAppOptions & {
+  rootProps?: Omit<AgentAppRootProps, "children">;
+};
 
 export function mobigentApp(input: MobigentSimpleAppInput) {
   const options = isMobigentFeatureInput(input) ? { features: input } : input;
@@ -34,6 +39,55 @@ export const createMobigentRoot = mobigentApp;
 export const createSimpleMobigentApp = mobigentApp;
 export const setupMobigent = mobigentApp;
 
+export function withMobigent<P extends object>(
+  App: ComponentType<P>,
+  input: MobigentSimpleAppInput,
+  rootProps?: Omit<AgentAppRootProps, "children">
+): ComponentType<P>;
+export function withMobigent<P extends object>(App: ComponentType<P>, options: MobigentWithAppOptions): ComponentType<P>;
+export function withMobigent<P extends object>(
+  App: ComponentType<P>,
+  input: MobigentSimpleAppInput | MobigentWithAppOptions,
+  rootProps?: Omit<AgentAppRootProps, "children">
+): ComponentType<P> {
+  const { Root, rootProps: resolvedRootProps } = createMobigentWrapper(input, rootProps);
+
+  function MobigentWrappedApp(props: P) {
+    return createElement(Root, {
+      ...resolvedRootProps,
+      children: createElement(App, props)
+    });
+  }
+
+  MobigentWrappedApp.displayName = `withMobigent(${App.displayName ?? App.name ?? "App"})`;
+
+  return MobigentWrappedApp;
+}
+
+export function createMobigentWrapper(
+  input: MobigentSimpleAppInput | MobigentWithAppOptions,
+  rootProps?: Omit<AgentAppRootProps, "children">
+) {
+  if (isMobigentWithAppOptions(input)) {
+    const { rootProps: inputRootProps, ...options } = input;
+    const { Root } = mobigentApp(options);
+
+    return {
+      Root,
+      rootProps: inputRootProps ?? rootProps
+    };
+  }
+
+  const { Root } = mobigentApp(input);
+
+  return {
+    Root,
+    rootProps
+  };
+}
+
+export const wrapMobigent = withMobigent;
+
 function isMobigentFeatureInput(value: MobigentSimpleAppInput): value is MobigentSimpleFeature | MobigentSimpleFeature[] {
   if (Array.isArray(value)) {
     return value.every(isMobigentFeature);
@@ -51,6 +105,10 @@ function isMobigentFeature(value: MobigentSimpleAppInput | MobigentSimpleFeature
       "resources" in value &&
       "components" in value
   );
+}
+
+function isMobigentWithAppOptions(value: MobigentSimpleAppInput | MobigentWithAppOptions): value is MobigentWithAppOptions {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value) && "rootProps" in value);
 }
 
 function toArray<T>(value: T | T[] | undefined): T[] {

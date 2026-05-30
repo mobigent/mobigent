@@ -24,10 +24,11 @@ export const expenses = defineFeature("expense")
 ```
 
 ```tsx
-import { setupMobigent } from "@mobigent/react-native";
+import { withMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
+import App from "./App";
 
-const { Root } = setupMobigent(expenses);
+export default withMobigent(App, expenses);
 ```
 
 For non-React hosts, demos, and tests:
@@ -98,6 +99,7 @@ The returned object includes:
 - `read(name, handler)`: exposes app state.
 - `write(name, handler, options)`: exposes confirmed app behavior.
 - `screen(name, handler)`: lets an agent focus a screen or UI surface.
+- `withMobigent(App, feature)`: wraps an existing React Native app in one function call.
 - `setupMobigent(feature)`: wraps a React Native app once.
 - `setupMobigent({ config, features })`: production form when you need exact app config.
 - `connectMobigent(feature, options)`: configures, registers features, and connects in one call.

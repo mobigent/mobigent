@@ -807,7 +807,7 @@ function createMobigentRootFile(options: ReactNativeInitCliOptions) {
     ? ",\n  ConfirmationComponent: MobigentAgentApproval"
     : "";
 
-return `import type { ReactNode } from "react";
+return `import type { ComponentType, ReactNode } from "react";
 import { setupMobigent, type MobigentAppRootProps } from "@mobigent/react-native";
 import { ${options.feature}Feature } from "./mobigent-features/${options.feature}";
 import { mobigentConfig } from "./mobigent-config";
@@ -826,6 +826,19 @@ export type MobigentRootProps = Omit<MobigentAppRootProps, "children"> & {
 
 export function MobigentRoot(props: MobigentRootProps) {
   return <Root {...props} />;
+}
+
+export function withMobigentApp<P extends object>(App: ComponentType<P>) {
+  function MobigentWrappedApp(props: P) {
+    return (
+      <MobigentRoot>
+        <App {...props} />
+      </MobigentRoot>
+    );
+  }
+
+  MobigentWrappedApp.displayName = \`withMobigentApp(\${App.displayName ?? App.name ?? "App"})\`;
+  return MobigentWrappedApp;
 }
 `;
 }
@@ -839,7 +852,7 @@ function createMobigentExpoRootFile(options: ReactNativeInitCliOptions) {
     ? ",\n  ConfirmationComponent: MobigentAgentApproval"
     : "";
 
-return `import type { ReactNode } from "react";
+return `import type { ComponentType, ReactNode } from "react";
 import { setupMobigent, type MobigentAppRootProps } from "@mobigent/react-native";
 import { ${options.feature}Feature } from "./mobigent-features/${options.feature}";
 import { mobigentConfig } from "./mobigent-config";
@@ -858,6 +871,19 @@ export type MobigentRootProps = Omit<MobigentAppRootProps, "children"> & {
 
 export function MobigentRoot(props: MobigentRootProps) {
   return <Root {...props} />;
+}
+
+export function withMobigentApp<P extends object>(App: ComponentType<P>) {
+  function MobigentWrappedApp(props: P) {
+    return (
+      <MobigentRoot>
+        <App {...props} />
+      </MobigentRoot>
+    );
+  }
+
+  MobigentWrappedApp.displayName = \`withMobigentApp(\${App.displayName ?? App.name ?? "App"})\`;
+  return MobigentWrappedApp;
 }
 `;
 }
