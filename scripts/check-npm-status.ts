@@ -9,7 +9,8 @@ const packages = [
   "@mobigent/backend",
   "@mobigent/providers",
   "@mobigent/react-native",
-  "create-mobigent-app"
+  "create-mobigent-app",
+  "mobigent"
 ];
 
 let missing = 0;
@@ -33,4 +34,3 @@ if (missing > 0) {
   console.log("See docs/npm-publishing.md to enable token or Trusted Publishing releases.");
   process.exitCode = 1;
 }
-

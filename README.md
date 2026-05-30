@@ -25,6 +25,14 @@ Mobigent has two normal packages:
 - **App package**: `@mobigent/react-native` lives inside the mobile app and exposes app functions.
 - **Backend package**: `@mobigent/backend` runs the agent-facing API, OpenAPI, inspector, and app connection layer.
 
+There is also a tiny **CLI package**: `mobigent`. It gives developers one command to remember:
+
+```bash
+npx mobigent init --feature expense --out-dir src
+npx mobigent backend --app-dir ../mobile-app
+npx mobigent agent chatgpt --base-url https://your-backend.example
+```
+
 The app developer should only think:
 
 ```txt
@@ -101,7 +109,7 @@ After npmjs publishing is connected, the normal backend setup is:
 
 ```bash
 npm install @mobigent/backend
-npx mobigent-backend init --app-dir ../mobile-app
+npx mobigent backend --app-dir ../mobile-app
 ```
 
 From the backend, point Mobigent at the app folder and let the SDK write the tiny app config files:
@@ -135,6 +143,7 @@ Or install from npmjs after npm publishing is connected:
 ```bash
 npm install @mobigent/react-native
 npm install @mobigent/backend
+npm install -D mobigent
 ```
 
 Maintainer note: npmjs publishing is tracked in [docs/npm-publishing.md](./docs/npm-publishing.md). The release workflow supports either `NPM_TOKEN` or npm Trusted Publishing through GitHub Actions OIDC.
@@ -206,7 +215,7 @@ Create the backend entrypoint and app config:
 
 ```bash
 npm install @mobigent/backend
-npx mobigent-backend init --app-dir ../mobile-app
+npx mobigent backend --app-dir ../mobile-app
 ```
 
 Mobigent infers starter app identity from the app project when `--app-dir` is present. Pass `--app-id` and `--app-name` only when you want exact production values.
@@ -310,6 +319,7 @@ Most apps start with two packages:
 
 Useful extras:
 
+- `mobigent`: one friendly CLI for creating starters, adding app features, backend setup, and agent setup
 - `create-mobigent-app`: one-command starter app with backend, inspector, visible app, and agent playground
 - `packages/ios`: native Swift Package for iOS apps
 - `packages/android`: native Kotlin/Android SDK

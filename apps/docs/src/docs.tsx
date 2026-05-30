@@ -19,7 +19,7 @@ import "./styles.css";
 const quickstart = `# backend
 cd backend
 npm install @mobigent/backend
-npx mobigent-backend init
+npx mobigent backend
 
 # app
 cd ../mobile-app
@@ -105,7 +105,7 @@ await mobigent.call("expense.create", {
 await mobigent.call("expense.list");`;
 
 const backendInitCode = `npm install @mobigent/backend
-npx mobigent-backend init --app-dir ../mobile-app`;
+npx mobigent backend --app-dir ../mobile-app`;
 
 const securityDoctorCode = `npx mobigent security-doctor \\
   --app-id com.example.app \\
@@ -307,6 +307,7 @@ const capabilities = [
 ];
 
 const packages = [
+  ["mobigent", "Friendly CLI", "One command for starters, app feature setup, backend setup, and agent setup."],
   ["create-mobigent-app", "Starter generator", "Creates a runnable app with backend, inspector, visible state, and an agent playground."],
   ["@mobigent/react-native", "App-side SDK", "Expo/React Native roots, modules, hooks, UI helpers, confirmation flow."],
   ["@mobigent/backend", "Backend SDK", "One function starts the backend, exposes agent setup, waits for app readiness, and routes calls."],

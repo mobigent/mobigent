@@ -47,6 +47,11 @@ const packages: PackageExpectation[] = [
     path: "packages/create-app",
     requiredFiles: ["README.md", "package.json", "dist/index.js", "dist/index.d.ts", "dist/cli.js", "dist/cli.d.ts"],
     requiredBins: ["dist/cli.js"]
+  },
+  {
+    path: "packages/cli",
+    requiredFiles: ["README.md", "package.json", "dist/index.js", "dist/index.d.ts", "dist/cli.js", "dist/cli.d.ts"],
+    requiredBins: ["dist/cli.js"]
   }
 ];
 

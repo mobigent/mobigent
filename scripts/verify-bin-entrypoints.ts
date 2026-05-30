@@ -14,7 +14,7 @@ try {
   await linkBin("mobigent-backend", "packages/backend/dist/cli.js");
   await linkBin("mobigent-mcp", "packages/backend/dist/mcp.js");
   await linkBin("mobigent-provider", "packages/providers/dist/cli.js");
-  await linkBin("mobigent", "packages/react-native/dist/cli.js");
+  await linkBin("mobigent", "packages/cli/dist/cli.js");
   await linkBin("mobigent-init", "packages/react-native/dist/cli.js");
 
   const createApp = await run(join(binDir, "create-mobigent-app"), ["--help"]);
@@ -42,6 +42,8 @@ try {
 
   const mobigent = await run(join(binDir, "mobigent"), ["init", "--help"]);
   assert.match(mobigent, /mobigent init/);
+  assert.match(await run(join(binDir, "mobigent"), ["backend", "--help"]), /mobigent-backend/);
+  assert.match(await run(join(binDir, "mobigent"), ["new", "--help"]), /create-mobigent-app/);
 
   console.log("Mobigent bin entrypoint smoke check passed.");
 } finally {

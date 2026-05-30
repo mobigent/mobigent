@@ -4,6 +4,7 @@ Mobigent is designed to be installed like normal npm packages:
 
 ```bash
 npm create mobigent-app@latest my-demo
+npm install -D mobigent
 npm install @mobigent/react-native
 npm install @mobigent/backend
 ```
@@ -24,13 +25,14 @@ npm exec --yes \
 - `@mobigent/providers`
 - `@mobigent/react-native`
 - `create-mobigent-app`
+- `mobigent`
 
 ## Option A: Token Publishing
 
 Use this for the first public publish, because npm Trusted Publishing can only be configured after each package exists on npmjs.com.
 
 1. Create or join the `@mobigent` npm organization.
-2. Create an npm automation token with publish access for the six packages.
+2. Create an npm automation token with publish access for the seven packages.
 3. Add that token as the GitHub secret `NPM_TOKEN`.
 4. Push the next SemVer tag.
 
@@ -58,6 +60,7 @@ npm trust github @mobigent/backend --repo mobigent/mobigent --file release.yml -
 npm trust github @mobigent/providers --repo mobigent/mobigent --file release.yml --allow-publish
 npm trust github @mobigent/react-native --repo mobigent/mobigent --file release.yml --allow-publish
 npm trust github create-mobigent-app --repo mobigent/mobigent --file release.yml --allow-publish
+npm trust github mobigent --repo mobigent/mobigent --file release.yml --allow-publish
 ```
 
 Then set the GitHub repository variable:
@@ -92,6 +95,7 @@ npm run npm:status
 npm view @mobigent/react-native version
 npm view @mobigent/backend version
 npm view create-mobigent-app version
+npm view mobigent version
 ```
 
 Then test the real npm path:

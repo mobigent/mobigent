@@ -4,7 +4,7 @@ Run Mobigent from normal Node code.
 
 ```bash
 npm install @mobigent/backend
-npx mobigent-backend init --app-dir ../mobile-app
+npx mobigent backend --app-dir ../mobile-app
 ```
 
 That creates `src/mobigent.ts`, `.env.mobigent`, and `mobigent.app.json`.
@@ -61,7 +61,7 @@ console.log(mobigent.agent("openai").runtimeEnv);
 For local MCP agents, this package ships the `mobigent-mcp` command too. That means a backend install is enough:
 
 ```bash
-npx mobigent-backend agent claude
+npx mobigent agent claude
 ```
 
 ## App Config

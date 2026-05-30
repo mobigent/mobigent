@@ -93,7 +93,7 @@ jobs:
           npm publish --workspace @mobigent/backend --registry=https://npm.pkg.github.com
           npm publish --workspace @mobigent/react-native --registry=https://npm.pkg.github.com
           npm publish --workspace @mobigent/gateway --registry=https://npm.pkg.github.com
-          echo "Skipping create-mobigent-app for GitHub Packages because npm packages there must be scoped."
+          echo "Skipping create-mobigent-app and mobigent for GitHub Packages because npm packages there must be scoped."
 
   github-release:
     needs: [validate-ios, validate-android]
@@ -115,6 +115,7 @@ jobs:
           npm pack --workspace @mobigent/react-native --pack-destination release-artifacts
           npm pack --workspace @mobigent/gateway --pack-destination release-artifacts
           npm pack --workspace create-mobigent-app --pack-destination release-artifacts
+          npm pack --workspace mobigent --pack-destination release-artifacts
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

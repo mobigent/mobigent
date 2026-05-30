@@ -94,7 +94,7 @@ Generate the backend entrypoint and app config:
 
 ```bash
 npm install @mobigent/backend
-npx mobigent-backend init --app-dir ../mobile-app
+npx mobigent backend --app-dir ../mobile-app
 ```
 
 Mobigent infers starter app identity from the app project when `--app-dir` is present. Pass `--app-id` and `--app-name` only when you want exact production values.

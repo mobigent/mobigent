@@ -28,7 +28,6 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "mobigent": "./dist/cli.js",
     "mobigent-init": "./dist/cli.js",
     "mobigent-expo-init": "./dist/cli.js",
     "mobigent-rn-init": "./dist/cli.js"

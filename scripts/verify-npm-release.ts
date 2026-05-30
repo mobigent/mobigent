@@ -22,7 +22,8 @@ const publicPackages = [
   { name: "@mobigent/gateway", path: "packages/gateway/package.json", internalDependencies: ["@mobigent/core", "@mobigent/providers"] },
   { name: "@mobigent/backend", path: "packages/backend/package.json", internalDependencies: ["@mobigent/core", "@mobigent/gateway", "@mobigent/providers"] },
   { name: "@mobigent/react-native", path: "packages/react-native/package.json", internalDependencies: ["@mobigent/core"] },
-  { name: "create-mobigent-app", path: "packages/create-app/package.json", internalDependencies: [] }
+  { name: "create-mobigent-app", path: "packages/create-app/package.json", internalDependencies: [] },
+  { name: "mobigent", path: "packages/cli/package.json", internalDependencies: ["@mobigent/backend", "@mobigent/react-native", "create-mobigent-app"] }
 ];
 
 const rootPackage = await readJson<PackageJson>("package.json");
@@ -58,8 +59,9 @@ for (const item of publicPackages) {
 
 assert.ok(packageJsons.get("@mobigent/backend")?.bin?.["mobigent-backend"], "@mobigent/backend must ship mobigent-backend bin.");
 assert.ok(packageJsons.get("@mobigent/backend")?.bin?.["mobigent-mcp"], "@mobigent/backend must ship mobigent-mcp bin.");
-assert.ok(packageJsons.get("@mobigent/react-native")?.bin?.mobigent, "@mobigent/react-native must ship mobigent bin.");
+assert.ok(packageJsons.get("@mobigent/react-native")?.bin?.["mobigent-init"], "@mobigent/react-native must ship mobigent-init bin.");
 assert.ok(packageJsons.get("create-mobigent-app")?.bin?.["create-mobigent-app"], "create-mobigent-app must ship create-mobigent-app bin.");
+assert.ok(packageJsons.get("mobigent")?.bin?.mobigent, "mobigent must ship the friendly mobigent bin.");
 
 const releaseWorkflow = await readFile(".github/workflows/release.yml", "utf8");
 assert.match(releaseWorkflow, /tags:\s*\n\s+- "v\*\.\*\.\*"/, "release workflow must run on SemVer tags.");

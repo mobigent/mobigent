@@ -1,0 +1,65 @@
+{
+  "name": "mobigent",
+  "version": "0.1.12",
+  "description": "One friendly Mobigent CLI for creating apps, adding app features, starting backend setup, and printing agent setup.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mobigent/mobigent",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/mobigent/mobigent/issues"
+  },
+  "homepage": "https://mobigent.github.io/mobigent/",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "package.json"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "mobigent": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./cli": {
+      "types": "./dist/cli.d.ts",
+      "import": "./dist/cli.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && chmod +x dist/cli.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepublishOnly": "npm run build && npm run typecheck"
+  },
+  "dependencies": {
+    "@mobigent/backend": "0.1.12",
+    "@mobigent/react-native": "0.1.12",
+    "create-mobigent-app": "0.1.12"
+  },
+  "peerDependencies": {
+    "react": "^19.2.6",
+    "react-native": "^0.85.3"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-native": {
+      "optional": true
+    }
+  }
+}
