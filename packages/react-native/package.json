@@ -84,5 +84,13 @@
   "peerDependencies": {
     "react": "^19.2.6",
     "react-native": "^0.85.3"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-native": {
+      "optional": true
+    }
   }
 }

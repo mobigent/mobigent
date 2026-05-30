@@ -1,14 +1,11 @@
 import type { JsonObject, JsonSchema } from "@mobigent/core";
-import {
-  defineMobigentCapabilities,
-  type MobigentActionHandler,
-  type MobigentActionRegistration,
-  type MobigentCapabilityKit,
-  type MobigentComponentFocusHandler,
-  type MobigentComponentRegistration,
-  type MobigentRegistrationOptions,
-  type MobigentResourceReader,
-  type MobigentResourceRegistration
+import type {
+  MobigentActionHandler,
+  MobigentActionRegistration,
+  MobigentComponentFocusHandler,
+  MobigentComponentRegistration,
+  MobigentResourceReader,
+  MobigentResourceRegistration
 } from "./provider.js";
 import type {
   MobigentEventQueueOptions,
@@ -18,9 +15,13 @@ import type {
 } from "./AgentBridge.js";
 import { mobigent } from "./AgentBridge.js";
 import { createMobigentGatewayUrl } from "./gatewayUrl.js";
-import { defaultMobigentAppIdentity } from "./provider.js";
 import { schema } from "./schema.js";
 import type { MobigentSocketFactory } from "./transport.js";
+
+const defaultMobigentSimpleAppIdentity = {
+  id: "app.mobigent.local",
+  name: "Mobigent App"
+};
 
 export type MobigentSimpleField =
   | "string"
@@ -58,7 +59,13 @@ export type MobigentSimpleComponentOptions = {
   props?: MobigentSimpleSchema;
 };
 
-export type MobigentSimpleFeature = MobigentCapabilityKit & {
+export type MobigentSimpleCapabilities = {
+  actions: MobigentActionRegistration[];
+  resources: MobigentResourceRegistration[];
+  components: MobigentComponentRegistration[];
+};
+
+export type MobigentSimpleFeature = MobigentSimpleCapabilities & {
   readonly namespace: string;
   action(name: string, handler: MobigentActionHandler, options?: MobigentSimpleActionOptions): MobigentSimpleFeature;
   write(name: string, handler: MobigentActionHandler, options?: MobigentSimpleActionOptions): MobigentSimpleFeature;
@@ -69,7 +76,7 @@ export type MobigentSimpleFeature = MobigentCapabilityKit & {
     focus: MobigentComponentFocusHandler,
     options?: MobigentSimpleComponentOptions
   ): MobigentSimpleFeature;
-  capabilities(): MobigentCapabilityKit;
+  capabilities(): MobigentSimpleCapabilities;
 };
 
 export type MobigentSimpleClient = {
@@ -178,13 +185,7 @@ export function feature(namespace: string): MobigentSimpleFeature {
       return api;
     },
     capabilities() {
-      return defineMobigentCapabilities({ actions, resources, components });
-    },
-    useRegister(options: MobigentRegistrationOptions = {}) {
-      return api.capabilities().useRegister(options);
-    },
-    Component(props: MobigentRegistrationOptions = {}) {
-      return api.capabilities().Component(props);
+      return { actions, resources, components };
     }
   };
 
@@ -370,15 +371,15 @@ function resolveConnectionOptions(
   if (!("config" in options)) {
     return {
       ...options,
-      appId: options.appId ?? defaultMobigentAppIdentity.id,
-      appName: options.appName ?? defaultMobigentAppIdentity.name,
+      appId: options.appId ?? defaultMobigentSimpleAppIdentity.id,
+      appName: options.appName ?? defaultMobigentSimpleAppIdentity.name,
       gatewayUrl: options.gatewayUrl ?? options.connectionUrl ?? createMobigentGatewayUrl()
     };
   }
 
   const { config, ...rest } = options;
-  const appId = rest.appId ?? config.appId ?? defaultMobigentAppIdentity.id;
-  const appName = rest.appName ?? config.appName ?? defaultMobigentAppIdentity.name;
+  const appId = rest.appId ?? config.appId ?? defaultMobigentSimpleAppIdentity.id;
+  const appName = rest.appName ?? config.appName ?? defaultMobigentSimpleAppIdentity.name;
 
   return {
     ...rest,

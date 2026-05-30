@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -36,7 +36,9 @@ try {
   }
 
   await run("npm", ["init", "-y"], appDir, { createCwd: true });
-  await run("npm", ["install", "--ignore-scripts", "--legacy-peer-deps", "react@^19.2.6", ...tarballs], appDir);
+  await run("npm", ["install", "--ignore-scripts", ...tarballs], appDir);
+  await assertNotInstalled(appDir, "react");
+  await assertNotInstalled(appDir, "react-native");
 
   const smokeFile = join(appDir, "smoke.mjs");
   await writeFile(
@@ -106,4 +108,14 @@ async function run(command: string, args: string[], cwd: string, options: { crea
 
 async function mkdtempParent(path: string) {
   await mkdir(path, { recursive: true });
+}
+
+async function assertNotInstalled(appDir: string, packageName: string) {
+  try {
+    await stat(join(appDir, "node_modules", packageName));
+  } catch {
+    return;
+  }
+
+  throw new Error(`Packed Mobigent install should not auto-install optional peer ${packageName}.`);
 }

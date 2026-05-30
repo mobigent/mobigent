@@ -25,6 +25,7 @@ export {
   toSchema,
   type MobigentSimpleActionOptions,
   type MobigentSimpleAppConfig,
+  type MobigentSimpleCapabilities,
   type MobigentSimpleClient,
   type MobigentSimpleComponentOptions,
   type MobigentSimpleConfiguredConnectionOptions,
