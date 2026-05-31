@@ -66,6 +66,7 @@ const backendWithAppDirFile = backendWithAppDir.find((file) => file.path === "sr
 assert.match(backendWithAppDirFile, /appDir: "\.\.\/mobile-app"/);
 assert.match(backendWithAppDirFile, /mobigent\.appConfigPath/);
 assert.match(backendWithAppDirFile, /appConfigModuleFile: "src\/mobigent-config\.ts"/);
+assert.doesNotMatch(backendWithAppDirFile, /app: \{/);
 assert.ok(
   backendWithAppDir.some((file) => file.path === "../mobile-app/src/mobigent-config.ts"),
   "backend appDir flow should write the React Native config module too"
@@ -97,6 +98,19 @@ const starterCapabilities = createMobigentAppFiles({
   packageSource: "npm",
   packageVersion: "1.2.3"
 }).find((file) => file.path === "src/capabilities.ts")?.contents ?? "";
+const starterServer = createMobigentAppFiles({
+  targetDir: "demo",
+  appId: "com.example.app",
+  appName: "Example App",
+  gatewayPort: 8787,
+  httpPort: 8788,
+  appPort: 8790,
+  openBrowser: false,
+  force: false,
+  dryRun: true,
+  packageSource: "npm",
+  packageVersion: "1.2.3"
+}).find((file) => file.path === "src/server.ts")?.contents ?? "";
 
 assert.match(rnRoot, /setupMobigent/);
 assert.match(rnRoot, /config: mobigentConfig/);
@@ -109,5 +123,8 @@ assert.match(starterCapabilities, /emitMobigentEvent/);
 assert.match(starterCapabilities, /defineFeature\("expense", \{/);
 assert.match(starterCapabilities, /create: write\(/);
 assert.doesNotMatch(starterCapabilities, /import \{ defineFeature, mobigent \}/);
+assert.doesNotMatch(starterServer, /const gatewayPort|const httpPort|wsPort: 8787|httpPort: 8788/);
+assert.match(starterServer, /startMobigent\(\{/);
+assert.match(starterServer, /backend\.defaultApp/);
 
 console.log("Mobigent simple DX guardrails passed.");

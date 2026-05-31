@@ -264,7 +264,7 @@ These print copy-paste setup for Claude Desktop/MCP, generic OpenAPI agents, and
 
 - App playground: \`http://localhost:${options.appPort}\`
 - Mobigent inspector: \`http://localhost:${options.httpPort}/inspect\`
-- App connection: \`ws://localhost:${options.gatewayPort}\`
+- App connection is handled by \`@mobigent/backend\` and \`@mobigent/app\`.
 
 ## What To Edit
 
@@ -277,6 +277,11 @@ When you move this into a real mobile app, start by copying the shape from \`src
 }
 
 function createServerFile(options: CreateMobigentAppOptions) {
+  const portLines = [
+    options.gatewayPort === 8787 ? "" : `  wsPort: ${options.gatewayPort},\n`,
+    options.httpPort === 8788 ? "" : `  httpPort: ${options.httpPort},\n`
+  ].join("");
+
   return `import { spawn } from "node:child_process";
 import express from "express";
 import { startMobigent } from "@mobigent/backend";
@@ -286,15 +291,11 @@ import { createNodeSocket } from "./nodeSocket.js";
 
 let lastAgentRun: unknown;
 
-const gatewayPort = ${options.gatewayPort};
-const httpPort = ${options.httpPort};
 const appPort = ${options.appPort};
 const functionName = "expense.create";
 
 const backend = await startMobigent({
-  wsPort: gatewayPort,
-  httpPort,
-  app: {
+${portLines}  app: {
     id: ${JSON.stringify(options.appId)},
     name: ${JSON.stringify(options.appName)}
   }

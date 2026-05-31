@@ -179,12 +179,7 @@ From the backend, point Mobigent at the app folder and let the SDK write the tin
 
 ```ts
 const backend = await startMobigent({
-  appDir: "../mobile-app",
-  appToken: "dev-token",
-  app: {
-    id: "com.example.app",
-    name: "Example App"
-  }
+  appDir: "../mobile-app"
 });
 
 console.log(backend.appConfigPath);
@@ -295,11 +290,7 @@ Or write it manually:
 import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent({
-  appDir: "../mobile-app",
-  app: {
-    id: "com.example.app",
-    name: "Example App"
-  }
+  appDir: "../mobile-app"
 });
 
 console.log(mobigent.urls.inspector);

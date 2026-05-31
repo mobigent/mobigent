@@ -326,7 +326,7 @@ function defaultOptions(): MobigentBackendInitOptions {
     appDir: undefined,
     appConfigModuleFile: undefined,
     connectionUrl: "ws://localhost:8787",
-    authToken: "dev-token",
+    authToken: "",
     force: false,
     dryRun: false
   };
@@ -359,15 +359,18 @@ function createBackendFile(options: MobigentBackendInitOptions) {
   const appConfigModuleLine = appConfigModuleFile
     ? `  appConfigModuleFile: ${JSON.stringify(appConfigModuleFile)},\n`
     : "";
+  const appLine = options.appDir
+    ? ""
+    : `  app: {
+    id: ${JSON.stringify(options.appId)},
+    name: ${JSON.stringify(options.appName)}
+  },
+`;
 
   return `import { startMobigent } from "@mobigent/backend";
 
 export const mobigent = await startMobigent({
-${appDirLine}${appConfigModuleLine}  app: {
-    id: ${JSON.stringify(options.appId)},
-    name: ${JSON.stringify(options.appName)}
-  },
-  appToken: process.env.MOBIGENT_AUTH_TOKEN,
+${appDirLine}${appConfigModuleLine}${appLine}  appToken: process.env.MOBIGENT_AUTH_TOKEN,
   apiKey: process.env.MOBIGENT_HTTP_API_KEY
 });
 
@@ -390,25 +393,27 @@ if (mobigent.appConfigModulePath) {
 
 function createEnvFile() {
   return `# Mobigent backend
-# Use the same token in your mobile app config when app auth is enabled.
-MOBIGENT_AUTH_TOKEN=dev-token
+# Local development works without app auth.
+# Uncomment this for shared or hosted environments, then put the same token in your app config.
+# MOBIGENT_AUTH_TOKEN=replace-me
 
 # Require this key before exposing the agent HTTP API publicly.
-MOBIGENT_HTTP_API_KEY=dev-agent-key
+# MOBIGENT_HTTP_API_KEY=replace-me
 `;
 }
 
 function createAppConfigFile(options: MobigentBackendInitOptions) {
-  return `${JSON.stringify(
-    {
-      appId: options.appId,
-      appName: options.appName,
-      connectionUrl: options.connectionUrl,
-      authToken: options.authToken
-    },
-    null,
-    2
-  )}\n`;
+  const config: Record<string, string> = {
+    appId: options.appId,
+    appName: options.appName,
+    connectionUrl: options.connectionUrl
+  };
+
+  if (options.authToken) {
+    config.authToken = options.authToken;
+  }
+
+  return `${JSON.stringify(config, null, 2)}\n`;
 }
 
 function createAppConfigModuleFile(options: MobigentBackendInitOptions) {
@@ -429,7 +434,7 @@ Then in your app:
 ${options.appDir ? `\nMobigent already wrote ${join(options.appDir, "mobigent.app.json")} and ${join(options.appDir, appConfigModuleFile ?? join("src", "mobigent-config.ts"))}, so the app wrapper can import the backend connection directly.\n` : "\nIf your app is beside this backend folder, the app initializer will auto-detect mobigent.app.json. For custom layouts, run: npx mobigent-init --feature expense --out-dir src --backend-dir ../server\n"}
 
 Run:
-  node --env-file=${options.envFile} --import tsx ${join(options.outDir, options.fileName)}
+  npx tsx ${join(options.outDir, options.fileName)}
 
 Then open:
   http://localhost:8788/inspect
@@ -463,7 +468,7 @@ Options:
   --app-config-module <path> React Native config module inside --app-dir. Default: src/mobigent-config.ts.
   --connection-url <url> App connection URL written to config. Default: ws://localhost:8787.
   --gateway-url <url> Backward-compatible alias for --connection-url.
-  --auth-token <token> App auth token written to config. Default: dev-token.
+  --auth-token <token> App auth token written to config. Default: no local app auth.
   --force             Overwrite generated files.
   --dry-run           Print generated files as JSON.
   agent <kind>        Print agent setup for chatgpt, claude, cursor, openai, openapi, or a provider id.

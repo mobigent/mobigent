@@ -53,11 +53,7 @@ connection.disconnect();
 import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent({
-  appDir: "../mobile-app",
-  app: {
-    id: "com.example.app",
-    name: "Example App"
-  }
+  appDir: "../mobile-app"
 });
 
 console.log(mobigent.urls.inspector);

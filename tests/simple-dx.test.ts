@@ -425,7 +425,7 @@ test("backend init helper creates a simple server entrypoint", () => {
   assert.match(files[0]?.contents ?? "", /export const appFunction = mobigent\.appFunction/);
   assert.match(files[0]?.contents ?? "", /export const appFunctions = mobigent\.appFunctions/);
   assert.doesNotMatch(files[0]?.contents ?? "", /copyAppConfig|Copy this/);
-  assert.match(files[1]?.contents ?? "", /MOBIGENT_AUTH_TOKEN/);
+  assert.match(files[1]?.contents ?? "", /# MOBIGENT_AUTH_TOKEN=replace-me/);
   assert.match(files[2]?.contents ?? "", /"connectionUrl": "ws:\/\/localhost:8787"/);
 });
 
@@ -455,6 +455,7 @@ test("backend init helper bakes appDir into generated backend code", () => {
   ]);
   assert.match(backendFile, /appDir: "\.\.\/mobile-app"/);
   assert.match(backendFile, /appConfigModuleFile: "src\/mobigent-config\.ts"/);
+  assert.doesNotMatch(backendFile, /app: \{/);
   assert.match(backendFile, /mobigent\.appConfigPath/);
   assert.match(backendFile, /mobigent\.appConfigModulePath/);
   assert.match(files.find((file) => file.path === "../mobile-app/src/mobigent-config.ts")?.contents ?? "", /defineMobigentConfig/);
@@ -484,6 +485,7 @@ test("backend init CLI infers app identity and prints the short app init command
     const config = JSON.parse(files.find((file) => file.path === "mobigent.app.json")?.contents ?? "{}");
     assert.equal(config.appId, "app.example.expense.hub");
     assert.equal(config.appName, "Expense Hub");
+    assert.equal("authToken" in config, false);
 
     const inferredAppDir = join(dir, "apps", "wallet-mobile");
     await mkdir(inferredAppDir, { recursive: true });
@@ -517,7 +519,9 @@ test("backend init CLI infers app identity and prints the short app init command
     );
     assert.equal(writeCode, 0, stderr);
     assert.match(stdout, /npx mobigent-init --feature expense --out-dir src/);
+    assert.match(stdout, /npx tsx src\/mobigent\.ts/);
     assert.doesNotMatch(stdout, /--config/);
+    assert.doesNotMatch(stdout, /--env-file/);
     assert.match(await readFile(join(dir, "mobigent.app.json"), "utf8"), /Expense App/);
 
     const appDir = join(dir, "mobile-app");
