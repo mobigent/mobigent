@@ -63,6 +63,11 @@ jobs:
           fi
       - run: npm ci
       - run: npm run verify
+      - name: Check npm publish readiness
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TRUSTED_PUBLISHING: ${{ vars.NPM_TRUSTED_PUBLISHING }}
+        run: npm run npm:publish-ready
       - name: Publish public packages
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -84,9 +84,19 @@ For local maintainer publishing after `npm login`:
 
 ```bash
 npm run verify
+npm run npm:publish-ready
 npm run npm:publish
 npm run npm:status
 ```
+
+`npm:publish-ready` explains the current npm state before you publish:
+
+- whether the machine is authenticated
+- whether the eight package names already exist
+- whether any existing package points at the wrong repository
+- whether Trusted Publishing can work yet
+
+For the very first publish, `npm:publish-ready` should show the packages as empty and auth as either `token present` or `logged in as ...`.
 
 ## Verify
 

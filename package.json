@@ -17,6 +17,7 @@
     "verify": "npm run typecheck && npm test && npm run simple-dx:smoke && npm run bin:smoke && npm run rn-cli:smoke && npm run create-app:smoke && npm run create-app:runtime && npm run pack:check && npm run packed-install:smoke && npm run npm:preflight && npm run docs:build",
     "pack:check": "tsx scripts/pack-check.ts",
     "npm:status": "tsx scripts/check-npm-status.ts",
+    "npm:publish-ready": "tsx scripts/check-npm-publish-readiness.ts",
     "npm:preflight": "tsx scripts/verify-npm-release.ts",
     "npm:publish": "tsx scripts/publish-npm.ts",
     "packed-install:smoke": "npm run build:sdk && tsx scripts/verify-packed-install.ts",
