@@ -92,30 +92,27 @@ const mobigent = await startMobigent({
 });
 await mobigent.waitForApp();
 
-console.log(mobigent.urls.inspector);
-console.log(mobigent.urls.openapi);
-console.log("App config:", mobigent.appConfigPath);
-
-const appConfig = mobigent.defaultApp;
-
-await mobigent.callApp("expense.create", {
-  merchant: "Airport Taxi",
-  amount: 42.25
+const app = mobigent.appFunctions({
+  createExpense: "expense.create",
+  listExpenses: "expense.list"
 });
 
-await mobigent.callApp("expense.list");`;
+await app.createExpense({ merchant: "Airport Taxi", amount: 42.25 });
+await app.listExpenses();
 
-const backendHelperCode = `import { callApp, waitForApp, appFunction } from "./mobigent";
+console.log(mobigent.urls.inspector);`;
+
+const backendHelperCode = `import { appFunctions, waitForApp } from "./mobigent";
 
 await waitForApp();
 
-await callApp("expense.create", {
-  merchant: "Airport Taxi",
-  amount: 42.25
+const app = appFunctions({
+  createExpense: "expense.create",
+  listExpenses: "expense.list"
 });
 
-const createExpense = appFunction("expense.create");
-await createExpense({ merchant: "Coffee", amount: 8 });`;
+await app.createExpense({ merchant: "Coffee", amount: 8 });
+await app.listExpenses();`;
 
 const backendInitCode = `npm install @mobigent/backend
 npx mobigent-backend --app-dir ../mobile-app`;
@@ -356,7 +353,8 @@ const nativeApis = [
 const backendApis = [
   ["startMobigent()", "Starts the backend service and writes app config when `appDir` is provided."],
   ["waitForApp()", "Waits until the app is connected and has exposed at least one function."],
-  ["callApp()", "Calls an app-owned function by the short name used in app code."],
+  ["appFunctions()", "Creates a small object of normal backend functions from app-owned function names."],
+  ["callApp()", "Makes a quick one-off app function call by name."],
   ["appFunction()", "Creates a reusable backend function wrapper for repeated calls."],
   ["agent()", "Prints setup for ChatGPT, Claude, OpenAPI, and supported providers after the app loop works."]
 ];

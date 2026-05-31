@@ -137,10 +137,14 @@ export type MobigentBackend = {
   call(toolName: string, input?: unknown, options?: ToolCallOptions): ReturnType<BridgeGateway["callTool"]>;
   invoke(name: string, input?: unknown, options?: ToolCallOptions): ReturnType<BridgeGateway["callTool"]>;
   appFunction(name: string): MobigentBackendFunction;
+  appFunctions<const T extends Record<string, string>>(functions: T): MobigentBackendFunctionMap<T>;
   fn(name: string): MobigentBackendFunction;
 };
 
 export type MobigentBackendFunction = (input?: unknown, options?: ToolCallOptions) => ReturnType<BridgeGateway["callTool"]>;
+export type MobigentBackendFunctionMap<T extends Record<string, string>> = {
+  [K in keyof T]: MobigentBackendFunction;
+};
 
 export type MobigentBackendWithApp = MobigentBackend & {
   defaultApp: MobigentBackendAppConfig;
@@ -221,6 +225,13 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
   const invoke = (name: string, input: unknown = {}, callOptions?: ToolCallOptions) =>
     gateway.callTool(resolveBackendToolName(gateway.listTools(), name, defaultApp), input as JsonObject, callOptions);
 
+  const appFunction = (name: string): MobigentBackendFunction =>
+    (input: unknown = {}, callOptions?: ToolCallOptions) => invoke(name, input, callOptions);
+  const appFunctions = <const T extends Record<string, string>>(functions: T): MobigentBackendFunctionMap<T> => {
+    const entries = Object.entries(functions).map(([alias, functionName]) => [alias, appFunction(functionName)]);
+    return Object.fromEntries(entries) as MobigentBackendFunctionMap<T>;
+  };
+
   return {
     gateway,
     httpServer,
@@ -257,8 +268,9 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     callApp: invoke,
     call: invoke,
     invoke,
-    appFunction: (name) => (input = {}, callOptions) => invoke(name, input, callOptions),
-    fn: (name) => (input = {}, callOptions) => invoke(name, input, callOptions)
+    appFunction,
+    appFunctions,
+    fn: appFunction
   };
 }
 

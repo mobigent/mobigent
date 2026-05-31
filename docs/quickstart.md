@@ -136,31 +136,36 @@ console.log(mobigent.appConfigPath);
 console.log(mobigent.appConfigModulePath);
 ```
 
-The generated backend entrypoint also exports app-shaped helpers:
+The generated backend entrypoint also exports app-shaped helpers. Make a normal backend object once:
 
 ```ts
-import { callApp, waitForApp, appFunction } from "./mobigent";
+import { appFunctions, waitForApp } from "./mobigent";
 
 await waitForApp();
-await callApp("expense.create", { merchant: "Airport Taxi", amount: 42.25 });
 
-const createExpense = appFunction("expense.create");
-await createExpense({ merchant: "Coffee", amount: 8 });
+const app = appFunctions({
+  createExpense: "expense.create",
+  listExpenses: "expense.list"
+});
+
+await app.createExpense({ merchant: "Coffee", amount: 8 });
+await app.listExpenses();
 ```
 
 With no options, Mobigent infers a starter app id and app name from your project. With `appDir`, it infers from the mobile app project and writes `mobigent.app.json` plus `src/mobigent-config.ts` there for you. Pass `app: { id, name }` only when you want exact production values.
 
 `mobigent.waitForApp()` waits until the app is connected and has exposed at least one function. If the app is not running yet, it tells you exactly what is missing.
 
-Call app-owned functions with the same short names you used in the app:
+Call app-owned functions through that backend object:
 
 ```ts
-await mobigent.callApp("expense.create", {
-  merchant: "Airport Taxi",
-  amount: 42.25
+const app = mobigent.appFunctions({
+  createExpense: "expense.create",
+  listExpenses: "expense.list"
 });
 
-await mobigent.callApp("expense.list");
+await app.createExpense({ merchant: "Airport Taxi", amount: 42.25 });
+await app.listExpenses();
 ```
 
 Need agent setup? Use the same backend object:

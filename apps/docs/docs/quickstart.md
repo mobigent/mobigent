@@ -120,14 +120,18 @@ With no options, Mobigent infers a starter app id and app name from your project
 
 `mobigent.waitForApp()` waits until the app is connected and has exposed at least one function.
 
-Generated backend files also export helper functions:
+Generated backend files also export helper functions. Make a normal backend object once:
 
 ```ts
-import { callApp, waitForApp, appFunction } from "./mobigent";
+import { appFunctions, waitForApp } from "./mobigent";
 
 await waitForApp();
-await callApp("expense.create", { merchant: "Airport Taxi", amount: 42.25 });
 
-const createExpense = appFunction("expense.create");
-await createExpense({ merchant: "Coffee", amount: 8 });
+const app = appFunctions({
+  createExpense: "expense.create",
+  listExpenses: "expense.list"
+});
+
+await app.createExpense({ merchant: "Coffee", amount: 8 });
+await app.listExpenses();
 ```

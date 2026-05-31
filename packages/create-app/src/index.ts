@@ -299,6 +299,9 @@ const backend = await startMobigent({
     name: ${JSON.stringify(options.appName)}
   }
 });
+const mobileApp = backend.appFunctions({
+  createExpense: "expense.create"
+});
 
 const app = express();
 app.use(express.json());
@@ -315,7 +318,7 @@ app.post("/agent/run", async (req, res) => {
   };
 
   try {
-    const response = await backend.callApp(functionName, input);
+    const response = await mobileApp.createExpense(input);
     lastAgentRun = { ...run, response };
     res.json(lastAgentRun);
   } catch (error) {
@@ -458,7 +461,7 @@ function renderPage() {
       <div class="panel step">
         <span>1</span>
         <h3>Agent calls a function</h3>
-        <p>The playground calls <code>backend.callApp("\${functionName}")</code>.</p>
+        <p>The playground calls <code>mobileApp.createExpense(input)</code>.</p>
       </div>
       <div class="panel step">
         <span>2</span>

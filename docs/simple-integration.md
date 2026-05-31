@@ -56,23 +56,25 @@ npm install @mobigent/backend
 npx mobigent-backend --app-dir ../mobile-app
 ```
 
-The generated backend file starts Mobigent and exports helper functions:
+The generated backend file starts Mobigent and exports helper functions. For the cleanest backend code, make a tiny object of app functions once:
 
 ```ts
-import { callApp, waitForApp, appFunction } from "./mobigent";
+import { appFunctions, waitForApp } from "./mobigent";
 
 await waitForApp();
 
-await callApp("expense.create", {
-  merchant: "Airport Taxi",
-  amount: 42.25
+const app = appFunctions({
+  createExpense: "expense.create",
+  listExpenses: "expense.list"
 });
 
-const createExpense = appFunction("expense.create");
-await createExpense({ merchant: "Coffee", amount: 8 });
+await app.createExpense({ merchant: "Airport Taxi", amount: 42.25 });
+await app.listExpenses();
 ```
 
 That is the backend integration.
+
+If you only need one quick call, `callApp("expense.create", input)` is still available.
 
 ## 3. What The SDK Handles
 

@@ -44,13 +44,20 @@ defineFeature("expense", {
 })
 ```
 
-The backend developer starts Mobigent like backend plumbing:
+The backend developer starts Mobigent like backend plumbing and calls app functions from a small object:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
 const backend = await startMobigent();
 await backend.waitForApp();
+
+const app = backend.appFunctions({
+  createExpense: "expense.create",
+  listExpenses: "expense.list"
+});
+
+await app.createExpense({ merchant: "Coffee", amount: 8 });
 ```
 
 For local development, `startMobigent()` infers the app id and name from your project.
@@ -123,13 +130,16 @@ npx mobigent-backend --app-dir ../mobile-app
 Then backend code can call app functions like ordinary functions:
 
 ```ts
-import { callApp, waitForApp, appFunction } from "./mobigent";
+import { appFunctions, waitForApp } from "./mobigent";
 
 await waitForApp();
-await callApp("expense.create", { merchant: "Airport Taxi", amount: 42.25 });
 
-const createExpense = appFunction("expense.create");
-await createExpense({ merchant: "Coffee", amount: 8 });
+const app = appFunctions({
+  createExpense: "expense.create",
+  listExpenses: "expense.list"
+});
+
+await app.createExpense({ merchant: "Coffee", amount: 8 });
 ```
 
 See [docs/simple-integration.md](./docs/simple-integration.md) for the clean path before reading the advanced gateway/provider docs.
@@ -313,16 +323,19 @@ Wait for the app when your server needs to call app functions immediately:
 await mobigent.waitForApp();
 ```
 
-Call app-owned functions with the same short names you used in the app:
+Call app-owned functions through a normal backend object:
 
 ```ts
-await mobigent.callApp("expense.create", {
-  merchant: "Airport Taxi",
-  amount: 42.25
+const app = mobigent.appFunctions({
+  createExpense: "expense.create",
+  listExpenses: "expense.list"
 });
 
-await mobigent.callApp("expense.list");
+await app.createExpense({ merchant: "Airport Taxi", amount: 42.25 });
+await app.listExpenses();
 ```
+
+For quick one-off calls, `mobigent.callApp("expense.create", input)` is still available.
 
 It also gives you agent setup from the same backend object:
 

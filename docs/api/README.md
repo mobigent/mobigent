@@ -90,6 +90,7 @@ The returned object includes:
 - `tools()` for backward compatibility and provider internals
 - `apps()`
 - `waitForApp()` to wait until an app is connected and callable
+- `appFunctions({ createExpense: "expense.create" })` to create a normal backend object of app functions
 - `callApp("expense.create", input)` or `callApp("expense.list")`
 - `appFunction("expense.create")` to create a reusable backend function
 - `invoke("expense.create", input)` for compatibility

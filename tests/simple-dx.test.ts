@@ -184,7 +184,14 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
     },
     silent: true
   });
-  const expenses = feature("expense").write("create", async (input) => ({ id: "EXP-1", ...input }));
+  const expensesState: unknown[] = [];
+  const expenses = feature("expense")
+    .write("create", async (input) => {
+      const expense = { id: "EXP-1", ...input };
+      expensesState.push(expense);
+      return expense;
+    })
+    .read("list", async () => ({ items: expensesState }));
 
   try {
     const connection = await connectMobigent(expenses, {
@@ -205,6 +212,23 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
       assert.deepEqual(await createExpense({ merchant: "Airport Taxi" }), {
         id: "EXP-1",
         merchant: "Airport Taxi"
+      });
+
+      const app = backend.appFunctions({
+        createExpense: "expense.create",
+        listExpenses: "expense.list"
+      });
+
+      assert.deepEqual(await app.createExpense({ merchant: "Bakery" }), {
+        id: "EXP-1",
+        merchant: "Bakery"
+      });
+      assert.deepEqual(await app.listExpenses(), {
+        items: [
+          { id: "EXP-1", merchant: "Cafe" },
+          { id: "EXP-1", merchant: "Airport Taxi" },
+          { id: "EXP-1", merchant: "Bakery" }
+        ]
       });
     } finally {
       connection.disconnect();
@@ -399,6 +423,7 @@ test("backend init helper creates a simple server entrypoint", () => {
   assert.match(files[0]?.contents ?? "", /export const waitForApp = mobigent\.waitForApp/);
   assert.match(files[0]?.contents ?? "", /export const callApp = mobigent\.callApp/);
   assert.match(files[0]?.contents ?? "", /export const appFunction = mobigent\.appFunction/);
+  assert.match(files[0]?.contents ?? "", /export const appFunctions = mobigent\.appFunctions/);
   assert.doesNotMatch(files[0]?.contents ?? "", /copyAppConfig|Copy this/);
   assert.match(files[1]?.contents ?? "", /MOBIGENT_AUTH_TOKEN/);
   assert.match(files[2]?.contents ?? "", /"connectionUrl": "ws:\/\/localhost:8787"/);

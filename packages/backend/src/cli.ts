@@ -375,6 +375,7 @@ export const mobigentConfig = mobigent.defaultApp;
 export const waitForApp = mobigent.waitForApp;
 export const callApp = mobigent.callApp;
 export const appFunction = mobigent.appFunction;
+export const appFunctions = mobigent.appFunctions;
 
 console.log("Mobigent inspector:", mobigent.urls.inspector);
 console.log("Mobigent OpenAPI:", mobigent.urls.openapi);

@@ -26,20 +26,20 @@ console.log(mobigent.urls.openapi);
 const appConfig = mobigent.defaultApp;
 ```
 
-The generated backend file also exports the helpers most app servers need:
+The generated backend file also exports the helpers most app servers need. Create a normal object of app functions once, then call those functions from your routes, jobs, tests, or agent flows:
 
 ```ts
-import { callApp, waitForApp, appFunction } from "./mobigent";
+import { appFunctions, waitForApp } from "./mobigent";
 
 await waitForApp();
 
-await callApp("expense.create", {
-  merchant: "Airport Taxi",
-  amount: 42.25
+const app = appFunctions({
+  createExpense: "expense.create",
+  listExpenses: "expense.list"
 });
 
-const createExpense = appFunction("expense.create");
-await createExpense({ merchant: "Coffee", amount: 8 });
+await app.createExpense({ merchant: "Airport Taxi", amount: 42.25 });
+await app.listExpenses();
 ```
 
 With no options, Mobigent infers a starter app id and app name from the nearest `package.json` or folder. When `appDir` is set, it infers from that app project and writes the tiny app config files automatically. Pass `app` only when you want exact production values:
@@ -133,7 +133,21 @@ const result = await mobigent.callApp("expense.create", {
 });
 ```
 
-For repeated calls, keep a normal backend function:
+For repeated calls, keep normal backend functions:
+
+```ts
+const app = mobigent.appFunctions({
+  createExpense: "expense.create",
+  listExpenses: "expense.list"
+});
+
+await app.createExpense({
+  merchant: "Airport Taxi",
+  amount: 42.25
+});
+```
+
+For a single reusable function:
 
 ```ts
 const createExpense = mobigent.appFunction("expense.create");
