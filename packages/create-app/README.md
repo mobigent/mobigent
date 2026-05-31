@@ -10,7 +10,7 @@ cd my-demo
 npm run dev
 ```
 
-The starter opens a browser page where one click calls a Mobigent tool and updates app state.
+The starter opens a browser page where one click calls a Mobigent app function and updates app state.
 
 Edit `src/capabilities.ts` first. That file contains the sample app state and one simple Mobigent feature:
 
@@ -31,7 +31,7 @@ Run this in another terminal while the starter is running:
 npm run doctor
 ```
 
-It checks the visible app, backend health, readiness, and expected Mobigent tool.
+It checks the visible app, backend health, readiness, and expected Mobigent function.
 
 Then print copy-paste agent setup:
 

@@ -171,6 +171,44 @@ test("backend helper starts HTTP, OpenAPI, and inspector endpoints from one func
   }
 });
 
+test("backend SDK exposes app functions without tool vocabulary", async () => {
+  const backend = await startMobigentBackend({
+    wsPort: 18998,
+    httpPort: 18999,
+    app: {
+      id: "com.example.functions",
+      name: "Function App"
+    },
+    silent: true
+  });
+  const expenses = feature("expense").write("create", async (input) => ({ id: "EXP-1", ...input }));
+
+  try {
+    const connection = await connectMobigent(expenses, {
+      config: backend.defaultApp,
+      createSocket: createNodeSocket
+    });
+
+    try {
+      await backend.ready();
+      assert.deepEqual(await backend.invoke("expense.create", { merchant: "Cafe" }), {
+        id: "EXP-1",
+        merchant: "Cafe"
+      });
+
+      const createExpense = backend.fn("expense.create");
+      assert.deepEqual(await createExpense({ merchant: "Airport Taxi" }), {
+        id: "EXP-1",
+        merchant: "Airport Taxi"
+      });
+    } finally {
+      connection.disconnect();
+    }
+  } finally {
+    await backend.stop();
+  }
+});
+
 test("backend SDK can start with one app config like normal backend plumbing", async () => {
   const backend = await startMobigent({
     wsPort: 18991,

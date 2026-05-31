@@ -44,7 +44,7 @@ This starts:
 - agent HTTP API
 - OpenAPI schema
 - inspector
-- tool routing
+- app function routing
 - readiness checks
 - audit events
 
@@ -106,16 +106,27 @@ export const mobigentConfig = defineMobigentConfig({
 });
 ```
 
-## Call A Tool From Code
+## Call An App Function
 
 ```ts
-const result = await mobigent.call("expense.create", {
+const result = await mobigent.invoke("expense.create", {
   merchant: "Airport Taxi",
   amount: 42.25
 });
 ```
 
-Use `feature.action` for writes and `feature.resource` for reads. Mobigent resolves the connected app prefix for you.
+For repeated calls, keep a normal backend function:
+
+```ts
+const createExpense = mobigent.fn("expense.create");
+
+await createExpense({
+  merchant: "Airport Taxi",
+  amount: 42.25
+});
+```
+
+Use `write()` for app behavior that changes state and `read()` for app state. Mobigent resolves the connected app prefix for you. The lower-level `call()` method still exists for compatibility.
 
 ## Connect An Agent
 

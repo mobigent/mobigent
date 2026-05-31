@@ -98,12 +98,12 @@ console.log("App config:", mobigent.appConfigPath);
 
 const appConfig = mobigent.defaultApp;
 
-await mobigent.call("expense.create", {
+await mobigent.invoke("expense.create", {
   merchant: "Airport Taxi",
   amount: 42.25
 });
 
-await mobigent.call("expense.list");`;
+await mobigent.invoke("expense.list");`;
 
 const backendInitCode = `npm install @mobigent/backend
 npx mobigent backend --app-dir ../mobile-app`;

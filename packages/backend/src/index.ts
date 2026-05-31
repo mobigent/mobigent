@@ -129,7 +129,11 @@ export type MobigentBackend = {
   apps(): GatewayAppSession[];
   resolveToolName(name: string): string;
   call(toolName: string, input?: unknown, options?: ToolCallOptions): ReturnType<BridgeGateway["callTool"]>;
+  invoke(name: string, input?: unknown, options?: ToolCallOptions): ReturnType<BridgeGateway["callTool"]>;
+  fn(name: string): MobigentBackendFunction;
 };
+
+export type MobigentBackendFunction = (input?: unknown, options?: ToolCallOptions) => ReturnType<BridgeGateway["callTool"]>;
 
 export type MobigentBackendWithApp = MobigentBackend & {
   defaultApp: MobigentBackendAppConfig;
@@ -207,6 +211,9 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     }
   });
 
+  const invoke = (name: string, input: unknown = {}, callOptions?: ToolCallOptions) =>
+    gateway.callTool(resolveBackendToolName(gateway.listTools(), name, defaultApp), input as JsonObject, callOptions);
+
   return {
     gateway,
     httpServer,
@@ -237,8 +244,9 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     tools: () => gateway.listTools(),
     apps: () => gateway.listApps(),
     resolveToolName: (name) => resolveBackendToolName(gateway.listTools(), name, defaultApp),
-    call: (toolName, input = {}, callOptions) =>
-      gateway.callTool(resolveBackendToolName(gateway.listTools(), toolName, defaultApp), input as JsonObject, callOptions)
+    call: invoke,
+    invoke,
+    fn: (name) => (input = {}, callOptions) => invoke(name, input, callOptions)
   };
 }
 
@@ -424,7 +432,7 @@ function resolveBackendToolName(
 
   if (matchingTools.length > 1) {
     throw new Error(
-      `Mobigent tool name ${name} is ambiguous. Use one of: ${matchingTools.map((tool) => tool.name).join(", ")}`
+      `Mobigent function name ${name} is ambiguous. Use one of: ${matchingTools.map((tool) => tool.name).join(", ")}`
     );
   }
 

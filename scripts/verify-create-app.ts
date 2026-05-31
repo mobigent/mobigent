@@ -92,7 +92,7 @@ try {
   assert.match(server, /You edit one file/);
   assert.match(server, /src\/capabilities\.ts/);
   assert.match(server, /startMobigent/);
-  assert.match(server, /backend\.call/);
+  assert.match(server, /backend\.invoke/);
   assert.match(server, /MOBIGENT_DEMO_OPEN/);
 
   const capabilities = await readFile(join(target, "src", "capabilities.ts"), "utf8");

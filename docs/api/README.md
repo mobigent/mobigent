@@ -88,7 +88,9 @@ The returned object includes:
 - `copyAppConfig()` for advanced manual config generation
 - `tools()`
 - `apps()`
-- `call("expense.create", input)` or `call("expense.list")`
+- `invoke("expense.create", input)` or `invoke("expense.list")`
+- `fn("expense.create")` to create a reusable backend function
+- `call("expense.create", input)` for backward compatibility
 - `resolveToolName("expense.create")`
 - `stop()`
 

@@ -1,6 +1,6 @@
 # Mobigent Quickstart
 
-This guide gets you from an app with no agent interface to a working Mobigent loop: app SDK, backend SDK, discovered tools, confirmed action, and read resource.
+This guide gets you from an app with no agent interface to a working Mobigent loop: app SDK, backend SDK, discovered app functions, confirmed write, and read function.
 
 ## 1. Run The Starter
 
@@ -12,7 +12,7 @@ cd my-demo
 npm run dev
 ```
 
-Click **Run agent request** in the browser. That one click calls the app-owned `expense_create` action, asks for confirmation, and updates visible app state.
+Click **Run agent request** in the browser. That one click calls the app-owned `expense.create` function, asks for confirmation, and updates visible app state.
 
 Run the starter doctor in another terminal:
 
@@ -27,7 +27,7 @@ npm install
 npm run demo:app
 ```
 
-The demo starts a Mobigent backend, connects a sample expense app, calls a confirmed write action, then reads the updated expense list.
+The demo starts a Mobigent backend, connects a sample expense app, calls a confirmed write function, then reads the updated expense list.
 
 ## 2. Add One Feature To An Existing App
 
@@ -134,12 +134,12 @@ With no options, Mobigent infers a starter app id and app name from your project
 Call app-owned functions with the same short names you used in the app:
 
 ```ts
-await mobigent.call("expense.create", {
+await mobigent.invoke("expense.create", {
   merchant: "Airport Taxi",
   amount: 42.25
 });
 
-await mobigent.call("expense.list");
+await mobigent.invoke("expense.list");
 ```
 
 Need agent setup? Use the same backend object:
@@ -171,10 +171,10 @@ Use the right WebSocket URL for the runtime:
 You know the first integration works when:
 
 - `/health` reports one connected app
-- `/tools` shows your resource and action
-- the write action pauses for confirmation in the app
+- `/tools` shows the provider-facing functions generated from your app feature
+- the write function pauses for confirmation in the app
 - the handler only runs after approval
-- the resource returns the updated state
+- the read function returns the updated state
 - `/audit` shows the call, approval, result, and any emitted app events
 
 ## Next Steps

@@ -105,8 +105,8 @@ Next:
 ${next}
 
 ${openLine}
-Click "Run agent request" to watch a Mobigent tool call update the app.
-Run "npm run doctor" in another terminal to confirm the app, backend, readiness check, and tool discovery are healthy.
+Click "Run agent request" to watch a Mobigent app function update the app.
+Run "npm run doctor" in another terminal to confirm the app, backend, readiness check, and function discovery are healthy.
 `;
 }
 
@@ -238,7 +238,7 @@ ${runSteps}
 
 ${options.openBrowser ? `The demo opens \`http://localhost:${options.appPort}\` automatically.` : `Open \`http://localhost:${options.appPort}\` after the dev server starts.`}
 
-Click \`Run agent request\`. The request calls the app-owned Mobigent action and updates visible app state.
+Click \`Run agent request\`. The request calls the app-owned Mobigent function and updates visible app state.
 
 In another terminal, run this anytime:
 
@@ -246,7 +246,7 @@ In another terminal, run this anytime:
 npm run doctor
 \`\`\`
 
-It checks the visible app, backend health, readiness, and exposed Mobigent tool.
+It checks the visible app, backend health, readiness, and exposed Mobigent function.
 
 Then choose an agent path:
 
@@ -287,7 +287,7 @@ let lastAgentRun: unknown;
 const gatewayPort = ${options.gatewayPort};
 const httpPort = ${options.httpPort};
 const appPort = ${options.appPort};
-const toolName = "${toolName(options.appId, "expense_create")}";
+const functionName = "expense.create";
 
 const backend = await startMobigent({
   wsPort: gatewayPort,
@@ -307,13 +307,13 @@ app.post("/agent/run", async (req, res) => {
   const input = parsePrompt(typeof req.body?.prompt === "string" ? req.body.prompt : "");
   const run = {
     prompt: req.body?.prompt,
-    tool: toolName,
+    function: functionName,
     input,
     createdAt: new Date().toISOString()
   };
 
   try {
-    const response = await backend.call(toolName, input);
+    const response = await backend.invoke(functionName, input);
     lastAgentRun = { ...run, response };
     res.json(lastAgentRun);
   } catch (error) {
@@ -324,7 +324,7 @@ app.post("/agent/run", async (req, res) => {
 
 const appServer = app.listen(appPort, () => {
   console.log(\`Mobigent starter: http://localhost:\${appPort}\`);
-  console.log("One page. One button. Real tool call.");
+  console.log("One page. One button. Real app function call.");
   openBrowser(\`http://localhost:\${appPort}\`);
 });
 
@@ -416,7 +416,7 @@ function renderPage() {
     <header>
       <div>
         <h1>${escapeTemplate(options.appName)}</h1>
-        <p>Your first Mobigent app: real app state plus an agent tool call.</p>
+        <p>Your first Mobigent app: real app state plus an agent-called app function.</p>
       </div>
       <div class="status">Mobigent <strong>connected</strong></div>
     </header>
@@ -424,7 +424,7 @@ function renderPage() {
       <section>
         <div class="panel">
           <h2>Actual app state</h2>
-          <p>When the agent calls the Mobigent tool, the app-owned handler adds a row here.</p>
+          <p>When the agent calls the Mobigent function, the app-owned handler adds a row here.</p>
         </div>
         <section class="appGrid">
           <aside class="panel metric">
@@ -443,20 +443,20 @@ function renderPage() {
       <aside class="panel agentPanel">
         <header>
           <h2>Agent playground</h2>
-          <p>Click once. This calls the app-owned Mobigent action and updates the app.</p>
+          <p>Click once. This calls the app-owned Mobigent function and updates the app.</p>
         </header>
         <label for="prompt">Agent request</label>
         <textarea id="prompt">Create a $42.80 meals expense at Expo Coffee with notes: Created from the Mobigent starter</textarea>
         <button id="run">Run agent request</button>
-        <div class="hint">Calls <strong>\${toolName}</strong>. <a class="link" href="\${backend.urls.inspector}" target="_blank" rel="noreferrer">Open inspector</a>.</div>
+        <div class="hint">Calls <strong>\${functionName}</strong>. <a class="link" href="\${backend.urls.inspector}" target="_blank" rel="noreferrer">Open inspector</a>.</div>
         <div class="result"><pre id="result">Waiting for an agent request...</pre></div>
       </aside>
     </section>
     <section class="explain" aria-label="How this demo works">
       <div class="panel step">
         <span>1</span>
-        <h3>Agent calls a tool</h3>
-        <p>The playground calls <code>backend.call("\${toolName}")</code>.</p>
+        <h3>Agent calls a function</h3>
+        <p>The playground calls <code>backend.invoke("\${functionName}")</code>.</p>
       </div>
       <div class="panel step">
         <span>2</span>
@@ -471,7 +471,7 @@ function renderPage() {
       <div class="panel step">
         <span>4</span>
         <h3>You edit one file</h3>
-        <p>Replace the sample action with your real app function, then open the inspector.</p>
+        <p>Replace the sample function with your real app function, then open the inspector.</p>
       </div>
     </section>
   </main>
@@ -637,7 +637,7 @@ function createDoctorFile(options: CreateMobigentAppOptions) {
   const tool = toolName(options.appId, "expense_create");
   return `const appUrl = "http://localhost:${options.appPort}";
 const gatewayUrl = "http://localhost:${options.httpPort}";
-const expectedTool = "${tool}";
+const expectedFunction = "${tool}";
 
 type Check = {
   name: string;
@@ -656,24 +656,24 @@ await check("App playground", async () => {
 
 await check("Backend health", async () => {
   const body = await getJson<{ status?: { tools?: number; appsWithManifests?: number } }>(\`\${gatewayUrl}/health\`);
-  return \`\${body.status?.appsWithManifests ?? 0} app manifest(s), \${body.status?.tools ?? 0} tool(s)\`;
+  return \`\${body.status?.appsWithManifests ?? 0} app manifest(s), \${body.status?.tools ?? 0} function(s)\`;
 });
 
 await check("Backend readiness", async () => {
   const body = await getJson<{ ok?: boolean }>(\`\${gatewayUrl}/ready?minApps=1&minTools=1\`);
   if (!body.ok) {
-    throw new Error("backend is reachable but not ready for one app and one tool yet");
+    throw new Error("backend is reachable but not ready for one app and one function yet");
   }
   return "ready for agent startup";
 });
 
-await check("Expense tool", async () => {
+await check("Expense function", async () => {
   const body = await getJson<{ tools?: Array<{ name?: string }> }>(\`\${gatewayUrl}/tools\`);
   const names = body.tools?.map((tool) => tool.name).filter(Boolean) ?? [];
-  if (!names.includes(expectedTool)) {
-    throw new Error(\`expected \${expectedTool}; saw \${names.join(", ") || "no tools"}\`);
+  if (!names.includes(expectedFunction)) {
+    throw new Error(\`expected \${expectedFunction}; saw \${names.join(", ") || "no functions"}\`);
   }
-  return expectedTool;
+  return expectedFunction;
 });
 
 const passed = checks.every((item) => item.ok);

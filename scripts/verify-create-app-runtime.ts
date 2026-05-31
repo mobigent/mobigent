@@ -74,7 +74,7 @@ try {
   const doctor = await run("npm", ["run", "doctor"], target);
   assert.match(doctor, /Mobigent starter doctor: PASS/);
   assert.match(doctor, /PASS Backend readiness: ready for agent startup/);
-  assert.match(doctor, /PASS Expense tool: com_mobigent_runtime.expense_create/);
+  assert.match(doctor, /PASS Expense function: com_mobigent_runtime.expense_create/);
 
   const localAgent = await run("npm", ["run", "agent:local"], target);
   assert.match(localAgent, /Claude Desktop/);
