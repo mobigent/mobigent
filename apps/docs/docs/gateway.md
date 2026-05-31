@@ -38,7 +38,7 @@ Useful endpoints:
 
 `GET /health` includes gateway counts for connected app sessions, authenticated app sessions, accepted manifests, exposed tools, audit events, retained idempotency records, retained rate-limit buckets, whether manifest signing is required, and whether gateway agent profiles are configured.
 
-`GET /ready?minApps=1&minTools=1` returns 200 when the gateway has enough accepted app manifests and exposed tools for an agent server to start. It returns 503 with structured check details while the gateway is running but mobile app capability has not connected yet.
+`GET /ready?minApps=1&minFunctions=1` returns 200 when the gateway has enough accepted app manifests and exposed app functions for an agent server to start. `minTools` remains as a backward-compatible alias. It returns 503 with structured check details while the gateway is running but mobile app capability has not connected yet.
 
 `GET /config` returns machine-readable integration metadata for providers and operators: protocol versions, auth requirements, endpoint paths, feature flags, request limits, and the standard Mobigent HTTP headers.
 

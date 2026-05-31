@@ -7,7 +7,7 @@ sidebar_position: 9
 Most integrations use two packages:
 
 - `@mobigent/react-native`: lives inside the app and exposes app functions.
-- `@mobigent/backend`: lives in your backend and exposes tools to agents.
+- `@mobigent/backend`: lives in your backend and exposes app functions to agents.
 
 ## React Native
 
@@ -84,12 +84,14 @@ The backend object exposes:
 - `copyAppConfig()`
 - `agent("chatgpt" | "claude" | "openai")`
 - `agents()`
-- `tools()`
+- `functions()`
+- `tools()` for backward compatibility and provider internals
 - `apps()`
 - `invoke("expense.create", input)` or `invoke("expense.list")`
 - `fn("expense.create")` to create a reusable backend function
 - `call("expense.create", input)` for backward compatibility
-- `resolveToolName("expense.create")`
+- `resolveFunctionName("expense.create")`
+- `resolveToolName("expense.create")` for backward compatibility
 - `stop()`
 
 ## Providers

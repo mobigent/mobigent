@@ -48,6 +48,8 @@ This starts:
 - readiness checks
 - audit events
 
+Use `mobigent.functions()` when you want to inspect the app functions currently available to agents. The older `tools()` name still exists for compatibility with provider internals.
+
 `mobigent.ready()` waits until at least one app has connected and exposed a function. Use it before backend-driven tests, demos, or server code that immediately calls app functions.
 
 It also gives agent setup from the same object:

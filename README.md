@@ -8,13 +8,13 @@
 
 Mobigent is an open-source SDK that lets AI agents use mobile app functions the same way your backend uses Firebase Cloud Messaging: install a client package, install a backend package, pass typed data, and let the SDK handle the bridge.
 
-Your app exposes what agents are allowed to do:
+Your app exposes normal functions agents are allowed to use:
 
-- **Actions**: create an expense, submit an order, update a profile
-- **Resources**: read app state, fetch a list, inspect a record
-- **Components**: focus a screen or important UI surface
-- **Events**: report app activity back to the agent
-- **Confirmations**: ask the user before sensitive actions run
+- `read()` functions for app state
+- `write()` functions for app changes
+- `screen()` functions for focusing important UI
+- `emitMobigentEvent()` for app activity
+- confirmation callbacks for sensitive writes
 
 The result: agents get a clean interface, users stay in control, and your app decides exactly what is possible.
 
@@ -25,7 +25,7 @@ Mobigent has two normal packages:
 - **App package**: `@mobigent/react-native` lives inside the mobile app and exposes app functions.
 - **Backend package**: `@mobigent/backend` runs the agent-facing API, OpenAPI, inspector, and app connection layer.
 
-There is also a tiny **CLI package**: `mobigent`. It gives developers one command to remember:
+There is also one tiny **CLI package**: `mobigent`. It gives developers one command to remember:
 
 ```bash
 npx mobigent init --feature expense --out-dir src
@@ -33,15 +33,18 @@ npx mobigent backend --app-dir ../mobile-app
 npx mobigent agent chatgpt --base-url https://your-backend.example
 ```
 
-The app developer should only think:
+The app developer writes ordinary app functions:
 
 ```txt
-defineFeature("expense")
-  .read("list", listExpenses)
-  .write("create", createExpense, { input: { merchant: "string", amount: "number" } })
+defineFeature("expense", {
+  list: read(listExpenses),
+  create: write(createExpense, {
+    input: { merchant: "string", amount: "number" }
+  })
+})
 ```
 
-The backend developer should only think:
+The backend developer starts Mobigent like backend plumbing:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
@@ -50,7 +53,7 @@ const backend = await startMobigent();
 await backend.ready();
 ```
 
-For local development, `startMobigent()` can also infer the app id and name from your project.
+For local development, `startMobigent()` infers the app id and name from your project.
 
 For a non-React host or local demo, pass the feature straight to the SDK:
 
@@ -58,11 +61,19 @@ For a non-React host or local demo, pass the feature straight to the SDK:
 await connectMobigent(expenses);
 ```
 
-Everything else, connection URLs, sockets, tokens, registration loops, tool discovery, confirmations, retries, audit events, agent setup, and inspector wiring, is SDK plumbing.
+Everything else, connection URLs, sockets, tokens, registration loops, provider tool mapping, confirmations, retries, audit events, agent setup, and inspector wiring, is SDK plumbing.
 
 ## Quick Start
 
-Create a Mobigent starter from the public GitHub release:
+After npm publishing is enabled, the first run is:
+
+```bash
+npm create mobigent-app@latest my-demo -- --install
+cd my-demo
+npm run dev
+```
+
+Current public fallback until npmjs publishing is connected:
 
 ```bash
 npm exec --yes \
@@ -72,9 +83,9 @@ cd my-demo
 npm run dev
 ```
 
-That opens a visible app beside an agent playground. Click **Run agent request** and Mobigent calls the app's `expense_create` tool, asks for approval in the app host, and adds a new row to the app state. In another terminal, run `npm run doctor` to confirm everything is healthy, then `npm run agent:local`, `npm run agent:openapi`, or `npm run agent:chatgpt` for copy-paste agent setup.
+That opens a visible app beside an agent playground. Click **Run agent request** and Mobigent calls the app's `expense.create` function, asks for approval in the app host, and adds a new row to the app state. In another terminal, run `npm run doctor` to confirm everything is healthy, then `npm run agent:local`, `npm run agent:openapi`, or `npm run agent:chatgpt` for copy-paste agent setup.
 
-When you are ready to adapt it, start with `src/capabilities.ts`. That is the small file that owns the sample action, resource, schemas, and handler.
+When you are ready to adapt it, start with `src/capabilities.ts`. That is the small file that owns the sample functions, schemas, and handlers.
 
 Working from this repo? Create the same starter locally:
 
@@ -91,21 +102,33 @@ npm install
 npm run demo:app
 ```
 
-That first run is the whole idea: agents do not tap screens or guess UI. Your app exposes safe tools, and Mobigent lets agents call them.
+That first run is the whole idea: agents do not tap screens or guess UI. Your app exposes safe functions, and Mobigent lets agents call them.
 
-For an existing React Native app, install the app SDK:
+For an existing React Native app, the intended npm path is:
+
+```bash
+npm install @mobigent/react-native
+```
+
+Current public fallback:
 
 ```bash
 npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-react-native-0.1.12.tgz
 ```
 
-For a backend/server app, install the backend package:
+For a backend/server app, the intended npm path is:
+
+```bash
+npm install @mobigent/backend
+```
+
+Current public fallback:
 
 ```bash
 npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-backend-0.1.12.tgz
 ```
 
-After npmjs publishing is connected, the normal backend setup is:
+Then create the backend entrypoint:
 
 ```bash
 npm install @mobigent/backend
@@ -252,7 +275,7 @@ const mobigent = await startMobigent();
 const appConfig = mobigent.defaultApp;
 ```
 
-That one function starts the app connection endpoint, HTTP API, OpenAPI schema, inspector, tool routing, audit trail, and readiness checks. When `appDir` is set, it infers identity from the mobile app and writes `../mobile-app/mobigent.app.json` plus `../mobile-app/src/mobigent-config.ts`, so the app package can use the backend connection without manual copying. If that config module already exists, the app initializer preserves it.
+That one function starts the app connection endpoint, HTTP API, OpenAPI schema, inspector, app function routing, audit trail, and readiness checks. When `appDir` is set, it infers identity from the mobile app and writes `../mobile-app/mobigent.app.json` plus `../mobile-app/src/mobigent-config.ts`, so the app package can use the backend connection without manual copying. If that config module already exists, the app initializer preserves it.
 
 Wait for the app when your server needs to call app functions immediately:
 
@@ -263,12 +286,12 @@ await mobigent.ready();
 Call app-owned functions with the same short names you used in the app:
 
 ```ts
-await mobigent.call("expense.create", {
+await mobigent.invoke("expense.create", {
   merchant: "Airport Taxi",
   amount: 42.25
 });
 
-await mobigent.call("expense.list");
+await mobigent.invoke("expense.list");
 ```
 
 It also gives you agent setup from the same backend object:
@@ -286,7 +309,7 @@ Start the backend:
 npm run dev
 ```
 
-Then inspect the tools:
+Then inspect the app functions and generated agent interface:
 
 ```bash
 curl http://localhost:8788/tools
@@ -300,7 +323,7 @@ For the friendliest local loop, use the visible demo instead:
 npm run demo:app
 ```
 
-That single page includes the app UI, an agent request box, the tool call result, and a link to the inspector.
+That single page includes the app UI, an agent request box, the function result, and a link to the inspector.
 
 Use `mobigent.agent("chatgpt")` for ChatGPT Actions setup, `mobigent.agent("claude")` for Claude Desktop setup, or `mobigent.agent("openai")` for server-side OpenAI Responses setup.
 
@@ -315,7 +338,7 @@ npm run dev:mcp
 Most apps start with two packages:
 
 - `@mobigent/react-native`: app SDK for declaring app functions with `defineFeature()` and wrapping apps with `withMobigent()`
-- `@mobigent/backend`: backend SDK for `startMobigent()`, tool routing, inspector, agent HTTP, and app connections
+- `@mobigent/backend`: backend SDK for `startMobigent()`, app function routing, inspector, agent HTTP, and app connections
 
 Useful extras:
 
@@ -327,7 +350,7 @@ Useful extras:
 Advanced internals:
 
 - `@mobigent/core`: protocol and shared types
-- `@mobigent/gateway`: lower-level gateway package for custom hosting, HTTP/OpenAPI, and MCP
+- `@mobigent/gateway`: lower-level internal bridge package for custom hosting, HTTP/OpenAPI, and MCP
 - `@mobigent/providers`: provider setup helpers behind `mobigent.agent(...)`
 
 ## Examples
@@ -358,7 +381,7 @@ Advanced internals:
 
 ## Developer Workflow Highlights
 
-- Open `http://localhost:8788/inspect` to see apps, tools, metrics, audit events, and backend snapshot data.
+- Open `http://localhost:8788/inspect` to see apps, functions, metrics, audit events, and backend snapshot data.
 - Run `npx mobigent-init --security-doctor ...` before exposing a hosted gateway.
 - Use `fromZod()` or `fromTypeBox()` when you already have schemas.
 - Run `npx mobigent-init --platform-actions json ...` to generate iOS App Intents and Android App Actions bridge plans.
@@ -369,8 +392,8 @@ Mobile apps were not designed for agents. Today, most agent workflows depend on 
 
 Mobigent gives apps a real agent interface:
 
-1. Apps declare capabilities.
-2. Agents discover those capabilities.
+1. Apps define functions.
+2. Agents discover the allowed functions.
 3. Calls are validated before they run.
 4. Risky actions require user confirmation.
 5. Every important event can be audited.
@@ -384,7 +407,7 @@ Mobigent is an early developer preview. The proof of concept already includes:
 - React Native SDK APIs
 - Native iOS SDK
 - Native Android SDK
-- Local gateway
+- Local app/backend bridge
 - HTTP and OpenAPI support
 - MCP server support
 - User confirmation flow

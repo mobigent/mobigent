@@ -75,6 +75,8 @@ export type MobigentBackendAppConfig = {
 
 export type MobigentBackendReadyOptions = {
   minApps?: number;
+  minFunctions?: number;
+  /** @deprecated Use minFunctions. Kept for compatibility with provider/tool internals. */
   minTools?: number;
   timeoutMs?: number;
   intervalMs?: number;
@@ -125,8 +127,10 @@ export type MobigentBackend = {
   copyAppConfig(): string;
   stop(): Promise<void>;
   ready(options?: MobigentBackendReadyOptions): Promise<ReturnType<BridgeGateway["getStatus"]>>;
+  functions(): ReturnType<BridgeGateway["listTools"]>;
   tools(): ReturnType<BridgeGateway["listTools"]>;
   apps(): GatewayAppSession[];
+  resolveFunctionName(name: string): string;
   resolveToolName(name: string): string;
   call(toolName: string, input?: unknown, options?: ToolCallOptions): ReturnType<BridgeGateway["callTool"]>;
   invoke(name: string, input?: unknown, options?: ToolCallOptions): ReturnType<BridgeGateway["callTool"]>;
@@ -241,8 +245,10 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     copyAppConfig: () => appConfigCode,
     stop: () => stopBackend(httpServer, gateway),
     ready: (readyOptions) => waitForBackendReady(gateway, readyOptions),
+    functions: () => gateway.listTools(),
     tools: () => gateway.listTools(),
     apps: () => gateway.listApps(),
+    resolveFunctionName: (name) => resolveBackendToolName(gateway.listTools(), name, defaultApp),
     resolveToolName: (name) => resolveBackendToolName(gateway.listTools(), name, defaultApp),
     call: invoke,
     invoke,
@@ -475,7 +481,7 @@ function stopBackend(server: Server, gateway: BridgeGateway) {
 
 function waitForBackendReady(gateway: BridgeGateway, options: MobigentBackendReadyOptions = {}) {
   const minApps = options.minApps ?? 1;
-  const minTools = options.minTools ?? 1;
+  const minFunctions = options.minFunctions ?? options.minTools ?? 1;
   const timeoutMs = options.timeoutMs ?? 10_000;
   const intervalMs = options.intervalMs ?? 100;
   const startedAt = Date.now();
@@ -485,7 +491,7 @@ function waitForBackendReady(gateway: BridgeGateway, options: MobigentBackendRea
 
     const check = () => {
       const status = gateway.getStatus();
-      if (status.appsWithManifests >= minApps && status.tools >= minTools) {
+      if (status.appsWithManifests >= minApps && status.tools >= minFunctions) {
         if (timer) {
           clearTimeout(timer);
         }
@@ -496,8 +502,8 @@ function waitForBackendReady(gateway: BridgeGateway, options: MobigentBackendRea
       if (Date.now() - startedAt >= timeoutMs) {
         reject(
           new Error(
-            `Mobigent backend is waiting for ${minApps} connected app(s) and ${minTools} exposed tool(s). ` +
-              `Current state: ${status.appsWithManifests} app(s), ${status.tools} tool(s). ` +
+            `Mobigent backend is waiting for ${minApps} connected app(s) and ${minFunctions} exposed function(s). ` +
+              `Current state: ${status.appsWithManifests} app(s), ${status.tools} function(s). ` +
               "Start the app, wrap it with setupMobigent(), and make sure it uses the backend app config."
           )
         );

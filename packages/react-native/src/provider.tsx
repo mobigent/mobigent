@@ -1737,7 +1737,7 @@ function validateCapabilitySafetyPolicies(
     return {
       name: "safety-policy",
       status: "warn",
-      message: "Review capability safety policies before exposing these tools to agents.",
+      message: "Review capability safety policies before exposing these app functions to agents.",
       details: warnings
     };
   }

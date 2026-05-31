@@ -53,12 +53,12 @@ Use:
 
 ```bash
 curl https://gateway.example.com/health
-curl https://gateway.example.com/ready?minApps=1&minTools=1
+curl https://gateway.example.com/ready?minApps=1&minFunctions=1
 curl https://gateway.example.com/metrics
 curl https://gateway.example.com/metrics/prometheus
 ```
 
-`/ready` should gate agent startup when a connected app and tools are required.
+`/ready` should gate agent startup when a connected app and app functions are required.
 
 For trusted development or an internal protected environment, open:
 

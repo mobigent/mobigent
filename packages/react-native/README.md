@@ -14,7 +14,7 @@ defineFeature("expense", {
 });
 ```
 
-The SDK handles namespacing, JSON Schema generation, validation, confirmation, connection lifecycle, reconnects, heartbeat, event queueing, and tool discovery updates.
+The SDK handles namespacing, JSON Schema generation, validation, confirmation, connection lifecycle, reconnects, heartbeat, event queueing, and agent discovery updates.
 New app configs use `connectionUrl`; existing `gatewayUrl` configs still work.
 
 ## Install
@@ -64,12 +64,14 @@ export const expenses = defineFeature("expense", {
 });
 ```
 
-Agents will see tools like:
+Your backend calls those app functions with short names like:
 
 ```txt
-com_example_app.get_expense_list
-com_example_app.expense_create
+expense.list
+expense.create
 ```
+
+Under the hood, Mobigent maps those functions to provider-safe names for OpenAPI, MCP, and model SDKs.
 
 ## Wrap Your Existing App
 

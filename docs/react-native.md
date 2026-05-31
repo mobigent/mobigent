@@ -117,7 +117,7 @@ That one call registers the feature, connects to the backend, and returns a `dis
 - confirmation before risky writes
 - reconnects and heartbeat
 - queued app events
-- tool discovery updates
+- agent discovery updates
 - diagnostics/status hooks
 
 ## Field Types

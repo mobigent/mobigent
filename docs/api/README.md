@@ -86,12 +86,14 @@ The returned object includes:
 - `app({ appId, appName })`
 - `appConfig({ appId, appName })`
 - `copyAppConfig()` for advanced manual config generation
-- `tools()`
+- `functions()`
+- `tools()` for backward compatibility and provider internals
 - `apps()`
 - `invoke("expense.create", input)` or `invoke("expense.list")`
 - `fn("expense.create")` to create a reusable backend function
 - `call("expense.create", input)` for backward compatibility
-- `resolveToolName("expense.create")`
+- `resolveFunctionName("expense.create")`
+- `resolveToolName("expense.create")` for backward compatibility
 - `stop()`
 
 ## Simple App Helpers

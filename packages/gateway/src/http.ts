@@ -110,6 +110,9 @@ export function createHttpApp(gateway: BridgeGateway, options: MobigentHttpOptio
     const parsedMinTools = req.query.minTools
       ? positiveIntegerSchema.safeParse(req.query.minTools)
       : undefined;
+    const parsedMinFunctions = req.query.minFunctions
+      ? positiveIntegerSchema.safeParse(req.query.minFunctions)
+      : undefined;
 
     if (parsedMinApps && !parsedMinApps.success) {
       res.status(400).json({
@@ -125,9 +128,16 @@ export function createHttpApp(gateway: BridgeGateway, options: MobigentHttpOptio
       return;
     }
 
+    if (parsedMinFunctions && !parsedMinFunctions.success) {
+      res.status(400).json({
+        ...gatewayErrorBody("bad_request", "minFunctions must be a positive integer no larger than 120000.")
+      });
+      return;
+    }
+
     const readiness = createReadiness(gateway.getStatus(), {
       minApps: parsedMinApps?.data ?? 0,
-      minTools: parsedMinTools?.data ?? 0
+      minTools: parsedMinFunctions?.data ?? parsedMinTools?.data ?? 0
     });
     res.status(readiness.ok ? 200 : 503).json(readiness);
   });
@@ -725,6 +735,16 @@ export function createOpenApiSpec(
               description: "Minimum accepted app manifests required for readiness."
             },
             {
+              name: "minFunctions",
+              in: "query",
+              required: false,
+              schema: {
+                type: "integer",
+                minimum: 1
+              },
+              description: "Minimum exposed app functions required for readiness."
+            },
+            {
               name: "minTools",
               in: "query",
               required: false,
@@ -732,7 +752,7 @@ export function createOpenApiSpec(
                 type: "integer",
                 minimum: 1
               },
-              description: "Minimum exposed tools required for readiness."
+              description: "Backward-compatible alias for minFunctions."
             }
           ],
           responses: {

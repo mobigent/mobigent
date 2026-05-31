@@ -4643,7 +4643,7 @@ test("gateway exposes app session status for operators", async () => {
     assert.equal(health.status.tools, 3);
     assert.equal(health.status.manifestSigningRequired, true);
 
-    const readyResponse = await fetch(`http://localhost:${httpPort}/ready?minApps=1&minTools=3`);
+    const readyResponse = await fetch(`http://localhost:${httpPort}/ready?minApps=1&minFunctions=3`);
     assert.equal(readyResponse.status, 200);
     const ready = (await readyResponse.json()) as {
       ok: boolean;
@@ -4655,7 +4655,10 @@ test("gateway exposes app session status for operators", async () => {
     assert.equal(ready.checks.apps.actual, 1);
     assert.equal(ready.checks.tools.required, 3);
 
-    const notReadyResponse = await fetch(`http://localhost:${httpPort}/ready?minTools=4`);
+    const legacyReadyResponse = await fetch(`http://localhost:${httpPort}/ready?minApps=1&minTools=3`);
+    assert.equal(legacyReadyResponse.status, 200);
+
+    const notReadyResponse = await fetch(`http://localhost:${httpPort}/ready?minFunctions=4`);
     assert.equal(notReadyResponse.status, 503);
     const notReady = (await notReadyResponse.json()) as { ok: boolean; checks: { tools: { actual: number } } };
     assert.equal(notReady.ok, false);

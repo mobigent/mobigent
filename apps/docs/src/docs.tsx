@@ -344,13 +344,13 @@ const nativeApis = [
 const gatewayEndpoints = [
   ["GET /health", "Liveness, session counts, tool counts, and operational status."],
   ["GET /ready", "Readiness check for deployments and agent startup."],
-  ["GET /tools", "Agent-scoped tool discovery."],
+  ["GET /tools", "Provider-facing discovery generated from your app functions."],
   ["POST /tools/{name}/call", "Call a mobile capability with validated JSON input."],
   ["GET /openapi.json", "Importable OpenAPI schema for ChatGPT Actions and HTTP agents."],
   ["GET /providers", "Provider setup descriptors for supported agent platforms."],
   ["GET /audit", "Recent audit events for tool calls, approvals, and failures."],
   ["GET /metrics", "Operational counters for sessions, calls, tools, and rate limits."],
-  ["GET /inspect", "A local browser inspector for apps, tools, metrics, audit events, and snapshot JSON."]
+  ["GET /inspect", "A local browser inspector for apps, functions, metrics, audit events, and snapshot JSON."]
 ];
 
 const providers = [
@@ -382,7 +382,7 @@ const safety = [
 ];
 
 const developerExperience = [
-  ["Inspector", "Open `/inspect` during development to see connected apps, tools, metrics, audit events, and raw gateway snapshot data."],
+  ["Inspector", "Open `/inspect` during development to see connected apps, functions, metrics, audit events, and raw gateway snapshot data."],
   ["Security doctor", "Run `--security-doctor` before sharing a hosted connection to catch unsafe transport and missing approval UI."],
   ["Schema adapters", "Use Zod, TypeBox-style JSON Schema, or the built-in helpers without changing the gateway contract."],
   ["Native assistant bridges", "Generate App Intents and Android App Actions plans from the same capability manifest."]

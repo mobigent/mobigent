@@ -165,7 +165,10 @@ test("backend helper starts HTTP, OpenAPI, and inspector endpoints from one func
     assert.equal(backend.agent("chatgpt").endpoints.openApi, "http://localhost:18988/openapi.json");
     assert.equal(backend.agent("claude").provider.id, "claude-desktop");
     assert.ok(backend.agents().some((agent) => agent.provider.id === "openai-responses"));
-    await assert.rejects(backend.ready({ timeoutMs: 5, intervalMs: 1 }), /waiting for 1 connected app/);
+    await assert.rejects(
+      backend.ready({ minFunctions: 1, timeoutMs: 5, intervalMs: 1 }),
+      /waiting for 1 connected app\(s\) and 1 exposed function\(s\)/
+    );
   } finally {
     await backend.stop();
   }
@@ -190,7 +193,9 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
     });
 
     try {
-      await backend.ready();
+      await backend.ready({ minFunctions: 1 });
+      assert.equal(backend.functions()[0]?.name, "com_example_functions.expense_create");
+      assert.equal(backend.resolveFunctionName("expense.create"), "com_example_functions.expense_create");
       assert.deepEqual(await backend.invoke("expense.create", { merchant: "Cafe" }), {
         id: "EXP-1",
         merchant: "Cafe"
@@ -603,9 +608,9 @@ test("existing app DX connects simple app features to backend calls end to end",
     assert.equal(status.appsWithManifests, 1);
     assert.equal(status.tools, 2);
 
-    assert.equal(backend.resolveToolName("expense.create"), "com_example_existing.expense_create");
+    assert.equal(backend.resolveFunctionName("expense.create"), "com_example_existing.expense_create");
 
-    const result = await backend.call("expense.create", {
+    const result = await backend.invoke("expense.create", {
       merchant: "Airport Taxi",
       amount: 42.25
     });
@@ -615,7 +620,7 @@ test("existing app DX connects simple app features to backend calls end to end",
       merchant: "Airport Taxi",
       amount: 42.25
     });
-    assert.deepEqual(await backend.call("expense.list"), {
+    assert.deepEqual(await backend.invoke("expense.list"), {
       items: [result]
     });
   } finally {
@@ -664,9 +669,9 @@ test("existing app DX can connect without passing the singleton client manually"
       confirm: async () => true
     });
 
-    await waitFor(() => backend.tools().some((tool) => tool.name === "com_example_onecall.expense_create"));
+    await waitFor(() => backend.functions().some((fn) => fn.name === "com_example_onecall.expense_create"));
 
-    assert.deepEqual(await backend.call("expense.create", {
+    assert.deepEqual(await backend.invoke("expense.create", {
       merchant: "Airport Taxi",
       amount: 42.25
     }), {
@@ -711,9 +716,9 @@ test("existing app DX can connect with only features for local demos", async () 
       confirm: async () => true
     });
 
-    await waitFor(() => backend.tools().some((tool) => tool.name === "app_mobigent_local.expense_create"));
+    await waitFor(() => backend.functions().some((fn) => fn.name === "app_mobigent_local.expense_create"));
 
-    assert.deepEqual(await backend.call("expense.create", {
+    assert.deepEqual(await backend.invoke("expense.create", {
       merchant: "Airport Taxi",
       amount: 42.25
     }), {
