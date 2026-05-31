@@ -101,13 +101,19 @@ export type MobigentAppFactory = {
 };
 
 export function createMobigentApp(options: MobigentAppFactoryOptions): MobigentAppFactory {
+  const appOptions: MobigentAppFactoryOptions = {
+    reconnect: { enabled: true, maxAttempts: 20 },
+    heartbeat: true,
+    ...options
+  };
+
   function MobigentRoot({ children, capabilities, ...runtimeOptions }: MobigentAppRootProps) {
     return (
       <MobigentApp
-        {...options}
+        {...appOptions}
         {...runtimeOptions}
-        capabilities={mergeMobigentAppCapabilities(options.capabilities, capabilities)}
-        modules={mergeMobigentAppModules(options.modules, runtimeOptions.modules)}
+        capabilities={mergeMobigentAppCapabilities(appOptions.capabilities, capabilities)}
+        modules={mergeMobigentAppModules(appOptions.modules, runtimeOptions.modules)}
       >
         {children}
       </MobigentApp>
@@ -117,7 +123,7 @@ export function createMobigentApp(options: MobigentAppFactoryOptions): MobigentA
   return {
     Root: MobigentRoot,
     Provider: MobigentRoot,
-    options
+    options: appOptions
   };
 }
 

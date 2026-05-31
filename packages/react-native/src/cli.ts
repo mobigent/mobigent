@@ -815,8 +815,6 @@ ${confirmationImport}
 
 const { Root } = setupMobigent({
   config: mobigentConfig${versionLine},
-  reconnect: { enabled: true, maxAttempts: 20 },
-  heartbeat: true,
   features: [${options.feature}Feature]${confirmationOption}
 });
 
@@ -860,8 +858,6 @@ ${confirmationImport}
 
 const { Root } = setupMobigent({
   config: mobigentConfig${versionLine},
-  reconnect: { enabled: true, maxAttempts: 20 },
-  heartbeat: true,
   features: [${options.feature}Feature]${confirmationOption}
 });
 

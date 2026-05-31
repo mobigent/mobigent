@@ -117,6 +117,8 @@ test("app setup accepts features directly for the shortest React Native path", (
   const app = setupMobigent(expenses);
 
   assert.deepEqual(app.options.capabilities, [expenses]);
+  assert.deepEqual(app.options.reconnect, { enabled: true, maxAttempts: 20 });
+  assert.equal(app.options.heartbeat, true);
 });
 
 test("withMobigent wraps an existing React Native app with one normal function call", () => {

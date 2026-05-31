@@ -115,6 +115,7 @@ const starterServer = createMobigentAppFiles({
 assert.match(rnRoot, /setupMobigent/);
 assert.match(rnRoot, /config: mobigentConfig/);
 assert.doesNotMatch(rnRoot, /MobigentProvider|createAgentApp|createAgentModule/);
+assert.doesNotMatch(rnRoot, /reconnect|heartbeat/);
 assert.match(rnFeature, /defineFeature\("expense", \{/);
 assert.match(rnFeature, /list: read\(/);
 assert.match(rnFeature, /create: write\(/);
