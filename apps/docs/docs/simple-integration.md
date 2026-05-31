@@ -49,17 +49,14 @@ npx mobigent-backend --app-dir ../mobile-app
 ```
 
 ```ts
-import { appFunctions, waitForApp } from "./mobigent";
+import { feature, waitForApp } from "./mobigent";
 
 await waitForApp();
 
-const app = appFunctions({
-  createExpense: "expense.create",
-  listExpenses: "expense.list"
-});
+const expense = feature("expense");
 
-await app.createExpense({ merchant: "Coffee", amount: 8 });
-await app.listExpenses();
+await expense.create({ merchant: "Coffee", amount: 8 });
+await expense.list();
 ```
 
 ## What Mobigent Handles

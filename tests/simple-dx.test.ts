@@ -216,16 +216,13 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
         merchant: "Airport Taxi"
       });
 
-      const app = backend.appFunctions({
-        createExpense: "expense.create",
-        listExpenses: "expense.list"
-      });
+      const app = backend.feature("expense");
 
-      assert.deepEqual(await app.createExpense({ merchant: "Bakery" }), {
+      assert.deepEqual(await app.create({ merchant: "Bakery" }), {
         id: "EXP-1",
         merchant: "Bakery"
       });
-      assert.deepEqual(await app.listExpenses(), {
+      assert.deepEqual(await app.list(), {
         items: [
           { id: "EXP-1", merchant: "Cafe" },
           { id: "EXP-1", merchant: "Airport Taxi" },
@@ -425,6 +422,7 @@ test("backend init helper creates a simple server entrypoint", () => {
   assert.match(files[0]?.contents ?? "", /export const waitForApp = mobigent\.waitForApp/);
   assert.match(files[0]?.contents ?? "", /export const callApp = mobigent\.callApp/);
   assert.match(files[0]?.contents ?? "", /export const appFunction = mobigent\.appFunction/);
+  assert.match(files[0]?.contents ?? "", /export const feature = mobigent\.feature/);
   assert.match(files[0]?.contents ?? "", /export const appFunctions = mobigent\.appFunctions/);
   assert.doesNotMatch(files[0]?.contents ?? "", /copyAppConfig|Copy this/);
   assert.match(files[1]?.contents ?? "", /# MOBIGENT_AUTH_TOKEN=replace-me/);

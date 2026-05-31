@@ -59,17 +59,14 @@ npx mobigent-backend --app-dir ../mobile-app
 The generated backend file starts Mobigent and exports helper functions. For the cleanest backend code, make a tiny object of app functions once:
 
 ```ts
-import { appFunctions, waitForApp } from "./mobigent";
+import { feature, waitForApp } from "./mobigent";
 
 await waitForApp();
 
-const app = appFunctions({
-  createExpense: "expense.create",
-  listExpenses: "expense.list"
-});
+const expense = feature("expense");
 
-await app.createExpense({ merchant: "Airport Taxi", amount: 42.25 });
-await app.listExpenses();
+await expense.create({ merchant: "Airport Taxi", amount: 42.25 });
+await expense.list();
 ```
 
 That is the backend integration.

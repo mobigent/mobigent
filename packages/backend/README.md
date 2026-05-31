@@ -14,17 +14,14 @@ That creates a small `src/mobigent.ts` file for your backend. If `--app-dir` is 
 ## Call App Functions
 
 ```ts
-import { appFunctions, waitForApp } from "./mobigent";
+import { feature, waitForApp } from "./mobigent";
 
 await waitForApp();
 
-const app = appFunctions({
-  createExpense: "expense.create",
-  listExpenses: "expense.list"
-});
+const expense = feature("expense");
 
-await app.createExpense({ merchant: "Airport Taxi", amount: 42.25 });
-await app.listExpenses();
+await expense.create({ merchant: "Airport Taxi", amount: 42.25 });
+await expense.list();
 ```
 
 That is the main backend API.
@@ -40,11 +37,9 @@ const mobigent = await startMobigent({
 
 await mobigent.waitForApp();
 
-const app = mobigent.appFunctions({
-  createExpense: "expense.create"
-});
+const expense = mobigent.feature("expense");
 
-await app.createExpense({ merchant: "Coffee", amount: 8 });
+await expense.create({ merchant: "Coffee", amount: 8 });
 ```
 
 Mobigent infers local app identity from the app project. Pass exact `app` values only when production needs them.
@@ -60,6 +55,6 @@ Mobigent infers local app identity from the app project. Pass exact `app` values
 - inspector and audit trail
 - agent setup helpers
 
-For quick one-off calls, `mobigent.callApp("expense.create", input)` is still available. For shutdown, call `await mobigent.stop()`.
+For quick one-off calls, `mobigent.callApp("expense.create", input)` is still available. If you prefer explicit aliases, `mobigent.appFunctions({ createExpense: "expense.create" })` still works. For shutdown, call `await mobigent.stop()`.
 
 Advanced docs cover OpenAPI, MCP, custom auth, provider runtimes, and hosted deployments after the simple app/backend loop works.

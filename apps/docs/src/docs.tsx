@@ -92,27 +92,21 @@ const mobigent = await startMobigent({
 });
 await mobigent.waitForApp();
 
-const app = mobigent.appFunctions({
-  createExpense: "expense.create",
-  listExpenses: "expense.list"
-});
+const expense = mobigent.feature("expense");
 
-await app.createExpense({ merchant: "Airport Taxi", amount: 42.25 });
-await app.listExpenses();
+await expense.create({ merchant: "Airport Taxi", amount: 42.25 });
+await expense.list();
 
 console.log(mobigent.urls.inspector);`;
 
-const backendHelperCode = `import { appFunctions, waitForApp } from "./mobigent";
+const backendHelperCode = `import { feature, waitForApp } from "./mobigent";
 
 await waitForApp();
 
-const app = appFunctions({
-  createExpense: "expense.create",
-  listExpenses: "expense.list"
-});
+const expense = feature("expense");
 
-await app.createExpense({ merchant: "Coffee", amount: 8 });
-await app.listExpenses();`;
+await expense.create({ merchant: "Coffee", amount: 8 });
+await expense.list();`;
 
 const backendInitCode = `npm install @mobigent/backend
 npx mobigent-backend --app-dir ../mobile-app`;
@@ -353,7 +347,7 @@ const nativeApis = [
 const backendApis = [
   ["startMobigent()", "Starts the backend service and writes app config when `appDir` is provided."],
   ["waitForApp()", "Waits until the app is connected and has exposed at least one function."],
-  ["appFunctions()", "Creates a small object of normal backend functions from app-owned function names."],
+  ["feature()", "Creates a tiny object of normal backend functions for one app feature."],
   ["callApp()", "Makes a quick one-off app function call by name."],
   ["appFunction()", "Creates a reusable backend function wrapper for repeated calls."],
   ["agent()", "Prints setup for ChatGPT, Claude, OpenAPI, and supported providers after the app loop works."]

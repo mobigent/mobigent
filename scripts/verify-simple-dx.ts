@@ -46,6 +46,7 @@ assert.match(backendFile, /app: \{/);
 assert.match(backendFile, /export const waitForApp = mobigent\.waitForApp/);
 assert.match(backendFile, /export const callApp = mobigent\.callApp/);
 assert.match(backendFile, /export const appFunction = mobigent\.appFunction/);
+assert.match(backendFile, /export const feature = mobigent\.feature/);
 assert.match(backendFile, /export const appFunctions = mobigent\.appFunctions/);
 assert.doesNotMatch(backendFile, /BridgeGateway|createHttpApp|mobigent\.appConfigModule\(|copyAppConfig|Copy this/);
 
@@ -127,5 +128,8 @@ assert.doesNotMatch(starterCapabilities, /import \{ defineFeature, mobigent \}/)
 assert.doesNotMatch(starterServer, /const gatewayPort|const httpPort|wsPort: 8787|httpPort: 8788/);
 assert.match(starterServer, /startMobigent\(\{/);
 assert.match(starterServer, /backend\.defaultApp/);
+assert.match(starterServer, /const expense = backend\.feature\("expense"\)/);
+assert.match(starterServer, /expense\.create\(input\)/);
+assert.doesNotMatch(starterServer, /backend\.appFunctions\(\{/);
 
 console.log("Mobigent simple DX guardrails passed.");

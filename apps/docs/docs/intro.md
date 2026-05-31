@@ -11,7 +11,7 @@ Start with two packages:
 - `@mobigent/app` in the mobile app
 - `@mobigent/backend` in the backend
 
-The app exposes normal functions such as `expense.list` and `expense.create`. The backend waits for the app and turns those names into a small object with `appFunctions()`, so server code can call `app.createExpense(input)` like ordinary backend code. Mobigent handles connection setup, schemas, validation, approval, retries, agent setup, and audit events.
+The app exposes normal functions such as `expense.list` and `expense.create`. The backend waits for the app and turns that feature into a tiny object with `feature("expense")`, so server code can call `expense.create(input)` like ordinary backend code. Mobigent handles connection setup, validation, approval, retries, agent setup, and audit events.
 
 Read gateway, MCP, OpenAPI, and provider docs after the simple app/backend loop works.
 

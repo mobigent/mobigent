@@ -96,8 +96,8 @@ try {
   assert.match(server, /You edit one file/);
   assert.match(server, /src\/capabilities\.ts/);
   assert.match(server, /startMobigent/);
-  assert.match(server, /backend\.appFunctions/);
-  assert.match(server, /mobileApp\.createExpense/);
+  assert.match(server, /backend\.feature\("expense"\)/);
+  assert.match(server, /expense\.create\(input\)/);
   assert.match(server, /MOBIGENT_DEMO_OPEN/);
 
   const capabilities = await readFile(join(target, "src", "capabilities.ts"), "utf8");

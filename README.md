@@ -52,12 +52,9 @@ import { startMobigent } from "@mobigent/backend";
 const backend = await startMobigent();
 await backend.waitForApp();
 
-const app = backend.appFunctions({
-  createExpense: "expense.create",
-  listExpenses: "expense.list"
-});
+const expense = backend.feature("expense");
 
-await app.createExpense({ merchant: "Coffee", amount: 8 });
+await expense.create({ merchant: "Coffee", amount: 8 });
 ```
 
 For local development, `startMobigent()` infers the app id and name from your project.
@@ -130,16 +127,13 @@ npx mobigent-backend --app-dir ../mobile-app
 Then backend code can call app functions like ordinary functions:
 
 ```ts
-import { appFunctions, waitForApp } from "./mobigent";
+import { feature, waitForApp } from "./mobigent";
 
 await waitForApp();
 
-const app = appFunctions({
-  createExpense: "expense.create",
-  listExpenses: "expense.list"
-});
+const expense = feature("expense");
 
-await app.createExpense({ merchant: "Coffee", amount: 8 });
+await expense.create({ merchant: "Coffee", amount: 8 });
 ```
 
 See [docs/simple-integration.md](./docs/simple-integration.md) for the clean path before reading advanced docs.
@@ -316,13 +310,10 @@ await mobigent.waitForApp();
 Call app-owned functions through a normal backend object:
 
 ```ts
-const app = mobigent.appFunctions({
-  createExpense: "expense.create",
-  listExpenses: "expense.list"
-});
+const expense = mobigent.feature("expense");
 
-await app.createExpense({ merchant: "Airport Taxi", amount: 42.25 });
-await app.listExpenses();
+await expense.create({ merchant: "Airport Taxi", amount: 42.25 });
+await expense.list();
 ```
 
 For quick one-off calls, `mobigent.callApp("expense.create", input)` is still available.

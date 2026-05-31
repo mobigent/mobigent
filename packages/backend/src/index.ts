@@ -137,11 +137,17 @@ export type MobigentBackend = {
   call(toolName: string, input?: unknown, options?: ToolCallOptions): ReturnType<BridgeGateway["callTool"]>;
   invoke(name: string, input?: unknown, options?: ToolCallOptions): ReturnType<BridgeGateway["callTool"]>;
   appFunction(name: string): MobigentBackendFunction;
+  appFeature(namespace: string): MobigentBackendFeatureFunctions;
+  feature(namespace: string): MobigentBackendFeatureFunctions;
+  appFunctions(namespace: string): MobigentBackendFeatureFunctions;
   appFunctions<const T extends Record<string, string>>(functions: T): MobigentBackendFunctionMap<T>;
   fn(name: string): MobigentBackendFunction;
 };
 
 export type MobigentBackendFunction = (input?: unknown, options?: ToolCallOptions) => ReturnType<BridgeGateway["callTool"]>;
+export type MobigentBackendFeatureFunctions = {
+  [functionName: string]: MobigentBackendFunction;
+};
 export type MobigentBackendFunctionMap<T extends Record<string, string>> = {
   [K in keyof T]: MobigentBackendFunction;
 };
@@ -227,10 +233,20 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
 
   const appFunction = (name: string): MobigentBackendFunction =>
     (input: unknown = {}, callOptions?: ToolCallOptions) => invoke(name, input, callOptions);
-  const appFunctions = <const T extends Record<string, string>>(functions: T): MobigentBackendFunctionMap<T> => {
+  const appFeature = (namespace: string): MobigentBackendFeatureFunctions => createFeatureFunctionProxy(namespace, appFunction);
+  function appFunctions(namespace: string): MobigentBackendFeatureFunctions;
+  function appFunctions<const T extends Record<string, string>>(functions: T): MobigentBackendFunctionMap<T>;
+  function appFunctions<const T extends Record<string, string>>(
+    functionsOrNamespace: T | string
+  ): MobigentBackendFunctionMap<T> | MobigentBackendFeatureFunctions {
+    if (typeof functionsOrNamespace === "string") {
+      return appFeature(functionsOrNamespace);
+    }
+
+    const functions = functionsOrNamespace;
     const entries = Object.entries(functions).map(([alias, functionName]) => [alias, appFunction(functionName)]);
     return Object.fromEntries(entries) as MobigentBackendFunctionMap<T>;
-  };
+  }
 
   return {
     gateway,
@@ -269,9 +285,32 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     call: invoke,
     invoke,
     appFunction,
+    appFeature,
+    feature: appFeature,
     appFunctions,
     fn: appFunction
   };
+}
+
+function createFeatureFunctionProxy(namespace: string, appFunction: (name: string) => MobigentBackendFunction) {
+  const cache = new Map<string, MobigentBackendFunction>();
+
+  return new Proxy(
+    {},
+    {
+      get(_target, property) {
+        if (typeof property !== "string" || property === "then") {
+          return undefined;
+        }
+
+        if (!cache.has(property)) {
+          cache.set(property, appFunction(`${namespace}.${property}`));
+        }
+
+        return cache.get(property);
+      }
+    }
+  ) as MobigentBackendFeatureFunctions;
 }
 
 function writeDefaultAppConfig(
