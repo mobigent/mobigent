@@ -75,14 +75,14 @@ const connection = await connectMobigent(expenses, {
 
 That one call registers the feature, connects to the backend, and returns a `disconnect()` helper.
 
-## Tool Names
+## Backend Names
 
 For `appId: "com.example.app"` and `feature("expense")`:
 
 - backend code can call `expense.list`
 - backend code can call `expense.create`
 
-Agent-facing transports still receive stable full tool names, but app and backend code can use the short names.
+Backend code can use those same short names.
 
 ## Advanced
 

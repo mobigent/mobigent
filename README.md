@@ -23,7 +23,7 @@ The result: agents get a clean interface, users stay in control, and your app de
 Mobigent has two normal packages:
 
 - **App package**: `@mobigent/app` lives inside the mobile app and exposes app functions.
-- **Backend package**: `@mobigent/backend` runs the agent-facing API, OpenAPI, inspector, and app connection layer.
+- **Backend package**: `@mobigent/backend` lets your backend call those app functions and handles the agent-facing service.
 
 Each package ships its own setup command, so the first integration stays small:
 
@@ -92,7 +92,7 @@ npm run dev
 
 That opens a visible app beside an agent playground. Click **Run agent request** and Mobigent calls the app's `expense.create` function, asks for approval in the app host, and adds a new row to the app state. In another terminal, run `npm run doctor` to confirm everything is healthy, then `npm run agent:local`, `npm run agent:openapi`, or `npm run agent:chatgpt` for copy-paste agent setup.
 
-When you are ready to adapt it, start with `src/capabilities.ts`. That is the small file that owns the sample functions, schemas, and handlers.
+When you are ready to adapt it, start with `src/capabilities.ts`. That is the small file that owns the sample app functions.
 
 Working from this repo? Create the same starter locally:
 
@@ -142,7 +142,7 @@ const app = appFunctions({
 await app.createExpense({ merchant: "Coffee", amount: 8 });
 ```
 
-See [docs/simple-integration.md](./docs/simple-integration.md) for the clean path before reading the advanced gateway/provider docs.
+See [docs/simple-integration.md](./docs/simple-integration.md) for the clean path before reading advanced docs.
 
 For an existing React Native app, the intended npm path is:
 
@@ -171,7 +171,6 @@ npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobig
 Then create the backend entrypoint:
 
 ```bash
-npm install @mobigent/backend
 npx mobigent-backend --app-dir ../mobile-app
 ```
 
@@ -245,9 +244,9 @@ import App from "./App";
 export default withMobigent(App, expenses);
 ```
 
-Prefer provider-style JSX? `setupMobigent(expenses)` still returns `{ Root }`.
+Prefer explicit JSX wrapping? `setupMobigent(expenses)` still returns `{ Root }`.
 
-Mobigent handles namespacing, schemas, validation, confirmation, connection lifecycle, backend communication, and event queueing.
+Mobigent handles names, validation, confirmation, connection lifecycle, backend communication, and event queueing.
 
 Need another feature later? Run `npx mobigent-init --feature invoice --out-dir src`. Mobigent preserves the existing config and wrapper, creates the new feature file, and adds it to the wrapper.
 
@@ -306,7 +305,7 @@ const mobigent = await startMobigent();
 const appConfig = mobigent.defaultApp;
 ```
 
-That one function starts the app connection endpoint, HTTP API, OpenAPI schema, inspector, app function routing, audit trail, and readiness checks. When `appDir` is set, it infers identity from the mobile app and writes `../mobile-app/mobigent.app.json` plus `../mobile-app/src/mobigent-config.ts`, so the app package can use the backend connection without manual copying. If that config module already exists, the app initializer preserves it.
+That one function starts Mobigent, routes app function calls, writes the app config when `appDir` is set, and exposes the local inspector for debugging. If the app config module already exists, the app initializer preserves it.
 
 Wait for the app when your server needs to call app functions immediately:
 
@@ -343,11 +342,9 @@ Start the backend:
 npm run dev
 ```
 
-Then inspect the app functions and generated agent interface:
+Then inspect the app functions:
 
 ```bash
-curl http://localhost:8788/tools
-curl http://localhost:8788/openapi.json
 open http://localhost:8788/inspect
 ```
 
@@ -361,7 +358,7 @@ That single page includes the app UI, an agent request box, the function result,
 
 Use `mobigent.agent("chatgpt")` for ChatGPT Actions setup, `mobigent.agent("claude")` for Claude Desktop setup, or `mobigent.agent("openai")` for server-side OpenAI Responses setup.
 
-The lower-level MCP command is still available for local agent clients:
+Advanced local agent clients can still use MCP:
 
 ```bash
 npm run dev:mcp

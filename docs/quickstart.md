@@ -179,25 +179,24 @@ For local checks:
 
 ```bash
 curl http://localhost:8788/health
-curl http://localhost:8788/tools
-curl http://localhost:8788/openapi.json
+open http://localhost:8788/inspect
 ```
 
 ## 4. Connect From A Device
 
-Use the right WebSocket URL for the runtime:
+For local simulators, the SDK usually picks the right local connection. If you are on a physical device or hosted backend, set the app connection URL in `mobigent.app.json`:
 
 - iOS simulator: `ws://localhost:8787`
 - Android emulator: `ws://10.0.2.2:8787`
 - physical device: `ws://YOUR_MAC_LAN_IP:8787`
-- hosted gateway: `wss://your-gateway.example.com`
+- hosted backend: `wss://your-backend.example.com`
 
 ## 5. Verify The Loop
 
 You know the first integration works when:
 
 - `/health` reports one connected app
-- `/tools` shows the provider-facing functions generated from your app feature
+- `/inspect` shows the app functions generated from your app feature
 - the write function pauses for confirmation in the app
 - the handler only runs after approval
 - the read function returns the updated state

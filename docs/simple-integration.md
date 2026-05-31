@@ -2,7 +2,7 @@
 
 Mobigent should feel like two normal SDK installs.
 
-You do not start with gateways, manifests, MCP, provider adapters, or protocol messages. Those are internal plumbing until you need advanced production control.
+You do not start with protocol plumbing. The SDK owns that until you need advanced production control.
 
 ## The Whole Model
 
@@ -11,7 +11,7 @@ mobile app  ->  @mobigent/app      -> exposes real app functions
 backend     ->  @mobigent/backend  -> lets agents call those functions
 ```
 
-The app owns the real behavior. The backend owns the agent-facing API. Mobigent owns the connection, discovery, schemas, confirmations, retries, and audit trail.
+The app owns the real behavior. The backend calls that behavior. Mobigent owns the connection, discovery, validation, confirmations, retries, and audit trail.
 
 ## 1. Add It To The App
 
@@ -82,13 +82,13 @@ If you only need one quick call, `callApp("expense.create", input)` is still ava
 - local development config
 - backend-generated app config
 - function naming
-- JSON schemas
+- input/output shapes
 - input validation
 - output validation
 - confirmation before risky writes
 - reconnects and heartbeat
 - queued app events
-- OpenAPI and agent setup
+- agent setup
 - inspector and audit events
 
 ## 4. What You Keep Control Of
@@ -102,6 +102,6 @@ If you only need one quick call, `callApp("expense.create", input)` is still ava
 
 ## 5. When To Read Advanced Docs
 
-Read the gateway, provider, MCP, and production docs only after the simple app/backend loop works.
+Read the advanced docs only after the simple app/backend loop works.
 
 Use the advanced docs when you need hosted ChatGPT Actions, Claude Desktop MCP, provider-specific adapters, custom auth, rate limits, signed manifests, or Docker hosting.

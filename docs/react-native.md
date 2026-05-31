@@ -40,7 +40,7 @@ This exposes:
 - backend shorthand `expense.list`
 - backend shorthand `expense.create`
 
-Agent-facing transports still receive stable full tool names, but app and backend code can use the short names.
+Backend code can use those same short names.
 
 ## 3. Wrap The App
 
@@ -52,7 +52,7 @@ import App from "./App";
 export default withMobigent(App, expenses);
 ```
 
-If you prefer an explicit provider component, `setupMobigent(expenses)` still returns `{ Root }`.
+If you prefer explicit JSX wrapping, `setupMobigent(expenses)` still returns `{ Root }`.
 
 That is enough for a local first run. The generated wrapper imports `src/mobigent-config.ts`. If your backend was started with `appDir`, Mobigent keeps that file updated for you, and the app initializer preserves it when you scaffold features later.
 

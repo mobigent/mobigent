@@ -71,7 +71,7 @@ await app.listExpenses();
 - user confirmation for risky writes
 - reconnects and heartbeat
 - queued app events
-- OpenAPI and agent setup
+- agent setup
 - inspector and audit events
 
-Read the advanced docs when you need hosted ChatGPT Actions, Claude Desktop MCP, provider adapters, custom auth, rate limits, signed manifests, or Docker hosting.
+Read the advanced docs when you need hosted ChatGPT Actions, Claude Desktop MCP, custom auth, rate limits, signed manifests, or Docker hosting.

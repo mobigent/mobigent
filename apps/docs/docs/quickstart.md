@@ -26,7 +26,7 @@ You should see app, backend, readiness, and function checks pass.
 
 ## Simple Model
 
-Use `@mobigent/app` in the mobile app and `@mobigent/backend` in the backend. The app exposes functions. The backend waits for the app and calls those functions. Mobigent handles the bridge, schemas, validation, confirmations, retries, and agent setup.
+Use `@mobigent/app` in the mobile app and `@mobigent/backend` in the backend. The app exposes functions. The backend waits for the app and calls those functions. Mobigent handles connection, validation, confirmations, retries, and agent setup.
 
 ## Existing React Native App
 
