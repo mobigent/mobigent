@@ -67,7 +67,7 @@ Commands:
   agent               Print setup for ChatGPT, Claude, OpenAI, or OpenAPI agents.
 
 Examples:
-  npm install @mobigent/react-native
+  npm install @mobigent/app
   npx mobigent init --feature expense --out-dir src
 
   npm install @mobigent/backend

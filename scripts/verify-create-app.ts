@@ -64,8 +64,8 @@ try {
     "https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-backend-0.1.12.tgz"
   );
   assert.equal(
-    packageJson.dependencies["@mobigent/react-native"],
-    "https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-react-native-0.1.12.tgz"
+    packageJson.dependencies["@mobigent/app"],
+    "https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-app-0.1.12.tgz"
   );
   assert.equal("@mobigent/core" in packageJson.dependencies, false);
   assert.equal("@mobigent/gateway" in packageJson.dependencies, false);
@@ -81,6 +81,10 @@ try {
   assert.equal(
     packageJson.overrides["@mobigent/providers"],
     "https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-providers-0.1.12.tgz"
+  );
+  assert.equal(
+    packageJson.overrides["@mobigent/react-native"],
+    "https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-react-native-0.1.12.tgz"
   );
   assert.equal(packageJson.devDependencies["@types/express"], "^5.0.6");
 
@@ -125,7 +129,7 @@ try {
   assert.equal(npmInit.code, 0, npmInit.stderr);
   const npmPackageJson = JSON.parse(await readFile(join(npmTarget, "package.json"), "utf8"));
   assert.equal(npmPackageJson.dependencies["@mobigent/backend"], "^1.2.3");
-  assert.equal(npmPackageJson.dependencies["@mobigent/react-native"], "^1.2.3");
+  assert.equal(npmPackageJson.dependencies["@mobigent/app"], "^1.2.3");
   assert.equal(npmPackageJson.overrides, undefined);
   assert.equal("@mobigent/core" in npmPackageJson.dependencies, false);
   assert.equal("@mobigent/gateway" in npmPackageJson.dependencies, false);
@@ -150,13 +154,14 @@ try {
   assert.equal(localInit.code, 0, localInit.stderr);
   const localPackageJson = JSON.parse(await readFile(join(localTarget, "package.json"), "utf8"));
   assert.match(localPackageJson.dependencies["@mobigent/backend"], /^file:/);
-  assert.match(localPackageJson.dependencies["@mobigent/react-native"], /^file:/);
+  assert.match(localPackageJson.dependencies["@mobigent/app"], /^file:/);
   assert.equal("@mobigent/core" in localPackageJson.dependencies, false);
   assert.equal("@mobigent/gateway" in localPackageJson.dependencies, false);
   assert.equal("@mobigent/providers" in localPackageJson.dependencies, false);
   assert.match(localPackageJson.overrides["@mobigent/core"], /^file:/);
   assert.match(localPackageJson.overrides["@mobigent/providers"], /^file:/);
   assert.match(localPackageJson.overrides["@mobigent/gateway"], /^file:/);
+  assert.match(localPackageJson.overrides["@mobigent/react-native"], /^file:/);
   assert.match(await readFile(join(localTarget, "README.md"), "utf8"), /linked to local Mobigent packages/);
   assert.match(await readFile(join(localTarget, "README.md"), "utf8"), /npm run agent:local/);
 

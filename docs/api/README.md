@@ -2,7 +2,7 @@
 
 Start with the two-package path:
 
-- `@mobigent/react-native`: app SDK for exposing app functions.
+- `@mobigent/app`: app SDK for exposing app functions.
 - `@mobigent/backend`: backend SDK for the agent-facing API, inspector, OpenAPI, MCP-ready routing, and app connections.
 
 Lower-level protocol packages still exist, but most developers should not need them on day one.
@@ -10,7 +10,7 @@ Lower-level protocol packages still exist, but most developers should not need t
 ## App API
 
 ```ts
-import { defineFeature, read, write } from "@mobigent/react-native";
+import { defineFeature, read, write } from "@mobigent/app";
 
 export const expenses = defineFeature("expense", {
   list: read(async () => ({ items: await listExpenses() })),
@@ -25,7 +25,7 @@ export const expenses = defineFeature("expense", {
 ```
 
 ```tsx
-import { withMobigent } from "@mobigent/react-native";
+import { withMobigent } from "@mobigent/app";
 import { expenses } from "./mobigent/expenses";
 import App from "./App";
 
@@ -36,7 +36,7 @@ For non-React hosts, demos, and tests:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { connectMobigent } from "@mobigent/react-native";
+import { connectMobigent } from "@mobigent/app";
 import { expenses } from "./mobigent/expenses";
 
 const backend = await startMobigent();

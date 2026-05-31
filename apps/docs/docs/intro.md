@@ -20,7 +20,7 @@ Agents connect through a gateway using MCP or OpenAPI. The app remains the sourc
 
 ```mermaid
 flowchart LR
-  App["React Native app"] --> SDK["@mobigent/react-native"]
+  App["React Native app"] --> SDK["@mobigent/app"]
   SDK --> Gateway["@mobigent/gateway"]
   Gateway --> MCP["MCP agents"]
   Gateway --> OpenAPI["OpenAPI action platforms"]

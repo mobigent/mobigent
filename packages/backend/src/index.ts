@@ -296,7 +296,7 @@ export function formatMobigentAppConfigModule(
   const exportName = options.exportName ?? "mobigentConfig";
   assertValidExportName(exportName);
 
-  return `import { defineMobigentConfig } from "@mobigent/react-native";
+  return `import { defineMobigentConfig } from "@mobigent/app";
 
 export const ${exportName} = defineMobigentConfig(${JSON.stringify(config, null, 2)});
 `;

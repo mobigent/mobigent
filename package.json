@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
-    "build:sdk": "npm run build -w @mobigent/core -w @mobigent/providers -w @mobigent/gateway -w @mobigent/backend -w @mobigent/react-native -w create-mobigent-app -w mobigent",
+    "build:sdk": "npm run build -w @mobigent/core -w @mobigent/providers -w @mobigent/gateway -w @mobigent/backend -w @mobigent/react-native -w @mobigent/app -w create-mobigent-app -w mobigent",
     "typecheck": "npm run build:sdk && npm run typecheck --workspaces --if-present",
     "test": "npm run build:sdk && node --test --import tsx tests/*.test.ts",
     "verify": "npm run typecheck && npm test && npm run simple-dx:smoke && npm run bin:smoke && npm run rn-cli:smoke && npm run create-app:smoke && npm run create-app:runtime && npm run pack:check && npm run packed-install:smoke && npm run npm:preflight && npm run docs:build",

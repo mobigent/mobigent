@@ -808,7 +808,7 @@ function createMobigentRootFile(options: ReactNativeInitCliOptions) {
     : "";
 
 return `import type { ComponentType, ReactNode } from "react";
-import { setupMobigent, type MobigentAppRootProps } from "@mobigent/react-native";
+import { setupMobigent, type MobigentAppRootProps } from "@mobigent/app";
 import { ${options.feature}Feature } from "./mobigent-features/${options.feature}";
 import { mobigentConfig } from "./mobigent-config";
 ${confirmationImport}
@@ -853,7 +853,7 @@ function createMobigentExpoRootFile(options: ReactNativeInitCliOptions) {
     : "";
 
 return `import type { ComponentType, ReactNode } from "react";
-import { setupMobigent, type MobigentAppRootProps } from "@mobigent/react-native";
+import { setupMobigent, type MobigentAppRootProps } from "@mobigent/app";
 import { ${options.feature}Feature } from "./mobigent-features/${options.feature}";
 import { mobigentConfig } from "./mobigent-config";
 ${confirmationImport}
@@ -921,13 +921,13 @@ function createRelativeImportPath(fromDir: string, toPathWithoutExtension: strin
 
 function createMobigentConfigFile(options: ReactNativeInitCliOptions) {
   if (options.appConfig) {
-    return `import { defineMobigentConfig } from "@mobigent/react-native";
+    return `import { defineMobigentConfig } from "@mobigent/app";
 
 export const mobigentConfig = defineMobigentConfig(${JSON.stringify(options.appConfig, null, 2)});
 `;
   }
 
-  return `import { defineMobigentConfig } from "@mobigent/react-native";
+  return `import { defineMobigentConfig } from "@mobigent/app";
 
 export const mobigentConfig = defineMobigentConfig({
   appId: ${JSON.stringify(options.appId)},
@@ -1098,7 +1098,7 @@ EXPO_PUBLIC_MOBIGENT_GATEWAY_URL=${gatewayUrl}
 
 function createConfirmationFile() {
   return `import { Button, Modal, StyleSheet, Text, View } from "react-native";
-import { useMobigentConfirmation, type MobigentConfirmationComponentProps } from "@mobigent/react-native";
+import { useMobigentConfirmation, type MobigentConfirmationComponentProps } from "@mobigent/app";
 
 export function MobigentAgentApproval({
   approveLabel = "Approve",
@@ -1171,7 +1171,7 @@ const styles = StyleSheet.create({
 }
 
 function createFeatureFile(feature: string) {
-  return `import { defineFeature, read, write } from "@mobigent/react-native";
+  return `import { defineFeature, read, write } from "@mobigent/app";
 
 type ${feature}Record = {
   id: string;
@@ -1251,7 +1251,7 @@ function addFeatureToMobigentRoot(contents: string, feature: string) {
   const importLine = `import { ${featureBinding} } from "./mobigent-features/${feature}";`;
   const lines = contents.split("\n");
   const lastFeatureImportIndex = findLastFeatureImportIndex(lines);
-  const fallbackImportIndex = lines.findIndex((line) => line.includes("@mobigent/react-native"));
+  const fallbackImportIndex = lines.findIndex((line) => line.includes("@mobigent/app") || line.includes("@mobigent/react-native"));
   const insertIndex = lastFeatureImportIndex >= 0 ? lastFeatureImportIndex + 1 : fallbackImportIndex + 1;
 
   if (insertIndex <= 0) {
@@ -1325,7 +1325,7 @@ function pushFileCheck(
     checks.push({
       name,
       status: "warn",
-      message: `${path} does not exist yet. Run mobigent-rn-init to generate it.`
+      message: `${path} does not exist yet. Run mobigent-init to generate it.`
     });
     return;
   }
@@ -1375,14 +1375,15 @@ function pushPackageJsonCheck(checks: ReactNativeDoctorCheck[], path: string) {
     ...parsed.devDependencies,
     ...parsed.peerDependencies
   };
-  const hasMobigent = Boolean(dependencies["@mobigent/react-native"]);
+  const hasMobigent = Boolean(dependencies["@mobigent/app"] || dependencies["@mobigent/react-native"]);
+  const packageName = dependencies["@mobigent/app"] ? "@mobigent/app" : "@mobigent/react-native";
   const hasReactNative = Boolean(dependencies["react-native"] || dependencies["expo"]);
 
   if (!hasMobigent) {
     checks.push({
       name: "package_json",
       status: "warn",
-      message: `${path} is missing @mobigent/react-native. Install it before running the app.`
+      message: `${path} is missing @mobigent/app. Install it before running the app.`
     });
     return;
   }
@@ -1391,8 +1392,8 @@ function pushPackageJsonCheck(checks: ReactNativeDoctorCheck[], path: string) {
     name: "package_json",
     status: hasReactNative ? "pass" : "warn",
     message: hasReactNative
-      ? `${path} includes @mobigent/react-native and a React Native runtime dependency.`
-      : `${path} includes @mobigent/react-native but does not list react-native or expo.`
+      ? `${path} includes ${packageName} and a React Native runtime dependency.`
+      : `${path} includes ${packageName} but does not list react-native or expo.`
   });
 }
 

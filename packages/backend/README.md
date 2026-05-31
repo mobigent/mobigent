@@ -4,7 +4,7 @@ Run Mobigent from normal Node code.
 
 ```bash
 npm install @mobigent/backend
-npx mobigent backend --app-dir ../mobile-app
+npx mobigent-backend --app-dir ../mobile-app
 ```
 
 That creates `src/mobigent.ts`, `.env.mobigent`, and `mobigent.app.json`.
@@ -81,13 +81,13 @@ That config includes the app id, app name, connection URL, version, and app toke
 If you did not pass `--app-dir`, put the generated `mobigent.app.json` in the app project, then run:
 
 ```bash
-npx mobigent init --feature expense --out-dir src
+npx mobigent-init --feature expense --out-dir src
 ```
 
 For custom folder layouts, run the app initializer with:
 
 ```bash
-npx mobigent init --feature expense --out-dir src --backend-dir ../server
+npx mobigent-init --feature expense --out-dir src --backend-dir ../server
 ```
 
 Advanced: `mobigent.copyAppConfig()` is still available when you want to print a TypeScript config module manually:
@@ -99,7 +99,7 @@ console.log(mobigent.copyAppConfig());
 It prints:
 
 ```ts
-import { defineMobigentConfig } from "@mobigent/react-native";
+import { defineMobigentConfig } from "@mobigent/app";
 
 export const mobigentConfig = defineMobigentConfig({
   "appId": "com.example.app",

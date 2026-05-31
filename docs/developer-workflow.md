@@ -47,7 +47,7 @@ Use `wss://` for hosted gateways. Keep medium and high risk actions behind app-o
 Use built-in helpers, Zod, or TypeBox-style JSON Schema:
 
 ```ts
-import { fromZod, fromTypeBox, schema } from "@mobigent/react-native";
+import { fromZod, fromTypeBox, schema } from "@mobigent/app";
 import { z } from "zod";
 
 const zodInput = fromZod(z.object({
@@ -96,7 +96,7 @@ These outputs are bridge plans, not magic app-store configuration. Review them, 
 Tagged releases attach public package tarballs to GitHub Releases:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-react-native-0.1.12.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-app-0.1.12.tgz
 ```
 
 Use the starter tarball for the easiest first run:

@@ -34,20 +34,20 @@ The demo starts a Mobigent backend, connects a sample expense app, calls a confi
 Install the app SDK and scaffold the small Mobigent folder. If your backend project is a sibling folder named `backend`, `server`, `api`, `agent-server`, or `mobigent-backend`, the app initializer finds `mobigent.app.json` automatically:
 
 ```bash
-npm install @mobigent/react-native
-npx mobigent init --feature expense --out-dir src
+npm install @mobigent/app
+npx mobigent-init --feature expense --out-dir src
 ```
 
 For custom layouts, point the app initializer at the backend project:
 
 ```bash
-npx mobigent init --feature expense --out-dir src --backend-dir ../server
+npx mobigent-init --feature expense --out-dir src --backend-dir ../server
 ```
 
 Create a feature file:
 
 ```ts
-import { defineFeature, read, write } from "@mobigent/react-native";
+import { defineFeature, read, write } from "@mobigent/app";
 
 export const expenses = defineFeature("expense", {
   list: read(async () => ({ items: await listExpenses() })),
@@ -65,7 +65,7 @@ export const expenses = defineFeature("expense", {
 Wrap your existing app once:
 
 ```tsx
-import { withMobigent } from "@mobigent/react-native";
+import { withMobigent } from "@mobigent/app";
 import { expenses } from "./mobigent/expenses";
 import App from "./App";
 
@@ -80,7 +80,7 @@ For a non-React demo or test host, connect the same feature in one call:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { connectMobigent } from "@mobigent/react-native";
+import { connectMobigent } from "@mobigent/app";
 import { expenses } from "./mobigent/expenses";
 
 const backend = await startMobigent();
@@ -95,7 +95,7 @@ Generate the backend entrypoint and app config:
 
 ```bash
 npm install @mobigent/backend
-npx mobigent backend --app-dir ../mobile-app
+npx mobigent-backend --app-dir ../mobile-app
 ```
 
 Mobigent infers starter app identity from the app project when `--app-dir` is present. Pass `--app-id` and `--app-name` only when you want exact production values.
@@ -103,8 +103,8 @@ Mobigent infers starter app identity from the app project when `--app-dir` is pr
 That creates `mobigent.app.json` with a simple `connectionUrl`. The app initializer auto-detects that file from the app project, parent folders, and common sibling backend folders. With `--app-dir`, Mobigent also writes that config directly into the app project:
 
 ```bash
-npm install @mobigent/react-native
-npx mobigent init --feature expense --out-dir src
+npm install @mobigent/app
+npx mobigent-init --feature expense --out-dir src
 ```
 
 If you run the app init command before copying `mobigent.app.json`, it still works: Mobigent infers a starter app id/name from the React Native app's `package.json` and uses the local connection URL.

@@ -22,15 +22,15 @@ The result: agents get a clean interface, users stay in control, and your app de
 
 Mobigent has two normal packages:
 
-- **App package**: `@mobigent/react-native` lives inside the mobile app and exposes app functions.
+- **App package**: `@mobigent/app` lives inside the mobile app and exposes app functions.
 - **Backend package**: `@mobigent/backend` runs the agent-facing API, OpenAPI, inspector, and app connection layer.
 
-There is also one tiny **CLI package**: `mobigent`. It gives developers one command to remember:
+Each package ships its own setup command, so the first integration stays small:
 
 ```bash
-npx mobigent init --feature expense --out-dir src
-npx mobigent backend --app-dir ../mobile-app
-npx mobigent agent chatgpt --base-url https://your-backend.example
+npx mobigent-init --feature expense --out-dir src
+npx mobigent-backend --app-dir ../mobile-app
+npx mobigent-backend agent chatgpt --base-url https://your-backend.example
 ```
 
 The app developer writes ordinary app functions:
@@ -107,13 +107,13 @@ That first run is the whole idea: agents do not tap screens or guess UI. Your ap
 For an existing React Native app, the intended npm path is:
 
 ```bash
-npm install @mobigent/react-native
+npm install @mobigent/app
 ```
 
 Current public fallback:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-react-native-0.1.12.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-app-0.1.12.tgz
 ```
 
 For a backend/server app, the intended npm path is:
@@ -132,7 +132,7 @@ Then create the backend entrypoint:
 
 ```bash
 npm install @mobigent/backend
-npx mobigent backend --app-dir ../mobile-app
+npx mobigent-backend --app-dir ../mobile-app
 ```
 
 From the backend, point Mobigent at the app folder and let the SDK write the tiny app config files:
@@ -158,13 +158,13 @@ Until npmjs.com publishing is connected with an `NPM_TOKEN`, packages are publis
 Install directly from the public release tarball:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-react-native-0.1.12.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-app-0.1.12.tgz
 ```
 
 Or install from npmjs after npm publishing is connected:
 
 ```bash
-npm install @mobigent/react-native
+npm install @mobigent/app
 npm install @mobigent/backend
 npm install -D mobigent
 ```
@@ -176,8 +176,8 @@ Maintainer note: npmjs publishing is tracked in [docs/npm-publishing.md](./docs/
 Install the app package, then let the SDK create the tiny Mobigent folder from the backend config:
 
 ```bash
-npm install @mobigent/react-native
-npx mobigent init --feature expense --out-dir src
+npm install @mobigent/app
+npx mobigent-init --feature expense --out-dir src
 ```
 
 You do not need to invent an app id for local development. If `mobigent.app.json` exists in the app, a parent folder, or a common sibling backend folder such as `../backend`, the app package uses it. For custom layouts, pass `--backend-dir ../server`. If no config exists yet, the initializer infers a starter app id and app name from `package.json`.
@@ -185,7 +185,7 @@ You do not need to invent an app id for local development. If `mobigent.app.json
 Create one feature file:
 
 ```ts
-import { defineFeature } from "@mobigent/react-native";
+import { defineFeature } from "@mobigent/app";
 
 export const expenses = defineFeature("expense")
   .read("list", async () => ({
@@ -203,7 +203,7 @@ export const expenses = defineFeature("expense")
 Wrap the app once:
 
 ```tsx
-import { withMobigent } from "@mobigent/react-native";
+import { withMobigent } from "@mobigent/app";
 import { expenses } from "./mobigent/expenses";
 import App from "./App";
 
@@ -214,7 +214,7 @@ Prefer provider-style JSX? `setupMobigent(expenses)` still returns `{ Root }`.
 
 Mobigent handles namespacing, schemas, validation, confirmation, connection lifecycle, backend communication, and event queueing.
 
-Need another feature later? Run `npx mobigent init --feature invoice --out-dir src`. Mobigent preserves the existing config and wrapper, creates the new feature file, and adds it to the wrapper.
+Need another feature later? Run `npx mobigent-init --feature invoice --out-dir src`. Mobigent preserves the existing config and wrapper, creates the new feature file, and adds it to the wrapper.
 
 For local development, the app package uses a safe starter identity when no config is present. For production, pass exact values or drop the backend-generated `mobigent.app.json` into the app and import its typed config.
 
@@ -222,7 +222,7 @@ If you are wiring a Node demo, test host, or another non-React runtime, use the 
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { connectMobigent } from "@mobigent/react-native";
+import { connectMobigent } from "@mobigent/app";
 import { expenses } from "./mobigent/expenses";
 
 const backend = await startMobigent();
@@ -238,7 +238,7 @@ Create the backend entrypoint and app config:
 
 ```bash
 npm install @mobigent/backend
-npx mobigent backend --app-dir ../mobile-app
+npx mobigent-backend --app-dir ../mobile-app
 ```
 
 Mobigent infers starter app identity from the app project when `--app-dir` is present. Pass `--app-id` and `--app-name` only when you want exact production values.
@@ -246,7 +246,7 @@ Mobigent infers starter app identity from the app project when `--app-dir` is pr
 That creates `mobigent.app.json` in the backend project. If your app lives beside a folder named `backend`, `server`, `api`, `agent-server`, or `mobigent-backend`, the app initializer auto-detects that config. For any other layout, pass `--app-dir` from the backend or `--backend-dir` from the app:
 
 ```bash
-npx mobigent init --feature expense --out-dir src --backend-dir ../server
+npx mobigent-init --feature expense --out-dir src --backend-dir ../server
 ```
 
 Or write it manually:
@@ -337,7 +337,7 @@ npm run dev:mcp
 
 Most apps start with two packages:
 
-- `@mobigent/react-native`: app SDK for declaring app functions with `defineFeature()` and wrapping apps with `withMobigent()`
+- `@mobigent/app`: app SDK for declaring app functions with `defineFeature()` and wrapping apps with `withMobigent()`
 - `@mobigent/backend`: backend SDK for `startMobigent()`, app function routing, inspector, agent HTTP, and app connections
 
 Useful extras:

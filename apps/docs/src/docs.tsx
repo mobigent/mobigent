@@ -19,15 +19,15 @@ import "./styles.css";
 const quickstart = `# backend
 cd backend
 npm install @mobigent/backend
-npx mobigent backend
+npx mobigent-backend --app-dir ../mobile-app
 
 # app
 cd ../mobile-app
-npm install @mobigent/react-native
-npx mobigent init --feature expense --out-dir src`;
+npm install @mobigent/app
+npx mobigent-init --feature expense --out-dir src`;
 
 const customLayoutCode = `# app in a custom folder layout
-npx mobigent init \\
+npx mobigent-init \\
   --feature expense \\
   --out-dir src \\
   --backend-dir ../server`;
@@ -55,7 +55,7 @@ npm run dev
 npm run doctor
 npm run agent:local`;
 
-const moduleCode = `import { defineFeature, read, write } from "@mobigent/react-native";
+const moduleCode = `import { defineFeature, read, write } from "@mobigent/app";
 
 export const expenses = defineFeature("expense", {
   list: read(async () => ({
@@ -70,7 +70,7 @@ export const expenses = defineFeature("expense", {
   })
 });`;
 
-const appCode = `import { withMobigent } from "@mobigent/react-native";
+const appCode = `import { withMobigent } from "@mobigent/app";
 import { expenses } from "./mobigent/expense";
 import App from "./App";
 
@@ -106,7 +106,7 @@ await mobigent.invoke("expense.create", {
 await mobigent.invoke("expense.list");`;
 
 const backendInitCode = `npm install @mobigent/backend
-npx mobigent backend --app-dir ../mobile-app`;
+npx mobigent-backend --app-dir ../mobile-app`;
 
 const securityDoctorCode = `npx mobigent security-doctor \\
   --app-id com.example.app \\
@@ -115,7 +115,7 @@ const securityDoctorCode = `npx mobigent security-doctor \\
   --gateway-url wss://gateway.example.com \\
   --custom-confirmation`;
 
-const schemaAdapterCode = `import { fromZod, fromTypeBox } from "@mobigent/react-native";
+const schemaAdapterCode = `import { fromZod, fromTypeBox } from "@mobigent/app";
 import { z } from "zod";
 
 const expenseInput = fromZod(z.object({
@@ -310,7 +310,7 @@ const capabilities = [
 const packages = [
   ["mobigent", "Friendly CLI", "One command for starters, app feature setup, backend setup, and agent setup."],
   ["create-mobigent-app", "Starter generator", "Creates a runnable app with backend, inspector, visible state, and an agent playground."],
-  ["@mobigent/react-native", "App-side SDK", "Expo/React Native roots, modules, hooks, UI helpers, confirmation flow."],
+  ["@mobigent/app", "App-side SDK", "Expo/React Native roots, modules, hooks, UI helpers, confirmation flow."],
   ["@mobigent/backend", "Backend SDK", "One function starts the backend, exposes agent setup, waits for app readiness, and routes calls."],
   ["Mobigent iOS", "Swift package", "Native iOS client with actions, resources, components, confirmations, reconnect, heartbeat, and events."],
   ["Mobigent Android", "Kotlin library", "Native Android client with the same gateway protocol and local emulator-friendly defaults."],

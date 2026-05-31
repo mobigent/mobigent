@@ -133,20 +133,20 @@ function createPackageJson(packageName: string, options?: CreateMobigentAppOptio
   const dependencies = options?.localPackages
       ? {
         "@mobigent/backend": localPackageSpec(options, "backend"),
-        "@mobigent/react-native": localPackageSpec(options, "react-native"),
+        "@mobigent/app": localPackageSpec(options, "app"),
         express: "^5.2.1",
         ws: "^8.21.0"
       }
     : packageSource === "github-release"
       ? {
           "@mobigent/backend": releaseTarballSpec("mobigent-backend", version),
-          "@mobigent/react-native": releaseTarballSpec("mobigent-react-native", version),
+          "@mobigent/app": releaseTarballSpec("mobigent-app", version),
           express: "^5.2.1",
           ws: "^8.21.0"
         }
     : {
         "@mobigent/backend": `^${version}`,
-        "@mobigent/react-native": `^${version}`,
+        "@mobigent/app": `^${version}`,
         express: "^5.2.1",
         ws: "^8.21.0"
       };
@@ -185,7 +185,8 @@ function createPackageOverrides(
     return {
       "@mobigent/core": localPackageSpec(options, "core"),
       "@mobigent/gateway": localPackageSpec(options, "gateway"),
-      "@mobigent/providers": localPackageSpec(options, "providers")
+      "@mobigent/providers": localPackageSpec(options, "providers"),
+      "@mobigent/react-native": localPackageSpec(options, "react-native")
     };
   }
 
@@ -193,7 +194,8 @@ function createPackageOverrides(
     return {
       "@mobigent/core": releaseTarballSpec("mobigent-core", version),
       "@mobigent/gateway": releaseTarballSpec("mobigent-gateway", version),
-      "@mobigent/providers": releaseTarballSpec("mobigent-providers", version)
+      "@mobigent/providers": releaseTarballSpec("mobigent-providers", version),
+      "@mobigent/react-native": releaseTarballSpec("mobigent-react-native", version)
     };
   }
 
@@ -278,7 +280,7 @@ function createServerFile(options: CreateMobigentAppOptions) {
   return `import { spawn } from "node:child_process";
 import express from "express";
 import { startMobigent } from "@mobigent/backend";
-import { connectMobigent } from "@mobigent/react-native";
+import { connectMobigent } from "@mobigent/app";
 import { expenseFeature, expenses, parsePrompt } from "./capabilities.js";
 import { createNodeSocket } from "./nodeSocket.js";
 
@@ -534,7 +536,7 @@ function renderPage() {
 }
 
 function createCapabilitiesFile() {
-  return `import { defineFeature, emitMobigentEvent, read, write } from "@mobigent/react-native";
+  return `import { defineFeature, emitMobigentEvent, read, write } from "@mobigent/app";
 
 export type Expense = {
   id: string;

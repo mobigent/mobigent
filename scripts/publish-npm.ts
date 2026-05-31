@@ -11,6 +11,7 @@ const packages = [
   { name: "@mobigent/gateway", path: "packages/gateway/package.json" },
   { name: "@mobigent/backend", path: "packages/backend/package.json" },
   { name: "@mobigent/react-native", path: "packages/react-native/package.json" },
+  { name: "@mobigent/app", path: "packages/app/package.json" },
   { name: "create-mobigent-app", path: "packages/create-app/package.json" },
   { name: "mobigent", path: "packages/cli/package.json" }
 ];

@@ -21,7 +21,7 @@ const starterPackage = JSON.parse(
 
 assert.deepEqual(
   Object.keys(starterPackage.dependencies).filter((name) => name.startsWith("@mobigent/")).sort(),
-  ["@mobigent/backend", "@mobigent/react-native"],
+  ["@mobigent/app", "@mobigent/backend"],
   "npm starter should expose only the app and backend SDK packages"
 );
 assert.equal(starterPackage.overrides, undefined, "npm starter should not need internal Mobigent package overrides");

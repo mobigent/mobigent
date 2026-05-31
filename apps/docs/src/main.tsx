@@ -5,12 +5,12 @@ import "./styles.css";
 const quickstart = `# backend
 cd backend
 npm install @mobigent/backend
-npx mobigent-backend init
+npx mobigent-backend --app-dir ../mobile-app
 
 # app
 cd ../mobile-app
-npm install @mobigent/react-native
-npx mobigent init --feature expense --out-dir src`;
+npm install @mobigent/app
+npx mobigent-init --feature expense --out-dir src`;
 
 function App() {
   return (
@@ -25,7 +25,7 @@ function App() {
           <h1>The bridge between AI agents and real app capability.</h1>
           <p>
             Install the app package, install the backend package, expose real app functions, and let
-            Mobigent handle the bridge, approvals, retries, tool discovery, and agent setup.
+            Mobigent handle the bridge, approvals, retries, agent discovery, and provider setup.
           </p>
           <div className="heroActions">
             <a className="primaryButton" href="./docs.html">

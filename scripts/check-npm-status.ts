@@ -9,6 +9,7 @@ const packages = [
   "@mobigent/backend",
   "@mobigent/providers",
   "@mobigent/react-native",
+  "@mobigent/app",
   "create-mobigent-app",
   "mobigent"
 ];

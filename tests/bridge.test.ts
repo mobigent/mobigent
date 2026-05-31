@@ -2060,7 +2060,7 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   assert.ok(starterConfigFile);
   assert.ok(featureFile);
   assert.match(rootFile.contents, /setupMobigent/);
-  assert.match(rootFile.contents, /@mobigent\/react-native/);
+  assert.match(rootFile.contents, /@mobigent\/app/);
   assert.match(rootFile.contents, /config: mobigentConfig/);
   assert.match(rootFile.contents, /features: \[expenseFeature\]/);
   assert.match(rootFile.contents, /withMobigentApp/);
@@ -2074,7 +2074,7 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   assert.doesNotMatch(rootFile.contents, /\.\.\.mobigentEnvironment/);
   assert.match(rootFile.contents, /expenseFeature/);
   assert.doesNotMatch(featureFile.contents, /createAgentModule/);
-  assert.match(featureFile.contents, /@mobigent\/react-native/);
+  assert.match(featureFile.contents, /@mobigent\/app/);
   assert.match(featureFile.contents, /defineFeature\("expense", \{/);
   assert.match(featureFile.contents, /export const expenseFeature/);
   assert.match(featureFile.contents, /create: write\(/);
@@ -2096,7 +2096,7 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   assert.ok(expoRootFile);
   assert.doesNotMatch(expoRootFile.contents, /expo-constants/);
   assert.match(expoRootFile.contents, /setupMobigent/);
-  assert.match(expoRootFile.contents, /@mobigent\/react-native/);
+  assert.match(expoRootFile.contents, /@mobigent\/app/);
   assert.doesNotMatch(expoRootFile.contents, /Constants\.expoConfig/);
   assert.doesNotMatch(expoRootFile.contents, /createMobigentEnvironmentFromEnv/);
 
@@ -2366,7 +2366,7 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   const backendFirstDir = await mkdtemp(join(tmpdir(), "mobigent-rn-backend-first-"));
   await writeFile(
     join(backendFirstDir, "mobigent-config.ts"),
-    `import { defineMobigentConfig } from "@mobigent/react-native";
+    `import { defineMobigentConfig } from "@mobigent/app";
 
 export const mobigentConfig = defineMobigentConfig({
   appId: "com.mobigent.backendfirst",

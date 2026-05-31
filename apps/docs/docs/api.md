@@ -6,13 +6,13 @@ sidebar_position: 9
 
 Most integrations use two packages:
 
-- `@mobigent/react-native`: lives inside the app and exposes app functions.
+- `@mobigent/app`: lives inside the app and exposes app functions.
 - `@mobigent/backend`: lives in your backend and exposes app functions to agents.
 
 ## React Native
 
 ```ts
-import { defineFeature, read, write } from "@mobigent/react-native";
+import { defineFeature, read, write } from "@mobigent/app";
 
 export const expenses = defineFeature("expense", {
   list: read(async () => ({ items: await listExpenses() })),
@@ -27,7 +27,7 @@ export const expenses = defineFeature("expense", {
 ```
 
 ```tsx
-import { withMobigent } from "@mobigent/react-native";
+import { withMobigent } from "@mobigent/app";
 import App from "./App";
 
 export default withMobigent(App, expenses);
@@ -37,7 +37,7 @@ For non-React hosts, demos, and tests:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { connectMobigent } from "@mobigent/react-native";
+import { connectMobigent } from "@mobigent/app";
 import { expenses } from "./mobigent/expenses";
 
 const backend = await startMobigent();

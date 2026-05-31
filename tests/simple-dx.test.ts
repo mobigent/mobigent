@@ -488,7 +488,7 @@ test("backend init CLI infers app identity and prints the short app init command
       { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
     );
     assert.equal(writeCode, 0, stderr);
-    assert.match(stdout, /npx mobigent init --feature expense --out-dir src/);
+    assert.match(stdout, /npx mobigent-init --feature expense --out-dir src/);
     assert.doesNotMatch(stdout, /--config/);
     assert.match(await readFile(join(dir, "mobigent.app.json"), "utf8"), /Expense App/);
 
@@ -543,7 +543,7 @@ test("app config helpers create typed copy-paste app config", () => {
   });
 
   assert.equal(config.appId, "com.example.app");
-  assert.equal(formatMobigentAppConfigModule(config), `import { defineMobigentConfig } from "@mobigent/react-native";
+  assert.equal(formatMobigentAppConfigModule(config), `import { defineMobigentConfig } from "@mobigent/app";
 
 export const mobigentConfig = defineMobigentConfig({
   "appId": "com.example.app",

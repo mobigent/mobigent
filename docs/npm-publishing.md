@@ -5,7 +5,7 @@ Mobigent is designed to be installed like normal npm packages:
 ```bash
 npm create mobigent-app@latest my-demo
 npm install -D mobigent
-npm install @mobigent/react-native
+npm install @mobigent/app
 npm install @mobigent/backend
 ```
 
@@ -23,6 +23,7 @@ npm exec --yes \
 - `@mobigent/gateway`
 - `@mobigent/backend`
 - `@mobigent/providers`
+- `@mobigent/app`
 - `@mobigent/react-native`
 - `create-mobigent-app`
 - `mobigent`
@@ -32,7 +33,7 @@ npm exec --yes \
 Use this for the first public publish, because npm Trusted Publishing can only be configured after each package exists on npmjs.com.
 
 1. Create or join the `@mobigent` npm organization.
-2. Create an npm automation token with publish access for the seven packages.
+2. Create an npm automation token with publish access for the eight packages.
 3. Add that token as the GitHub secret `NPM_TOKEN`.
 4. Push the next SemVer tag.
 
@@ -58,6 +59,7 @@ npm trust github @mobigent/core --repo mobigent/mobigent --file release.yml --al
 npm trust github @mobigent/gateway --repo mobigent/mobigent --file release.yml --allow-publish
 npm trust github @mobigent/backend --repo mobigent/mobigent --file release.yml --allow-publish
 npm trust github @mobigent/providers --repo mobigent/mobigent --file release.yml --allow-publish
+npm trust github @mobigent/app --repo mobigent/mobigent --file release.yml --allow-publish
 npm trust github @mobigent/react-native --repo mobigent/mobigent --file release.yml --allow-publish
 npm trust github create-mobigent-app --repo mobigent/mobigent --file release.yml --allow-publish
 npm trust github mobigent --repo mobigent/mobigent --file release.yml --allow-publish
@@ -76,7 +78,7 @@ The workflow pins Node 24 and installs `npm@^11.10.0` before publishing so the O
 
 The release workflow fails if neither `NPM_TOKEN` nor `NPM_TRUSTED_PUBLISHING=true` is configured. A green release should mean the npmjs.com path was actually attempted, not silently skipped.
 
-The publish script is idempotent per version: if `@mobigent/react-native@0.1.12` already exists, it skips that package and continues. This makes reruns safer after a partial publish.
+The publish script is idempotent per version: if `@mobigent/app@0.1.12` already exists, it skips that package and continues. This makes reruns safer after a partial publish.
 
 For local maintainer publishing after `npm login`:
 
@@ -92,7 +94,7 @@ After release:
 
 ```bash
 npm run npm:status
-npm view @mobigent/react-native version
+npm view @mobigent/app version
 npm view @mobigent/backend version
 npm view create-mobigent-app version
 npm view mobigent version

@@ -408,7 +408,7 @@ function createAppConfigFile(options: MobigentBackendInitOptions) {
 }
 
 function createAppConfigModuleFile(options: MobigentBackendInitOptions) {
-  return `import { defineMobigentConfig } from "@mobigent/react-native";
+  return `import { defineMobigentConfig } from "@mobigent/app";
 
 export const mobigentConfig = defineMobigentConfig(${createAppConfigFile(options).trim()});
 `;
@@ -421,8 +421,8 @@ function formatSuccessMessage(options: MobigentBackendInitOptions, files: Mobige
 ${files.map((file) => `  ${file.path}`).join("\n")}
 
 Then in your app:
-  npx mobigent init --feature expense --out-dir src
-${options.appDir ? `\nMobigent already wrote ${join(options.appDir, "mobigent.app.json")} and ${join(options.appDir, appConfigModuleFile ?? join("src", "mobigent-config.ts"))}, so the app wrapper can import the backend connection directly.\n` : "\nIf your app is beside this backend folder, the app initializer will auto-detect mobigent.app.json. For custom layouts, run: npx mobigent init --feature expense --out-dir src --backend-dir ../server\n"}
+  npx mobigent-init --feature expense --out-dir src
+${options.appDir ? `\nMobigent already wrote ${join(options.appDir, "mobigent.app.json")} and ${join(options.appDir, appConfigModuleFile ?? join("src", "mobigent-config.ts"))}, so the app wrapper can import the backend connection directly.\n` : "\nIf your app is beside this backend folder, the app initializer will auto-detect mobigent.app.json. For custom layouts, run: npx mobigent-init --feature expense --out-dir src --backend-dir ../server\n"}
 
 Run:
   node --env-file=${options.envFile} --import tsx ${join(options.outDir, options.fileName)}
@@ -442,7 +442,7 @@ function helpText() {
 Create a tiny backend entrypoint for @mobigent/backend.
 
 Usage:
-  mobigent-backend init
+  mobigent-backend
   mobigent-backend --app com.example.app --app-name "Example App"
   mobigent-backend agent chatgpt --base-url https://your-public-backend.example
   mobigent-backend agent claude

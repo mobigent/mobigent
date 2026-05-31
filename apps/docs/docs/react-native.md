@@ -9,7 +9,7 @@ Use Mobigent like normal app code: expose a few real functions, wrap the app onc
 ## Install
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-react-native-0.1.12.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-app-0.1.12.tgz
 ```
 
 If your backend was started with `appDir`, it writes the app config module that the wrapper imports, and the app initializer preserves that file when you scaffold features later. If your backend is in a sibling folder named `backend`, `server`, `api`, `agent-server`, or `mobigent-backend`, the app initializer finds `mobigent.app.json` automatically. For custom layouts, pass `--backend-dir ../server`.
@@ -19,7 +19,7 @@ Run the same init command with a new feature name to expose another app area. Mo
 ## Create A Feature
 
 ```ts
-import { defineFeature, read, write } from "@mobigent/react-native";
+import { defineFeature, read, write } from "@mobigent/app";
 
 export const expenses = defineFeature("expense", {
   list: read(async () => ({ items: await listExpenses() })),
@@ -37,7 +37,7 @@ export const expenses = defineFeature("expense", {
 ## Wrap The App
 
 ```tsx
-import { withMobigent } from "@mobigent/react-native";
+import { withMobigent } from "@mobigent/app";
 import { expenses } from "./mobigent/expenses";
 import App from "./App";
 
@@ -63,7 +63,7 @@ If you are running a local demo, test host, or another runtime where you are usi
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { connectMobigent } from "@mobigent/react-native";
+import { connectMobigent } from "@mobigent/app";
 import { expenses } from "./mobigent/expenses";
 
 const backend = await startMobigent();

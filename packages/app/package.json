@@ -1,0 +1,89 @@
+{
+  "name": "@mobigent/app",
+  "version": "0.1.12",
+  "description": "App-side Mobigent SDK for exposing mobile app functions to AI agents.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mobigent/mobigent",
+    "directory": "packages/app"
+  },
+  "bugs": {
+    "url": "https://github.com/mobigent/mobigent/issues"
+  },
+  "homepage": "https://mobigent.github.io/mobigent/",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "package.json"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "mobigent-init": "./dist/cli.js",
+    "mobigent-app-init": "./dist/cli.js",
+    "mobigent-rn-init": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./cli": {
+      "types": "./dist/cli.d.ts",
+      "import": "./dist/cli.js"
+    },
+    "./ui": {
+      "types": "./dist/ui.d.ts",
+      "import": "./dist/ui.js"
+    },
+    "./simple": {
+      "types": "./dist/simple.d.ts",
+      "import": "./dist/simple.js"
+    },
+    "./app": {
+      "types": "./dist/app.d.ts",
+      "import": "./dist/app.js"
+    },
+    "./schema-adapters": {
+      "types": "./dist/schema-adapters.d.ts",
+      "import": "./dist/schema-adapters.js"
+    },
+    "./platform-actions": {
+      "types": "./dist/platform-actions.d.ts",
+      "import": "./dist/platform-actions.js"
+    },
+    "./expo": {
+      "types": "./dist/expo.d.ts",
+      "import": "./dist/expo.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && chmod +x dist/cli.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepublishOnly": "npm run build && npm run typecheck"
+  },
+  "dependencies": {
+    "@mobigent/react-native": "0.1.12"
+  },
+  "peerDependencies": {
+    "react": "^19.2.6",
+    "react-native": "^0.85.3"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-native": {
+      "optional": true
+    }
+  }
+}

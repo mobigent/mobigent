@@ -15,6 +15,7 @@ const packageDirs = [
   "packages/gateway",
   "packages/backend",
   "packages/react-native",
+  "packages/app",
   "packages/create-app",
   "packages/cli"
 ];
@@ -45,7 +46,7 @@ try {
     smokeFile,
     `import assert from "node:assert/strict";
 import { startMobigent } from "@mobigent/backend";
-import { feature, simpleSchema } from "@mobigent/react-native/simple";
+import { feature, simpleSchema } from "@mobigent/app/simple";
 
 const expenses = feature("expense").write("create", async (input) => ({ ok: true, ...input }), {
   input: { merchant: "string", amount: "number" }
@@ -56,7 +57,7 @@ assert.equal(simpleSchema({ amount: "number" }).properties.amount.type, "number"
 
 const mobigent = await startMobigent({ wsPort: 19081, httpPort: 19082, silent: true });
 assert.equal(mobigent.defaultApp.connectionUrl, "ws://localhost:19081");
-assert.equal(mobigent.resolveToolName("expense.create"), "expense.create");
+assert.equal(mobigent.resolveFunctionName("expense.create"), "expense.create");
 await mobigent.stop();
 `,
     "utf8"

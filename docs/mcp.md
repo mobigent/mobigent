@@ -5,7 +5,7 @@ Mobigent ships an MCP stdio server through `@mobigent/gateway`.
 The MCP server:
 
 1. Starts the mobile app WebSocket bridge.
-2. Waits for apps using `@mobigent/react-native` to connect.
+2. Waits for apps using `@mobigent/app` to connect.
 3. Exposes registered app capabilities as MCP tools.
 4. Routes MCP `tools/call` requests back into the app.
 
@@ -59,7 +59,7 @@ Use this shape for clients that support stdio MCP servers:
 Then configure your mobile app SDK with:
 
 ```ts
-import { mobigent } from "@mobigent/react-native";
+import { mobigent } from "@mobigent/app";
 
 mobigent.configure({
   appId: "com.example.expenses",

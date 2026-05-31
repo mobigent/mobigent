@@ -5,14 +5,14 @@ Use Mobigent like normal app code: expose a few real functions, wrap the app onc
 ## 1. Install
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-react-native-0.1.12.tgz
+npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-app-0.1.12.tgz
 ```
 
-If your backend was initialized with `mobigent-backend init`, scaffold from its config file:
+If your backend was initialized with `mobigent-backend`, scaffold from its config file:
 
 ```bash
-npm install @mobigent/react-native
-npx mobigent init --feature expense --out-dir src
+npm install @mobigent/app
+npx mobigent-init --feature expense --out-dir src
 ```
 
 No app id ceremony is required for a first run. If `mobigent.app.json` is present in the app, a parent folder, or a common sibling backend folder such as `../backend`, the initializer uses it. For custom layouts, pass `--backend-dir ../server`. If no config exists yet, it infers a starter app id and app name from your `package.json`.
@@ -20,7 +20,7 @@ No app id ceremony is required for a first run. If `mobigent.app.json` is presen
 ## 2. Create A Feature
 
 ```ts
-import { defineFeature, read, write } from "@mobigent/react-native";
+import { defineFeature, read, write } from "@mobigent/app";
 
 export const expenses = defineFeature("expense", {
   list: read(async () => ({ items: await listExpenses() })),
@@ -45,7 +45,7 @@ Agent-facing transports still receive stable full tool names, but app and backen
 ## 3. Wrap The App
 
 ```tsx
-import { withMobigent } from "@mobigent/react-native";
+import { withMobigent } from "@mobigent/app";
 import { expenses } from "./mobigent/expenses";
 import App from "./App";
 
@@ -61,7 +61,7 @@ To add another app area later, run the same init command with a new feature name
 For multiple app areas in one file, use the same plain object shape:
 
 ```ts
-import { defineMobigent, read, write } from "@mobigent/react-native";
+import { defineMobigent, read, write } from "@mobigent/app";
 
 export const features = defineMobigent({
   expense: {
@@ -97,7 +97,7 @@ If you are running a local demo, test host, or another runtime where you are usi
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { connectMobigent } from "@mobigent/react-native";
+import { connectMobigent } from "@mobigent/app";
 import { expenses } from "./mobigent/expenses";
 
 const backend = await startMobigent();

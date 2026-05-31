@@ -23,7 +23,7 @@ try {
     join(dir, "package.json"),
     JSON.stringify({
       dependencies: {
-        "@mobigent/react-native": "0.1.12",
+        "@mobigent/app": "0.1.12",
         "react-native": "0.74.0"
       }
     }),
@@ -44,7 +44,7 @@ try {
   assert.equal(init.code, 0, init.stderr);
   const rootFile = await readFile(join(dir, "mobigent.tsx"), "utf8");
   assert.match(rootFile, /MobigentRoot/);
-  assert.match(rootFile, /@mobigent\/react-native/);
+  assert.match(rootFile, /@mobigent\/app/);
   assert.match(rootFile, /setupMobigent/);
   assert.match(rootFile, /withMobigentApp/);
   assert.match(rootFile, /features: \[taskFeature\]/);
@@ -104,7 +104,7 @@ try {
   await mkdir(backendFirstDir);
   await writeFile(
     join(backendFirstDir, "mobigent-config.ts"),
-    `import { defineMobigentConfig } from "@mobigent/react-native";
+    `import { defineMobigentConfig } from "@mobigent/app";
 
 export const mobigentConfig = defineMobigentConfig({
   appId: "com.mobigent.backendfirst",

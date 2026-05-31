@@ -7,13 +7,13 @@ Use this package when you want a single command to remember:
 ```bash
 npx mobigent new my-demo --install
 npx mobigent init --feature expense --out-dir src
-npx mobigent backend --app-dir ../mobile-app
+npx mobigent-backend --app-dir ../mobile-app
 npx mobigent agent chatgpt --base-url https://your-backend.example
 ```
 
 The runtime SDKs are still the two normal packages:
 
-- `@mobigent/react-native` in the app
+- `@mobigent/app` in the app
 - `@mobigent/backend` in the backend
 
 This CLI simply routes the common commands so developers do not need to learn separate binary names on day one.
