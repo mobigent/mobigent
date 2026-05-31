@@ -43,6 +43,9 @@ const backendFile = createMobigentBackendFiles({
 
 assert.match(backendFile, /startMobigent/);
 assert.match(backendFile, /app: \{/);
+assert.match(backendFile, /export const waitForApp = mobigent\.waitForApp/);
+assert.match(backendFile, /export const callApp = mobigent\.callApp/);
+assert.match(backendFile, /export const appFunction = mobigent\.appFunction/);
 assert.doesNotMatch(backendFile, /BridgeGateway|createHttpApp|mobigent\.appConfigModule\(|copyAppConfig|Copy this/);
 
 const backendWithAppDir = createMobigentBackendFiles({

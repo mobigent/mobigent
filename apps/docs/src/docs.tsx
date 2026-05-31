@@ -90,7 +90,7 @@ const backendCode = `import { startMobigent } from "@mobigent/backend";
 const mobigent = await startMobigent({
   appDir: "../mobile-app"
 });
-await mobigent.ready();
+await mobigent.waitForApp();
 
 console.log(mobigent.urls.inspector);
 console.log(mobigent.urls.openapi);
@@ -98,12 +98,24 @@ console.log("App config:", mobigent.appConfigPath);
 
 const appConfig = mobigent.defaultApp;
 
-await mobigent.invoke("expense.create", {
+await mobigent.callApp("expense.create", {
   merchant: "Airport Taxi",
   amount: 42.25
 });
 
-await mobigent.invoke("expense.list");`;
+await mobigent.callApp("expense.list");`;
+
+const backendHelperCode = `import { callApp, waitForApp, appFunction } from "./mobigent";
+
+await waitForApp();
+
+await callApp("expense.create", {
+  merchant: "Airport Taxi",
+  amount: 42.25
+});
+
+const createExpense = appFunction("expense.create");
+await createExpense({ merchant: "Coffee", amount: 8 });`;
 
 const backendInitCode = `npm install @mobigent/backend
 npx mobigent-backend --app-dir ../mobile-app`;
@@ -285,9 +297,9 @@ const nativeUrls = [
 
 const firstRunChecks = [
   ["Install", "Add the app package to React Native and the backend package to your server."],
-  ["Expose", "`feature()` turns real app functions into typed agent capabilities."],
+  ["Expose", "`defineFeature()` turns real app functions into typed agent capabilities."],
   ["Connect", "The app initializer finds `mobigent.app.json` from the app, parent folders, common sibling backend folders, or `--backend-dir`."],
-  ["Wait", "`mobigent.ready()` tells backend code when the app is connected and callable."],
+  ["Wait", "`waitForApp()` tells backend code when the app is connected and callable."],
   ["Approve", "Risky actions pause inside the app before handlers run."],
   ["Audit", "Calls, approvals, denials, errors, and events appear in `/audit`."]
 ];
@@ -320,7 +332,7 @@ const packages = [
 ];
 
 const reactNativeApis = [
-  ["feature()", "Creates a small feature surface with read, write, and screen helpers."],
+  ["defineFeature()", "Creates a small feature surface with read, write, and screen helpers."],
   ["defineMobigentConfig()", "Keeps copied app config typed and portable."],
   ["withMobigent()", "Wraps the existing React Native app in one normal function call."],
   ["mobigentApp()", "Returns an explicit Root provider when you prefer JSX wrapping."],
@@ -339,6 +351,14 @@ const nativeApis = [
   ["Android MobigentClient.Builder", "Kotlin builder for app identity, connection URL, reconnect, heartbeat, and transport setup."],
   ["MobigentSchema", "Shared native schema builders for string, number, boolean, object, array, and enum."],
   ["confirmation handler", "Native callback hook so the host app renders its own approval UI."]
+];
+
+const backendApis = [
+  ["startMobigent()", "Starts the backend service and writes app config when `appDir` is provided."],
+  ["waitForApp()", "Waits until the app is connected and has exposed at least one function."],
+  ["callApp()", "Calls an app-owned function by the short name used in app code."],
+  ["appFunction()", "Creates a reusable backend function wrapper for repeated calls."],
+  ["agent()", "Prints setup for ChatGPT, Claude, OpenAPI, and supported providers after the app loop works."]
 ];
 
 const gatewayEndpoints = [
@@ -476,11 +496,27 @@ function Docs() {
         </div>
       </section>
 
+      <section className="section codeSection">
+        <div className="sectionHeader compact">
+          <span className="eyebrow"><Terminal size={15} /> Backend usage</span>
+          <h2>Call app functions like backend functions.</h2>
+          <p>The generated backend entrypoint exports helpers so your app server does not need to think about bridge internals.</p>
+        </div>
+        <div className="codeGrid two">
+          <Code title="Generated backend helpers" code={backendHelperCode} />
+          <div className="apiList endpointList">
+            {backendApis.map(([name, text]) => (
+              <Row key={name} title={name} text={text} />
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section id="sdk" className="section docsBlock">
         <div className="sectionHeader">
           <span className="eyebrow"><Code2 size={15} /> SDK surface</span>
           <h2>What Mobigent exposes.</h2>
-          <p>The SDK is small on purpose: declare capabilities in the app, run one backend helper, then connect any provider that can call tools.</p>
+          <p>The SDK is small on purpose: declare functions in the app, run one backend helper, then connect providers after the app loop works.</p>
         </div>
 
         <div className="docsGrid packageGrid">

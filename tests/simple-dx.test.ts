@@ -25,7 +25,7 @@ import {
   withMobigent,
   write,
   type MobigentSocketFactory
-} from "@mobigent/react-native";
+} from "@mobigent/app";
 
 const createNodeSocket: MobigentSocketFactory = (url) => new WebSocket(url);
 
@@ -193,15 +193,15 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
     });
 
     try {
-      await backend.ready({ minFunctions: 1 });
+      await backend.waitForApp({ minFunctions: 1 });
       assert.equal(backend.functions()[0]?.name, "com_example_functions.expense_create");
       assert.equal(backend.resolveFunctionName("expense.create"), "com_example_functions.expense_create");
-      assert.deepEqual(await backend.invoke("expense.create", { merchant: "Cafe" }), {
+      assert.deepEqual(await backend.callApp("expense.create", { merchant: "Cafe" }), {
         id: "EXP-1",
         merchant: "Cafe"
       });
 
-      const createExpense = backend.fn("expense.create");
+      const createExpense = backend.appFunction("expense.create");
       assert.deepEqual(await createExpense({ merchant: "Airport Taxi" }), {
         id: "EXP-1",
         merchant: "Airport Taxi"
@@ -396,6 +396,9 @@ test("backend init helper creates a simple server entrypoint", () => {
   assert.deepEqual(files.map((file) => file.path), ["src/mobigent.ts", ".env.mobigent", "mobigent.app.json"]);
   assert.match(files[0]?.contents ?? "", /startMobigent/);
   assert.match(files[0]?.contents ?? "", /defaultApp/);
+  assert.match(files[0]?.contents ?? "", /export const waitForApp = mobigent\.waitForApp/);
+  assert.match(files[0]?.contents ?? "", /export const callApp = mobigent\.callApp/);
+  assert.match(files[0]?.contents ?? "", /export const appFunction = mobigent\.appFunction/);
   assert.doesNotMatch(files[0]?.contents ?? "", /copyAppConfig|Copy this/);
   assert.match(files[1]?.contents ?? "", /MOBIGENT_AUTH_TOKEN/);
   assert.match(files[2]?.contents ?? "", /"connectionUrl": "ws:\/\/localhost:8787"/);
@@ -604,13 +607,13 @@ test("existing app DX connects simple app features to backend calls end to end",
       confirm: async () => true
     });
 
-    const status = await backend.ready();
+    const status = await backend.waitForApp();
     assert.equal(status.appsWithManifests, 1);
     assert.equal(status.tools, 2);
 
     assert.equal(backend.resolveFunctionName("expense.create"), "com_example_existing.expense_create");
 
-    const result = await backend.invoke("expense.create", {
+    const result = await backend.callApp("expense.create", {
       merchant: "Airport Taxi",
       amount: 42.25
     });
@@ -620,7 +623,7 @@ test("existing app DX connects simple app features to backend calls end to end",
       merchant: "Airport Taxi",
       amount: 42.25
     });
-    assert.deepEqual(await backend.invoke("expense.list"), {
+    assert.deepEqual(await backend.callApp("expense.list"), {
       items: [result]
     });
   } finally {
@@ -671,7 +674,7 @@ test("existing app DX can connect without passing the singleton client manually"
 
     await waitFor(() => backend.functions().some((fn) => fn.name === "com_example_onecall.expense_create"));
 
-    assert.deepEqual(await backend.invoke("expense.create", {
+    assert.deepEqual(await backend.callApp("expense.create", {
       merchant: "Airport Taxi",
       amount: 42.25
     }), {
@@ -718,7 +721,7 @@ test("existing app DX can connect with only features for local demos", async () 
 
     await waitFor(() => backend.functions().some((fn) => fn.name === "app_mobigent_local.expense_create"));
 
-    assert.deepEqual(await backend.invoke("expense.create", {
+    assert.deepEqual(await backend.callApp("expense.create", {
       merchant: "Airport Taxi",
       amount: 42.25
     }), {

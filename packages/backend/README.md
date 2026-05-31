@@ -18,12 +18,28 @@ import { startMobigent } from "@mobigent/backend";
 const mobigent = await startMobigent({
   appDir: "../mobile-app"
 });
-await mobigent.ready();
+await mobigent.waitForApp();
 
 console.log(mobigent.urls.inspector);
 console.log(mobigent.urls.openapi);
 
 const appConfig = mobigent.defaultApp;
+```
+
+The generated backend file also exports the helpers most app servers need:
+
+```ts
+import { callApp, waitForApp, appFunction } from "./mobigent";
+
+await waitForApp();
+
+await callApp("expense.create", {
+  merchant: "Airport Taxi",
+  amount: 42.25
+});
+
+const createExpense = appFunction("expense.create");
+await createExpense({ merchant: "Coffee", amount: 8 });
 ```
 
 With no options, Mobigent infers a starter app id and app name from the nearest `package.json` or folder. When `appDir` is set, it infers from that app project and writes the tiny app config files automatically. Pass `app` only when you want exact production values:
@@ -50,7 +66,7 @@ This starts:
 
 Use `mobigent.functions()` when you want to inspect the app functions currently available to agents. The older `tools()` name still exists for compatibility with provider internals.
 
-`mobigent.ready()` waits until at least one app has connected and exposed a function. Use it before backend-driven tests, demos, or server code that immediately calls app functions.
+`mobigent.waitForApp()` waits until at least one app has connected and exposed a function. Use it before backend-driven tests, demos, or server code that immediately calls app functions.
 
 It also gives agent setup from the same object:
 
@@ -111,7 +127,7 @@ export const mobigentConfig = defineMobigentConfig({
 ## Call An App Function
 
 ```ts
-const result = await mobigent.invoke("expense.create", {
+const result = await mobigent.callApp("expense.create", {
   merchant: "Airport Taxi",
   amount: 42.25
 });
@@ -120,7 +136,7 @@ const result = await mobigent.invoke("expense.create", {
 For repeated calls, keep a normal backend function:
 
 ```ts
-const createExpense = mobigent.fn("expense.create");
+const createExpense = mobigent.appFunction("expense.create");
 
 await createExpense({
   merchant: "Airport Taxi",

@@ -87,8 +87,11 @@ The backend object exposes:
 - `functions()`
 - `tools()` for backward compatibility and provider internals
 - `apps()`
-- `invoke("expense.create", input)` or `invoke("expense.list")`
-- `fn("expense.create")` to create a reusable backend function
+- `waitForApp()` to wait until an app is connected and callable
+- `callApp("expense.create", input)` or `callApp("expense.list")`
+- `appFunction("expense.create")` to create a reusable backend function
+- `invoke("expense.create", input)` for compatibility
+- `fn("expense.create")` for compatibility
 - `call("expense.create", input)` for backward compatibility
 - `resolveFunctionName("expense.create")`
 - `resolveToolName("expense.create")` for backward compatibility

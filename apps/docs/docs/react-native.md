@@ -52,10 +52,10 @@ import { startMobigent } from "@mobigent/backend";
 const mobigent = await startMobigent({
   appDir: "../mobile-app"
 });
-await mobigent.ready();
+await mobigent.waitForApp();
 ```
 
-`appDir` lets the backend SDK infer identity from the mobile app and write `mobigent.app.json` plus `src/mobigent-config.ts` there for you. `mobigent.ready()` waits until the app is connected and has exposed at least one function.
+`appDir` lets the backend SDK infer identity from the mobile app and write `mobigent.app.json` plus `src/mobigent-config.ts` there for you. `mobigent.waitForApp()` waits until the app is connected and has exposed at least one function.
 
 ## Non-React Host Or Demo
 

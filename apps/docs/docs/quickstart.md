@@ -24,6 +24,10 @@ npm run doctor
 
 You should see app, backend, readiness, and function checks pass.
 
+## Simple Model
+
+Use `@mobigent/app` in the mobile app and `@mobigent/backend` in the backend. The app exposes functions. The backend waits for the app and calls those functions. Mobigent handles the bridge, schemas, validation, confirmations, retries, and agent setup.
+
 ## Existing React Native App
 
 Install the app SDK and scaffold the small Mobigent folder. If your backend is in a sibling folder named `backend`, `server`, `api`, `agent-server`, or `mobigent-backend`, the initializer finds `mobigent.app.json` automatically:
@@ -99,7 +103,7 @@ import { startMobigent } from "@mobigent/backend";
 const mobigent = await startMobigent({
   appDir: "../mobile-app"
 });
-await mobigent.ready();
+await mobigent.waitForApp();
 
 console.log(mobigent.urls.inspector);
 console.log(mobigent.urls.openapi);
@@ -114,4 +118,16 @@ console.log(mobigent.agent("chatgpt").endpoints.openApi);
 
 With no options, Mobigent infers a starter app id and app name from your project. With `appDir`, it infers from the mobile app project and writes `mobigent.app.json` plus `src/mobigent-config.ts` there for you. Pass `app: { id, name }` only when you want exact production values.
 
-`mobigent.ready()` waits until the app is connected and has exposed at least one function.
+`mobigent.waitForApp()` waits until the app is connected and has exposed at least one function.
+
+Generated backend files also export helper functions:
+
+```ts
+import { callApp, waitForApp, appFunction } from "./mobigent";
+
+await waitForApp();
+await callApp("expense.create", { merchant: "Airport Taxi", amount: 42.25 });
+
+const createExpense = appFunction("expense.create");
+await createExpense({ merchant: "Coffee", amount: 8 });
+```

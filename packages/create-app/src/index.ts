@@ -315,7 +315,7 @@ app.post("/agent/run", async (req, res) => {
   };
 
   try {
-    const response = await backend.invoke(functionName, input);
+    const response = await backend.callApp(functionName, input);
     lastAgentRun = { ...run, response };
     res.json(lastAgentRun);
   } catch (error) {
@@ -458,7 +458,7 @@ function renderPage() {
       <div class="panel step">
         <span>1</span>
         <h3>Agent calls a function</h3>
-        <p>The playground calls <code>backend.invoke("\${functionName}")</code>.</p>
+        <p>The playground calls <code>backend.callApp("\${functionName}")</code>.</p>
       </div>
       <div class="panel step">
         <span>2</span>

@@ -29,6 +29,15 @@ npm run demo:app
 
 The demo starts a Mobigent backend, connects a sample expense app, calls a confirmed write function, then reads the updated expense list.
 
+## The Simple Mental Model
+
+Mobigent is two normal packages:
+
+- `@mobigent/app` goes in the app and exposes real app functions.
+- `@mobigent/backend` goes in the backend and calls those functions.
+
+The SDK handles the bridge, config, connection lifecycle, validation, confirmations, agent setup, and audit events.
+
 ## 2. Add One Feature To An Existing App
 
 Install the app SDK and scaffold the small Mobigent folder. If your backend project is a sibling folder named `backend`, `server`, `api`, `agent-server`, or `mobigent-backend`, the app initializer finds `mobigent.app.json` automatically:
@@ -117,7 +126,7 @@ import { startMobigent } from "@mobigent/backend";
 const mobigent = await startMobigent({
   appDir: "../mobile-app"
 });
-await mobigent.ready();
+await mobigent.waitForApp();
 
 console.log(mobigent.urls.inspector);
 
@@ -127,19 +136,31 @@ console.log(mobigent.appConfigPath);
 console.log(mobigent.appConfigModulePath);
 ```
 
+The generated backend entrypoint also exports app-shaped helpers:
+
+```ts
+import { callApp, waitForApp, appFunction } from "./mobigent";
+
+await waitForApp();
+await callApp("expense.create", { merchant: "Airport Taxi", amount: 42.25 });
+
+const createExpense = appFunction("expense.create");
+await createExpense({ merchant: "Coffee", amount: 8 });
+```
+
 With no options, Mobigent infers a starter app id and app name from your project. With `appDir`, it infers from the mobile app project and writes `mobigent.app.json` plus `src/mobigent-config.ts` there for you. Pass `app: { id, name }` only when you want exact production values.
 
-`mobigent.ready()` waits until the app is connected and has exposed at least one function. If the app is not running yet, it tells you exactly what is missing.
+`mobigent.waitForApp()` waits until the app is connected and has exposed at least one function. If the app is not running yet, it tells you exactly what is missing.
 
 Call app-owned functions with the same short names you used in the app:
 
 ```ts
-await mobigent.invoke("expense.create", {
+await mobigent.callApp("expense.create", {
   merchant: "Airport Taxi",
   amount: 42.25
 });
 
-await mobigent.invoke("expense.list");
+await mobigent.callApp("expense.list");
 ```
 
 Need agent setup? Use the same backend object:

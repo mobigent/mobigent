@@ -50,7 +50,7 @@ The backend developer starts Mobigent like backend plumbing:
 import { startMobigent } from "@mobigent/backend";
 
 const backend = await startMobigent();
-await backend.ready();
+await backend.waitForApp();
 ```
 
 For local development, `startMobigent()` infers the app id and name from your project.
@@ -61,7 +61,7 @@ For a non-React host or local demo, pass the feature straight to the SDK:
 await connectMobigent(expenses);
 ```
 
-Everything else, connection URLs, sockets, tokens, registration loops, provider tool mapping, confirmations, retries, audit events, agent setup, and inspector wiring, is SDK plumbing.
+Everything else, connection URLs, sockets, tokens, registration loops, provider mapping, confirmations, retries, audit events, agent setup, and inspector wiring, is SDK plumbing.
 
 ## Quick Start
 
@@ -103,6 +103,36 @@ npm run demo:app
 ```
 
 That first run is the whole idea: agents do not tap screens or guess UI. Your app exposes safe functions, and Mobigent lets agents call them.
+
+## The Boring Integration Path
+
+In the app:
+
+```bash
+npm install @mobigent/app
+npx mobigent-init --feature expense --out-dir src
+```
+
+In the backend:
+
+```bash
+npm install @mobigent/backend
+npx mobigent-backend --app-dir ../mobile-app
+```
+
+Then backend code can call app functions like ordinary functions:
+
+```ts
+import { callApp, waitForApp, appFunction } from "./mobigent";
+
+await waitForApp();
+await callApp("expense.create", { merchant: "Airport Taxi", amount: 42.25 });
+
+const createExpense = appFunction("expense.create");
+await createExpense({ merchant: "Coffee", amount: 8 });
+```
+
+See [docs/simple-integration.md](./docs/simple-integration.md) for the clean path before reading the advanced gateway/provider docs.
 
 For an existing React Native app, the intended npm path is:
 
@@ -280,18 +310,18 @@ That one function starts the app connection endpoint, HTTP API, OpenAPI schema, 
 Wait for the app when your server needs to call app functions immediately:
 
 ```ts
-await mobigent.ready();
+await mobigent.waitForApp();
 ```
 
 Call app-owned functions with the same short names you used in the app:
 
 ```ts
-await mobigent.invoke("expense.create", {
+await mobigent.callApp("expense.create", {
   merchant: "Airport Taxi",
   amount: 42.25
 });
 
-await mobigent.invoke("expense.list");
+await mobigent.callApp("expense.list");
 ```
 
 It also gives you agent setup from the same backend object:

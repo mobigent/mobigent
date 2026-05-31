@@ -127,13 +127,16 @@ export type MobigentBackend = {
   copyAppConfig(): string;
   stop(): Promise<void>;
   ready(options?: MobigentBackendReadyOptions): Promise<ReturnType<BridgeGateway["getStatus"]>>;
+  waitForApp(options?: MobigentBackendReadyOptions): Promise<ReturnType<BridgeGateway["getStatus"]>>;
   functions(): ReturnType<BridgeGateway["listTools"]>;
   tools(): ReturnType<BridgeGateway["listTools"]>;
   apps(): GatewayAppSession[];
   resolveFunctionName(name: string): string;
   resolveToolName(name: string): string;
+  callApp(name: string, input?: unknown, options?: ToolCallOptions): ReturnType<BridgeGateway["callTool"]>;
   call(toolName: string, input?: unknown, options?: ToolCallOptions): ReturnType<BridgeGateway["callTool"]>;
   invoke(name: string, input?: unknown, options?: ToolCallOptions): ReturnType<BridgeGateway["callTool"]>;
+  appFunction(name: string): MobigentBackendFunction;
   fn(name: string): MobigentBackendFunction;
 };
 
@@ -245,13 +248,16 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     copyAppConfig: () => appConfigCode,
     stop: () => stopBackend(httpServer, gateway),
     ready: (readyOptions) => waitForBackendReady(gateway, readyOptions),
+    waitForApp: (readyOptions) => waitForBackendReady(gateway, readyOptions),
     functions: () => gateway.listTools(),
     tools: () => gateway.listTools(),
     apps: () => gateway.listApps(),
     resolveFunctionName: (name) => resolveBackendToolName(gateway.listTools(), name, defaultApp),
     resolveToolName: (name) => resolveBackendToolName(gateway.listTools(), name, defaultApp),
+    callApp: invoke,
     call: invoke,
     invoke,
+    appFunction: (name) => (input = {}, callOptions) => invoke(name, input, callOptions),
     fn: (name) => (input = {}, callOptions) => invoke(name, input, callOptions)
   };
 }
