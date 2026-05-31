@@ -96,8 +96,9 @@ try {
   assert.match(server, /MOBIGENT_DEMO_OPEN/);
 
   const capabilities = await readFile(join(target, "src", "capabilities.ts"), "utf8");
-  assert.match(capabilities, /defineFeature\("expense"\)/);
-  assert.match(capabilities, /\.write\(/);
+  assert.match(capabilities, /defineFeature\("expense", \{/);
+  assert.match(capabilities, /list: read\(/);
+  assert.match(capabilities, /create: write\(/);
   assert.match(capabilities, /amount: "number"/);
   assert.match(capabilities, /createExpense/);
 

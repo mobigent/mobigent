@@ -534,7 +534,7 @@ function renderPage() {
 }
 
 function createCapabilitiesFile() {
-  return `import { defineFeature, emitMobigentEvent } from "@mobigent/react-native";
+  return `import { defineFeature, emitMobigentEvent, read, write } from "@mobigent/react-native";
 
 export type Expense = {
   id: string;
@@ -555,13 +555,12 @@ export const expenses: Expense[] = [
   }
 ];
 
-export const expenseFeature = defineFeature("expense")
-  .read("list", async () => ({ expenses }), {
+export const expenseFeature = defineFeature("expense", {
+  list: read(async () => ({ expenses }), {
     description: "Read expenses from the app.",
     output: { expenses: ["object"] }
-  })
-  .write(
-    "create",
+  }),
+  create: write(
     async (input) => {
       const expense = await createExpense({
         amount: Number(input.amount),
@@ -592,7 +591,8 @@ export const expenseFeature = defineFeature("expense")
       confirm: "Create expense?",
       risk: "medium"
     }
-  );
+  )
+});
 
 export async function createExpense(input: {
   amount: number;

@@ -52,7 +52,7 @@ try {
   assert.match(await readFile(join(dir, "mobigent-confirmation.tsx"), "utf8"), /useMobigentConfirmation/);
   assert.match(
     await readFile(join(dir, "mobigent-features", "task.ts"), "utf8"),
-    /defineFeature\("task"\)/
+    /defineFeature\("task", \{[\s\S]*list: read\([\s\S]*create: write\(/
   );
 
   await writeFile(
@@ -143,7 +143,10 @@ export const mobigentConfig = defineMobigentConfig({
   const backendFirstRoot = await readFile(join(backendFirstDir, "mobigent.tsx"), "utf8");
   assert.match(backendFirstRoot, /backendfirstFeature/);
   assert.match(backendFirstRoot, /invoiceFeature/);
-  assert.match(await readFile(join(backendFirstDir, "mobigent-features", "invoice.ts"), "utf8"), /defineFeature\("invoice"\)/);
+  assert.match(
+    await readFile(join(backendFirstDir, "mobigent-features", "invoice.ts"), "utf8"),
+    /defineFeature\("invoice", \{[\s\S]*create: write\(/
+  );
 
   const workspaceDir = join(dir, "workspace");
   const workspaceBackendDir = join(workspaceDir, "backend");

@@ -12,14 +12,18 @@ import {
 } from "@mobigent/backend";
 import { createMobigentBackendFiles, runMobigentBackendCli } from "@mobigent/backend/cli";
 import {
+  action,
   connectMobigent,
+  defineMobigent,
   defineMobigentConfig,
   emitMobigentEvent,
   feature,
   mobigent,
+  read,
   setupMobigent,
   simpleSchema,
   withMobigent,
+  write,
   type MobigentSocketFactory
 } from "@mobigent/react-native";
 
@@ -49,6 +53,51 @@ test("simple React Native feature API creates agent-ready capabilities without s
   assert.equal(expenses.actions[0].confirmation?.required, true);
   assert.deepEqual(expenses.actions[0].inputSchema?.required, ["merchant", "amount"]);
   assert.equal(expenses.actions[0].inputSchema?.properties?.merchant.type, "string");
+});
+
+test("plain object feature API exposes normal app functions with less ceremony", () => {
+  const expenses = feature("expense", {
+    list: read(async () => ({ items: [] }), {
+      output: {
+        items: ["object"]
+      }
+    }),
+    create: write(async (input) => ({ id: "EXP-1", ...input }), {
+      input: {
+        merchant: "string",
+        amount: "number"
+      }
+    }),
+    archive: action(async (input) => ({ archived: input.id }), {
+      input: {
+        id: "string"
+      },
+      confirm: "Archive expense?"
+    })
+  });
+
+  assert.equal(expenses.resources[0].name, "expense_list");
+  assert.equal(expenses.actions[0].name, "expense_create");
+  assert.equal(expenses.actions[0].confirmation?.required, true);
+  assert.equal(expenses.actions[1].name, "expense_archive");
+  assert.equal(expenses.actions[1].confirmation?.title, "Archive expense?");
+});
+
+test("defineMobigent maps product areas to features for one-line app wrapping", () => {
+  const features = defineMobigent({
+    expense: {
+      list: read(async () => ({ items: [] })),
+      create: write(async () => ({ ok: true }))
+    },
+    task: {
+      list: read(async () => ({ items: [] }))
+    }
+  });
+
+  assert.equal(features.length, 2);
+  assert.equal(features[0].namespace, "expense");
+  assert.equal(features[0].actions[0].name, "expense_create");
+  assert.equal(features[1].resources[0].name, "task_list");
 });
 
 test("simple schema helper accepts plain field maps", () => {

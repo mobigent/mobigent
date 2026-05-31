@@ -19,35 +19,29 @@ Run the same init command with a new feature name to expose another app area. Mo
 ## Create A Feature
 
 ```ts
-import { feature } from "@mobigent/react-native";
+import { defineFeature, read, write } from "@mobigent/react-native";
 
-export const expenses = feature("expense")
-  .read("list", async () => ({ items: await listExpenses() }))
-  .write("create", async (input) => createExpense(input), {
+export const expenses = defineFeature("expense", {
+  list: read(async () => ({ items: await listExpenses() })),
+  create: write(async (input) => createExpense(input), {
     input: {
       merchant: "string",
       amount: "number",
       notes: "string"
     },
     confirm: true
-  });
+  })
+});
 ```
 
 ## Wrap The App
 
 ```tsx
-import { mobigentApp } from "@mobigent/react-native";
+import { withMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
+import App from "./App";
 
-const { Root } = mobigentApp(expenses);
-
-export default function App() {
-  return (
-    <Root>
-      <YourExistingApp />
-    </Root>
-  );
-}
+export default withMobigent(App, expenses);
 ```
 
 ## Run The Backend

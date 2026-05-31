@@ -20,18 +20,19 @@ No app id ceremony is required for a first run. If `mobigent.app.json` is presen
 ## 2. Create A Feature
 
 ```ts
-import { defineFeature } from "@mobigent/react-native";
+import { defineFeature, read, write } from "@mobigent/react-native";
 
-export const expenses = defineFeature("expense")
-  .read("list", async () => ({ items: await listExpenses() }))
-  .write("create", async (input) => createExpense(input), {
+export const expenses = defineFeature("expense", {
+  list: read(async () => ({ items: await listExpenses() })),
+  create: write(async (input) => createExpense(input), {
     input: {
       merchant: "string",
       amount: "number",
       notes: "string"
     },
     confirm: true
-  });
+  })
+});
 ```
 
 This exposes:
@@ -56,6 +57,24 @@ If you prefer an explicit provider component, `setupMobigent(expenses)` still re
 That is enough for a local first run. The generated wrapper imports `src/mobigent-config.ts`. If your backend was started with `appDir`, Mobigent keeps that file updated for you, and the app initializer preserves it when you scaffold features later.
 
 To add another app area later, run the same init command with a new feature name. Mobigent creates the new feature file and appends it to the existing wrapper.
+
+For multiple app areas in one file, use the same plain object shape:
+
+```ts
+import { defineMobigent, read, write } from "@mobigent/react-native";
+
+export const features = defineMobigent({
+  expense: {
+    list: read(async () => ({ items: await listExpenses() })),
+    create: write(createExpense, {
+      input: { merchant: "string", amount: "number" }
+    })
+  },
+  task: {
+    list: read(async () => ({ items: await listTasks() }))
+  }
+});
+```
 
 ## 4. Run The Backend
 

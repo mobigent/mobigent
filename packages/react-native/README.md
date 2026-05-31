@@ -5,12 +5,13 @@ Make a React Native app callable by AI agents with normal app functions.
 Mobigent's React Native package should feel like this:
 
 ```ts
-defineFeature("expense")
-  .read("list", listExpenses)
-  .write("create", createExpense, {
+defineFeature("expense", {
+  list: read(listExpenses),
+  create: write(createExpense, {
     input: { merchant: "string", amount: "number" },
     confirm: true
-  });
+  })
+});
 ```
 
 The SDK handles namespacing, JSON Schema generation, validation, confirmation, connection lifecycle, reconnects, heartbeat, event queueing, and tool discovery updates.
@@ -46,20 +47,21 @@ Run the same command with a new feature name whenever you want to expose another
 Create `src/mobigent/expenses.ts`:
 
 ```ts
-import { defineFeature } from "@mobigent/react-native";
+import { defineFeature, read, write } from "@mobigent/react-native";
 
-export const expenses = defineFeature("expense")
-  .read("list", async () => ({
+export const expenses = defineFeature("expense", {
+  list: read(async () => ({
     items: await listExpenses()
-  }))
-  .write("create", async (input) => createExpense(input), {
+  })),
+  create: write(async (input) => createExpense(input), {
     input: {
       merchant: "string",
       amount: "number",
       notes: "string"
     },
     confirm: true
-  });
+  })
+});
 ```
 
 Agents will see tools like:

@@ -2075,9 +2075,9 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   assert.match(rootFile.contents, /expenseFeature/);
   assert.doesNotMatch(featureFile.contents, /createAgentModule/);
   assert.match(featureFile.contents, /@mobigent\/react-native/);
-  assert.match(featureFile.contents, /defineFeature\("expense"\)/);
+  assert.match(featureFile.contents, /defineFeature\("expense", \{/);
   assert.match(featureFile.contents, /export const expenseFeature/);
-  assert.match(featureFile.contents, /\.write\("create"/);
+  assert.match(featureFile.contents, /create: write\(/);
 
   const expoFiles = createReactNativeStarterFiles({
     appId: "com.mobigent.expo",
@@ -2129,7 +2129,7 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
     featureOnlyFiles.map((file) => file.path),
     [join("src", "mobigent-features", "invoice.ts")]
   );
-  assert.match(featureOnlyFiles[0]?.contents ?? "", /defineFeature\("invoice"\)/);
+  assert.match(featureOnlyFiles[0]?.contents ?? "", /defineFeature\("invoice", \{/);
   assert.match(featureOnlyFiles[0]?.contents ?? "", /export const invoiceFeature/);
 
   const featureOnlyStarterFiles = createReactNativeStarterFiles({
@@ -2359,7 +2359,7 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   assert.equal(writeCode, 0);
   assert.match(await readFile(join(dir, "mobigent.tsx"), "utf8"), /taskFeature/);
   const taskFeatureFile = await readFile(join(dir, "mobigent-features", "task.ts"), "utf8");
-  assert.match(taskFeatureFile, /defineFeature\("task"\)/);
+  assert.match(taskFeatureFile, /defineFeature\("task", \{/);
   assert.match(taskFeatureFile, /export const taskFeature/);
   await rm(dir, { force: true, recursive: true });
 
@@ -2414,7 +2414,10 @@ export const mobigentConfig = defineMobigentConfig({
   const backendFirstRoot = await readFile(join(backendFirstDir, "mobigent.tsx"), "utf8");
   assert.match(backendFirstRoot, /expenseFeature/);
   assert.match(backendFirstRoot, /invoiceFeature/);
-  assert.match(await readFile(join(backendFirstDir, "mobigent-features", "invoice.ts"), "utf8"), /defineFeature\("invoice"\)/);
+  assert.match(
+    await readFile(join(backendFirstDir, "mobigent-features", "invoice.ts"), "utf8"),
+    /defineFeature\("invoice", \{/
+  );
   await rm(backendFirstDir, { force: true, recursive: true });
 
   assert.equal(

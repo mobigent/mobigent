@@ -12,23 +12,25 @@ Most integrations use two packages:
 ## React Native
 
 ```ts
-import { feature } from "@mobigent/react-native";
+import { defineFeature, read, write } from "@mobigent/react-native";
 
-export const expenses = feature("expense")
-  .read("list", async () => ({ items: await listExpenses() }))
-  .write("create", async (input) => createExpense(input), {
+export const expenses = defineFeature("expense", {
+  list: read(async () => ({ items: await listExpenses() })),
+  create: write(async (input) => createExpense(input), {
     input: {
       merchant: "string",
       amount: "number"
     },
     confirm: true
-  });
+  })
+});
 ```
 
 ```tsx
-import { mobigentApp } from "@mobigent/react-native";
+import { withMobigent } from "@mobigent/react-native";
+import App from "./App";
 
-const { Root } = mobigentApp(expenses);
+export default withMobigent(App, expenses);
 ```
 
 For non-React hosts, demos, and tests:
@@ -49,11 +51,12 @@ connection.disconnect();
 
 ## Simple App Helpers
 
-- `feature(namespace)`: creates a small app feature.
+- `defineFeature(namespace, { name: read(fn), name: write(fn) })`: creates a small app feature.
+- `defineMobigent({ namespace: { name: read(fn) } })`: creates multiple feature areas from one plain object.
 - `defineMobigentConfig(config)`: gives app config a stable SDK type.
-- `read(name, handler)`: exposes app state.
-- `write(name, handler, options)`: exposes confirmed app behavior.
-- `screen(name, handler)`: lets an agent focus a screen or UI surface.
+- `read(handler, options)`: exposes app state.
+- `write(handler, options)`: exposes confirmed app behavior.
+- `screen(handler, options)`: lets an agent focus a screen or UI surface.
 - `mobigentApp(feature)`: wraps a React Native app once.
 - `mobigentApp({ config, features })`: production form when you need exact app config.
 - `connectMobigent(feature, options)`: configures, registers features, and connects in one call.

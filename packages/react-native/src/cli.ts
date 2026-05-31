@@ -397,10 +397,10 @@ export function createReactNativeDoctorReport(options: ReactNativeInitCliOptions
       : "Root file exists but does not look like the standard MobigentRoot scaffold."
   );
   pushFileCheck(checks, featurePath, "feature_file", (contents) =>
-    contents.includes(`defineFeature("${options.feature}")`) &&
+    contents.includes(`defineFeature("${options.feature}"`) &&
     contents.includes(`export const ${options.feature}Feature`) &&
-    contents.includes(".write(")
-      ? `Feature file exposes ${options.feature}Feature with defineFeature().`
+    contents.includes("write(")
+      ? `Feature file exposes ${options.feature}Feature with simple read()/write() functions.`
       : "Feature file exists but does not look like the standard feature scaffold."
   );
   if (options.customConfirmation) {
@@ -1171,7 +1171,7 @@ const styles = StyleSheet.create({
 }
 
 function createFeatureFile(feature: string) {
-  return `import { defineFeature } from "@mobigent/react-native";
+  return `import { defineFeature, read, write } from "@mobigent/react-native";
 
 type ${feature}Record = {
   id: string;
@@ -1181,14 +1181,14 @@ type ${feature}Record = {
 
 const ${feature}Records = new Map<string, ${feature}Record>();
 
-export const ${feature}Feature = defineFeature(${JSON.stringify(feature)})
-  .read("list", async () => ({ items: Array.from(${feature}Records.values()) }), {
+export const ${feature}Feature = defineFeature(${JSON.stringify(feature)}, {
+  list: read(async () => ({ items: Array.from(${feature}Records.values()) }), {
     description: "List ${feature} records.",
     output: {
       items: ["object"]
     }
-  })
-  .write("create", async (input) => {
+  }),
+  create: write(async (input) => {
     const record = {
       id: \`${feature}-\${Date.now()}\`,
       title: String(input.title),
@@ -1209,7 +1209,8 @@ export const ${feature}Feature = defineFeature(${JSON.stringify(feature)})
     },
     confirm: true,
     risk: "medium"
-  });
+  })
+});
 `;
 }
 

@@ -79,6 +79,26 @@ export type MobigentSimpleFeature = MobigentSimpleCapabilities & {
   capabilities(): MobigentSimpleCapabilities;
 };
 
+export type MobigentSimpleCapabilityDefinition =
+  | {
+      kind: "action";
+      handler: MobigentActionHandler;
+      options?: MobigentSimpleActionOptions;
+    }
+  | {
+      kind: "resource";
+      read: MobigentResourceReader;
+      options?: MobigentSimpleResourceOptions;
+    }
+  | {
+      kind: "component";
+      focus: MobigentComponentFocusHandler;
+      options?: MobigentSimpleComponentOptions;
+    };
+
+export type MobigentSimpleCapabilityMap = Record<string, MobigentSimpleCapabilityDefinition>;
+export type MobigentSimpleFeatureMap = Record<string, MobigentSimpleCapabilityMap>;
+
 export type MobigentSimpleClient = {
   registerAction(action: MobigentActionRegistration): unknown;
   registerResource(resource: MobigentResourceRegistration): unknown;
@@ -156,7 +176,48 @@ export function emitMobigentEvent(name: string, payload: JsonObject = {}) {
   return mobigent.emit(name, payload);
 }
 
-export function feature(namespace: string): MobigentSimpleFeature {
+export function read(read: MobigentResourceReader, options?: MobigentSimpleResourceOptions): MobigentSimpleCapabilityDefinition {
+  return {
+    kind: "resource",
+    read,
+    options
+  };
+}
+
+export function action(
+  handler: MobigentActionHandler,
+  options?: MobigentSimpleActionOptions
+): MobigentSimpleCapabilityDefinition {
+  return {
+    kind: "action",
+    handler,
+    options
+  };
+}
+
+export function write(
+  handler: MobigentActionHandler,
+  options?: MobigentSimpleActionOptions
+): MobigentSimpleCapabilityDefinition {
+  return action(handler, { confirm: true, ...options });
+}
+
+export function screen(
+  focus: MobigentComponentFocusHandler,
+  options?: MobigentSimpleComponentOptions
+): MobigentSimpleCapabilityDefinition {
+  return {
+    kind: "component",
+    focus,
+    options
+  };
+}
+
+export function defineMobigent(features: MobigentSimpleFeatureMap): MobigentSimpleFeature[] {
+  return Object.entries(features).map(([namespace, capabilities]) => feature(namespace, capabilities));
+}
+
+export function feature(namespace: string, capabilities?: MobigentSimpleCapabilityMap): MobigentSimpleFeature {
   const actions: MobigentActionRegistration[] = [];
   const resources: MobigentResourceRegistration[] = [];
   const components: MobigentComponentRegistration[] = [];
@@ -189,12 +250,32 @@ export function feature(namespace: string): MobigentSimpleFeature {
     }
   };
 
+  if (capabilities) {
+    addCapabilities(api, capabilities);
+  }
+
   return api;
 }
 
 export const agentFeature = feature;
 export const defineFeature = feature;
 export const createFeature = feature;
+
+function addCapabilities(api: MobigentSimpleFeature, capabilities: MobigentSimpleCapabilityMap) {
+  for (const [name, capability] of Object.entries(capabilities)) {
+    switch (capability.kind) {
+      case "action":
+        api.action(name, capability.handler, capability.options);
+        break;
+      case "resource":
+        api.resource(name, capability.read, capability.options);
+        break;
+      case "component":
+        api.screen(name, capability.focus, capability.options);
+        break;
+    }
+  }
+}
 
 export function registerFeatures(
   client: MobigentSimpleClient,

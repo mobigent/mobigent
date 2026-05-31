@@ -97,9 +97,13 @@ const starterCapabilities = createMobigentAppFiles({
 assert.match(rnRoot, /setupMobigent/);
 assert.match(rnRoot, /config: mobigentConfig/);
 assert.doesNotMatch(rnRoot, /MobigentProvider|createAgentApp|createAgentModule/);
-assert.match(rnFeature, /defineFeature\("expense"\)/);
+assert.match(rnFeature, /defineFeature\("expense", \{/);
+assert.match(rnFeature, /list: read\(/);
+assert.match(rnFeature, /create: write\(/);
 assert.doesNotMatch(rnFeature, /defineMobigentAction|createAgentModule|registerAction/);
 assert.match(starterCapabilities, /emitMobigentEvent/);
+assert.match(starterCapabilities, /defineFeature\("expense", \{/);
+assert.match(starterCapabilities, /create: write\(/);
 assert.doesNotMatch(starterCapabilities, /import \{ defineFeature, mobigent \}/);
 
 console.log("Mobigent simple DX guardrails passed.");

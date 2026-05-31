@@ -10,17 +10,18 @@ Lower-level protocol packages still exist, but most developers should not need t
 ## App API
 
 ```ts
-import { defineFeature } from "@mobigent/react-native";
+import { defineFeature, read, write } from "@mobigent/react-native";
 
-export const expenses = defineFeature("expense")
-  .read("list", async () => ({ items: await listExpenses() }))
-  .write("create", async (input) => createExpense(input), {
+export const expenses = defineFeature("expense", {
+  list: read(async () => ({ items: await listExpenses() })),
+  create: write(async (input) => createExpense(input), {
     input: {
       merchant: "string",
       amount: "number"
     },
     confirm: true
-  });
+  })
+});
 ```
 
 ```tsx
@@ -93,12 +94,13 @@ The returned object includes:
 
 ## Simple App Helpers
 
-- `defineFeature(namespace)`: creates a small app feature.
+- `defineFeature(namespace, { name: read(fn), name: write(fn) })`: creates a small app feature.
+- `defineMobigent({ namespace: { name: read(fn) } })`: creates multiple app areas from one plain object.
 - `defineMobigentConfig(config)`: gives app config a stable SDK type.
 - New configs use `connectionUrl`; existing `gatewayUrl` configs still work.
-- `read(name, handler)`: exposes app state.
-- `write(name, handler, options)`: exposes confirmed app behavior.
-- `screen(name, handler)`: lets an agent focus a screen or UI surface.
+- `read(handler, options)`: exposes app state.
+- `write(handler, options)`: exposes confirmed app behavior.
+- `screen(handler, options)`: lets an agent focus a screen or UI surface.
 - `withMobigent(App, feature)`: wraps an existing React Native app in one function call.
 - `setupMobigent(feature)`: wraps a React Native app once.
 - `setupMobigent({ config, features })`: production form when you need exact app config.
@@ -112,7 +114,9 @@ The returned object includes:
 Expose app state without changing anything:
 
 ```ts
-defineFeature("cart").read("current", async () => getCart());
+defineFeature("cart", {
+  current: read(async () => getCart())
+});
 ```
 
 ### Write
@@ -120,9 +124,11 @@ defineFeature("cart").read("current", async () => getCart());
 Expose app behavior that changes state:
 
 ```ts
-defineFeature("cart").write("checkout", async (input) => checkout(input), {
-  input: { paymentMethodId: "string" },
-  confirm: "Place order?"
+defineFeature("cart", {
+  checkout: write(async (input) => checkout(input), {
+    input: { paymentMethodId: "string" },
+    confirm: "Place order?"
+  })
 });
 ```
 
@@ -131,11 +137,13 @@ defineFeature("cart").write("checkout", async (input) => checkout(input), {
 Expose a focusable app surface:
 
 ```ts
-defineFeature("expense").screen("detail", async (props) => {
-  navigation.navigate("ExpenseDetail", { id: props.id });
-  return { focused: true };
-}, {
-  props: { id: "string" }
+defineFeature("expense", {
+  detail: screen(async (props) => {
+    navigation.navigate("ExpenseDetail", { id: props.id });
+    return { focused: true };
+  }, {
+    props: { id: "string" }
+  })
 });
 ```
 

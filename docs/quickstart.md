@@ -47,18 +47,19 @@ npx mobigent init --feature expense --out-dir src --backend-dir ../server
 Create a feature file:
 
 ```ts
-import { defineFeature } from "@mobigent/react-native";
+import { defineFeature, read, write } from "@mobigent/react-native";
 
-export const expenses = defineFeature("expense")
-  .read("list", async () => ({ items: await listExpenses() }))
-  .write("create", async (input) => createExpense(input), {
+export const expenses = defineFeature("expense", {
+  list: read(async () => ({ items: await listExpenses() })),
+  create: write(async (input) => createExpense(input), {
     input: {
       merchant: "string",
       amount: "number",
       notes: "string"
     },
     confirm: true
-  });
+  })
+});
 ```
 
 Wrap your existing app once:

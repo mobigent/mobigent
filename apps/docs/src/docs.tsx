@@ -55,19 +55,20 @@ npm run dev
 npm run doctor
 npm run agent:local`;
 
-const moduleCode = `import { feature } from "@mobigent/react-native";
+const moduleCode = `import { defineFeature, read, write } from "@mobigent/react-native";
 
-export const expenses = feature("expense")
-  .read("list", async () => ({
+export const expenses = defineFeature("expense", {
+  list: read(async () => ({
     items: await listExpenses()
-  }))
-  .write("create", async (input) => createExpense(input), {
+  })),
+  create: write(async (input) => createExpense(input), {
     input: {
       merchant: "string",
       amount: "number"
     },
     confirm: true
-  });`;
+  })
+});`;
 
 const appCode = `import { withMobigent } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expense";
