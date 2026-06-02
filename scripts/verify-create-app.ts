@@ -61,31 +61,16 @@ try {
   );
   assert.equal(
     packageJson.dependencies["@mobigent/backend"],
-    "https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-backend-0.1.12.tgz"
+    "^0.1.12"
   );
   assert.equal(
     packageJson.dependencies["@mobigent/app"],
-    "https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-app-0.1.12.tgz"
+    "^0.1.12"
   );
   assert.equal("@mobigent/core" in packageJson.dependencies, false);
   assert.equal("@mobigent/gateway" in packageJson.dependencies, false);
   assert.equal("@mobigent/providers" in packageJson.dependencies, false);
-  assert.equal(
-    packageJson.overrides["@mobigent/core"],
-    "https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-core-0.1.12.tgz"
-  );
-  assert.equal(
-    packageJson.overrides["@mobigent/gateway"],
-    "https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-gateway-0.1.12.tgz"
-  );
-  assert.equal(
-    packageJson.overrides["@mobigent/providers"],
-    "https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-providers-0.1.12.tgz"
-  );
-  assert.equal(
-    packageJson.overrides["@mobigent/react-native"],
-    "https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-react-native-0.1.12.tgz"
-  );
+  assert.equal(packageJson.overrides, undefined);
   assert.equal(packageJson.devDependencies["@types/express"], "^5.0.6");
 
   const server = await readFile(join(target, "src", "server.ts"), "utf8");
@@ -123,7 +108,26 @@ try {
   assert.equal(help.code, 0, help.stderr);
   assert.match(help.stdout, /--install/);
   assert.match(help.stdout, /--package-source/);
+  assert.match(help.stdout, /Default: npm/);
   assert.match(help.stdout, /--connection-port/);
+
+  const releaseTarget = join(dir, "release-demo");
+  const releaseInit = run([releaseTarget, "--no-open", "--package-source", "github-release"]);
+  assert.equal(releaseInit.code, 0, releaseInit.stderr);
+  const releasePackageJson = JSON.parse(await readFile(join(releaseTarget, "package.json"), "utf8"));
+  assert.equal(
+    releasePackageJson.dependencies["@mobigent/backend"],
+    "https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-backend-0.1.12.tgz"
+  );
+  assert.equal(
+    releasePackageJson.dependencies["@mobigent/app"],
+    "https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-app-0.1.12.tgz"
+  );
+  assert.equal(
+    releasePackageJson.overrides["@mobigent/core"],
+    "https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-core-0.1.12.tgz"
+  );
+  assert.match(await readFile(join(releaseTarget, "README.md"), "utf8"), /GitHub release tarballs/);
 
   const npmTarget = join(dir, "npm-demo");
   const npmInit = run([npmTarget, "--no-open", "--package-source", "npm", "--package-version", "1.2.3"]);

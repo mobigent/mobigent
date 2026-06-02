@@ -127,7 +127,7 @@ export function installMobigentAppDependencies(options: Pick<CreateMobigentAppOp
 const defaultMobigentVersion = "0.1.12";
 
 function createPackageJson(packageName: string, options?: CreateMobigentAppOptions) {
-  const packageSource = options?.packageSource ?? "github-release";
+  const packageSource = options?.packageSource ?? "npm";
   const version = options?.packageVersion ?? defaultMobigentVersion;
   const agentCommand = "mobigent-backend agent";
   const dependencies = options?.localPackages
@@ -218,7 +218,7 @@ function createTsConfig() {
 }
 
 function createReadme(options: CreateMobigentAppOptions) {
-  const packageSource = options.localPackages ? "local" : (options.packageSource ?? "github-release");
+  const packageSource = options.localPackages ? "local" : (options.packageSource ?? "npm");
   const sourceNote =
     packageSource === "local"
       ? "\nThis starter is linked to local Mobigent packages from this repository.\n"

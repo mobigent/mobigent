@@ -163,8 +163,8 @@ function helpText() {
 Create a runnable Mobigent starter with a visible app, backend, inspector, and agent playground.
 
 Usage:
-  npm exec --package https://github.com/mobigent/mobigent/releases/download/v0.1.12/create-mobigent-app-0.1.12.tgz -- create-mobigent-app my-demo --install
   npm create mobigent-app my-demo -- --install
+  npm exec --package https://github.com/mobigent/mobigent/releases/download/v0.1.12/create-mobigent-app-0.1.12.tgz -- create-mobigent-app my-demo --package-source github-release --install
 
 Options:
   --app-id <id>          App id for the Mobigent manifest. Default: com.mobigent.demo
@@ -176,7 +176,7 @@ Options:
   --app-port <port>     Visible app playground port. Default: 8790
   --no-open             Do not open the browser automatically.
   --local-packages <dir> Link generated app to local Mobigent packages in this repo.
-  --package-source <source> Use github-release or npm package specs. Default: github-release
+  --package-source <source> Use npm or github-release package specs. Default: npm
   --package-version <version> Mobigent package version. Default: latest starter version
   --install             Run npm install after files are created.
   --force               Overwrite generated files if they already exist.
