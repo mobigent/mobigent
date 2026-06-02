@@ -118,6 +118,9 @@ try {
   assert.match(help.stdout, /--package-source/);
   assert.match(help.stdout, /Default: npm/);
   assert.match(help.stdout, /--connection-port/);
+  assert.match(help.stdout, /Stable app id shared by app and backend/);
+  assert.doesNotMatch(help.stdout, /App id for the Mobigent manifest/);
+  assert.doesNotMatch(help.stdout, /HTTP\/OpenAPI\/inspector backend port/);
 
   const releaseTarget = join(dir, "release-demo");
   const releaseInit = run([releaseTarget, "--no-open", "--package-source", "github-release"]);

@@ -425,11 +425,14 @@ ${files.map((file) => `  ${file.path}`).join("\n")}
 
 Then in your app:
   npm install @mobigent/app
-  Add a mobigent.ts file, expose normal app functions, then wrap your app once:
+  Add a mobigent.ts file, use the same app id, expose normal app functions, then wrap your app once:
 
-    export const mobigent = createApp({ functions: { expense: { list: read(listExpenses) } } });
+    export const mobigent = createApp({
+      appId: ${JSON.stringify(options.appId)},
+      functions: { expense: { list: read(listExpenses) } }
+    });
     export default mobigent.with(App);
-${options.appDir ? `\nMobigent already wrote ${join(options.appDir, options.configFile)} and ${join(options.appDir, appConfigModuleFile ?? join("src", "mobigent-config.ts"))}, so the app package can use the backend connection directly.\n` : "\nTip: pass --app-dir ../mobile-app only when you want the backend helper to write app config files for you.\n"}
+${options.appDir ? `\nOptional app config files were also written to ${join(options.appDir, options.configFile)} and ${join(options.appDir, appConfigModuleFile ?? join("src", "mobigent-config.ts"))}.\n` : "\nNo app config file is required for the normal app/backend path.\n"}
 
 Need sample files instead of hand-writing them?
   Run mobigent new my-demo --install. The app-side init command is only a generator for examples.
@@ -459,15 +462,15 @@ Usage:
   mobigent-backend agent openai --base-url http://localhost:8788 --format json
 
 Options:
-  --app-id, --app <id> App id used by the mobile SDK config. Default: inferred from package or folder.
+  --app-id, --app <id> App id shared by app and backend. Default: inferred from package or folder.
   --app-name <name>   Human-readable app name. Default: nearest package name or folder name.
   --out-dir <path>    Output directory. Default: src.
   --file <name>       Backend file name. Default: mobigent.ts.
   --env <path>        Env file path. Default: .env.mobigent.
-  --config-file <path> App config JSON name used with --app-dir. Default: mobigent.app.json.
-  --app-dir <path>    Optional: write app config files into an existing app project.
-  --app-config-module <path> React Native config module inside --app-dir. Default: src/mobigent-config.ts.
-  --connection-url <url> App connection URL written when --app-dir is used. Default: ws://localhost:8787.
+  --config-file <path> Advanced: app config JSON name used with --app-dir. Default: mobigent.app.json.
+  --app-dir <path>    Advanced: also write optional app config files into an app project.
+  --app-config-module <path> Advanced: React Native config module inside --app-dir. Default: src/mobigent-config.ts.
+  --connection-url <url> Advanced: app connection URL written when --app-dir is used. Default: ws://localhost:8787.
   --gateway-url <url> Backward-compatible alias for --connection-url.
   --auth-token <token> App auth token written to config. Default: no local app auth.
   --force             Overwrite generated files.

@@ -54,15 +54,15 @@ Usage:
 
 Commands:
   new, create          Create a runnable starter app.
-  init                Optionally scaffold React Native app integration files.
-  app                 Run optional React Native app integration commands.
-  doctor              Check React Native integration files.
-  security-doctor     Check transport and confirmation defaults.
-  manifest            Print a React Native integration manifest.
-  contract            Print a capability contract.
-  env                 Print a React Native environment template.
   backend, server     Optionally scaffold a backend entrypoint.
   agent               Print setup for ChatGPT, Claude, OpenAI, or OpenAPI agents.
+  app                 Optional React Native app helper commands.
+  doctor              Optional: check React Native integration files.
+  security-doctor     Optional: check transport and confirmation defaults.
+  manifest            Advanced: print a React Native integration manifest.
+  contract            Advanced: print a capability contract.
+  env                 Print a React Native environment template.
+  init                Optional alias for React Native app helper commands.
 
 Examples:
   npm install @mobigent/app
@@ -70,7 +70,7 @@ Examples:
 
   npm install @mobigent/backend
   # Start Mobigent in server code with startMobigent({ appId: "com.acme.expenses" }).
-  # Optional scaffold: npx mobigent backend --app-dir ../mobile-app
+  # Optional scaffold: npx mobigent backend --app com.acme.expenses --app-name "Acme Expenses"
 
   npx mobigent new my-demo --install
 

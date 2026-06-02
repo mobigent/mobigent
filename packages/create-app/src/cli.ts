@@ -167,12 +167,12 @@ Usage:
   npm exec --package https://github.com/mobigent/mobigent/releases/download/v0.1.12/create-mobigent-app-0.1.12.tgz -- create-mobigent-app my-demo --package-source github-release --install
 
 Options:
-  --app-id <id>          App id for the Mobigent manifest. Default: com.mobigent.demo
+  --app-id <id>          Stable app id shared by app and backend. Default: com.mobigent.demo
   --app-name <name>     Visible app name. Default: Mobigent Demo
   --package-name <name> package.json name. Default: target folder name
   --connection-port <port> App connection port. Default: 8787
   --gateway-port <port> Backward-compatible alias for --connection-port.
-  --http-port <port>    HTTP/OpenAPI/inspector backend port. Default: 8788
+  --http-port <port>    Backend API and inspector port. Default: 8788
   --app-port <port>     Visible app playground port. Default: 8790
   --no-open             Do not open the browser automatically.
   --local-packages <dir> Link generated app to local Mobigent packages in this repo.

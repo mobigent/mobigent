@@ -19,9 +19,13 @@ try {
 
   const createApp = await run(join(binDir, "create-mobigent-app"), ["--help"]);
   assert.match(createApp, /create-mobigent-app/);
+  assert.match(createApp, /Stable app id shared by app and backend/);
+  assert.doesNotMatch(createApp, /App id for the Mobigent manifest/);
 
   const backend = await run(join(binDir, "mobigent-backend"), ["--help"]);
   assert.match(backend, /mobigent-backend/);
+  assert.match(backend, /App id shared by app and backend/);
+  assert.match(backend, /Advanced: also write optional app config files/);
 
   const backendMcp = await stat(join(binDir, "mobigent-mcp"));
   assert.equal(Boolean(backendMcp.mode & 0o111), true, "mobigent-mcp should be executable.");
@@ -42,7 +46,10 @@ try {
 
   const mobigent = await run(join(binDir, "mobigent"), ["init", "--help"]);
   assert.match(mobigent, /mobigent init/);
-  assert.match(await run(join(binDir, "mobigent"), ["backend", "--help"]), /mobigent-backend/);
+  const mobigentBackendHelp = await run(join(binDir, "mobigent"), ["backend", "--help"]);
+  assert.match(mobigentBackendHelp, /mobigent-backend/);
+  assert.doesNotMatch(mobigentBackendHelp, /--app-dir \.\.\/mobile-app/);
+  assert.match(await run(join(binDir, "mobigent"), ["--help"]), /backend --app com\.acme\.expenses/);
   assert.match(await run(join(binDir, "mobigent"), ["new", "--help"]), /create-mobigent-app/);
 
   console.log("Mobigent bin entrypoint smoke check passed.");

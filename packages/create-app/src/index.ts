@@ -258,7 +258,7 @@ npm run agent:openapi
 npm run agent:chatgpt
 \`\`\`
 
-These print copy-paste setup for Claude Desktop/MCP, generic OpenAPI agents, and ChatGPT Actions.
+These print copy-paste setup for local agents, generic HTTP agents, and ChatGPT Actions.
 
 ## What Is Running
 

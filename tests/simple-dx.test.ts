@@ -711,10 +711,13 @@ test("backend init CLI infers app identity and prints the short app init command
     );
     assert.equal(writeCode, 0, stderr);
     assert.match(stdout, /npm install @mobigent\/app/);
-    assert.match(stdout, /Add a mobigent\.ts file, expose normal app functions, then wrap your app once/);
-    assert.match(stdout, /export const mobigent = createApp\(\{ functions: \{ expense: \{ list: read\(listExpenses\) \} \} \}\);/);
+    assert.match(stdout, /use the same app id, expose normal app functions, then wrap your app once/);
+    assert.match(stdout, /appId: "com\.example\.expense"/);
+    assert.match(stdout, /functions: \{ expense: \{ list: read\(listExpenses\) \} \}/);
+    assert.match(stdout, /No app config file is required for the normal app\/backend path/);
     assert.match(stdout, /Need sample files instead of hand-writing them\?/);
     assert.doesNotMatch(stdout, /npx mobigent-init --feature expense --out-dir src/);
+    assert.doesNotMatch(stdout, /pass --app-dir \.\.\/mobile-app only/);
     assert.match(stdout, /npx tsx src\/mobigent\.ts/);
     assert.doesNotMatch(stdout, /--config/);
     assert.doesNotMatch(stdout, /--env-file/);
