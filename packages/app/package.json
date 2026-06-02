@@ -27,19 +27,10 @@
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "bin": {
-    "mobigent-init": "./dist/cli.js",
-    "mobigent-app-init": "./dist/cli.js",
-    "mobigent-rn-init": "./dist/cli.js"
-  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    },
-    "./cli": {
-      "types": "./dist/cli.d.ts",
-      "import": "./dist/cli.js"
     },
     "./ui": {
       "types": "./dist/ui.d.ts",
@@ -67,7 +58,7 @@
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && chmod +x dist/cli.js",
+    "build": "rm -rf dist tsconfig.tsbuildinfo && tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prepublishOnly": "npm run build && npm run typecheck"
   },

@@ -16,6 +16,7 @@ type PackageExpectation = {
   path: string;
   requiredFiles: string[];
   requiredBins?: string[];
+  forbiddenFiles?: string[];
 };
 
 const packages: PackageExpectation[] = [
@@ -45,8 +46,8 @@ const packages: PackageExpectation[] = [
   },
   {
     path: "packages/app",
-    requiredFiles: ["README.md", "package.json", "dist/index.js", "dist/index.d.ts", "dist/cli.js", "dist/cli.d.ts", "dist/expo.js", "dist/expo.d.ts", "dist/simple.js", "dist/simple.d.ts", "dist/ui.js", "dist/ui.d.ts"],
-    requiredBins: ["dist/cli.js"]
+    requiredFiles: ["README.md", "package.json", "dist/index.js", "dist/index.d.ts", "dist/expo.js", "dist/expo.d.ts", "dist/simple.js", "dist/simple.d.ts", "dist/ui.js", "dist/ui.d.ts"],
+    forbiddenFiles: ["dist/cli.js", "dist/cli.d.ts"]
   },
   {
     path: "packages/create-app",
@@ -108,6 +109,10 @@ function assertPackEntry(expectation: PackageExpectation, entry: PackEntry | und
   const files = new Map(entry.files.map((file) => [file.path, file]));
   for (const file of expectation.requiredFiles) {
     assert.ok(files.has(file), `${entry.name} package is missing ${file}.`);
+  }
+
+  for (const file of expectation.forbiddenFiles ?? []) {
+    assert.equal(files.has(file), false, `${entry.name} package should not include ${file}.`);
   }
 
   for (const bin of expectation.requiredBins ?? []) {

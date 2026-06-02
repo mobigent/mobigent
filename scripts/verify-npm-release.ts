@@ -14,6 +14,7 @@ type PackageJson = {
   dependencies?: Record<string, string>;
   peerDependencies?: Record<string, string>;
   bin?: Record<string, string>;
+  exports?: Record<string, unknown>;
 };
 
 const publicPackages = [
@@ -61,7 +62,12 @@ for (const item of publicPackages) {
 assert.ok(packageJsons.get("@mobigent/backend")?.bin?.["mobigent-backend"], "@mobigent/backend must ship mobigent-backend bin.");
 assert.ok(packageJsons.get("@mobigent/backend")?.bin?.["mobigent-mcp"], "@mobigent/backend must ship mobigent-mcp bin.");
 assert.ok(packageJsons.get("@mobigent/react-native")?.bin?.["mobigent-init"], "@mobigent/react-native must ship mobigent-init bin.");
-assert.ok(packageJsons.get("@mobigent/app")?.bin?.["mobigent-init"], "@mobigent/app must ship mobigent-init bin.");
+assert.equal(packageJsons.get("@mobigent/app")?.bin, undefined, "@mobigent/app should stay SDK-only and must not ship init bins.");
+assert.equal(
+  Boolean(packageJsons.get("@mobigent/app")?.exports?.["./cli"]),
+  false,
+  "@mobigent/app should stay SDK-only and must not export CLI internals."
+);
 assert.ok(packageJsons.get("create-mobigent-app")?.bin?.["create-mobigent-app"], "create-mobigent-app must ship create-mobigent-app bin.");
 assert.ok(packageJsons.get("mobigent")?.bin?.mobigent, "mobigent must ship the friendly mobigent bin.");
 
