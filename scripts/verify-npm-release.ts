@@ -83,7 +83,9 @@ assert.match(
   "release workflow must install an npm version with trusted publishing support."
 );
 assert.match(releaseWorkflow, /registry-url: https:\/\/registry\.npmjs\.org/, "release workflow must target npmjs.org.");
-assert.match(releaseWorkflow, /Require npmjs publishing credentials/, "release workflow must fail without npm credentials.");
+assert.match(releaseWorkflow, /Check npmjs publishing configuration/, "release workflow must check npm publishing configuration.");
+assert.match(releaseWorkflow, /configured=false/, "release workflow must explicitly skip npm publishing when credentials are absent.");
+assert.match(releaseWorkflow, /if: steps\.npm-config\.outputs\.configured == 'true'/, "npm publish steps must run only when npm credentials are configured.");
 assert.match(releaseWorkflow, /npm run verify/, "release workflow must run full verification before publish.");
 assert.match(releaseWorkflow, /npm run npm:publish-ready/, "release workflow must check npm publish readiness before publish.");
 assert.match(releaseWorkflow, /npm run npm:publish/, "release workflow must publish npm packages.");

@@ -6,7 +6,7 @@ This guide gets you from an app with no agent interface to a working Mobigent lo
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.12/create-mobigent-app-0.1.12.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.13/create-mobigent-app-0.1.13.tgz \
   -- create-mobigent-app my-demo --package-source github-release --install
 cd my-demo
 npm run dev
@@ -45,6 +45,15 @@ Install the app SDK:
 
 ```bash
 npm install @mobigent/app
+```
+
+Current public fallback until npmjs publishing is connected:
+
+```bash
+npm install \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-core-0.1.13.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-react-native-0.1.13.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-app-0.1.13.tgz
 ```
 
 Create a Mobigent file yourself. There is no app-side init command in the normal path:
@@ -102,6 +111,16 @@ Install the backend SDK:
 
 ```bash
 npm install @mobigent/backend
+```
+
+Current public fallback until npmjs publishing is connected:
+
+```bash
+npm install \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-core-0.1.13.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-providers-0.1.13.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-gateway-0.1.13.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-backend-0.1.13.tgz
 ```
 
 In your server:

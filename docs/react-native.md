@@ -5,7 +5,10 @@ Use Mobigent like normal app code: expose a few real functions, wrap the app onc
 ## 1. Install
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-app-0.1.12.tgz
+npm install \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-core-0.1.13.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-react-native-0.1.13.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-app-0.1.13.tgz
 ```
 
 After npm publishing is enabled:

@@ -17,6 +17,15 @@ backend     ->  @mobigent/backend  -> lets agents call those functions
 npm install @mobigent/app
 ```
 
+Current public fallback until npmjs publishing is connected:
+
+```bash
+npm install \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-core-0.1.13.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-react-native-0.1.13.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-app-0.1.13.tgz
+```
+
 ```ts
 import { createApp, read, write } from "@mobigent/app";
 
@@ -58,6 +67,16 @@ connection: "wss://your-backend.example.com"
 
 ```bash
 npm install @mobigent/backend
+```
+
+Current public fallback until npmjs publishing is connected:
+
+```bash
+npm install \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-core-0.1.13.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-providers-0.1.13.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-gateway-0.1.13.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-backend-0.1.13.tgz
 ```
 
 ```ts

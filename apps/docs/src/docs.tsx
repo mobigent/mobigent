@@ -16,15 +16,12 @@ import {
 import { createRoot } from "react-dom/client";
 import "./styles.css";
 
-const quickstart = `# backend
-cd backend
-npm install @mobigent/backend
-# call startMobigent({ appId: "com.acme.expenses" }) in your server
+const quickstart = `npm exec --yes \\
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.13/create-mobigent-app-0.1.13.tgz \\
+  -- create-mobigent-app my-demo --package-source github-release --install
 
-# app
-cd ../mobile-app
-npm install @mobigent/app
-# createApp({ functions }) and wrap the app once`;
+cd my-demo
+npm run dev`;
 
 const deviceConnectionCode = `export const mobigent = createApp({
   appId: "com.acme.expenses",
@@ -36,7 +33,7 @@ const deviceConnectionCode = `export const mobigent = createApp({
 connection: "wss://your-backend.example.com"`;
 
 const demoCode = `npm exec --yes \\
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.12/create-mobigent-app-0.1.12.tgz \\
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.13/create-mobigent-app-0.1.13.tgz \\
   -- create-mobigent-app my-demo --install
 cd my-demo
 npm run dev

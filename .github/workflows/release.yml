@@ -51,29 +51,37 @@ jobs:
           registry-url: https://registry.npmjs.org
       - name: Use npm with trusted publishing support
         run: npm install -g npm@^11.10.0
-      - name: Require npmjs publishing credentials
+      - name: Check npmjs publishing configuration
+        id: npm-config
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TRUSTED_PUBLISHING: ${{ vars.NPM_TRUSTED_PUBLISHING }}
         run: |
           if [ -z "$NODE_AUTH_TOKEN" ] && [ "$NPM_TRUSTED_PUBLISHING" != "true" ]; then
-            echo "npmjs.com publishing is not configured."
-            echo "Set NPM_TOKEN, or configure npm Trusted Publishing and set repository variable NPM_TRUSTED_PUBLISHING=true."
-            exit 1
+            echo "npmjs.com publishing is not configured; skipping npm publish for this release."
+            echo "Set NPM_TOKEN, or configure npm Trusted Publishing and set repository variable NPM_TRUSTED_PUBLISHING=true to publish npm packages."
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
           fi
-      - run: npm ci
-      - run: npm run verify
+      - if: steps.npm-config.outputs.configured == 'true'
+        run: npm ci
+      - if: steps.npm-config.outputs.configured == 'true'
+        run: npm run verify
       - name: Check npm publish readiness
+        if: steps.npm-config.outputs.configured == 'true'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TRUSTED_PUBLISHING: ${{ vars.NPM_TRUSTED_PUBLISHING }}
         run: npm run npm:publish-ready
       - name: Publish public packages
+        if: steps.npm-config.outputs.configured == 'true'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TRUSTED_PUBLISHING: ${{ vars.NPM_TRUSTED_PUBLISHING }}
         run: npm run npm:publish
       - name: Verify npmjs package visibility
+        if: steps.npm-config.outputs.configured == 'true'
         run: npm run npm:status
 
   publish-github-packages:

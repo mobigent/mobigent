@@ -2,15 +2,12 @@ import { ArrowRight, Check, Github, Lock, PlugZap, Radio, ShieldCheck, Smartphon
 import { createRoot } from "react-dom/client";
 import "./styles.css";
 
-const quickstart = `# backend
-cd backend
-npm install @mobigent/backend
-# call startMobigent({ appId: "com.acme.expenses" }) in your server
+const quickstart = `npm exec --yes \\
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.13/create-mobigent-app-0.1.13.tgz \\
+  -- create-mobigent-app my-demo --package-source github-release --install
 
-# app
-cd ../mobile-app
-npm install @mobigent/app
-# createApp({ functions }) and wrap the app once`;
+cd my-demo
+npm run dev`;
 
 function App() {
   return (
@@ -24,8 +21,9 @@ function App() {
           </div>
           <h1>The bridge between AI agents and real app capability.</h1>
           <p>
-            Install the app package, install the backend package, expose real app functions, and let
-            Mobigent handle the bridge, approvals, retries, agent discovery, and provider setup.
+            Install the app package, install the backend package, expose real app functions with
+            createApp({"{"} functions {"}"}) and startMobigent({"{"} appId {"}"}), and let Mobigent
+            handle the bridge, approvals, retries, agent discovery, and provider setup.
           </p>
           <div className="heroActions">
             <a className="primaryButton" href="./docs.html">

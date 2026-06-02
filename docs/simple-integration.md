@@ -20,6 +20,15 @@ Use the same `appId` on both sides.
 npm install @mobigent/app
 ```
 
+Current public fallback until npmjs publishing is connected:
+
+```bash
+npm install \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-core-0.1.13.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-react-native-0.1.13.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-app-0.1.13.tgz
+```
+
 Create one app SDK object and expose the functions agents may call:
 
 ```ts
@@ -59,6 +68,16 @@ No app-side init command is required. You should not have to run `npx mobigent-i
 
 ```bash
 npm install @mobigent/backend
+```
+
+Current public fallback until npmjs publishing is connected:
+
+```bash
+npm install \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-core-0.1.13.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-providers-0.1.13.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-gateway-0.1.13.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-backend-0.1.13.tgz
 ```
 
 ```ts

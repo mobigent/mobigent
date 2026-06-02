@@ -8,6 +8,16 @@ Use it like normal backend plumbing: start Mobigent, then call app functions fro
 npm install @mobigent/backend
 ```
 
+Until npmjs publishing is connected, install the public release tarballs together:
+
+```bash
+npm install \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-core-0.1.13.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-providers-0.1.13.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-gateway-0.1.13.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-backend-0.1.13.tgz
+```
+
 ## Call App Functions
 
 ```ts

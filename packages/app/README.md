@@ -8,6 +8,15 @@ Use this package inside your React Native or Expo app:
 npm install @mobigent/app
 ```
 
+Until npmjs publishing is connected, install the public release tarballs together:
+
+```bash
+npm install \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-core-0.1.13.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-react-native-0.1.13.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-app-0.1.13.tgz
+```
+
 Then expose normal app functions and create one app SDK object:
 
 ```ts

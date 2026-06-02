@@ -13,7 +13,7 @@ Current public fallback before npmjs publishing is connected:
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.12/create-mobigent-app-0.1.12.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.13/create-mobigent-app-0.1.13.tgz \
   -- create-mobigent-app my-demo --package-source github-release --install
 ```
 
@@ -76,9 +76,11 @@ The workflow pins Node 24 and installs `npm@^11.10.0` before publishing so the O
 
 ## Release Behavior
 
-The release workflow fails if neither `NPM_TOKEN` nor `NPM_TRUSTED_PUBLISHING=true` is configured. A green release should mean the npmjs.com path was actually attempted, not silently skipped.
+The release workflow always builds GitHub release tarballs. If neither `NPM_TOKEN` nor `NPM_TRUSTED_PUBLISHING=true` is configured, the npmjs publish job logs that npm publishing was skipped and the GitHub release still completes.
 
-The publish script is idempotent per version: if `@mobigent/app@0.1.12` already exists, it skips that package and continues. This makes reruns safer after a partial publish.
+When npm credentials are configured, the same workflow runs `npm run verify`, checks publish readiness, publishes all public packages, and verifies package visibility on npmjs.com.
+
+The publish script is idempotent per version: if `@mobigent/app@0.1.13` already exists, it skips that package and continues. This makes reruns safer after a partial publish.
 
 For local maintainer publishing after `npm login`:
 

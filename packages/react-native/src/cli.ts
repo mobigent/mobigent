@@ -247,7 +247,7 @@ export function createReactNativeCapabilityContract(options: ReactNativeInitCliO
     appId: options.appId,
     appName: options.appName,
     sdk: "react-native",
-    version: options.appVersion ?? "0.1.12",
+    version: options.appVersion ?? "0.1.13",
     actions: [
       {
         name: `${options.feature}_create`,

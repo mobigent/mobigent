@@ -12,7 +12,7 @@ Until npmjs publishing is connected, use the public release tarball fallback:
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.12/create-mobigent-app-0.1.12.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.13/create-mobigent-app-0.1.13.tgz \
   -- create-mobigent-app my-demo --package-source github-release --install
 cd my-demo
 npm run dev
@@ -55,7 +55,7 @@ Use `--no-open` when you do not want the browser to open automatically:
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.12/create-mobigent-app-0.1.12.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.13/create-mobigent-app-0.1.13.tgz \
   -- create-mobigent-app my-demo --package-source github-release --no-open
 ```
 

@@ -21,7 +21,7 @@ After Maven Central publishing is configured, apps will be able to use:
 
 ```kotlin
 dependencies {
-    implementation("io.mobigent:mobigent-android:0.1.12")
+    implementation("io.mobigent:mobigent-android:0.1.13")
 }
 ```
 
