@@ -14,6 +14,87 @@ import {
   type MobigentSimpleFunctionMap,
   type MobigentWithAppOptions
 } from "@mobigent/react-native/app";
+export {
+  action,
+  connectMobigent,
+  createFeature,
+  defineFeature,
+  defineFunctions,
+  defineMobigent,
+  defineMobigentConfig,
+  emitMobigentEvent,
+  feature,
+  functions,
+  read,
+  screen,
+  simpleSchema,
+  toSchema,
+  write,
+  type MobigentSimpleActionOptions,
+  type MobigentSimpleAppConfig,
+  type MobigentSimpleCapabilities,
+  type MobigentSimpleCapabilityDefinition,
+  type MobigentSimpleCapabilityMap,
+  type MobigentSimpleComponentOptions,
+  type MobigentSimpleConnection,
+  type MobigentSimpleConnectionOptions,
+  type MobigentSimpleConnectionSettings,
+  type MobigentSimpleFeature,
+  type MobigentSimpleFeatureMap,
+  type MobigentSimpleField,
+  type MobigentSimpleFunctionMap,
+  type MobigentSimpleObjectSchema,
+  type MobigentSimpleResourceOptions,
+  type MobigentSimpleSchema
+} from "@mobigent/react-native/app";
+export {
+  arraySchema,
+  booleanSchema,
+  enumSchema,
+  fromJsonSchema,
+  fromTypeBox,
+  fromZod,
+  integerSchema,
+  literalSchema,
+  nullSchema,
+  nullableSchema,
+  numberSchema,
+  objectSchema,
+  schema,
+  schemaAdapters,
+  stringSchema,
+  type MobigentSchemaAdapterOptions
+} from "@mobigent/react-native";
+export {
+  MobigentConfirmationModal,
+  MobigentDiagnosticsPanel,
+  MobigentStatusBadge,
+  type AgentAppRootProps,
+  type MobigentAppRootProps,
+  type MobigentConfirmationComponentProps,
+  type MobigentConfirmationModalProps,
+  type MobigentDiagnosticsPanelProps,
+  type MobigentStatusBadgeProps
+} from "@mobigent/react-native/ui";
+export {
+  mobigent,
+  setupMobigent,
+  withMobigent,
+  useMobigentConfirmation,
+  useMobigentConnected,
+  useMobigentConnectionState,
+  useMobigentDiagnostics,
+  useMobigentStatus
+} from "@mobigent/react-native";
+export type {
+  ConfirmationRequest,
+  MobigentConnectionState,
+  MobigentDiagnostics,
+  MobigentEventQueueOptions,
+  MobigentHeartbeatOptions,
+  MobigentManifestSigner,
+  MobigentReconnectOptions
+} from "@mobigent/react-native";
 
 export type MobigentAppPackageOptions = MobigentSimpleAppInput | MobigentWithAppOptions;
 export type MobigentBackendConnectionTarget = {
@@ -59,8 +140,6 @@ export const app = createApp;
 export const connect = connectMobigent;
 export const emit = emitMobigentEvent;
 export const setup = setupMobigent;
-
-export * from "@mobigent/react-native";
 
 function resolvePackageFeatures(input: MobigentAppPackageOptions): MobigentSimpleFeature | MobigentSimpleFeature[] {
   if (isFeatureInput(input)) {

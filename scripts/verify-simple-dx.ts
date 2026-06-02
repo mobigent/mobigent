@@ -19,6 +19,7 @@ const starterPackage = JSON.parse(
     packageVersion: "1.2.3"
   }).find((file) => file.path === "package.json")?.contents ?? "{}"
 );
+const appPackageRoot = readFileSync("packages/app/src/index.ts", "utf8");
 
 assert.deepEqual(
   Object.keys(starterPackage.dependencies).filter((name) => name.startsWith("@mobigent/")).sort(),
@@ -28,6 +29,20 @@ assert.deepEqual(
 assert.equal(starterPackage.overrides, undefined, "npm starter should not need internal Mobigent package overrides");
 assert.equal(starterPackage.scripts["agent:local"], "mobigent-backend agent claude --format guide");
 assert.doesNotMatch(JSON.stringify(starterPackage.scripts), /mobigent-provider|@mobigent\/providers/);
+assert.doesNotMatch(
+  appPackageRoot,
+  /export \* from "@mobigent\/react-native"/,
+  "@mobigent/app root should stay a curated app SDK surface, not a full advanced React Native re-export"
+);
+assert.doesNotMatch(
+  appPackageRoot,
+  /AgentBridge|BridgeGateway|createMobigentGatewayUrl|createAgentModule|defineAgentAction|MobigentProvider/,
+  "@mobigent/app root should not expose bridge/gateway/provider internals in the normal import path"
+);
+assert.match(appPackageRoot, /createApp/);
+assert.match(appPackageRoot, /read/);
+assert.match(appPackageRoot, /write/);
+assert.match(appPackageRoot, /fromZod/);
 
 const backendFile = createMobigentBackendFiles({
   appId: "com.example.app",
