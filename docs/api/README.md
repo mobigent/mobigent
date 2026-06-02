@@ -111,7 +111,9 @@ The returned object includes:
 - `createApp({ features })`: creates the app-side SDK object from explicit features.
 - `defineMobigent({ namespace: { name: read(fn) } })`: older alias for `defineFunctions`.
 - `defineMobigentConfig(config)`: gives app config a stable SDK type.
-- Advanced configs can pass `connectionUrl`; existing `gatewayUrl` configs still work.
+- `createApp({ connection: { host: "192.168.1.20" } })`: connects a physical phone to your local backend.
+- `createApp({ connection: "wss://your-backend.example.com" })`: connects an app to a hosted backend.
+- Advanced configs can still pass `connectionUrl` or `gatewayUrl` for compatibility.
 - `read(handler, options)`: exposes app state.
 - `write(handler, options)`: exposes confirmed app behavior.
 - `screen(handler, options)`: lets an agent focus a screen or UI surface.

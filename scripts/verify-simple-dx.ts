@@ -207,4 +207,13 @@ for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.
   );
 }
 
+const quickstart = readFileSync("docs/quickstart.md", "utf8");
+assert.match(quickstart, /connection: \{ host: "192\.168\.1\.20" \}/);
+assert.match(quickstart, /connection: "wss:\/\/your-backend\.example\.com"/);
+assert.doesNotMatch(
+  quickstart,
+  /set the app connection URL in `mobigent\.app\.json`/,
+  "device setup should use createApp({ connection }) instead of generated config"
+);
+
 console.log("Mobigent simple DX guardrails passed.");

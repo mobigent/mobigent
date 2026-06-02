@@ -4,7 +4,9 @@ import {
   connectMobigent,
   defineMobigent,
   emitMobigentEvent,
+  resolveMobigentConnectionUrl,
   type MobigentSimpleAppConfig,
+  type MobigentSimpleBackendConnection,
   type MobigentSimpleConnection,
   type MobigentSimpleConnectionSettings,
   type MobigentSimpleFeature,
@@ -13,6 +15,8 @@ import {
 
 export type MobigentSimpleAppOptions = Omit<AgentAppFactoryOptions, "capabilities" | "modules"> & {
   config?: MobigentSimpleAppConfig;
+  connection?: MobigentSimpleBackendConnection;
+  connectionUrl?: string;
   features?: MobigentSimpleFeature | MobigentSimpleFeature[];
   functions?: MobigentSimpleFunctionMap;
   capabilities?: AgentAppFactoryOptions["capabilities"];
@@ -35,11 +39,18 @@ export function mobigentApp(input: MobigentSimpleAppInput): MobigentCreatedApp {
   const options = isMobigentFeatureInput(input) ? { features: input } : input;
   const features = [...toArray(options.features), ...resolveFunctionFeatures(options.functions)];
   const { config, functions: _functions, ...appOptions } = options;
+  const appConnectionUrl =
+    appOptions.gatewayUrl ??
+    appOptions.connectionUrl ??
+    resolveMobigentConnectionUrl(appOptions.connection) ??
+    config?.gatewayUrl ??
+    config?.connectionUrl ??
+    resolveMobigentConnectionUrl(config?.connection);
   const app = createAgentApp({
     ...appOptions,
     appId: appOptions.appId ?? config?.appId,
     appName: appOptions.appName ?? config?.appName,
-    gatewayUrl: appOptions.gatewayUrl ?? config?.connectionUrl ?? config?.gatewayUrl,
+    gatewayUrl: appConnectionUrl,
     version: appOptions.version ?? config?.version,
     authToken: appOptions.authToken ?? config?.authToken,
     capabilities: [...toArray(options.capabilities), ...features],
@@ -50,8 +61,9 @@ export function mobigentApp(input: MobigentSimpleAppInput): MobigentCreatedApp {
     config,
     appId: appOptions.appId ?? config?.appId,
     appName: appOptions.appName ?? config?.appName,
-    connectionUrl: config?.connectionUrl,
-    gatewayUrl: appOptions.gatewayUrl ?? config?.connectionUrl ?? config?.gatewayUrl,
+    connection: appOptions.connection ?? config?.connection,
+    connectionUrl: appOptions.connectionUrl ?? config?.connectionUrl,
+    gatewayUrl: appOptions.gatewayUrl ?? config?.gatewayUrl,
     version: appOptions.version ?? config?.version,
     authToken: appOptions.authToken ?? config?.authToken,
     signManifest: appOptions.signManifest,

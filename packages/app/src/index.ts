@@ -8,6 +8,7 @@ import {
   type AgentAppRootProps,
   type MobigentSimpleAppInput,
   type MobigentSimpleAppOptions,
+  type MobigentSimpleBackendConnection,
   type MobigentSimpleConnection,
   type MobigentSimpleConnectionSettings,
   type MobigentSimpleFeature,
@@ -26,6 +27,7 @@ export {
   feature,
   functions,
   read,
+  resolveMobigentConnectionUrl,
   screen,
   simpleSchema,
   toSchema,
@@ -33,6 +35,7 @@ export {
   type MobigentSimpleActionOptions,
   type MobigentSimpleAppConfig,
   type MobigentSimpleCapabilities,
+  type MobigentSimpleBackendConnection,
   type MobigentSimpleCapabilityDefinition,
   type MobigentSimpleCapabilityMap,
   type MobigentSimpleComponentOptions,
@@ -104,6 +107,7 @@ export type MobigentBackendConnectionTarget = {
   defaultApp?: {
     appId?: string;
     appName?: string;
+    connection?: MobigentSimpleBackendConnection;
     connectionUrl?: string;
     gatewayUrl?: string;
     version?: string;
@@ -198,6 +202,7 @@ function resolveBackendConnectionSettings(target: MobigentBackendConnectionTarge
   return {
     appId: config.appId,
     appName: config.appName,
+    connection: config.connection,
     connectionUrl: config.connectionUrl ?? config.gatewayUrl ?? target.urls?.websocket,
     version: config.version,
     authToken: config.authToken

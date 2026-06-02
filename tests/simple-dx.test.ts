@@ -119,6 +119,51 @@ test("createApp accepts app functions directly for the lowest ceremony path", ()
   assert.equal(app.options.capabilities[0]?.actions[0]?.name, "expense_create");
 });
 
+test("createApp accepts a friendly connection target instead of generated app config", async () => {
+  const app = createApp({
+    appId: "com.example.expenses",
+    connection: { host: "192.168.1.20" },
+    functions: {
+      expense: {
+        list: read(async () => ({ items: [] }))
+      }
+    }
+  });
+  const configured: unknown[] = [];
+  const client = {
+    configure(options: unknown) {
+      configured.push(options);
+    },
+    async connect() {},
+    disconnect() {},
+    registerAction() {},
+    registerResource() {},
+    registerComponent() {}
+  };
+
+  assert.equal(app.options.gatewayUrl, "ws://192.168.1.20:8787");
+  await connectMobigent(client, app.options.capabilities[0], {
+    appId: "com.example.expenses",
+    connection: { host: "192.168.1.20" }
+  });
+
+  assert.equal((configured[0] as { gatewayUrl?: string }).gatewayUrl, "ws://192.168.1.20:8787");
+});
+
+test("createApp accepts a hosted backend URL directly", () => {
+  const app = createApp({
+    appId: "com.example.hosted",
+    connection: "wss://mobigent.example.com",
+    functions: {
+      expense: {
+        list: read(async () => ({ items: [] }))
+      }
+    }
+  });
+
+  assert.equal(app.options.gatewayUrl, "wss://mobigent.example.com");
+});
+
 test("simple schema helper accepts plain field maps", () => {
   const input = simpleSchema({
     userId: "string",

@@ -14,7 +14,12 @@ import type {
   MobigentReconnectOptions
 } from "./AgentBridge.js";
 import { mobigent } from "./AgentBridge.js";
-import { createMobigentGatewayUrl } from "./gatewayUrl.js";
+import {
+  createMobigentGatewayUrl,
+  createMobigentGatewayUrlForPlatform,
+  type MobigentGatewayPlatform,
+  type MobigentGatewayTarget
+} from "./gatewayUrl.js";
 import { schema } from "./schema.js";
 import type { MobigentSocketFactory } from "./transport.js";
 
@@ -109,9 +114,22 @@ export type MobigentSimpleClient = {
   unregisterComponent?(name: string): unknown;
 };
 
+export type MobigentSimpleBackendConnection =
+  | string
+  | {
+      host?: string;
+      deviceHost?: string;
+      port?: number;
+      secure?: boolean;
+      path?: string;
+      target?: MobigentGatewayTarget;
+      platform?: MobigentGatewayPlatform;
+    };
+
 export type MobigentSimpleConnectionOptions = {
   appId?: string;
   appName?: string;
+  connection?: MobigentSimpleBackendConnection;
   connectionUrl?: string;
   gatewayUrl?: string;
   features: MobigentSimpleFeature | MobigentSimpleFeature[];
@@ -127,7 +145,7 @@ export type MobigentSimpleConnectionOptions = {
 
 export type MobigentSimpleAppConfig = Pick<
   MobigentSimpleConnectionOptions,
-  "appId" | "appName" | "connectionUrl" | "gatewayUrl" | "version" | "authToken"
+  "appId" | "appName" | "connection" | "connectionUrl" | "gatewayUrl" | "version" | "authToken"
 > & {
   appId: string;
   appName: string;
@@ -139,11 +157,12 @@ export function defineMobigentConfig(config: MobigentSimpleAppConfig): MobigentS
 
 export type MobigentSimpleConfiguredConnectionOptions = Omit<
   MobigentSimpleConnectionOptions,
-  "appId" | "appName" | "connectionUrl" | "gatewayUrl" | "version" | "authToken"
+  "appId" | "appName" | "connection" | "connectionUrl" | "gatewayUrl" | "version" | "authToken"
 > & {
   config: MobigentSimpleAppConfig;
   appId?: string;
   appName?: string;
+  connection?: MobigentSimpleBackendConnection;
   connectionUrl?: string;
   gatewayUrl?: string;
   version?: string;
@@ -458,7 +477,11 @@ function resolveConnectionOptions(
       ...options,
       appId: options.appId ?? defaultMobigentSimpleAppIdentity.id,
       appName: options.appName ?? defaultMobigentSimpleAppIdentity.name,
-      gatewayUrl: options.gatewayUrl ?? options.connectionUrl ?? createMobigentGatewayUrl()
+      gatewayUrl:
+        options.gatewayUrl ??
+        options.connectionUrl ??
+        resolveMobigentConnectionUrl(options.connection) ??
+        createMobigentGatewayUrl()
     };
   }
 
@@ -470,10 +493,38 @@ function resolveConnectionOptions(
     ...rest,
     appId,
     appName,
-    gatewayUrl: rest.gatewayUrl ?? rest.connectionUrl ?? config.gatewayUrl ?? config.connectionUrl ?? createMobigentGatewayUrl(),
+    gatewayUrl:
+      rest.gatewayUrl ??
+      rest.connectionUrl ??
+      resolveMobigentConnectionUrl(rest.connection) ??
+      config.gatewayUrl ??
+      config.connectionUrl ??
+      resolveMobigentConnectionUrl(config.connection) ??
+      createMobigentGatewayUrl(),
     version: rest.version ?? config.version,
     authToken: rest.authToken ?? config.authToken
   };
+}
+
+export function resolveMobigentConnectionUrl(connection?: MobigentSimpleBackendConnection): string | undefined {
+  if (!connection) {
+    return undefined;
+  }
+
+  if (typeof connection === "string") {
+    return connection;
+  }
+
+  const host = connection.host ?? connection.deviceHost;
+  const options = {
+    ...connection,
+    host,
+    target: connection.target ?? (connection.deviceHost ? "device" : undefined)
+  };
+
+  return connection.platform
+    ? createMobigentGatewayUrlForPlatform(connection.platform, options)
+    : createMobigentGatewayUrl(options);
 }
 
 function toAction(

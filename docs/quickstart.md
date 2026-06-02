@@ -152,12 +152,28 @@ open http://localhost:8788/inspect
 
 ## 4. Connect From A Device
 
-For local simulators, the SDK usually picks the right local connection. If you are on a physical device or hosted backend, set the app connection URL in `mobigent.app.json`:
+For local simulators, the SDK usually picks the right local connection. If you are on a physical device or hosted backend, pass the backend location directly in your app:
 
-- iOS simulator: `ws://localhost:8787`
-- Android emulator: `ws://10.0.2.2:8787`
-- physical device: `ws://YOUR_MAC_LAN_IP:8787`
-- hosted backend: `wss://your-backend.example.com`
+```ts
+export const mobigent = createApp({
+  appId: "com.acme.expenses",
+  connection: { host: "192.168.1.20" },
+  functions: {
+    expense: {
+      list: read(async () => ({ items: [] })),
+      create: write(async (input) => ({ id: "EXP-1", ...input }))
+    }
+  }
+});
+```
+
+Use your computer's LAN IP for a physical phone. For a hosted backend, use the hosted WebSocket URL:
+
+```ts
+connection: "wss://your-backend.example.com"
+```
+
+No generated app config file is needed.
 
 ## 5. Verify The Loop
 
