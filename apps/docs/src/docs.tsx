@@ -19,15 +19,21 @@ import "./styles.css";
 const quickstart = `# backend
 cd backend
 npm install @mobigent/backend
-# call startMobigent({ appDir: "../mobile-app" }) in your server
+# call startMobigent({ appId: "com.acme.expenses" }) in your server
 
 # app
 cd ../mobile-app
 npm install @mobigent/app
-# create a feature file and wrap the app`;
+# createApp({ functions }) and wrap the app once`;
 
-const appOptionalScaffoldCode = `# optional, only if you want generated starter files
-npx mobigent-init --feature expense --out-dir src`;
+const deviceConnectionCode = `export const mobigent = createApp({
+  appId: "com.acme.expenses",
+  connection: { host: "192.168.1.20" },
+  functions: { expense: { list, create } }
+});
+
+// hosted backend:
+connection: "wss://your-backend.example.com"`;
 
 const demoCode = `npm exec --yes \\
   --package https://github.com/mobigent/mobigent/releases/download/v0.1.12/create-mobigent-app-0.1.12.tgz \\
@@ -52,26 +58,30 @@ npm run dev
 npm run doctor
 npm run agent:local`;
 
-const moduleCode = `import { defineFeature, read, write } from "@mobigent/app";
+const moduleCode = `import { createApp, read, write } from "@mobigent/app";
 
-export const expenses = defineFeature("expense", {
-  list: read(async () => ({
-    items: await listExpenses()
-  })),
-  create: write(async (input) => createExpense(input), {
-    input: {
-      merchant: "string",
-      amount: "number"
-    },
-    confirm: true
-  })
+export const mobigent = createApp({
+  appId: "com.acme.expenses",
+  functions: {
+    expense: {
+      list: read(async () => ({
+        items: await listExpenses()
+      })),
+      create: write(async (input) => createExpense(input), {
+        input: {
+          merchant: "string",
+          amount: "number"
+        },
+        confirm: true
+      })
+    }
+  }
 });`;
 
-const appCode = `import { withMobigent } from "@mobigent/app";
-import { expenses } from "./mobigent/expense";
+const appCode = `import { mobigent } from "./mobigent";
 import App from "./App";
 
-export default withMobigent(App, expenses);`;
+export default mobigent.with(App);`;
 
 const gatewayCode = `npx mobigent-http
 
@@ -85,19 +95,19 @@ npx mobigent-mcp`;
 const backendCode = `import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent({
-  appDir: "../mobile-app"
+  appId: "com.acme.expenses",
+  appName: "Acme Expenses"
 });
-await mobigent.waitForApp();
 
 const expense = mobigent.feature("expense");
 
 await expense.create({ merchant: "Airport Taxi", amount: 42.25 });
 await expense.list();
 
-console.log(mobigent.urls.inspector);`;
+console.log(mobigent.inspectorUrl);`;
 
 const backendOptionalScaffoldCode = `# optional, only if you want a generated backend helper file
-npx mobigent-backend --app-dir ../mobile-app`;
+npx mobigent-backend --app com.acme.expenses --app-name "Acme Expenses"`;
 
 const securityDoctorCode = `npx mobigent security-doctor \\
   --app-id com.example.app \\
@@ -276,9 +286,9 @@ const nativeUrls = [
 
 const firstRunChecks = [
   ["Install", "Add the app package to React Native and the backend package to your server."],
-  ["Expose", "`defineFeature()` turns real app functions into typed agent capabilities."],
-  ["Connect", "The app SDK uses local defaults first; the backend can write exact app config when `appDir` is set."],
-  ["Wait", "`waitForApp()` tells backend code when the app is connected and callable."],
+  ["Expose", "`createApp({ functions })` turns real app functions into typed agent capabilities."],
+  ["Connect", "Use the same app id on both sides; pass `connection` only for a physical phone or hosted backend."],
+  ["Call", "`backend.feature(\"expense\")` gives backend code normal functions like `expense.create()`."],
   ["Approve", "Risky actions pause inside the app before handlers run."],
   ["Audit", "Calls, approvals, denials, errors, and events appear in `/audit`."]
 ];
@@ -311,15 +321,17 @@ const packages = [
 ];
 
 const reactNativeApis = [
-  ["defineFeature()", "Creates a small feature surface with read, write, and screen helpers."],
-  ["defineMobigentConfig()", "Keeps copied app config typed and portable."],
-  ["withMobigent()", "Wraps the existing React Native app in one normal function call."],
-  ["mobigentApp()", "Returns an explicit Root provider when you prefer JSX wrapping."],
-  ["connectMobigent()", "Consumes backend app config, registers features, and connects a non-React host in one call."],
-  ["emitMobigentEvent()", "Queues or sends app events without touching the lower-level client."],
-  ["registerFeatures()", "Attaches features manually when you need custom lifecycle control."],
+  ["createApp()", "Creates one app SDK object from app functions, app id, and optional connection settings."],
   ["read()", "Exposes read-only app data to agents."],
   ["write()", "Exposes a confirmed app action with plain input fields."],
+  ["screen()", "Exposes screen-aware app behavior when agents need to focus UI."],
+  ["mobigent.with()", "Wraps the existing React Native app in one normal function call."],
+  ["mobigent.connect()", "Connects a non-React host or local demo to a backend object."],
+  ["mobigent.emit()", "Queues or sends app events without touching the lower-level client."],
+  ["connection", "Accepts `{ host }` for physical phones or a hosted `wss://` backend URL."],
+  ["defineFeature()", "Optional lower-level helper when you prefer explicit feature objects."],
+  ["defineMobigentConfig()", "Keeps copied app config typed and portable."],
+  ["registerFeatures()", "Attaches features manually when you need custom lifecycle control."],
   ["useAgentScreen()", "Makes screen-owned capabilities available only while the screen is mounted."],
   ["useMobigentStatus()", "Reads connection state for badges, diagnostics, and debugging."],
   ["MobigentStatusBadge", "Optional UI component for local development visibility."]
@@ -333,11 +345,11 @@ const nativeApis = [
 ];
 
 const backendApis = [
-  ["startMobigent()", "Starts the backend service and writes app config when `appDir` is provided."],
-  ["waitForApp()", "Waits until the app is connected and has exposed at least one function."],
+  ["startMobigent()", "Starts the backend service with a stable app id and local defaults."],
+  ["waitForApp()", "Optional health gate when startup should wait for a connected app."],
   ["feature()", "Creates a tiny object of normal backend functions for one app feature."],
   ["callApp()", "Makes a quick one-off app function call by name."],
-  ["appFunction()", "Creates a reusable backend function wrapper for repeated calls."],
+  ["function()", "Creates a reusable backend function wrapper for repeated calls."],
   ["agent()", "Prints setup for ChatGPT, Claude, OpenAPI, and supported providers after the app loop works."]
 ];
 
@@ -472,7 +484,7 @@ function Docs() {
           <Code title="1. Install packages" code={quickstart} />
           <Code title="2. Define app capability" code={moduleCode} />
           <Code title="3. Wrap the app" code={appCode} />
-          <Code title="Optional scaffold" code={appOptionalScaffoldCode} />
+          <Code title="4. Physical phone or hosted backend" code={deviceConnectionCode} />
         </div>
       </section>
 

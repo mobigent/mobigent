@@ -9,39 +9,49 @@ Use Mobigent like normal app code: expose a few real functions, wrap the app onc
 ## Install
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-app-0.1.12.tgz
+npm install @mobigent/app
 ```
 
-No setup command is required on the app side. If no config exists yet, the app SDK uses safe local defaults. When the backend starts with `appDir`, it writes `mobigent.app.json` plus `src/mobigent-config.ts` into the app for exact local or production values.
+No setup command is required on the app side. Create one Mobigent file, expose the app functions agents may call, and wrap the app once.
 
-Prefer generated starter files? `npx mobigent-init --feature expense --out-dir src` is still available as an optional scaffold.
-
-## Create A Feature
+## Create The App SDK Object
 
 ```ts
-import { defineFeature, read, write } from "@mobigent/app";
+import { createApp, read, write } from "@mobigent/app";
 
-export const expenses = defineFeature("expense", {
-  list: read(async () => ({ items: await listExpenses() })),
-  create: write(async (input) => createExpense(input), {
-    input: {
-      merchant: "string",
-      amount: "number",
-      notes: "string"
-    },
-    confirm: true
-  })
+export const mobigent = createApp({
+  appId: "com.acme.expenses",
+  functions: {
+    expense: {
+      list: read(async () => ({ items: await listExpenses() })),
+      create: write(async (input) => createExpense(input), {
+        input: {
+          merchant: "string",
+          amount: "number",
+          notes: "string"
+        },
+        confirm: true
+      })
+    }
+  }
 });
 ```
 
 ## Wrap The App
 
 ```tsx
-import { withMobigent } from "@mobigent/app";
-import { expenses } from "./mobigent/expenses";
+import { mobigent } from "./mobigent";
 import App from "./App";
 
-export default withMobigent(App, expenses);
+export default mobigent.with(App);
+```
+
+For a physical phone or hosted backend, pass `connection` in `createApp()`:
+
+```ts
+connection: { host: "192.168.1.20" }
+// or
+connection: "wss://your-backend.example.com"
 ```
 
 ## Run The Backend
@@ -50,27 +60,26 @@ export default withMobigent(App, expenses);
 import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent({
-  appDir: "../mobile-app"
+  appId: "com.acme.expenses",
+  appName: "Acme Expenses"
 });
-await mobigent.waitForApp();
 ```
 
-`appDir` lets the backend SDK infer identity from the mobile app and write `mobigent.app.json` plus `src/mobigent-config.ts` there for you. `mobigent.waitForApp()` waits until the app is connected and has exposed at least one function.
+The app and backend pair by `appId`. Backend calls wait for the app connection automatically.
 
 ## Non-React Host Or Demo
 
-If you are running a local demo, test host, or another runtime where you are using the singleton `mobigent` client directly:
+If you are running a local demo, test host, or another runtime:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { connectMobigent } from "@mobigent/app";
-import { expenses } from "./mobigent/expenses";
+import { mobigent } from "./mobigent";
 
-const backend = await startMobigent();
-
-const connection = await connectMobigent(expenses, {
-  connectionUrl: backend.defaultApp.connectionUrl,
+const backend = await startMobigent({
+  appId: "com.acme.expenses"
 });
+
+const connection = await mobigent.connect(backend);
 ```
 
 That one call registers the feature, connects to the backend, and returns a `disconnect()` helper.

@@ -33,50 +33,53 @@ Use `@mobigent/app` in the mobile app and `@mobigent/backend` in the backend. Th
 Install the app SDK:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-app-0.1.12.tgz
+npm install @mobigent/app
 ```
 
-Create one feature:
+Create one Mobigent file:
 
 ```ts
-import { defineFeature, read, write } from "@mobigent/app";
+import { createApp, read, write } from "@mobigent/app";
 
-export const expenses = defineFeature("expense", {
-  list: read(async () => ({ items: await listExpenses() })),
-  create: write(async (input) => createExpense(input), {
-    input: {
-      merchant: "string",
-      amount: "number"
-    },
-    confirm: true
-  })
+export const mobigent = createApp({
+  appId: "com.acme.expenses",
+  functions: {
+    expense: {
+      list: read(async () => ({ items: await listExpenses() })),
+      create: write(async (input) => createExpense(input), {
+        input: {
+          merchant: "string",
+          amount: "number"
+        },
+        confirm: true
+      })
+    }
+  }
 });
 ```
 
 Wrap the app once:
 
 ```tsx
-import { withMobigent } from "@mobigent/app";
-import { expenses } from "./mobigent/expenses";
+import { mobigent } from "./mobigent";
 import App from "./App";
 
-export default withMobigent(App, expenses);
+export default mobigent.with(App);
 ```
 
-`mobigent-init` can generate these starter files for you, but it is optional.
+No app-side init command is required.
 
-For a non-React demo or test host, connect the same feature in one call:
+For a non-React demo or test host, use the same app SDK object:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { connectMobigent } from "@mobigent/app";
-import { expenses } from "./mobigent/expenses";
+import { mobigent } from "./mobigent";
 
-const backend = await startMobigent();
-
-await connectMobigent(expenses, {
-  connectionUrl: backend.defaultApp.connectionUrl,
+const backend = await startMobigent({
+  appId: "com.acme.expenses"
 });
+
+await mobigent.connect(backend);
 ```
 
 ## Backend
@@ -84,35 +87,26 @@ await connectMobigent(expenses, {
 Install the backend SDK:
 
 ```bash
-npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-backend-0.1.12.tgz
+npm install @mobigent/backend
 ```
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent({
-  appDir: "../mobile-app"
+  appId: "com.acme.expenses",
+  appName: "Acme Expenses"
 });
-await mobigent.waitForApp();
 
-console.log(mobigent.urls.inspector);
-console.log(mobigent.urls.openapi);
-console.log("App config:", mobigent.appConfigPath);
-console.log("App config module:", mobigent.appConfigModulePath);
-
-const appConfig = mobigent.defaultApp;
-
-console.log(mobigent.appConfigPath);
+console.log(mobigent.inspectorUrl);
 console.log(mobigent.agent("chatgpt").endpoints.openApi);
 ```
 
-Mobigent infers starter app identity from the app project when `appDir` is present. Pass exact `app` values only when production needs them.
+Mobigent pairs the backend and app by `appId`, handles the connection, routes app function calls, exposes the inspector, and waits for readiness when needed.
 
-Prefer a generated backend helper file? `npx mobigent-backend --app-dir ../mobile-app` is still available as an optional scaffold.
+Prefer generated sample files? Use the starter. Backend/app init commands are helpers, not required integration.
 
-`mobigent.waitForApp()` waits until the app is connected and has exposed at least one function.
-
-Create a tiny app function object by feature name:
+Create a tiny app function object by feature name. Mobigent waits for the app connection when a function is called:
 
 ```ts
 const expense = mobigent.feature("expense");

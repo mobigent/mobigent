@@ -5,12 +5,12 @@ import "./styles.css";
 const quickstart = `# backend
 cd backend
 npm install @mobigent/backend
-# call startMobigent({ appDir: "../mobile-app" }) in your server
+# call startMobigent({ appId: "com.acme.expenses" }) in your server
 
 # app
 cd ../mobile-app
 npm install @mobigent/app
-# create a feature file and wrap the app`;
+# createApp({ functions }) and wrap the app once`;
 
 function App() {
   return (

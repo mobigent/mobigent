@@ -12,55 +12,63 @@ Most integrations use two packages:
 ## React Native
 
 ```ts
-import { defineFeature, read, write } from "@mobigent/app";
+import { createApp, read, write } from "@mobigent/app";
 
-export const expenses = defineFeature("expense", {
-  list: read(async () => ({ items: await listExpenses() })),
-  create: write(async (input) => createExpense(input), {
-    input: {
-      merchant: "string",
-      amount: "number"
-    },
-    confirm: true
-  })
+export const mobigent = createApp({
+  appId: "com.acme.expenses",
+  functions: {
+    expense: {
+      list: read(async () => ({ items: await listExpenses() })),
+      create: write(async (input) => createExpense(input), {
+        input: {
+          merchant: "string",
+          amount: "number"
+        },
+        confirm: true
+      })
+    }
+  }
 });
 ```
 
 ```tsx
-import { withMobigent } from "@mobigent/app";
+import { mobigent } from "./mobigent";
 import App from "./App";
 
-export default withMobigent(App, expenses);
+export default mobigent.with(App);
 ```
 
 For non-React hosts, demos, and tests:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { connectMobigent } from "@mobigent/app";
-import { expenses } from "./mobigent/expenses";
+import { mobigent } from "./mobigent";
 
-const backend = await startMobigent();
-
-const connection = await connectMobigent(expenses, {
-  connectionUrl: backend.defaultApp.connectionUrl,
+const backend = await startMobigent({
+  appId: "com.acme.expenses"
 });
+
+const connection = await mobigent.connect(backend);
 
 connection.disconnect();
 ```
 
 ## Simple App Helpers
 
-- `defineFeature(namespace, { name: read(fn), name: write(fn) })`: creates a small app feature.
-- `defineMobigent({ namespace: { name: read(fn) } })`: creates multiple feature areas from one plain object.
+- `createApp({ functions: { namespace: { name: read(fn), name: write(fn) } } })`: creates the app-side SDK object.
+- `mobigent.with(App)`: wraps an existing React Native app.
+- `mobigent.connect(backend)`: connects a non-React host or demo using the same functions.
+- `mobigent.emit(name, payload)`: emits app activity.
+- `defineFunctions({ namespace: { name: read(fn) } })`: converts a functions object to explicit features.
+- `defineFeature(namespace, { name: read(fn), name: write(fn) })`: creates a named feature when you prefer an explicit feature object.
+- `createApp({ connection: { host: "192.168.1.20" } })`: connects a physical phone to your local backend.
+- `createApp({ connection: "wss://your-backend.example.com" })`: connects an app to a hosted backend.
 - `defineMobigentConfig(config)`: gives app config a stable SDK type.
 - `read(handler, options)`: exposes app state.
 - `write(handler, options)`: exposes confirmed app behavior.
 - `screen(handler, options)`: lets an agent focus a screen or UI surface.
-- `mobigentApp(feature)`: wraps a React Native app once.
-- `mobigentApp({ config, features })`: production form when you need exact app config.
-- `connectMobigent(feature, options)`: configures, registers features, and connects in one call.
-- `registerFeatures(client, features)`: lower-level attach helper when you need manual lifecycle control.
+- `connectMobigent(feature, options)`: lower-level connect helper.
+- `registerFeatures(client, features)`: lower-level attach helper.
 
 ## Backend
 
@@ -68,36 +76,25 @@ connection.disconnect();
 import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent({
-  appDir: "../mobile-app"
+  appId: "com.acme.expenses",
+  appName: "Acme Expenses"
 });
 ```
 
 The backend object exposes:
 
-- `urls`
-- `appConfigPath`
-- `appConfigModulePath`
-- `app({ appId, appName })`
-- `appConfig({ appId, appName })`
-- `appConfigModule({ appId, appName })`
-- `defaultApp`
-- `copyAppConfig()`
+- `inspectorUrl`
+- `apiUrl`
+- `openApiUrl`
 - `agent("chatgpt" | "claude" | "openai")`
 - `agents()`
-- `functions()`
-- `tools()` for backward compatibility and provider internals
-- `apps()`
+- `listFunctions()`
 - `waitForApp()` to wait until an app is connected and callable
 - `feature("expense")` to create a tiny object of normal backend functions for one app feature
-- `appFunctions("expense")` for the same feature-scoped helper
-- `appFunctions({ createExpense: "expense.create" })` when you prefer explicit aliases
 - `callApp("expense.create", input)` or `callApp("expense.list")`
-- `appFunction("expense.create")` to create a reusable backend function
-- `invoke("expense.create", input)` for compatibility
-- `fn("expense.create")` for compatibility
-- `call("expense.create", input)` for backward compatibility
+- `function("expense.create")` to create a reusable backend function
 - `resolveFunctionName("expense.create")`
-- `resolveToolName("expense.create")` for backward compatibility
+- `advanced` for lower-level gateway, server, URL, and generated-config details
 - `stop()`
 
 ## Providers

@@ -18,29 +18,41 @@ npm install @mobigent/app
 ```
 
 ```ts
-import { defineFeature, read, write } from "@mobigent/app";
+import { createApp, read, write } from "@mobigent/app";
 
-export const expenses = defineFeature("expense", {
-  list: read(async () => ({ items: await listExpenses() })),
-  create: write(async (input) => createExpense(input), {
-    input: {
-      merchant: "string",
-      amount: "number"
-    },
-    confirm: true
-  })
+export const mobigent = createApp({
+  appId: "com.acme.expenses",
+  functions: {
+    expense: {
+      list: read(async () => ({ items: await listExpenses() })),
+      create: write(async (input) => createExpense(input), {
+        input: {
+          merchant: "string",
+          amount: "number"
+        },
+        confirm: true
+      })
+    }
+  }
 });
 ```
 
 ```tsx
-import { withMobigent } from "@mobigent/app";
-import { expenses } from "./mobigent/expenses";
+import { mobigent } from "./mobigent";
 import App from "./App";
 
-export default withMobigent(App, expenses);
+export default mobigent.with(App);
 ```
 
-`mobigent-init` can still generate starter files, but it is optional. The normal app-side path is install plus code.
+That is the app-side path. No app-side init command is required.
+
+On a physical phone or hosted backend, pass the backend location directly:
+
+```ts
+connection: { host: "192.168.1.20" }
+// or
+connection: "wss://your-backend.example.com"
+```
 
 ## Backend
 
@@ -52,9 +64,9 @@ npm install @mobigent/backend
 import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent({
-  appDir: "../mobile-app"
+  appId: "com.acme.expenses",
+  appName: "Acme Expenses"
 });
-await mobigent.waitForApp();
 
 const expense = mobigent.feature("expense");
 
@@ -62,7 +74,9 @@ await expense.create({ merchant: "Coffee", amount: 8 });
 await expense.list();
 ```
 
-`mobigent-backend` can still generate a backend helper file, but it is optional. The normal backend path is install plus code.
+Mobigent pairs the app and backend by `appId`, waits for the app connection when a function is called, and routes the call to the app-owned function.
+
+Starter and backend init commands are optional sample helpers. The normal path is install plus code.
 
 ## What Mobigent Handles
 

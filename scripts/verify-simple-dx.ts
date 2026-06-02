@@ -207,6 +207,29 @@ for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.
   );
 }
 
+for (const path of [
+  "apps/docs/docs/simple-integration.md",
+  "apps/docs/docs/quickstart.md",
+  "apps/docs/docs/react-native.md",
+  "apps/docs/docs/api.md",
+  "apps/docs/src/docs.tsx",
+  "apps/docs/src/main.tsx"
+]) {
+  const contents = readFileSync(path, "utf8");
+  assert.match(contents, /createApp/, `${path} should teach createApp as the app-side entrypoint`);
+  assert.match(contents, /startMobigent/, `${path} should teach startMobigent as the backend entrypoint`);
+  assert.doesNotMatch(
+    contents,
+    /backend\.defaultApp|connectionUrl: backend|appDir: "\.\.\/mobile-app"|mobigent-backend --app-dir/,
+    `${path} should not teach generated config or backend.defaultApp as the beginner path`
+  );
+  assert.doesNotMatch(
+    contents,
+    /defineFeature[\s\S]{0,500}?withMobigent|withMobigent[\s\S]{0,500}?defineFeature/,
+    `${path} should not present defineFeature + withMobigent as the beginner integration`
+  );
+}
+
 const quickstart = readFileSync("docs/quickstart.md", "utf8");
 assert.match(quickstart, /connection: \{ host: "192\.168\.1\.20" \}/);
 assert.match(quickstart, /connection: "wss:\/\/your-backend\.example\.com"/);
