@@ -81,16 +81,11 @@ await connectMobigent(expenses, {
 
 ## Backend
 
-Install the backend SDK and generate the backend entrypoint:
+Install the backend SDK:
 
 ```bash
 npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-backend-0.1.12.tgz
-npx mobigent-backend --app-dir ../mobile-app
 ```
-
-Mobigent infers starter app identity from the app project when `--app-dir` is present. Pass `--app-id` and `--app-name` only when you want exact production values.
-
-Or write it manually:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
@@ -111,18 +106,16 @@ console.log(mobigent.appConfigPath);
 console.log(mobigent.agent("chatgpt").endpoints.openApi);
 ```
 
-With no options, Mobigent infers a starter app id and app name from your project. With `appDir`, it infers from the mobile app project and writes `mobigent.app.json` plus `src/mobigent-config.ts` there for you. Pass `app: { id, name }` only when you want exact production values.
+Mobigent infers starter app identity from the app project when `appDir` is present. Pass exact `app` values only when production needs them.
+
+Prefer a generated backend helper file? `npx mobigent-backend --app-dir ../mobile-app` is still available as an optional scaffold.
 
 `mobigent.waitForApp()` waits until the app is connected and has exposed at least one function.
 
-Generated backend files also export helper functions. Create a tiny app function object by feature name:
+Create a tiny app function object by feature name:
 
 ```ts
-import { feature, waitForApp } from "./mobigent";
-
-await waitForApp();
-
-const expense = feature("expense");
+const expense = mobigent.feature("expense");
 
 await expense.create({ merchant: "Coffee", amount: 8 });
 await expense.list();

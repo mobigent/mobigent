@@ -50,7 +50,6 @@ One command for the common Mobigent workflow.
 
 Usage:
   mobigent new my-demo --install
-  mobigent backend --app-dir ../mobile-app
   mobigent agent chatgpt --base-url https://your-backend.example
 
 Commands:
@@ -62,7 +61,7 @@ Commands:
   manifest            Print a React Native integration manifest.
   contract            Print a capability contract.
   env                 Print a React Native environment template.
-  backend, server     Create a backend entrypoint.
+  backend, server     Optionally scaffold a backend entrypoint.
   agent               Print setup for ChatGPT, Claude, OpenAI, or OpenAPI agents.
 
 Examples:
@@ -71,7 +70,8 @@ Examples:
   # Optional scaffold: npx mobigent init --feature expense --out-dir src
 
   npm install @mobigent/backend
-  npx mobigent backend --app-dir ../mobile-app
+  # Start Mobigent in server code with startMobigent({ appDir: "../mobile-app" }).
+  # Optional scaffold: npx mobigent backend --app-dir ../mobile-app
 
   npx mobigent new my-demo --install
 

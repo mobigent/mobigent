@@ -30,7 +30,6 @@ The app side does not need a setup command. Install the package and expose the f
 ```bash
 npm install @mobigent/app
 npm install @mobigent/backend
-npx mobigent-backend --app-dir ../mobile-app
 ```
 
 The app developer writes ordinary app functions:
@@ -142,17 +141,19 @@ In the backend:
 
 ```bash
 npm install @mobigent/backend
-npx mobigent-backend --app-dir ../mobile-app
 ```
 
 Then backend code can call app functions like ordinary functions:
 
 ```ts
-import { feature, waitForApp } from "./mobigent";
+import { startMobigent } from "@mobigent/backend";
 
-await waitForApp();
+const mobigent = await startMobigent({
+  appDir: "../mobile-app"
+});
+await mobigent.waitForApp();
 
-const expense = feature("expense");
+const expense = mobigent.feature("expense");
 
 await expense.create({ merchant: "Coffee", amount: 8 });
 ```
@@ -183,15 +184,11 @@ Current public fallback:
 npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-backend-0.1.12.tgz
 ```
 
-Then create the backend entrypoint:
-
-```bash
-npx mobigent-backend --app-dir ../mobile-app
-```
-
 From the backend, point Mobigent at the app folder and let the SDK write the tiny app config files:
 
 ```ts
+import { startMobigent } from "@mobigent/backend";
+
 const backend = await startMobigent({
   appDir: "../mobile-app"
 });
@@ -199,6 +196,8 @@ const backend = await startMobigent({
 console.log(backend.appConfigPath);
 console.log(backend.appConfigModulePath);
 ```
+
+Prefer a generated backend entrypoint? `npx mobigent-backend --app-dir ../mobile-app` is still available as an optional scaffold.
 
 ## Install Packages
 
@@ -284,18 +283,13 @@ await connectMobigent(expenses, {
 
 ## Add It To A Backend
 
-Create the backend entrypoint and app config:
+Install the backend SDK:
 
 ```bash
 npm install @mobigent/backend
-npx mobigent-backend --app-dir ../mobile-app
 ```
 
-Mobigent infers starter app identity from the app project when `--app-dir` is present. Pass `--app-id` and `--app-name` only when you want exact production values.
-
-With `--app-dir`, Mobigent also writes `mobigent.app.json` and `src/mobigent-config.ts` into the app project. Your app package can use those files without any app-side setup command.
-
-Or write it manually:
+Start Mobigent from your server code:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
@@ -309,6 +303,12 @@ console.log(mobigent.urls.openapi);
 
 const appConfig = mobigent.defaultApp;
 ```
+
+Mobigent infers starter app identity from the app project when `appDir` is present. Pass exact `app` values only when production needs them.
+
+With `appDir`, Mobigent also writes `mobigent.app.json` and `src/mobigent-config.ts` into the app project. Your app package can use those files without any app-side setup command.
+
+Prefer a generated backend entrypoint? `npx mobigent-backend --app-dir ../mobile-app` is still available as an optional scaffold.
 
 For the fastest first run, this also works:
 

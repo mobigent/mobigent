@@ -54,23 +54,25 @@ Prefer generated starter files? `npx mobigent-init --feature expense --out-dir s
 
 ```bash
 npm install @mobigent/backend
-npx mobigent-backend --app-dir ../mobile-app
 ```
 
-The generated backend file starts Mobigent and exports helper functions. For the cleanest backend code, make a tiny object of app functions once:
-
 ```ts
-import { feature, waitForApp } from "./mobigent";
+import { startMobigent } from "@mobigent/backend";
 
-await waitForApp();
+const mobigent = await startMobigent({
+  appDir: "../mobile-app"
+});
+await mobigent.waitForApp();
 
-const expense = feature("expense");
+const expense = mobigent.feature("expense");
 
 await expense.create({ merchant: "Airport Taxi", amount: 42.25 });
 await expense.list();
 ```
 
 That is the backend integration.
+
+Prefer a generated backend helper file? `npx mobigent-backend --app-dir ../mobile-app` is available, but it is optional.
 
 If you only need one quick call, `callApp("expense.create", input)` is still available.
 

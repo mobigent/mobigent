@@ -19,7 +19,7 @@ import "./styles.css";
 const quickstart = `# backend
 cd backend
 npm install @mobigent/backend
-npx mobigent-backend --app-dir ../mobile-app
+# call startMobigent({ appDir: "../mobile-app" }) in your server
 
 # app
 cd ../mobile-app
@@ -96,16 +96,7 @@ await expense.list();
 
 console.log(mobigent.urls.inspector);`;
 
-const backendHelperCode = `import { feature, waitForApp } from "./mobigent";
-
-await waitForApp();
-
-const expense = feature("expense");
-
-await expense.create({ merchant: "Coffee", amount: 8 });
-await expense.list();`;
-
-const backendInitCode = `npm install @mobigent/backend
+const backendOptionalScaffoldCode = `# optional, only if you want a generated backend helper file
 npx mobigent-backend --app-dir ../mobile-app`;
 
 const securityDoctorCode = `npx mobigent security-doctor \\
@@ -489,10 +480,10 @@ function Docs() {
         <div className="sectionHeader compact">
           <span className="eyebrow"><Terminal size={15} /> Backend usage</span>
           <h2>Call app functions like backend functions.</h2>
-          <p>The generated backend entrypoint exports helpers so your app server does not need to think about bridge internals.</p>
+          <p>Start Mobigent in your server, wait for the app, then call app-owned functions from a tiny feature object.</p>
         </div>
         <div className="codeGrid two">
-          <Code title="Generated backend helpers" code={backendHelperCode} />
+          <Code title="Backend SDK" code={backendCode} />
           <div className="apiList endpointList">
             {backendApis.map(([name, text]) => (
               <Row key={name} title={name} text={text} />
@@ -618,8 +609,8 @@ function Docs() {
           <p>Use the backend SDK in Node. The lower-level CLI stays available when you want a separate gateway process.</p>
         </div>
         <div className="codeGrid three">
-          <Code title="Backend init" code={backendInitCode} />
           <Code title="Backend SDK" code={backendCode} />
+          <Code title="Optional backend scaffold" code={backendOptionalScaffoldCode} />
           <div className="apiList endpointList">
             {gatewayEndpoints.map(([name, text]) => (
               <Row key={name} title={name} text={text} />

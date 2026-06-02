@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { createMobigentAppFiles } from "../packages/create-app/src/index.js";
 import { createMobigentBackendFiles } from "../packages/backend/src/cli.js";
 import { createReactNativeStarterFiles } from "../packages/react-native/src/cli.js";
@@ -131,5 +132,14 @@ assert.match(starterServer, /backend\.defaultApp/);
 assert.match(starterServer, /const expense = backend\.feature\("expense"\)/);
 assert.match(starterServer, /expense\.create\(input\)/);
 assert.doesNotMatch(starterServer, /backend\.appFunctions\(\{/);
+
+for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.md"]) {
+  const contents = readFileSync(path, "utf8");
+  assert.doesNotMatch(
+    contents,
+    /npm install @mobigent\/backend\s+```[\s\S]{0,120}?```[\s\S]{0,80}?npx mobigent-backend --app-dir/,
+    `${path} should not make mobigent-backend the required backend setup path`
+  );
+}
 
 console.log("Mobigent simple DX guardrails passed.");

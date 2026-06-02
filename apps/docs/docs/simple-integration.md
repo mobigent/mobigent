@@ -46,19 +46,23 @@ export default withMobigent(App, expenses);
 
 ```bash
 npm install @mobigent/backend
-npx mobigent-backend --app-dir ../mobile-app
 ```
 
 ```ts
-import { feature, waitForApp } from "./mobigent";
+import { startMobigent } from "@mobigent/backend";
 
-await waitForApp();
+const mobigent = await startMobigent({
+  appDir: "../mobile-app"
+});
+await mobigent.waitForApp();
 
-const expense = feature("expense");
+const expense = mobigent.feature("expense");
 
 await expense.create({ merchant: "Coffee", amount: 8 });
 await expense.list();
 ```
+
+`mobigent-backend` can still generate a backend helper file, but it is optional. The normal backend path is install plus code.
 
 ## What Mobigent Handles
 

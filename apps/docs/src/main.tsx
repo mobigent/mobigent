@@ -5,7 +5,7 @@ import "./styles.css";
 const quickstart = `# backend
 cd backend
 npm install @mobigent/backend
-npx mobigent-backend --app-dir ../mobile-app
+# call startMobigent({ appDir: "../mobile-app" }) in your server
 
 # app
 cd ../mobile-app

@@ -6,27 +6,9 @@ Use it like normal backend plumbing: start Mobigent, wait for the app, then call
 
 ```bash
 npm install @mobigent/backend
-npx mobigent-backend --app-dir ../mobile-app
 ```
-
-That creates a small `src/mobigent.ts` file for your backend. If `--app-dir` is present, Mobigent also writes the tiny app config into the mobile app so the app package can connect without manual copying.
 
 ## Call App Functions
-
-```ts
-import { feature, waitForApp } from "./mobigent";
-
-await waitForApp();
-
-const expense = feature("expense");
-
-await expense.create({ merchant: "Airport Taxi", amount: 42.25 });
-await expense.list();
-```
-
-That is the main backend API.
-
-## Start Manually
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
@@ -34,12 +16,33 @@ import { startMobigent } from "@mobigent/backend";
 const mobigent = await startMobigent({
   appDir: "../mobile-app"
 });
-
 await mobigent.waitForApp();
 
 const expense = mobigent.feature("expense");
 
-await expense.create({ merchant: "Coffee", amount: 8 });
+await expense.create({ merchant: "Airport Taxi", amount: 42.25 });
+await expense.list();
+```
+
+That is the main backend API.
+
+If `appDir` is present, Mobigent also writes the tiny app config into the mobile app so the app package can connect without manual copying.
+
+## Optional Generated Entrypoint
+
+If you prefer a generated `src/mobigent.ts` helper file:
+
+```bash
+npx mobigent-backend --app-dir ../mobile-app
+```
+
+```ts
+import { feature, waitForApp } from "./mobigent";
+
+await waitForApp();
+
+const expense = feature("expense");
+await expense.create({ merchant: "Airport Taxi", amount: 42.25 });
 ```
 
 Mobigent infers local app identity from the app project. Pass exact `app` values only when production needs them.
