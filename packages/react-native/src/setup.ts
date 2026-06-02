@@ -2,16 +2,19 @@ import { createElement, type ComponentType } from "react";
 import { createAgentApp, type AgentAppFactoryOptions, type AgentAppRootProps } from "./ui.js";
 import {
   connectMobigent,
+  defineMobigent,
   emitMobigentEvent,
   type MobigentSimpleAppConfig,
   type MobigentSimpleConnection,
   type MobigentSimpleConnectionSettings,
-  type MobigentSimpleFeature
+  type MobigentSimpleFeature,
+  type MobigentSimpleFunctionMap
 } from "./simple.js";
 
 export type MobigentSimpleAppOptions = Omit<AgentAppFactoryOptions, "capabilities" | "modules"> & {
   config?: MobigentSimpleAppConfig;
   features?: MobigentSimpleFeature | MobigentSimpleFeature[];
+  functions?: MobigentSimpleFunctionMap;
   capabilities?: AgentAppFactoryOptions["capabilities"];
   modules?: AgentAppFactoryOptions["modules"];
 };
@@ -30,8 +33,8 @@ export type MobigentCreatedApp = ReturnType<typeof createAgentApp> & {
 
 export function mobigentApp(input: MobigentSimpleAppInput): MobigentCreatedApp {
   const options = isMobigentFeatureInput(input) ? { features: input } : input;
-  const features = toArray(options.features);
-  const { config, ...appOptions } = options;
+  const features = [...toArray(options.features), ...resolveFunctionFeatures(options.functions)];
+  const { config, functions: _functions, ...appOptions } = options;
   const app = createAgentApp({
     ...appOptions,
     appId: appOptions.appId ?? config?.appId,
@@ -164,4 +167,8 @@ function toArray<T>(value: T | T[] | undefined): T[] {
   }
 
   return Array.isArray(value) ? value : [value];
+}
+
+function resolveFunctionFeatures(functions: MobigentSimpleFunctionMap | undefined): MobigentSimpleFeature[] {
+  return functions ? defineMobigent(functions) : [];
 }

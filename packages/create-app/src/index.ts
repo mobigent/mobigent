@@ -268,7 +268,7 @@ These print copy-paste setup for Claude Desktop/MCP, generic OpenAPI agents, and
 
 ## What To Edit
 
-- \`src/capabilities.ts\`: app state plus the Mobigent feature you expose to agents
+- \`src/capabilities.ts\`: app state plus the app functions you expose to agents
 - \`src/server.ts\`: demo UI, Mobigent backend, and local agent playground
 - \`src/nodeSocket.ts\`: Node WebSocket transport for the local demo
 
@@ -286,7 +286,7 @@ function createServerFile(options: CreateMobigentAppOptions) {
 import express from "express";
 import { startMobigent } from "@mobigent/backend";
 import { createApp } from "@mobigent/app";
-import { expenseFeature, expenses, parsePrompt } from "./capabilities.js";
+import { expenseFunctions, expenses, parsePrompt } from "./capabilities.js";
 import { createNodeSocket } from "./nodeSocket.js";
 
 let lastAgentRun: unknown;
@@ -334,7 +334,7 @@ const appServer = app.listen(appPort, () => {
 
 const mobigent = createApp({
   config: backend.defaultApp,
-  features: expenseFeature,
+  functions: expenseFunctions,
   createSocket: createNodeSocket,
   confirm: async ({ input }) => {
     console.log("\\n[approval] App approval required");
@@ -471,7 +471,7 @@ function renderPage() {
       <div class="panel step">
         <span>3</span>
         <h3>App owns the action</h3>
-        <p><code>src/capabilities.ts</code> runs <code>createExpense</code> and updates state.</p>
+        <p><code>src/capabilities.ts</code> runs your app function and updates state.</p>
       </div>
       <div class="panel step">
         <span>4</span>
@@ -539,7 +539,7 @@ function renderPage() {
 }
 
 function createCapabilitiesFile() {
-  return `import { defineFeature, emitMobigentEvent, read, write } from "@mobigent/app";
+  return `import { emitMobigentEvent, read, write } from "@mobigent/app";
 
 export type Expense = {
   id: string;
@@ -560,44 +560,46 @@ export const expenses: Expense[] = [
   }
 ];
 
-export const expenseFeature = defineFeature("expense", {
-  list: read(async () => ({ expenses }), {
-    description: "Read expenses from the app.",
-    output: { expenses: ["object"] }
-  }),
-  create: write(
-    async (input) => {
-      const expense = await createExpense({
-        amount: Number(input.amount),
-        merchant: String(input.merchant),
-        category: String(input.category),
-        notes: input.notes ? String(input.notes) : undefined
-      });
+export const expenseFunctions = {
+  expense: {
+    list: read(async () => ({ expenses }), {
+      description: "Read expenses from the app.",
+      output: { expenses: ["object"] }
+    }),
+    create: write(
+      async (input) => {
+        const expense = await createExpense({
+          amount: Number(input.amount),
+          merchant: String(input.merchant),
+          category: String(input.category),
+          notes: input.notes ? String(input.notes) : undefined
+        });
 
-      emitMobigentEvent("expense.created", { id: expense.id, amount: expense.amount, merchant: expense.merchant });
-      return expense;
-    },
-    {
-      description: "Create an expense in the app.",
-      input: {
-        amount: "number",
-        merchant: "string",
-        category: ["Meals", "Travel", "Software", "Office", "Lodging", "Transport", "Shopping"],
-        notes: "string"
+        emitMobigentEvent("expense.created", { id: expense.id, amount: expense.amount, merchant: expense.merchant });
+        return expense;
       },
-      output: {
-        id: "string",
-        amount: "number",
-        merchant: "string",
-        category: "string",
-        notes: "string",
-        createdAt: "string"
-      },
-      confirm: "Create expense?",
-      risk: "medium"
-    }
-  )
-});
+      {
+        description: "Create an expense in the app.",
+        input: {
+          amount: "number",
+          merchant: "string",
+          category: ["Meals", "Travel", "Software", "Office", "Lodging", "Transport", "Shopping"],
+          notes: "string"
+        },
+        output: {
+          id: "string",
+          amount: "number",
+          merchant: "string",
+          category: "string",
+          notes: "string",
+          createdAt: "string"
+        },
+        confirm: "Create expense?",
+        risk: "medium"
+      }
+    )
+  }
+};
 
 export async function createExpense(input: {
   amount: number;

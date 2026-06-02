@@ -10,20 +10,22 @@ Lower-level protocol packages still exist, but most developers should not need t
 ## App API
 
 ```ts
-import { createApp, defineFeature, read, write } from "@mobigent/app";
+import { createApp, read, write } from "@mobigent/app";
 
-export const expenses = defineFeature("expense", {
-  list: read(async () => ({ items: await listExpenses() })),
-  create: write(async (input) => createExpense(input), {
-    input: {
-      merchant: "string",
-      amount: "number"
-    },
-    confirm: true
-  })
+export const mobigent = createApp({
+  functions: {
+    expense: {
+      list: read(async () => ({ items: await listExpenses() })),
+      create: write(async (input) => createExpense(input), {
+        input: {
+          merchant: "string",
+          amount: "number"
+        },
+        confirm: true
+      })
+    }
+  }
 });
-
-export const mobigent = createApp({ features: expenses });
 ```
 
 ```tsx
@@ -37,16 +39,13 @@ For non-React hosts, demos, and tests:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { createApp } from "@mobigent/app";
-import { expenses } from "./mobigent/expenses";
+import { mobigent } from "./mobigent/expenses";
 
 const backend = await startMobigent();
-const mobigent = createApp({
-  features: expenses,
+
+const connection = await mobigent.connect({
   connectionUrl: backend.defaultApp.connectionUrl
 });
-
-const connection = await mobigent.connect();
 
 connection.disconnect();
 ```
@@ -104,12 +103,14 @@ The returned object includes:
 
 ## Simple App Helpers
 
-- `defineFeature(namespace, { name: read(fn), name: write(fn) })`: creates a small app feature.
-- `createApp({ features })`: creates the app-side SDK object.
+- `createApp({ functions: { namespace: { name: read(fn), name: write(fn) } } })`: creates the app-side SDK object.
 - `mobigent.with(App)`: wraps an existing React Native app.
 - `mobigent.connect()`: connects a non-React host or demo using the same features.
 - `mobigent.emit(name, payload)`: emits app activity.
-- `defineMobigent({ namespace: { name: read(fn) } })`: creates multiple app areas from one plain object.
+- `defineFunctions({ namespace: { name: read(fn) } })`: converts a functions object to explicit features.
+- `defineFeature(namespace, { name: read(fn), name: write(fn) })`: creates a named feature when you prefer an explicit feature object.
+- `createApp({ features })`: creates the app-side SDK object from explicit features.
+- `defineMobigent({ namespace: { name: read(fn) } })`: older alias for `defineFunctions`.
 - `defineMobigentConfig(config)`: gives app config a stable SDK type.
 - New configs use `connectionUrl`; existing `gatewayUrl` configs still work.
 - `read(handler, options)`: exposes app state.

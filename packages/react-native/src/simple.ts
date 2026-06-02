@@ -98,6 +98,7 @@ export type MobigentSimpleCapabilityDefinition =
 
 export type MobigentSimpleCapabilityMap = Record<string, MobigentSimpleCapabilityDefinition>;
 export type MobigentSimpleFeatureMap = Record<string, MobigentSimpleCapabilityMap>;
+export type MobigentSimpleFunctionMap = MobigentSimpleFeatureMap;
 
 export type MobigentSimpleClient = {
   registerAction(action: MobigentActionRegistration): unknown;
@@ -216,6 +217,9 @@ export function screen(
 export function defineMobigent(features: MobigentSimpleFeatureMap): MobigentSimpleFeature[] {
   return Object.entries(features).map(([namespace, capabilities]) => feature(namespace, capabilities));
 }
+
+export const defineFunctions = defineMobigent;
+export const functions = defineMobigent;
 
 export function feature(namespace: string, capabilities?: MobigentSimpleCapabilityMap): MobigentSimpleFeature {
   const actions: MobigentActionRegistration[] = [];

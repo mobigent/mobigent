@@ -83,14 +83,16 @@ try {
   assert.match(server, /startMobigent/);
   assert.match(server, /backend\.feature\("expense"\)/);
   assert.match(server, /expense\.create\(input\)/);
+  assert.match(server, /functions: expenseFunctions/);
   assert.match(server, /MOBIGENT_DEMO_OPEN/);
 
   const capabilities = await readFile(join(target, "src", "capabilities.ts"), "utf8");
-  assert.match(capabilities, /defineFeature\("expense", \{/);
+  assert.match(capabilities, /export const expenseFunctions = \{/);
   assert.match(capabilities, /list: read\(/);
   assert.match(capabilities, /create: write\(/);
   assert.match(capabilities, /amount: "number"/);
   assert.match(capabilities, /createExpense/);
+  assert.doesNotMatch(capabilities, /defineFeature/);
 
   const doctor = await readFile(join(target, "src", "doctor.ts"), "utf8");
   assert.match(doctor, /Mobigent starter doctor/);

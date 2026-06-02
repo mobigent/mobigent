@@ -38,7 +38,7 @@ Mobigent is two normal packages:
 
 The SDK handles the bridge, config, connection lifecycle, validation, confirmations, agent setup, and audit events.
 
-## 2. Add One Feature To An Existing App
+## 2. Add App Functions To An Existing App
 
 Install the app SDK:
 
@@ -46,55 +46,52 @@ Install the app SDK:
 npm install @mobigent/app
 ```
 
-Create a feature file:
+Create a Mobigent file:
 
 ```ts
-import { createApp, defineFeature, read, write } from "@mobigent/app";
+import { createApp, read, write } from "@mobigent/app";
 
-export const expenses = defineFeature("expense", {
-  list: read(async () => ({ items: await listExpenses() })),
-  create: write(async (input) => createExpense(input), {
-    input: {
-      merchant: "string",
-      amount: "number",
-      notes: "string"
-    },
-    confirm: true
-  })
+export const mobigent = createApp({
+  functions: {
+    expense: {
+      list: read(async () => ({ items: await listExpenses() })),
+      create: write(async (input) => createExpense(input), {
+        input: {
+          merchant: "string",
+          amount: "number",
+          notes: "string"
+        },
+        confirm: true
+      })
+    }
+  }
 });
 ```
 
 Create one Mobigent app object and wrap your existing app once:
 
 ```tsx
-import { expenses } from "./mobigent/expenses";
+import { mobigent } from "./mobigent";
 import App from "./App";
-
-const mobigent = createApp({ features: expenses });
 
 export default mobigent.with(App);
 ```
 
-If you prefer the older wrapper helper, `withMobigent(App, expenses)` still works. If you prefer explicit JSX wrapping, `setupMobigent(expenses)` still returns `{ Root }`.
-
 That is enough for local development. Mobigent uses a safe starter app identity until you pass exact production values or import a backend-generated config.
 
-Prefer generated starter files? `npx mobigent-init --feature expense --out-dir src` is still available as an optional scaffold.
+No app-side init command is required. The SDK handles the bridge setup.
 
 For a non-React demo or test host, connect the same feature in one call:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { createApp } from "@mobigent/app";
-import { expenses } from "./mobigent/expenses";
+import { mobigent } from "./mobigent";
 
 const backend = await startMobigent();
-const mobigent = createApp({
-  features: expenses,
+
+await mobigent.connect({
   connectionUrl: backend.defaultApp.connectionUrl
 });
-
-await mobigent.connect();
 ```
 
 ## 3. Run The Backend

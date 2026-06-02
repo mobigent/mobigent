@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 import {
   connectMobigent,
+  defineMobigent,
   emitMobigentEvent,
   setupMobigent,
   withMobigent,
@@ -10,6 +11,7 @@ import {
   type MobigentSimpleConnection,
   type MobigentSimpleConnectionSettings,
   type MobigentSimpleFeature,
+  type MobigentSimpleFunctionMap,
   type MobigentWithAppOptions
 } from "@mobigent/react-native/app";
 
@@ -52,8 +54,9 @@ function resolvePackageFeatures(input: MobigentAppPackageOptions): MobigentSimpl
     return input;
   }
 
-  const features = (input as MobigentSimpleAppOptions).features;
-  if (!features) {
+  const options = input as MobigentSimpleAppOptions & { functions?: MobigentSimpleFunctionMap };
+  const features = [...toArray(options.features), ...resolveFunctionFeatures(options.functions)];
+  if (features.length === 0) {
     throw new Error("createApp(...).connect() requires at least one Mobigent feature.");
   }
 
@@ -65,8 +68,14 @@ function resolvePackageConnectionSettings(input: MobigentAppPackageOptions): Mob
     return {};
   }
 
-  const { features: _features, capabilities: _capabilities, modules: _modules, rootProps: _rootProps, ...settings } =
-    input as MobigentWithAppOptions;
+  const {
+    features: _features,
+    functions: _functions,
+    capabilities: _capabilities,
+    modules: _modules,
+    rootProps: _rootProps,
+    ...settings
+  } = input as MobigentWithAppOptions & { functions?: MobigentSimpleFunctionMap };
 
   return settings;
 }
@@ -88,4 +97,16 @@ function isFeature(value: MobigentAppPackageOptions | MobigentSimpleFeature): va
       "resources" in value &&
       "components" in value
   );
+}
+
+function resolveFunctionFeatures(functions: MobigentSimpleFunctionMap | undefined): MobigentSimpleFeature[] {
+  return functions ? defineMobigent(functions) : [];
+}
+
+function toArray<T>(value: T | T[] | undefined): T[] {
+  if (!value) {
+    return [];
+  }
+
+  return Array.isArray(value) ? value : [value];
 }

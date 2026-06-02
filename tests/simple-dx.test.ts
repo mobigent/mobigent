@@ -14,6 +14,8 @@ import { createMobigentBackendFiles, runMobigentBackendCli } from "@mobigent/bac
 import {
   action,
   connectMobigent,
+  createApp,
+  defineFunctions,
   defineMobigent,
   defineMobigentConfig,
   emitMobigentEvent,
@@ -98,6 +100,23 @@ test("defineMobigent maps product areas to features for one-line app wrapping", 
   assert.equal(features[0].namespace, "expense");
   assert.equal(features[0].actions[0].name, "expense_create");
   assert.equal(features[1].resources[0].name, "task_list");
+});
+
+test("createApp accepts app functions directly for the lowest ceremony path", () => {
+  const appFunctions = {
+    expense: {
+      list: read(async () => ({ items: [] })),
+      create: write(async () => ({ ok: true }))
+    }
+  };
+
+  const features = defineFunctions(appFunctions);
+  const app = createApp({ functions: appFunctions });
+
+  assert.equal(features[0].namespace, "expense");
+  assert.equal(features[0].actions[0].name, "expense_create");
+  assert.equal(app.options.capabilities[0]?.namespace, "expense");
+  assert.equal(app.options.capabilities[0]?.actions[0]?.name, "expense_create");
 });
 
 test("simple schema helper accepts plain field maps", () => {

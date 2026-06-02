@@ -16,21 +16,25 @@ npm install @mobigent/app
 
 No app id ceremony is required for a first run. If no config exists yet, the app SDK uses safe local defaults. When the backend starts with `appDir`, it writes `mobigent.app.json` plus `src/mobigent-config.ts` into the app for exact local or production values.
 
-## 2. Create A Feature
+## 2. Expose App Functions
 
 ```ts
-import { createApp, defineFeature, read, write } from "@mobigent/app";
+import { createApp, read, write } from "@mobigent/app";
 
-export const expenses = defineFeature("expense", {
-  list: read(async () => ({ items: await listExpenses() })),
-  create: write(async (input) => createExpense(input), {
-    input: {
-      merchant: "string",
-      amount: "number",
-      notes: "string"
-    },
-    confirm: true
-  })
+export const mobigent = createApp({
+  functions: {
+    expense: {
+      list: read(async () => ({ items: await listExpenses() })),
+      create: write(async (input) => createExpense(input), {
+        input: {
+          merchant: "string",
+          amount: "number",
+          notes: "string"
+        },
+        confirm: true
+      })
+    }
+  }
 });
 ```
 
@@ -44,36 +48,36 @@ Backend code can use those same short names.
 ## 3. Wrap The App
 
 ```tsx
-import { expenses } from "./mobigent/expenses";
+import { mobigent } from "./mobigent";
 import App from "./App";
-
-const mobigent = createApp({ features: expenses });
 
 export default mobigent.with(App);
 ```
 
-If you prefer the older helper, `withMobigent(App, expenses)` still works. If you prefer explicit JSX wrapping, `setupMobigent(expenses)` still returns `{ Root }`.
+If you prefer explicit feature objects, `defineFeature("expense", ...)`, `withMobigent(App, expenses)`, and `setupMobigent(expenses)` still work.
 
 That is enough for a local first run.
 
-To add another app area later, create another feature and pass an array to `createApp({ features: [expenses, invoices] })`.
+To add another app area later, add another namespace inside `functions`.
 
-Prefer generated starter files? `npx mobigent-init --feature expense --out-dir src` is still available as an optional scaffold.
+No app-side init command is required. Starter generation is only for demos.
 
 For multiple app areas in one file, use the same plain object shape:
 
 ```ts
-import { defineMobigent, read, write } from "@mobigent/app";
+import { createApp, read, write } from "@mobigent/app";
 
-export const features = defineMobigent({
-  expense: {
-    list: read(async () => ({ items: await listExpenses() })),
-    create: write(createExpense, {
-      input: { merchant: "string", amount: "number" }
-    })
-  },
-  task: {
-    list: read(async () => ({ items: await listTasks() }))
+export const mobigent = createApp({
+  functions: {
+    expense: {
+      list: read(async () => ({ items: await listExpenses() })),
+      create: write(createExpense, {
+        input: { merchant: "string", amount: "number" }
+      })
+    },
+    task: {
+      list: read(async () => ({ items: await listTasks() }))
+    }
   }
 });
 ```
@@ -99,16 +103,14 @@ If you are running a local demo, test host, or another runtime where you are usi
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { createApp } from "@mobigent/app";
-import { expenses } from "./mobigent/expenses";
+import { mobigent } from "./mobigent/expenses";
 
 const backend = await startMobigent();
-const mobigent = createApp({
-  features: expenses,
+
+const connection = await mobigent.connect({
   connectionUrl: backend.defaultApp.connectionUrl
 });
 
-const connection = await mobigent.connect();
 ```
 
 That one call registers the feature, connects to the backend, and returns a `disconnect()` helper.
@@ -142,4 +144,4 @@ Use full JSON Schema or the lower-level `schema.*` helpers only when plain field
 
 ## Advanced
 
-The lower-level provider, hooks, `createAgentModule()`, and manual registration APIs are still available for screen-scoped capabilities, custom confirmation UI, custom environment switching, and manifest signing. Start with `defineFeature()` and `createApp()` first.
+The lower-level provider, hooks, `createAgentModule()`, explicit `defineFeature()`, and manual registration APIs are still available for screen-scoped capabilities, custom confirmation UI, custom environment switching, and manifest signing. Start with `createApp({ functions })` first.

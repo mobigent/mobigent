@@ -19,37 +19,39 @@ The app owns the real behavior. The backend calls that behavior. Mobigent owns t
 npm install @mobigent/app
 ```
 
-Create one feature and one app SDK object:
+Create one app SDK object and expose the functions agents may call:
 
 ```ts
-import { createApp, defineFeature, read, write } from "@mobigent/app";
+import { createApp, read, write } from "@mobigent/app";
 
-export const expenses = defineFeature("expense", {
-  list: read(async () => ({ items: await listExpenses() })),
-  create: write(async (input) => createExpense(input), {
-    input: {
-      merchant: "string",
-      amount: "number"
-    },
-    confirm: true
-  })
+export const mobigent = createApp({
+  functions: {
+    expense: {
+      list: read(async () => ({ items: await listExpenses() })),
+      create: write(async (input) => createExpense(input), {
+        input: {
+          merchant: "string",
+          amount: "number"
+        },
+        confirm: true
+      })
+    }
+  }
 });
 ```
 
 Wrap the app once:
 
 ```tsx
-import { expenses } from "./mobigent/expenses";
+import { mobigent } from "./mobigent";
 import App from "./App";
-
-const mobigent = createApp({ features: expenses });
 
 export default mobigent.with(App);
 ```
 
 That is the frontend integration.
 
-Prefer generated starter files? `npx mobigent-init --feature expense --out-dir src` is available, but it is optional.
+No app-side init command is required. Starter generation is only for demos.
 
 ## 2. Add It To The Backend
 

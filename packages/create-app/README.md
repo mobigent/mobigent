@@ -20,15 +20,17 @@ npm run dev
 
 The starter opens a browser page where one click calls a Mobigent app function and updates app state.
 
-Edit `src/capabilities.ts` first. That file contains the sample app state and one simple Mobigent feature:
+Edit `src/capabilities.ts` first. That file contains the sample app state and the app functions exposed to agents:
 
 ```ts
-defineFeature("expense", {
-  list: read(listExpenses),
-  create: write(createExpense, {
-    input: { amount: "number", merchant: "string" }
-  })
-})
+export const expenseFunctions = {
+  expense: {
+    list: read(listExpenses),
+    create: write(createExpense, {
+      input: { amount: "number", merchant: "string" }
+    })
+  }
+};
 ```
 
 Replace the sample functions with your real app functions.

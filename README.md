@@ -35,14 +35,17 @@ npm install @mobigent/backend
 The app developer writes ordinary app functions and creates one app SDK object:
 
 ```txt
-defineFeature("expense", {
-  list: read(listExpenses),
-  create: write(createExpense, {
-    input: { merchant: "string", amount: "number" }
-  })
+const mobigent = createApp({
+  functions: {
+    expense: {
+      list: read(listExpenses),
+      create: write(createExpense, {
+        input: { merchant: "string", amount: "number" }
+      })
+    }
+  }
 })
 
-const mobigent = createApp({ features: expenses })
 export default mobigent.with(App)
 ```
 
@@ -64,7 +67,6 @@ For local development, `startMobigent()` infers the app id and name from your pr
 For a non-React host or local demo, use the same app SDK object:
 
 ```ts
-const mobigent = createApp({ features: expenses });
 await mobigent.connect();
 ```
 
@@ -119,25 +121,27 @@ In the app:
 npm install @mobigent/app
 ```
 
-Then create one feature file and wire it once:
+Then create one Mobigent file and wire it once:
 
 ```ts
-import { createApp, defineFeature, read, write } from "@mobigent/app";
+import { createApp, read, write } from "@mobigent/app";
 
-export const expenses = defineFeature("expense", {
-  list: read(async () => ({ items: await listExpenses() })),
-  create: write(async (input) => createExpense(input), {
-    input: { merchant: "string", amount: "number" },
-    confirm: true
-  })
+export const mobigent = createApp({
+  functions: {
+    expense: {
+      list: read(async () => ({ items: await listExpenses() })),
+      create: write(async (input) => createExpense(input), {
+        input: { merchant: "string", amount: "number" },
+        confirm: true
+      })
+    }
+  }
 });
 ```
 
 ```tsx
-import { expenses } from "./mobigent/expenses";
+import { mobigent } from "./mobigent";
 import App from "./App";
-
-const mobigent = createApp({ features: expenses });
 
 export default mobigent.with(App);
 ```
@@ -234,42 +238,41 @@ npm install @mobigent/app
 
 You do not need to invent an app id for local development. If `mobigent.app.json` exists in the app, a parent folder, or a common sibling backend folder such as `../backend`, the app package uses it. If no config exists yet, the app SDK uses safe local defaults.
 
-Create one feature file and one app SDK object:
+Create one Mobigent file and one app SDK object:
 
 ```ts
-import { createApp, defineFeature } from "@mobigent/app";
+import { createApp, read, write } from "@mobigent/app";
 
-export const expenses = defineFeature("expense")
-  .read("list", async () => ({
-    items: await listExpenses()
-  }))
-  .write("create", async (input) => createExpense(input), {
-    input: {
-      merchant: "string",
-      amount: "number"
-    },
-    confirm: true
-  });
-
-export const mobigent = createApp({ features: expenses });
+export const mobigent = createApp({
+  functions: {
+    expense: {
+      list: read(async () => ({ items: await listExpenses() })),
+      create: write(async (input) => createExpense(input), {
+        input: {
+          merchant: "string",
+          amount: "number"
+        },
+        confirm: true
+      })
+    }
+  }
+});
 ```
 
 Wrap the app once:
 
 ```tsx
-import { mobigent } from "./mobigent/expenses";
+import { mobigent } from "./mobigent";
 import App from "./App";
 
 export default mobigent.with(App);
 ```
 
-Prefer explicit JSX wrapping? `setupMobigent(expenses)` still returns `{ Root }`.
-
 Mobigent handles names, validation, confirmation, connection lifecycle, backend communication, and event queueing.
 
-Need another feature later? Add another `defineFeature("invoice", ...)` file and pass both features to `createApp({ features: [expenses, invoices] })`.
+Need another app area later? Add another namespace inside `functions`.
 
-Prefer generated starter files? `npx mobigent-init --feature expense --out-dir src` is still available as an optional scaffold, but it is not required.
+No app-side init command is required. Starter generation is only for demos.
 
 For local development, the app package uses a safe starter identity when no config is present. For production, pass exact values or drop the backend-generated `mobigent.app.json` into the app and import its typed config.
 
@@ -277,16 +280,13 @@ If you are wiring a Node demo, test host, or another non-React runtime, use the 
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { createApp } from "@mobigent/app";
-import { expenses } from "./mobigent/expenses";
+import { mobigent } from "./mobigent";
 
 const backend = await startMobigent();
-const mobigent = createApp({
-  features: expenses,
+
+await mobigent.connect({
   connectionUrl: backend.defaultApp.connectionUrl
 });
-
-await mobigent.connect();
 ```
 
 ## Add It To A Backend
@@ -385,7 +385,7 @@ npm run dev:mcp
 
 Most apps start with two packages:
 
-- `@mobigent/app`: app SDK for `createApp()`, `defineFeature()`, app events, and React Native wrapping
+- `@mobigent/app`: app SDK for `createApp()`, app functions, app events, and React Native wrapping
 - `@mobigent/backend`: backend SDK for `startMobigent()`, app function routing, inspector, agent HTTP, and app connections
 
 Useful extras:
