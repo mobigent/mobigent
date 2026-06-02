@@ -55,7 +55,6 @@ The backend developer starts Mobigent like backend plumbing and calls app functi
 import { startMobigent } from "@mobigent/backend";
 
 const backend = await startMobigent();
-await backend.waitForApp();
 
 const expense = backend.feature("expense");
 
@@ -160,7 +159,6 @@ import { startMobigent } from "@mobigent/backend";
 const mobigent = await startMobigent({
   appDir: "../mobile-app"
 });
-await mobigent.waitForApp();
 
 const expense = mobigent.feature("expense");
 
@@ -327,19 +325,19 @@ const appConfig = mobigent.defaultApp;
 
 That one function starts Mobigent, routes app function calls, writes the app config when `appDir` is set, and exposes the local inspector for debugging.
 
-Wait for the app when your server needs to call app functions immediately:
-
-```ts
-await mobigent.waitForApp();
-```
-
-Call app-owned functions through a normal backend object:
+Call app-owned functions through a normal backend object. Mobigent waits for the app connection when the function is called:
 
 ```ts
 const expense = mobigent.feature("expense");
 
 await expense.create({ merchant: "Airport Taxi", amount: 42.25 });
 await expense.list();
+```
+
+Use `waitForApp()` only when you want an explicit startup health gate:
+
+```ts
+await mobigent.waitForApp();
 ```
 
 For quick one-off calls, `mobigent.callApp("expense.create", input)` is still available.

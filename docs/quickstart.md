@@ -110,7 +110,6 @@ import { startMobigent } from "@mobigent/backend";
 const mobigent = await startMobigent({
   appDir: "../mobile-app"
 });
-await mobigent.waitForApp();
 
 console.log(mobigent.urls.inspector);
 
@@ -126,7 +125,7 @@ With `appDir`, Mobigent also writes `mobigent.app.json` and `src/mobigent-config
 
 Prefer a generated backend helper file? `npx mobigent-backend --app-dir ../mobile-app` is still available as an optional scaffold.
 
-Create a tiny app function object by feature name:
+Create a tiny app function object by feature name. Mobigent waits for the app connection when a function is called:
 
 ```ts
 const expense = mobigent.feature("expense");
@@ -137,16 +136,7 @@ await expense.list();
 
 With no options, Mobigent infers a starter app id and app name from your project. With `appDir`, it infers from the mobile app project and writes `mobigent.app.json` plus `src/mobigent-config.ts` there for you. Pass `app: { id, name }` only when you want exact production values.
 
-`mobigent.waitForApp()` waits until the app is connected and has exposed at least one function. If the app is not running yet, it tells you exactly what is missing.
-
-Call app-owned functions through that backend object:
-
-```ts
-const expense = mobigent.feature("expense");
-
-await expense.create({ merchant: "Airport Taxi", amount: 42.25 });
-await expense.list();
-```
+Use `mobigent.waitForApp()` only when you want an explicit startup health gate. If the app is not running yet, function calls and readiness checks tell you exactly what is missing.
 
 Need agent setup? Use the same backend object:
 

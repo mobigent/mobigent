@@ -82,6 +82,12 @@ export type MobigentBackendReadyOptions = {
   intervalMs?: number;
 };
 
+export type MobigentBackendCallOptions = ToolCallOptions & {
+  waitForApp?: boolean;
+  waitTimeoutMs?: number;
+  waitIntervalMs?: number;
+};
+
 export type MobigentBackendAppConfigModuleOptions = MobigentBackendAppConfigOptions & {
   exportName?: string;
 };
@@ -133,9 +139,9 @@ export type MobigentBackend = {
   apps(): GatewayAppSession[];
   resolveFunctionName(name: string): string;
   resolveToolName(name: string): string;
-  callApp(name: string, input?: unknown, options?: ToolCallOptions): ReturnType<BridgeGateway["callTool"]>;
-  call(toolName: string, input?: unknown, options?: ToolCallOptions): ReturnType<BridgeGateway["callTool"]>;
-  invoke(name: string, input?: unknown, options?: ToolCallOptions): ReturnType<BridgeGateway["callTool"]>;
+  callApp(name: string, input?: unknown, options?: MobigentBackendCallOptions): ReturnType<BridgeGateway["callTool"]>;
+  call(toolName: string, input?: unknown, options?: MobigentBackendCallOptions): ReturnType<BridgeGateway["callTool"]>;
+  invoke(name: string, input?: unknown, options?: MobigentBackendCallOptions): ReturnType<BridgeGateway["callTool"]>;
   appFunction(name: string): MobigentBackendFunction;
   appFeature(namespace: string): MobigentBackendFeatureFunctions;
   feature(namespace: string): MobigentBackendFeatureFunctions;
@@ -144,7 +150,7 @@ export type MobigentBackend = {
   fn(name: string): MobigentBackendFunction;
 };
 
-export type MobigentBackendFunction = (input?: unknown, options?: ToolCallOptions) => ReturnType<BridgeGateway["callTool"]>;
+export type MobigentBackendFunction = (input?: unknown, options?: MobigentBackendCallOptions) => ReturnType<BridgeGateway["callTool"]>;
 export type MobigentBackendFeatureFunctions = {
   [functionName: string]: MobigentBackendFunction;
 };
@@ -228,8 +234,17 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     }
   });
 
-  const invoke = (name: string, input: unknown = {}, callOptions?: ToolCallOptions) =>
-    gateway.callTool(resolveBackendToolName(gateway.listTools(), name, defaultApp), input as JsonObject, callOptions);
+  const invoke = async (name: string, input: unknown = {}, callOptions: MobigentBackendCallOptions = {}) => {
+    const { waitForApp = true, waitTimeoutMs, waitIntervalMs, ...toolCallOptions } = callOptions;
+    const toolName = waitForApp
+      ? await waitForBackendFunction(gateway, name, defaultApp, {
+          timeoutMs: waitTimeoutMs,
+          intervalMs: waitIntervalMs
+        })
+      : resolveBackendToolName(gateway.listTools(), name, defaultApp);
+
+    return gateway.callTool(toolName, input as JsonObject, toolCallOptions);
+  };
 
   const appFunction = (name: string): MobigentBackendFunction =>
     (input: unknown = {}, callOptions?: ToolCallOptions) => invoke(name, input, callOptions);
@@ -477,6 +492,14 @@ function resolveBackendToolName(
   name: string,
   defaultApp?: MobigentBackendAppConfig
 ) {
+  return findBackendToolName(tools, name, defaultApp) ?? name;
+}
+
+function findBackendToolName(
+  tools: ReturnType<BridgeGateway["listTools"]>,
+  name: string,
+  defaultApp?: MobigentBackendAppConfig
+) {
   if (tools.some((tool) => tool.name === name)) {
     return name;
   }
@@ -499,7 +522,7 @@ function resolveBackendToolName(
     );
   }
 
-  return name;
+  return undefined;
 }
 
 function createToolNameCandidates(name: string, defaultApp?: MobigentBackendAppConfig) {
@@ -561,7 +584,57 @@ function waitForBackendReady(gateway: BridgeGateway, options: MobigentBackendRea
           new Error(
               `Mobigent backend is waiting for ${minApps} connected app(s) and ${minFunctions} exposed function(s). ` +
               `Current state: ${status.appsWithManifests} app(s), ${status.tools} function(s). ` +
-              "Start the app, wire it with createApp({ features }).with(App), and make sure it uses the backend app config."
+              "Start the app, wire it with createApp({ functions }).with(App), and make sure it uses the backend app config."
+          )
+        );
+        return;
+      }
+
+      timer = setTimeout(check, intervalMs);
+    };
+
+    check();
+  });
+}
+
+function waitForBackendFunction(
+  gateway: BridgeGateway,
+  name: string,
+  defaultApp: MobigentBackendAppConfig | undefined,
+  options: Pick<MobigentBackendReadyOptions, "timeoutMs" | "intervalMs"> = {}
+) {
+  const timeoutMs = options.timeoutMs ?? 10_000;
+  const intervalMs = options.intervalMs ?? 100;
+  const startedAt = Date.now();
+
+  return new Promise<string>((resolve, reject) => {
+    let timer: NodeJS.Timeout | undefined;
+
+    const check = () => {
+      try {
+        const toolName = findBackendToolName(gateway.listTools(), name, defaultApp);
+        if (toolName) {
+          if (timer) {
+            clearTimeout(timer);
+          }
+          resolve(toolName);
+          return;
+        }
+      } catch (error) {
+        if (timer) {
+          clearTimeout(timer);
+        }
+        reject(error);
+        return;
+      }
+
+      if (Date.now() - startedAt >= timeoutMs) {
+        const status = gateway.getStatus();
+        reject(
+          new Error(
+            `Mobigent backend is waiting for app function ${name}. ` +
+              `Current state: ${status.appsWithManifests} app(s), ${status.tools} function(s). ` +
+              "Start the app, wire it with createApp({ functions }).with(App), and make sure it uses the backend app config."
           )
         );
         return;

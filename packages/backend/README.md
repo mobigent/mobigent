@@ -2,7 +2,7 @@
 
 The backend-side Mobigent SDK.
 
-Use it like normal backend plumbing: start Mobigent, wait for the app, then call app functions from your server code.
+Use it like normal backend plumbing: start Mobigent, then call app functions from your server code. Mobigent waits for the app connection when a function is called.
 
 ```bash
 npm install @mobigent/backend
@@ -16,7 +16,6 @@ import { startMobigent } from "@mobigent/backend";
 const mobigent = await startMobigent({
   appDir: "../mobile-app"
 });
-await mobigent.waitForApp();
 
 const expense = mobigent.feature("expense");
 
@@ -37,9 +36,7 @@ npx mobigent-backend --app-dir ../mobile-app
 ```
 
 ```ts
-import { feature, waitForApp } from "./mobigent";
-
-await waitForApp();
+import { feature } from "./mobigent";
 
 const expense = feature("expense");
 await expense.create({ merchant: "Airport Taxi", amount: 42.25 });
@@ -54,7 +51,7 @@ Mobigent infers local app identity from the app project. Pass exact `app` values
 - app function routing
 - validation
 - confirmations
-- retries and readiness
+- automatic readiness waiting
 - inspector and audit trail
 - agent setup helpers
 

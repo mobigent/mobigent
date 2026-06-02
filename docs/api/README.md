@@ -88,11 +88,11 @@ The returned object includes:
 - `functions()`
 - `tools()` for backward compatibility and provider internals
 - `apps()`
-- `waitForApp()` to wait until an app is connected and callable
-- `feature("expense")` to create a tiny object of normal backend functions for one app feature
+- `waitForApp()` when you want an explicit startup health gate
+- `feature("expense")` to create a tiny object of normal backend functions for one app feature; calls wait for the app function by default
 - `appFunctions("expense")` for the same feature-scoped helper
 - `appFunctions({ createExpense: "expense.create" })` when you prefer explicit aliases
-- `callApp("expense.create", input)` or `callApp("expense.list")`
+- `callApp("expense.create", input)` or `callApp("expense.list")`; pass `{ waitForApp: false }` only when you want an immediate failure if the app is not connected
 - `appFunction("expense.create")` to create a reusable backend function
 - `invoke("expense.create", input)` for compatibility
 - `fn("expense.create")` for compatibility

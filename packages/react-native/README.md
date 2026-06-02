@@ -5,12 +5,16 @@ Make a React Native app callable by AI agents with normal app functions.
 Mobigent's React Native package should feel like this:
 
 ```ts
-defineFeature("expense", {
-  list: read(listExpenses),
-  create: write(createExpense, {
-    input: { merchant: "string", amount: "number" },
-    confirm: true
-  })
+const mobigent = createApp({
+  functions: {
+    expense: {
+      list: read(listExpenses),
+      create: write(createExpense, {
+        input: { merchant: "string", amount: "number" },
+        confirm: true
+      })
+    }
+  }
 });
 ```
 
@@ -31,7 +35,7 @@ After npmjs publishing is enabled:
 npm install @mobigent/react-native
 ```
 
-## Add One Feature
+## Add App Functions
 
 In an existing app, install the package:
 
@@ -42,23 +46,25 @@ npm install @mobigent/react-native
 Create `src/mobigent/expenses.ts`:
 
 ```ts
-import { createApp, defineFeature, read, write } from "@mobigent/react-native";
+import { createApp, read, write } from "@mobigent/react-native";
 
-export const expenses = defineFeature("expense", {
-  list: read(async () => ({
-    items: await listExpenses()
-  })),
-  create: write(async (input) => createExpense(input), {
-    input: {
-      merchant: "string",
-      amount: "number",
-      notes: "string"
-    },
-    confirm: true
-  })
+export const mobigent = createApp({
+  functions: {
+    expense: {
+      list: read(async () => ({
+        items: await listExpenses()
+      })),
+      create: write(async (input) => createExpense(input), {
+        input: {
+          merchant: "string",
+          amount: "number",
+          notes: "string"
+        },
+        confirm: true
+      })
+    }
+  }
 });
-
-export const mobigent = createApp({ features: expenses });
 ```
 
 Your backend calls those app functions with short names like:
@@ -79,26 +85,23 @@ import App from "./App";
 export default mobigent.with(App);
 ```
 
-If you prefer the older helper, `withMobigent(App, expenses)` still works. If you prefer an explicit provider component, `setupMobigent(expenses)` still returns `{ Root }`.
+If you prefer explicit feature objects, `defineFeature()`, `withMobigent(App, expenses)`, and `setupMobigent(expenses)` still work.
 
 Run a Mobigent backend from your server with `@mobigent/backend`, then open the inspector URL it prints. For the simplest setup, start the backend with `appDir: "../mobile-app"` so it writes app config files into the app project. Local defaults work before you wire that config explicitly.
 
-Prefer generated starter files? `npx mobigent-init --feature expense --out-dir src` can create the feature and wrapper files for you, but it is optional.
+No app-side init command is required. Starter generation is only for demos.
 
-For a Node demo, test host, or another non-React runtime, use the same feature without manual registration:
+For a Node demo, test host, or another non-React runtime, use the same app object:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { createApp } from "@mobigent/react-native";
-import { expenses } from "./mobigent/expenses";
+import { mobigent } from "./mobigent/expenses";
 
 const backend = await startMobigent();
-const mobigent = createApp({
-  features: expenses,
+
+const connection = await mobigent.connect({
   connectionUrl: backend.defaultApp.connectionUrl
 });
-
-const connection = await mobigent.connect();
 ```
 
 ## Field Types

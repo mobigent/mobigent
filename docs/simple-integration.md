@@ -65,7 +65,6 @@ import { startMobigent } from "@mobigent/backend";
 const mobigent = await startMobigent({
   appDir: "../mobile-app"
 });
-await mobigent.waitForApp();
 
 const expense = mobigent.feature("expense");
 
@@ -85,6 +84,7 @@ If you only need one quick call, `callApp("expense.create", input)` is still ava
 - local development config
 - backend-generated app config
 - function naming
+- automatic readiness waiting
 - input/output shapes
 - input validation
 - output validation

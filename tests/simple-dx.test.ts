@@ -256,6 +256,65 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
   }
 });
 
+test("backend app functions wait for the app connection automatically", async () => {
+  const expenses = feature("expense").write(
+    "create",
+    async (input) => ({
+      id: "EXP-AUTO",
+      merchant: String(input.merchant),
+      amount: Number(input.amount)
+    }),
+    {
+      input: {
+        merchant: "string",
+        amount: "number"
+      },
+      confirm: true
+    }
+  );
+  const backend = await startMobigent({
+    wsPort: 19007,
+    httpPort: 19008,
+    app: {
+      id: "com.example.autowait",
+      name: "Auto Wait App"
+    },
+    silent: true
+  });
+  let connection: { disconnect(): void } | undefined;
+  let connectionPromise: Promise<{ disconnect(): void }> | undefined;
+
+  try {
+    const createExpense = backend.feature("expense").create({
+      merchant: "Train Station",
+      amount: 19.5
+    });
+
+    setTimeout(() => {
+      connectionPromise = connectMobigent(expenses, {
+        config: backend.defaultApp,
+        createSocket: createNodeSocket,
+        confirm: async () => true
+      });
+    }, 20);
+
+    assert.deepEqual(await createExpense, {
+      id: "EXP-AUTO",
+      merchant: "Train Station",
+      amount: 19.5
+    });
+    connection = await connectionPromise;
+
+    await assert.rejects(
+      backend.callApp("expense.missing", {}, { waitTimeoutMs: 20, waitIntervalMs: 5 }),
+      /waiting for app function expense\.missing/
+    );
+  } finally {
+    connection?.disconnect();
+    await backend.stop();
+  }
+});
+
 test("backend SDK can start with one app config like normal backend plumbing", async () => {
   const backend = await startMobigent({
     wsPort: 18991,
@@ -538,8 +597,8 @@ test("backend init CLI infers app identity and prints the short app init command
     );
     assert.equal(writeCode, 0, stderr);
     assert.match(stdout, /npm install @mobigent\/app/);
-    assert.match(stdout, /Create one feature with defineFeature\(\), then createApp\(\{ features \}\)\.with\(App\)/);
-    assert.match(stdout, /Optional scaffold:\n  npx mobigent-init --feature expense --out-dir src/);
+    assert.match(stdout, /Create app functions with createApp\(\{ functions \}\)\.with\(App\)/);
+    assert.match(stdout, /Optional demo scaffold:\n  npx mobigent-init --feature expense --out-dir src/);
     assert.match(stdout, /npx tsx src\/mobigent\.ts/);
     assert.doesNotMatch(stdout, /--config/);
     assert.doesNotMatch(stdout, /--env-file/);
