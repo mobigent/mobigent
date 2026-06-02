@@ -2054,7 +2054,7 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   });
   const rootFile = files.find((file) => file.path === join("src", "mobigent.tsx"));
   const starterConfigFile = files.find((file) => file.path === join("src", "mobigent-config.ts"));
-  const featureFile = files.find((file) => file.path === join("src", "mobigent-features", "expense.ts"));
+  const featureFile = files.find((file) => file.path === join("src", "mobigent-functions", "expense.ts"));
 
   assert.ok(rootFile);
   assert.ok(starterConfigFile);
@@ -2063,7 +2063,7 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   assert.match(rootFile.contents, /export const mobigent/);
   assert.match(rootFile.contents, /@mobigent\/app/);
   assert.match(rootFile.contents, /config: mobigentConfig/);
-  assert.match(rootFile.contents, /features: \[expenseFeature\]/);
+  assert.match(rootFile.contents, /functions: \{ \.\.\.expenseFunctions \}/);
   assert.match(rootFile.contents, /withMobigentApp/);
   assert.match(rootFile.contents, /mobigent\.with\(App\)/);
   assert.doesNotMatch(rootFile.contents, /createMobigentEnvironmentFromEnv/);
@@ -2074,11 +2074,11 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   assert.match(starterConfigFile.contents, /com.mobigent.demo/);
   assert.doesNotMatch(rootFile.contents, /modules: \[expenseModule\]/);
   assert.doesNotMatch(rootFile.contents, /\.\.\.mobigentEnvironment/);
-  assert.match(rootFile.contents, /expenseFeature/);
+  assert.match(rootFile.contents, /expenseFunctions/);
   assert.doesNotMatch(featureFile.contents, /createAgentModule/);
   assert.match(featureFile.contents, /@mobigent\/app/);
-  assert.match(featureFile.contents, /defineFeature\("expense", \{/);
-  assert.match(featureFile.contents, /export const expenseFeature/);
+  assert.match(featureFile.contents, /export const expenseFunctions = \{/);
+  assert.match(featureFile.contents, /expense: \{/);
   assert.match(featureFile.contents, /create: write\(/);
 
   const expoFiles = createReactNativeStarterFiles({
@@ -2130,10 +2130,10 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   });
   assert.deepEqual(
     featureOnlyFiles.map((file) => file.path),
-    [join("src", "mobigent-features", "invoice.ts")]
+    [join("src", "mobigent-functions", "invoice.ts")]
   );
-  assert.match(featureOnlyFiles[0]?.contents ?? "", /defineFeature\("invoice", \{/);
-  assert.match(featureOnlyFiles[0]?.contents ?? "", /export const invoiceFeature/);
+  assert.match(featureOnlyFiles[0]?.contents ?? "", /export const invoiceFunctions = \{/);
+  assert.match(featureOnlyFiles[0]?.contents ?? "", /invoice: \{/);
 
   const featureOnlyStarterFiles = createReactNativeStarterFiles({
     appId: "",
@@ -2150,7 +2150,7 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   });
   assert.deepEqual(
     featureOnlyStarterFiles.map((file) => file.path),
-    [join("src", "mobigent-features", "invoice.ts")]
+    [join("src", "mobigent-functions", "invoice.ts")]
   );
 
   const envTemplate = createReactNativeEnvTemplate({ gatewayUrl: "ws://localhost:9000" });
@@ -2221,7 +2221,7 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
 	  assert.equal(dryRunCode, 0);
 	  assert.equal(stderr, "");
 	  assert.match(stdout, /mobigent\.tsx/);
-	  assert.match(stdout, /mobigent-features/);
+	  assert.match(stdout, /mobigent-functions/);
 	  assert.match(stdout, /app\.acme\.mobile\.wallet/);
 	  assert.match(stdout, /Mobile Wallet/);
 	  await rm(inferredDir, { force: true, recursive: true });
@@ -2343,7 +2343,7 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   );
   assert.equal(featureOnlyCode, 0);
   assert.equal(stderr, "");
-  assert.match(stdout, /invoiceFeature/);
+  assert.match(stdout, /mobigent-functions/);
   assert.doesNotMatch(stdout, /mobigent\.tsx/);
 
   const dir = await mkdtemp(join(tmpdir(), "mobigent-rn-init-"));
@@ -2363,10 +2363,10 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   );
 
   assert.equal(writeCode, 0);
-  assert.match(await readFile(join(dir, "mobigent.tsx"), "utf8"), /taskFeature/);
-  const taskFeatureFile = await readFile(join(dir, "mobigent-features", "task.ts"), "utf8");
-  assert.match(taskFeatureFile, /defineFeature\("task", \{/);
-  assert.match(taskFeatureFile, /export const taskFeature/);
+  assert.match(await readFile(join(dir, "mobigent.tsx"), "utf8"), /taskFunctions/);
+  const taskFeatureFile = await readFile(join(dir, "mobigent-functions", "task.ts"), "utf8");
+  assert.match(taskFeatureFile, /export const taskFunctions = \{/);
+  assert.match(taskFeatureFile, /task: \{/);
   await rm(dir, { force: true, recursive: true });
 
   const backendFirstDir = await mkdtemp(join(tmpdir(), "mobigent-rn-backend-first-"));
@@ -2418,11 +2418,11 @@ export const mobigentConfig = defineMobigentConfig({
   );
   assert.equal(secondFeatureCode, 0, stderr);
   const backendFirstRoot = await readFile(join(backendFirstDir, "mobigent.tsx"), "utf8");
-  assert.match(backendFirstRoot, /expenseFeature/);
-  assert.match(backendFirstRoot, /invoiceFeature/);
+  assert.match(backendFirstRoot, /expenseFunctions/);
+  assert.match(backendFirstRoot, /invoiceFunctions/);
   assert.match(
-    await readFile(join(backendFirstDir, "mobigent-features", "invoice.ts"), "utf8"),
-    /defineFeature\("invoice", \{/
+    await readFile(join(backendFirstDir, "mobigent-functions", "invoice.ts"), "utf8"),
+    /export const invoiceFunctions = \{/
   );
   await rm(backendFirstDir, { force: true, recursive: true });
 
@@ -2640,7 +2640,7 @@ test("React Native init CLI prints a machine-readable integration manifest", () 
       id: "mobigent.expense",
       name: "expense feature",
       feature: "expense",
-      file: join("src", "mobigent-features", "expense.ts"),
+      file: join("src", "mobigent-functions", "expense.ts"),
       actions: ["expense_create"],
       resources: ["expense_list"],
       components: []

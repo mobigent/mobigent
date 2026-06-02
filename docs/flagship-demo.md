@@ -36,7 +36,7 @@ The demo runs the Mobigent backend, connects a visible expense app, and opens th
 
 Generated starters also include `npm run doctor`. Run it in another terminal while `npm run dev` is running to confirm the visible app, backend health, readiness, and expected tool are all working. Then run `npm run agent:local`, `npm run agent:openapi`, or `npm run agent:chatgpt` for copy-paste agent setup.
 
-For the first real adaptation, edit `src/capabilities.ts`. It holds the sample `defineFeature("expense")` definition separately from the demo server/UI.
+For the first real adaptation, edit `src/capabilities.ts`. It holds the sample `expenseFunctions` object separately from the demo server/UI.
 
 If your system blocks auto-open, open the app manually:
 

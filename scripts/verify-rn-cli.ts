@@ -49,12 +49,12 @@ try {
   assert.match(rootFile, /export const mobigent/);
   assert.match(rootFile, /withMobigentApp/);
   assert.match(rootFile, /mobigent\.with\(App\)/);
-  assert.match(rootFile, /features: \[taskFeature\]/);
+  assert.match(rootFile, /functions: \{ \.\.\.taskFunctions \}/);
   assert.match(rootFile, /ConfirmationComponent: MobigentAgentApproval/);
   assert.match(await readFile(join(dir, "mobigent-confirmation.tsx"), "utf8"), /useMobigentConfirmation/);
   assert.match(
-    await readFile(join(dir, "mobigent-features", "task.ts"), "utf8"),
-    /defineFeature\("task", \{[\s\S]*list: read\([\s\S]*create: write\(/
+    await readFile(join(dir, "mobigent-functions", "task.ts"), "utf8"),
+    /export const taskFunctions = \{[\s\S]*task: \{[\s\S]*list: read\([\s\S]*create: write\(/
   );
 
   await writeFile(
@@ -143,11 +143,11 @@ export const mobigentConfig = defineMobigentConfig({
   ]);
   assert.equal(secondFeatureInit.code, 0, secondFeatureInit.stderr);
   const backendFirstRoot = await readFile(join(backendFirstDir, "mobigent.tsx"), "utf8");
-  assert.match(backendFirstRoot, /backendfirstFeature/);
-  assert.match(backendFirstRoot, /invoiceFeature/);
+  assert.match(backendFirstRoot, /backendfirstFunctions/);
+  assert.match(backendFirstRoot, /invoiceFunctions/);
   assert.match(
-    await readFile(join(backendFirstDir, "mobigent-features", "invoice.ts"), "utf8"),
-    /defineFeature\("invoice", \{[\s\S]*create: write\(/
+    await readFile(join(backendFirstDir, "mobigent-functions", "invoice.ts"), "utf8"),
+    /export const invoiceFunctions = \{[\s\S]*create: write\(/
   );
 
   const workspaceDir = join(dir, "workspace");

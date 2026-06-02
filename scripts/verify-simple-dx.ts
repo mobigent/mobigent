@@ -86,7 +86,7 @@ const rnFiles = createReactNativeStarterFiles({
   contract: false
 });
 const rnRoot = rnFiles.find((file) => file.path === "src/mobigent.tsx")?.contents ?? "";
-const rnFeature = rnFiles.find((file) => file.path === "src/mobigent-features/expense.ts")?.contents ?? "";
+const rnFeature = rnFiles.find((file) => file.path === "src/mobigent-functions/expense.ts")?.contents ?? "";
 const starterCapabilities = createMobigentAppFiles({
   targetDir: "demo",
   appId: "com.example.app",
@@ -116,12 +116,14 @@ const starterServer = createMobigentAppFiles({
 
 assert.match(rnRoot, /createApp/);
 assert.match(rnRoot, /config: mobigentConfig/);
+assert.match(rnRoot, /functions: \{ \.\.\.expenseFunctions \}/);
 assert.doesNotMatch(rnRoot, /MobigentProvider|createAgentApp|createAgentModule/);
 assert.doesNotMatch(rnRoot, /reconnect|heartbeat/);
-assert.match(rnFeature, /defineFeature\("expense", \{/);
+assert.match(rnFeature, /export const expenseFunctions = \{/);
+assert.match(rnFeature, /expense: \{/);
 assert.match(rnFeature, /list: read\(/);
 assert.match(rnFeature, /create: write\(/);
-assert.doesNotMatch(rnFeature, /defineMobigentAction|createAgentModule|registerAction/);
+assert.doesNotMatch(rnFeature, /defineFeature|defineMobigentAction|createAgentModule|registerAction/);
 assert.match(starterCapabilities, /emitMobigentEvent/);
 assert.match(starterCapabilities, /export const expenseFunctions = \{/);
 assert.match(starterCapabilities, /create: write\(/);

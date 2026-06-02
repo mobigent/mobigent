@@ -145,8 +145,8 @@ export function createReactNativeStarterFiles(options: ReactNativeInitCliOptions
       updateExisting: (contents) => addFeatureToMobigentRoot(contents, options.feature)
     },
     {
-      path: join(options.outDir, "mobigent-features", `${options.feature}.ts`),
-      contents: createFeatureFile(options.feature),
+      path: join(options.outDir, "mobigent-functions", `${options.feature}.ts`),
+      contents: createFunctionsFile(options.feature),
       preserveExisting: true
     }
   ];
@@ -175,8 +175,8 @@ export function createReactNativeFeatureFiles(
 
   return [
     {
-      path: join(options.outDir, "mobigent-features", `${options.feature}.ts`),
-      contents: createFeatureFile(options.feature)
+      path: join(options.outDir, "mobigent-functions", `${options.feature}.ts`),
+      contents: createFunctionsFile(options.feature)
     }
   ];
 }
@@ -300,7 +300,7 @@ export function createReactNativeIntegrationManifest(
   assertIdentifier("feature", options.feature);
 
   const root = join(options.outDir, "mobigent.tsx");
-  const featureFile = join(options.outDir, "mobigent-features", `${options.feature}.ts`);
+  const featureFile = join(options.outDir, "mobigent-functions", `${options.feature}.ts`);
   const confirmationFile = join(options.outDir, "mobigent-confirmation.tsx");
   const appVersion = options.appVersion ? ` --app-version ${shellQuote(options.appVersion)}` : "";
   const customConfirmation = options.customConfirmation ? " --custom-confirmation" : "";
@@ -352,7 +352,7 @@ export function createReactNativeDoctorReport(options: ReactNativeInitCliOptions
   const checks: ReactNativeDoctorCheck[] = [];
   const appRoot = options.appRoot ?? ".";
   const rootPath = join(options.outDir, "mobigent.tsx");
-  const featurePath = join(options.outDir, "mobigent-features", `${options.feature}.ts`);
+  const featurePath = join(options.outDir, "mobigent-functions", `${options.feature}.ts`);
   const packageJsonPath = join(appRoot, "package.json");
   const gatewayUrl = options.gatewayUrl ?? createMobigentGatewayUrl();
 
@@ -391,17 +391,17 @@ export function createReactNativeDoctorReport(options: ReactNativeInitCliOptions
 
   pushFileCheck(checks, rootPath, "root_file", (contents) =>
     (contents.includes("createApp") || contents.includes("setupMobigent")) &&
-    contents.includes("features:") &&
+    contents.includes("functions:") &&
     contents.includes("MobigentRoot")
-      ? "Root file exports a MobigentRoot with simple feature registration."
+      ? "Root file exports a MobigentRoot with simple app functions."
       : "Root file exists but does not look like the standard MobigentRoot scaffold."
   );
   pushFileCheck(checks, featurePath, "feature_file", (contents) =>
-    contents.includes(`defineFeature("${options.feature}"`) &&
-    contents.includes(`export const ${options.feature}Feature`) &&
+    contents.includes(`export const ${options.feature}Functions`) &&
+    contents.includes(`${options.feature}: {`) &&
     contents.includes("write(")
-      ? `Feature file exposes ${options.feature}Feature with simple read()/write() functions.`
-      : "Feature file exists but does not look like the standard feature scaffold."
+      ? `Function file exposes ${options.feature}Functions with simple read()/write() functions.`
+      : "Function file exists but does not look like the standard functions scaffold."
   );
   if (options.customConfirmation) {
     pushFileCheck(checks, join(options.outDir, "mobigent-confirmation.tsx"), "confirmation_file", (contents) =>
@@ -809,13 +809,13 @@ function createMobigentRootFile(options: ReactNativeInitCliOptions) {
 
 return `import type { ComponentType, ReactNode } from "react";
 import { createApp, type MobigentAppRootProps } from "@mobigent/app";
-import { ${options.feature}Feature } from "./mobigent-features/${options.feature}";
+import { ${options.feature}Functions } from "./mobigent-functions/${options.feature}";
 import { mobigentConfig } from "./mobigent-config";
 ${confirmationImport}
 
 export const mobigent = createApp({
   config: mobigentConfig${versionLine},
-  features: [${options.feature}Feature]${confirmationOption}
+  functions: { ...${options.feature}Functions }${confirmationOption}
 });
 const { Root } = mobigent;
 
@@ -844,13 +844,13 @@ function createMobigentExpoRootFile(options: ReactNativeInitCliOptions) {
 
 return `import type { ComponentType, ReactNode } from "react";
 import { createApp, type MobigentAppRootProps } from "@mobigent/app";
-import { ${options.feature}Feature } from "./mobigent-features/${options.feature}";
+import { ${options.feature}Functions } from "./mobigent-functions/${options.feature}";
 import { mobigentConfig } from "./mobigent-config";
 ${confirmationImport}
 
 export const mobigent = createApp({
   config: mobigentConfig${versionLine},
-  features: [${options.feature}Feature]${confirmationOption}
+  functions: { ...${options.feature}Functions }${confirmationOption}
 });
 const { Root } = mobigent;
 
@@ -1150,8 +1150,8 @@ const styles = StyleSheet.create({
 `;
 }
 
-function createFeatureFile(feature: string) {
-  return `import { defineFeature, read, write } from "@mobigent/app";
+function createFunctionsFile(feature: string) {
+  return `import { read, write } from "@mobigent/app";
 
 type ${feature}Record = {
   id: string;
@@ -1161,36 +1161,38 @@ type ${feature}Record = {
 
 const ${feature}Records = new Map<string, ${feature}Record>();
 
-export const ${feature}Feature = defineFeature(${JSON.stringify(feature)}, {
-  list: read(async () => ({ items: Array.from(${feature}Records.values()) }), {
-    description: "List ${feature} records.",
-    output: {
-      items: ["object"]
-    }
-  }),
-  create: write(async (input) => {
-    const record = {
-      id: \`${feature}-\${Date.now()}\`,
-      title: String(input.title),
-      createdAt: new Date().toISOString()
-    };
+export const ${feature}Functions = {
+  ${feature}: {
+    list: read(async () => ({ items: Array.from(${feature}Records.values()) }), {
+      description: "List ${feature} records.",
+      output: {
+        items: ["object"]
+      }
+    }),
+    create: write(async (input) => {
+      const record = {
+        id: \`${feature}-\${Date.now()}\`,
+        title: String(input.title),
+        createdAt: new Date().toISOString()
+      };
 
-    ${feature}Records.set(record.id, record);
-    return record;
-  }, {
-    description: "Create a ${feature}.",
-    input: {
-      title: "string"
-    },
-    output: {
-      id: "string",
-      title: "string",
-      createdAt: "string"
-    },
-    confirm: true,
-    risk: "medium"
-  })
-});
+      ${feature}Records.set(record.id, record);
+      return record;
+    }, {
+      description: "Create a ${feature}.",
+      input: {
+        title: "string"
+      },
+      output: {
+        id: "string",
+        title: "string",
+        createdAt: "string"
+      },
+      confirm: true,
+      risk: "medium"
+    })
+  }
+};
 `;
 }
 
@@ -1219,16 +1221,16 @@ function toPublicGeneratedFiles(files: ReactNativeGeneratedFile[]) {
 }
 
 function addFeatureToMobigentRoot(contents: string, feature: string) {
-  const featureBinding = `${feature}Feature`;
-  if (new RegExp(`\\b${escapeRegExp(featureBinding)}\\b`).test(contents)) {
+  const functionsBinding = `${feature}Functions`;
+  if (new RegExp(`\\b${escapeRegExp(functionsBinding)}\\b`).test(contents)) {
     return contents;
   }
 
-  if (!/(setupMobigent|createApp)\(\{/.test(contents) || !/features:\s*\[/.test(contents)) {
+  if (!/(setupMobigent|createApp)\(\{/.test(contents) || !/functions:\s*{/.test(contents)) {
     return undefined;
   }
 
-  const importLine = `import { ${featureBinding} } from "./mobigent-features/${feature}";`;
+  const importLine = `import { ${functionsBinding} } from "./mobigent-functions/${feature}";`;
   const lines = contents.split("\n");
   const lastFeatureImportIndex = findLastFeatureImportIndex(lines);
   const fallbackImportIndex = lines.findIndex((line) => line.includes("@mobigent/app") || line.includes("@mobigent/react-native"));
@@ -1241,13 +1243,13 @@ function addFeatureToMobigentRoot(contents: string, feature: string) {
   lines.splice(insertIndex, 0, importLine);
   const withImport = lines.join("\n");
 
-  return withImport.replace(/features:\s*\[([^\]]*)\]/s, (_match, rawFeatures: string) => {
-    const existingFeatures = rawFeatures
+  return withImport.replace(/functions:\s*{([^}]*)}/s, (_match, rawFunctions: string) => {
+    const existingFunctions = rawFunctions
       .split(",")
       .map((item) => item.trim())
       .filter(Boolean);
-    const features = [...existingFeatures, featureBinding];
-    return `features: [${features.join(", ")}]`;
+    const functions = [...existingFunctions, `...${functionsBinding}`];
+    return `functions: { ${functions.join(", ")} }`;
   });
 }
 
@@ -1257,7 +1259,7 @@ function escapeRegExp(value: string) {
 
 function findLastFeatureImportIndex(lines: string[]) {
   for (let index = lines.length - 1; index >= 0; index -= 1) {
-    if (/from "\.\/mobigent-features\/[^"]+";/.test(lines[index])) {
+    if (/from "\.\/mobigent-functions\/[^"]+";/.test(lines[index])) {
       return index;
     }
   }
@@ -1268,7 +1270,7 @@ function findLastFeatureImportIndex(lines: string[]) {
 function formatCreatedFilesMessage(options: ReactNativeInitCliOptions) {
   if (options.featureOnly) {
     return (
-      `Created Mobigent React Native feature ${options.feature} in ${join(options.outDir, "mobigent-features")}.\n` +
+      `Created Mobigent React Native app functions ${options.feature} in ${join(options.outDir, "mobigent-functions")}.\n` +
       `Use it as an explicit feature object, or prefer createApp({ functions }) for new app code.\n`
     );
   }
