@@ -40,17 +40,10 @@ The SDK handles the bridge, config, connection lifecycle, validation, confirmati
 
 ## 2. Add One Feature To An Existing App
 
-Install the app SDK and scaffold the small Mobigent folder. If your backend project is a sibling folder named `backend`, `server`, `api`, `agent-server`, or `mobigent-backend`, the app initializer finds `mobigent.app.json` automatically:
+Install the app SDK:
 
 ```bash
 npm install @mobigent/app
-npx mobigent-init --feature expense --out-dir src
-```
-
-For custom layouts, point the app initializer at the backend project:
-
-```bash
-npx mobigent-init --feature expense --out-dir src --backend-dir ../server
 ```
 
 Create a feature file:
@@ -85,6 +78,8 @@ If you prefer an explicit provider component, `setupMobigent(expenses)` still re
 
 That is enough for local development. Mobigent uses a safe starter app identity until you pass exact production values or import a backend-generated config.
 
+Prefer generated starter files? `npx mobigent-init --feature expense --out-dir src` is still available as an optional scaffold.
+
 For a non-React demo or test host, connect the same feature in one call:
 
 ```ts
@@ -109,14 +104,7 @@ npx mobigent-backend --app-dir ../mobile-app
 
 Mobigent infers starter app identity from the app project when `--app-dir` is present. Pass `--app-id` and `--app-name` only when you want exact production values.
 
-That creates `mobigent.app.json` with a simple `connectionUrl`. The app initializer auto-detects that file from the app project, parent folders, and common sibling backend folders. With `--app-dir`, Mobigent also writes that config directly into the app project:
-
-```bash
-npm install @mobigent/app
-npx mobigent-init --feature expense --out-dir src
-```
-
-If you run the app init command before copying `mobigent.app.json`, it still works: Mobigent infers a starter app id/name from the React Native app's `package.json` and uses the local connection URL.
+With `--app-dir`, Mobigent also writes `mobigent.app.json` and `src/mobigent-config.ts` into the app project. Your app package can use those files without any app-side setup command. If no config exists yet, the app SDK still works with safe local defaults.
 
 In your server:
 

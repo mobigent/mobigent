@@ -33,16 +33,11 @@ npm install @mobigent/react-native
 
 ## Add One Feature
 
-In an existing app, start with the initializer:
+In an existing app, install the package:
 
 ```bash
 npm install @mobigent/react-native
-npx mobigent-init --feature expense --out-dir src
 ```
-
-That command works before you have a backend config file. It infers a starter app id/name from `package.json`, creates a Mobigent root wrapper, creates `src/mobigent-config.ts`, and creates one feature file. When your backend runs with `appDir`, it keeps that config module updated for the app. If `src/mobigent-config.ts` already exists, the initializer preserves it. If `mobigent.app.json` already exists, the initializer auto-detects it from the app, parent folders, or common sibling backend folders such as `../backend`. For custom layouts, use `--backend-dir ../server`.
-
-Run the same command with a new feature name whenever you want to expose another app area. Mobigent preserves the existing wrapper, adds the new feature import, and appends it to the feature list.
 
 Create `src/mobigent/expenses.ts`:
 
@@ -85,7 +80,9 @@ export default withMobigent(App, expenses);
 
 If you prefer an explicit provider component, `setupMobigent(expenses)` still returns `{ Root }`.
 
-Run a Mobigent backend from your server with `@mobigent/backend`, then open the inspector URL it prints. For the simplest setup, start the backend with `appDir: "../mobile-app"` so it writes the same `src/mobigent-config.ts` file that this wrapper imports.
+Run a Mobigent backend from your server with `@mobigent/backend`, then open the inspector URL it prints. For the simplest setup, start the backend with `appDir: "../mobile-app"` so it writes app config files into the app project. Local defaults work before you wire that config explicitly.
+
+Prefer generated starter files? `npx mobigent-init --feature expense --out-dir src` can create the feature and wrapper files for you, but it is optional.
 
 For a Node demo, test host, or another non-React runtime, use the same feature without manual registration:
 

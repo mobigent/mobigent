@@ -30,17 +30,10 @@ Use `@mobigent/app` in the mobile app and `@mobigent/backend` in the backend. Th
 
 ## Existing React Native App
 
-Install the app SDK and scaffold the small Mobigent folder. If your backend is in a sibling folder named `backend`, `server`, `api`, `agent-server`, or `mobigent-backend`, the initializer finds `mobigent.app.json` automatically:
+Install the app SDK:
 
 ```bash
 npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-app-0.1.12.tgz
-npx mobigent-init --feature expense --out-dir src
-```
-
-For custom layouts:
-
-```bash
-npx mobigent-init --feature expense --out-dir src --backend-dir ../server
 ```
 
 Create one feature:
@@ -69,6 +62,8 @@ import App from "./App";
 
 export default withMobigent(App, expenses);
 ```
+
+`mobigent-init` can generate these starter files for you, but it is optional.
 
 For a non-React demo or test host, connect the same feature in one call:
 

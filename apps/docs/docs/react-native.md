@@ -12,9 +12,9 @@ Use Mobigent like normal app code: expose a few real functions, wrap the app onc
 npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-app-0.1.12.tgz
 ```
 
-If your backend was started with `appDir`, it writes the app config module that the wrapper imports, and the app initializer preserves that file when you scaffold features later. If your backend is in a sibling folder named `backend`, `server`, `api`, `agent-server`, or `mobigent-backend`, the app initializer finds `mobigent.app.json` automatically. For custom layouts, pass `--backend-dir ../server`.
+No setup command is required on the app side. If no config exists yet, the app SDK uses safe local defaults. When the backend starts with `appDir`, it writes `mobigent.app.json` plus `src/mobigent-config.ts` into the app for exact local or production values.
 
-Run the same init command with a new feature name to expose another app area. Mobigent creates that feature file and appends it to the existing wrapper.
+Prefer generated starter files? `npx mobigent-init --feature expense --out-dir src` is still available as an optional scaffold.
 
 ## Create A Feature
 

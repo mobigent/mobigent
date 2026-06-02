@@ -24,13 +24,10 @@ npx mobigent-backend --app-dir ../mobile-app
 # app
 cd ../mobile-app
 npm install @mobigent/app
-npx mobigent-init --feature expense --out-dir src`;
+# create a feature file and wrap the app`;
 
-const customLayoutCode = `# app in a custom folder layout
-npx mobigent-init \\
-  --feature expense \\
-  --out-dir src \\
-  --backend-dir ../server`;
+const appOptionalScaffoldCode = `# optional, only if you want generated starter files
+npx mobigent-init --feature expense --out-dir src`;
 
 const demoCode = `npm exec --yes \\
   --package https://github.com/mobigent/mobigent/releases/download/v0.1.12/create-mobigent-app-0.1.12.tgz \\
@@ -289,7 +286,7 @@ const nativeUrls = [
 const firstRunChecks = [
   ["Install", "Add the app package to React Native and the backend package to your server."],
   ["Expose", "`defineFeature()` turns real app functions into typed agent capabilities."],
-  ["Connect", "The app initializer finds `mobigent.app.json` from the app, parent folders, common sibling backend folders, or `--backend-dir`."],
+  ["Connect", "The app SDK uses local defaults first; the backend can write exact app config when `appDir` is set."],
   ["Wait", "`waitForApp()` tells backend code when the app is connected and callable."],
   ["Approve", "Risky actions pause inside the app before handlers run."],
   ["Audit", "Calls, approvals, denials, errors, and events appear in `/audit`."]
@@ -481,10 +478,10 @@ function Docs() {
           <p>Use this path for the first integration. After it works, add more features by product area.</p>
         </div>
         <div className="codeGrid docsCodeGrid">
-          <Code title="1. Install and scaffold" code={quickstart} />
+          <Code title="1. Install packages" code={quickstart} />
           <Code title="2. Define app capability" code={moduleCode} />
           <Code title="3. Wrap the app" code={appCode} />
-          <Code title="Custom folder layout" code={customLayoutCode} />
+          <Code title="Optional scaffold" code={appOptionalScaffoldCode} />
         </div>
       </section>
 

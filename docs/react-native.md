@@ -8,14 +8,13 @@ Use Mobigent like normal app code: expose a few real functions, wrap the app onc
 npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-app-0.1.12.tgz
 ```
 
-If your backend was initialized with `mobigent-backend`, scaffold from its config file:
+After npm publishing is enabled:
 
 ```bash
 npm install @mobigent/app
-npx mobigent-init --feature expense --out-dir src
 ```
 
-No app id ceremony is required for a first run. If `mobigent.app.json` is present in the app, a parent folder, or a common sibling backend folder such as `../backend`, the initializer uses it. For custom layouts, pass `--backend-dir ../server`. If no config exists yet, it infers a starter app id and app name from your `package.json`.
+No app id ceremony is required for a first run. If no config exists yet, the app SDK uses safe local defaults. When the backend starts with `appDir`, it writes `mobigent.app.json` plus `src/mobigent-config.ts` into the app for exact local or production values.
 
 ## 2. Create A Feature
 
@@ -54,9 +53,11 @@ export default withMobigent(App, expenses);
 
 If you prefer explicit JSX wrapping, `setupMobigent(expenses)` still returns `{ Root }`.
 
-That is enough for a local first run. The generated wrapper imports `src/mobigent-config.ts`. If your backend was started with `appDir`, Mobigent keeps that file updated for you, and the app initializer preserves it when you scaffold features later.
+That is enough for a local first run.
 
-To add another app area later, run the same init command with a new feature name. Mobigent creates the new feature file and appends it to the existing wrapper.
+To add another app area later, create another feature and pass an array to `withMobigent(App, [expenses, invoices])`.
+
+Prefer generated starter files? `npx mobigent-init --feature expense --out-dir src` is still available as an optional scaffold.
 
 For multiple app areas in one file, use the same plain object shape:
 
@@ -137,4 +138,4 @@ Use full JSON Schema or the lower-level `schema.*` helpers only when plain field
 
 ## Advanced
 
-The lower-level provider, hooks, `createAgentModule()`, and manual registration APIs are still available for screen-scoped capabilities, custom confirmation UI, custom environment switching, and manifest signing. Start with `defineFeature()` and `setupMobigent()` first.
+The lower-level provider, hooks, `createAgentModule()`, and manual registration APIs are still available for screen-scoped capabilities, custom confirmation UI, custom environment switching, and manifest signing. Start with `defineFeature()` and `withMobigent()` first.

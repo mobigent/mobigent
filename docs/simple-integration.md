@@ -17,10 +17,9 @@ The app owns the real behavior. The backend calls that behavior. Mobigent owns t
 
 ```bash
 npm install @mobigent/app
-npx mobigent-init --feature expense --out-dir src
 ```
 
-Create or edit the generated feature:
+Create one feature:
 
 ```ts
 import { defineFeature, read, write } from "@mobigent/app";
@@ -48,6 +47,8 @@ export default withMobigent(App, expenses);
 ```
 
 That is the frontend integration.
+
+Prefer generated starter files? `npx mobigent-init --feature expense --out-dir src` is available, but it is optional.
 
 ## 2. Add It To The Backend
 

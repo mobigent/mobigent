@@ -10,7 +10,7 @@ npx mobigent-backend --app-dir ../mobile-app
 # app
 cd ../mobile-app
 npm install @mobigent/app
-npx mobigent-init --feature expense --out-dir src`;
+# create a feature file and wrap the app`;
 
 function App() {
   return (

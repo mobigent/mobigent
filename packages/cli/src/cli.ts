@@ -50,14 +50,13 @@ One command for the common Mobigent workflow.
 
 Usage:
   mobigent new my-demo --install
-  mobigent init --feature expense --out-dir src
   mobigent backend --app-dir ../mobile-app
   mobigent agent chatgpt --base-url https://your-backend.example
 
 Commands:
   new, create          Create a runnable starter app.
-  init                Add Mobigent to a React Native app.
-  app                 Run React Native app integration commands.
+  init                Optionally scaffold React Native app integration files.
+  app                 Run optional React Native app integration commands.
   doctor              Check React Native integration files.
   security-doctor     Check transport and confirmation defaults.
   manifest            Print a React Native integration manifest.
@@ -68,7 +67,8 @@ Commands:
 
 Examples:
   npm install @mobigent/app
-  npx mobigent init --feature expense --out-dir src
+  # Create a feature with defineFeature(), then wrap the app with withMobigent().
+  # Optional scaffold: npx mobigent init --feature expense --out-dir src
 
   npm install @mobigent/backend
   npx mobigent backend --app-dir ../mobile-app

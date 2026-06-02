@@ -6,7 +6,6 @@ Use this package inside your React Native or Expo app:
 
 ```bash
 npm install @mobigent/app
-npx mobigent-init --feature expense --out-dir src
 ```
 
 Then expose normal app functions:
@@ -35,5 +34,7 @@ import App from "./App";
 
 export default withMobigent(App, expenses);
 ```
+
+Prefer generated starter files? `npx mobigent-init --feature expense --out-dir src` is available, but it is optional.
 
 `@mobigent/app` re-exports the React Native SDK from `@mobigent/react-native`. The older package remains supported, but new docs and starters use the shorter app-focused name.

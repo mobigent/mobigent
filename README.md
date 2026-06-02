@@ -25,12 +25,12 @@ Mobigent has two normal packages:
 - **App package**: `@mobigent/app` lives inside the mobile app and exposes app functions.
 - **Backend package**: `@mobigent/backend` lets your backend call those app functions and handles the agent-facing service.
 
-Each package ships its own setup command, so the first integration stays small:
+The app side does not need a setup command. Install the package and expose the functions your app already owns. The backend helper can write the tiny app config when you point it at the app folder:
 
 ```bash
-npx mobigent-init --feature expense --out-dir src
+npm install @mobigent/app
+npm install @mobigent/backend
 npx mobigent-backend --app-dir ../mobile-app
-npx mobigent-backend agent chatgpt --base-url https://your-backend.example
 ```
 
 The app developer writes ordinary app functions:
@@ -114,7 +114,28 @@ In the app:
 
 ```bash
 npm install @mobigent/app
-npx mobigent-init --feature expense --out-dir src
+```
+
+Then create one feature file and wrap the app:
+
+```ts
+import { defineFeature, read, write } from "@mobigent/app";
+
+export const expenses = defineFeature("expense", {
+  list: read(async () => ({ items: await listExpenses() })),
+  create: write(async (input) => createExpense(input), {
+    input: { merchant: "string", amount: "number" },
+    confirm: true
+  })
+});
+```
+
+```tsx
+import { withMobigent } from "@mobigent/app";
+import { expenses } from "./mobigent/expenses";
+import App from "./App";
+
+export default withMobigent(App, expenses);
 ```
 
 In the backend:
@@ -201,14 +222,13 @@ Maintainer note: npmjs publishing is tracked in [docs/npm-publishing.md](./docs/
 
 ## Add It To An Existing React Native App
 
-Install the app package, then let the SDK create the tiny Mobigent folder from the backend config:
+Install the app package:
 
 ```bash
 npm install @mobigent/app
-npx mobigent-init --feature expense --out-dir src
 ```
 
-You do not need to invent an app id for local development. If `mobigent.app.json` exists in the app, a parent folder, or a common sibling backend folder such as `../backend`, the app package uses it. For custom layouts, pass `--backend-dir ../server`. If no config exists yet, the initializer infers a starter app id and app name from `package.json`.
+You do not need to invent an app id for local development. If `mobigent.app.json` exists in the app, a parent folder, or a common sibling backend folder such as `../backend`, the app package uses it. If no config exists yet, the app SDK uses safe local defaults.
 
 Create one feature file:
 
@@ -242,7 +262,9 @@ Prefer explicit JSX wrapping? `setupMobigent(expenses)` still returns `{ Root }`
 
 Mobigent handles names, validation, confirmation, connection lifecycle, backend communication, and event queueing.
 
-Need another feature later? Run `npx mobigent-init --feature invoice --out-dir src`. Mobigent preserves the existing config and wrapper, creates the new feature file, and adds it to the wrapper.
+Need another feature later? Add another `defineFeature("invoice", ...)` file and pass both features to `withMobigent(App, [expenses, invoices])`.
+
+Prefer generated starter files? `npx mobigent-init --feature expense --out-dir src` is still available as an optional scaffold, but it is not required.
 
 For local development, the app package uses a safe starter identity when no config is present. For production, pass exact values or drop the backend-generated `mobigent.app.json` into the app and import its typed config.
 
@@ -271,11 +293,7 @@ npx mobigent-backend --app-dir ../mobile-app
 
 Mobigent infers starter app identity from the app project when `--app-dir` is present. Pass `--app-id` and `--app-name` only when you want exact production values.
 
-That creates `mobigent.app.json` in the backend project. If your app lives beside a folder named `backend`, `server`, `api`, `agent-server`, or `mobigent-backend`, the app initializer auto-detects that config. For any other layout, pass `--app-dir` from the backend or `--backend-dir` from the app:
-
-```bash
-npx mobigent-init --feature expense --out-dir src --backend-dir ../server
-```
+With `--app-dir`, Mobigent also writes `mobigent.app.json` and `src/mobigent-config.ts` into the app project. Your app package can use those files without any app-side setup command.
 
 Or write it manually:
 
@@ -299,7 +317,7 @@ const mobigent = await startMobigent();
 const appConfig = mobigent.defaultApp;
 ```
 
-That one function starts Mobigent, routes app function calls, writes the app config when `appDir` is set, and exposes the local inspector for debugging. If the app config module already exists, the app initializer preserves it.
+That one function starts Mobigent, routes app function calls, writes the app config when `appDir` is set, and exposes the local inspector for debugging.
 
 Wait for the app when your server needs to call app functions immediately:
 

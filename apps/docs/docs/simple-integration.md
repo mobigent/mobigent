@@ -15,7 +15,6 @@ backend     ->  @mobigent/backend  -> lets agents call those functions
 
 ```bash
 npm install @mobigent/app
-npx mobigent-init --feature expense --out-dir src
 ```
 
 ```ts
@@ -40,6 +39,8 @@ import App from "./App";
 
 export default withMobigent(App, expenses);
 ```
+
+`mobigent-init` can still generate starter files, but it is optional. The normal app-side path is install plus code.
 
 ## Backend
 

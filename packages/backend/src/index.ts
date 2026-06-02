@@ -559,9 +559,9 @@ function waitForBackendReady(gateway: BridgeGateway, options: MobigentBackendRea
       if (Date.now() - startedAt >= timeoutMs) {
         reject(
           new Error(
-            `Mobigent backend is waiting for ${minApps} connected app(s) and ${minFunctions} exposed function(s). ` +
+              `Mobigent backend is waiting for ${minApps} connected app(s) and ${minFunctions} exposed function(s). ` +
               `Current state: ${status.appsWithManifests} app(s), ${status.tools} function(s). ` +
-              "Start the app, wrap it with setupMobigent(), and make sure it uses the backend app config."
+              "Start the app, wrap it with withMobigent(), and make sure it uses the backend app config."
           )
         );
         return;

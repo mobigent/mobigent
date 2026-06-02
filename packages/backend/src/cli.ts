@@ -432,8 +432,12 @@ function formatSuccessMessage(options: MobigentBackendInitOptions, files: Mobige
 ${files.map((file) => `  ${file.path}`).join("\n")}
 
 Then in your app:
+  npm install @mobigent/app
+  Create one feature with defineFeature(), then wrap the app with withMobigent().
+${options.appDir ? `\nMobigent already wrote ${join(options.appDir, "mobigent.app.json")} and ${join(options.appDir, appConfigModuleFile ?? join("src", "mobigent-config.ts"))}, so the app package can use the backend connection directly.\n` : "\nTip: pass --app-dir ../mobile-app when you want the backend helper to write the app config for you.\n"}
+
+Optional scaffold:
   npx mobigent-init --feature expense --out-dir src
-${options.appDir ? `\nMobigent already wrote ${join(options.appDir, "mobigent.app.json")} and ${join(options.appDir, appConfigModuleFile ?? join("src", "mobigent-config.ts"))}, so the app wrapper can import the backend connection directly.\n` : "\nIf your app is beside this backend folder, the app initializer will auto-detect mobigent.app.json. For custom layouts, run: npx mobigent-init --feature expense --out-dir src --backend-dir ../server\n"}
 
 Run:
   npx tsx ${join(options.outDir, options.fileName)}

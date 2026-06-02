@@ -6,7 +6,6 @@ Use this package when you want a single command to remember:
 
 ```bash
 npx mobigent new my-demo --install
-npx mobigent init --feature expense --out-dir src
 npx mobigent-backend --app-dir ../mobile-app
 npx mobigent agent chatgpt --base-url https://your-backend.example
 ```
@@ -16,7 +15,7 @@ The runtime SDKs are still the two normal packages:
 - `@mobigent/app` in the app
 - `@mobigent/backend` in the backend
 
-This CLI simply routes the common commands so developers do not need to learn separate binary names on day one.
+This CLI simply routes common commands so developers do not need to learn separate binary names on day one. App-side scaffolding is optional; the normal app path is `npm install @mobigent/app`, `defineFeature()`, and `withMobigent()`.
 
 ## Commands
 
@@ -33,7 +32,7 @@ mobigent doctor --feature expense --out-dir src
 mobigent security-doctor --feature expense
 ```
 
-Add or check React Native app integration.
+Optionally generate or check React Native app integration files.
 
 ```bash
 mobigent backend --app-dir ../mobile-app
