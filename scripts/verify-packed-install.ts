@@ -58,6 +58,8 @@ assert.equal(simpleSchema({ amount: "number" }).properties.amount.type, "number"
 const mobigent = await startMobigent({ wsPort: 19081, httpPort: 19082, silent: true });
 assert.equal(mobigent.defaultApp.connectionUrl, "ws://localhost:19081");
 assert.equal(mobigent.resolveFunctionName("expense.create"), "expense.create");
+assert.equal(Array.isArray(mobigent.listFunctions()), true);
+assert.equal(typeof mobigent.function("expense.create"), "function");
 assert.equal(typeof mobigent.feature("expense").create, "function");
 assert.equal(typeof mobigent.appFunctions("expense").create, "function");
 await mobigent.stop();

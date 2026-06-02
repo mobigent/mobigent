@@ -370,10 +370,9 @@ ${appDirLine}${appConfigModuleLine}${appLine}  appToken: process.env.MOBIGENT_AU
 
 export const waitForApp = mobigent.waitForApp;
 export const callApp = mobigent.callApp;
-export const appFunction = mobigent.appFunction;
-export const appFeature = mobigent.appFeature;
+export const listFunctions = mobigent.listFunctions;
+export const appFunction = mobigent.function;
 export const feature = mobigent.feature;
-export const appFunctions = mobigent.appFunctions;
 
 console.log("Mobigent inspector:", mobigent.urls.inspector);
 console.log("Mobigent OpenAPI:", mobigent.urls.openapi);

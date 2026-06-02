@@ -222,14 +222,14 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
 
     try {
       await backend.waitForApp({ minFunctions: 1 });
-      assert.equal(backend.functions()[0]?.name, "com_example_functions.expense_create");
+      assert.equal(backend.listFunctions()[0]?.name, "com_example_functions.expense_create");
       assert.equal(backend.resolveFunctionName("expense.create"), "com_example_functions.expense_create");
       assert.deepEqual(await backend.callApp("expense.create", { merchant: "Cafe" }), {
         id: "EXP-1",
         merchant: "Cafe"
       });
 
-      const createExpense = backend.appFunction("expense.create");
+      const createExpense = backend.function("expense.create");
       assert.deepEqual(await createExpense({ merchant: "Airport Taxi" }), {
         id: "EXP-1",
         merchant: "Airport Taxi"
@@ -560,9 +560,10 @@ test("backend init helper creates a simple server entrypoint", () => {
   assert.doesNotMatch(files[0]?.contents ?? "", /export const mobigentConfig/);
   assert.match(files[0]?.contents ?? "", /export const waitForApp = mobigent\.waitForApp/);
   assert.match(files[0]?.contents ?? "", /export const callApp = mobigent\.callApp/);
-  assert.match(files[0]?.contents ?? "", /export const appFunction = mobigent\.appFunction/);
+  assert.match(files[0]?.contents ?? "", /export const listFunctions = mobigent\.listFunctions/);
+  assert.match(files[0]?.contents ?? "", /export const appFunction = mobigent\.function/);
   assert.match(files[0]?.contents ?? "", /export const feature = mobigent\.feature/);
-  assert.match(files[0]?.contents ?? "", /export const appFunctions = mobigent\.appFunctions/);
+  assert.doesNotMatch(files[0]?.contents ?? "", /appFunctions|mobigent\.appFunction/);
   assert.doesNotMatch(files[0]?.contents ?? "", /copyAppConfig|Copy this/);
   assert.match(files[1]?.contents ?? "", /# MOBIGENT_AUTH_TOKEN=replace-me/);
   assert.equal(files.some((file) => file.path === "mobigent.app.json"), false);

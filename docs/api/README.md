@@ -81,15 +81,17 @@ The returned object includes:
 - `app({ appId, appName })`
 - `appConfig({ appId, appName })`
 - `copyAppConfig()` for advanced manual config generation
-- `functions()`
-- `tools()` for backward compatibility and provider internals
+- `listFunctions()`
+- `functions()` for backward compatibility
+- `tools()` for provider internals
 - `apps()`
 - `waitForApp()` when you want an explicit startup health gate
 - `feature("expense")` to create a tiny object of normal backend functions for one app feature; calls wait for the app function by default
-- `appFunctions("expense")` for the same feature-scoped helper
-- `appFunctions({ createExpense: "expense.create" })` when you prefer explicit aliases
 - `callApp("expense.create", input)` or `callApp("expense.list")`; pass `{ waitForApp: false }` only when you want an immediate failure if the app is not connected
-- `appFunction("expense.create")` to create a reusable backend function
+- `function("expense.create")` to create a reusable backend function
+- `appFunction("expense.create")` for backward compatibility
+- `appFunctions("expense")` for backward compatibility
+- `appFunctions({ createExpense: "expense.create" })` for backward compatibility
 - `invoke("expense.create", input)` for compatibility
 - `fn("expense.create")` for compatibility
 - `call("expense.create", input)` for backward compatibility

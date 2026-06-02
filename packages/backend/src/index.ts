@@ -116,6 +116,7 @@ export type MobigentAgentOptions = {
 };
 
 export type MobigentBackend = {
+  /** @deprecated Low-level bridge object. Prefer the backend methods on this object. */
   gateway: BridgeGateway;
   httpServer: Server;
   urls: {
@@ -137,19 +138,31 @@ export type MobigentBackend = {
   stop(): Promise<void>;
   ready(options?: MobigentBackendReadyOptions): Promise<ReturnType<BridgeGateway["getStatus"]>>;
   waitForApp(options?: MobigentBackendReadyOptions): Promise<ReturnType<BridgeGateway["getStatus"]>>;
+  listFunctions(): ReturnType<BridgeGateway["listTools"]>;
+  /** @deprecated Use listFunctions(). Kept for compatibility. */
   functions(): ReturnType<BridgeGateway["listTools"]>;
+  /** @deprecated Use listFunctions(). Kept for compatibility with provider/tool internals. */
   tools(): ReturnType<BridgeGateway["listTools"]>;
   apps(): GatewayAppSession[];
   resolveFunctionName(name: string): string;
+  /** @deprecated Use resolveFunctionName(). Kept for compatibility. */
   resolveToolName(name: string): string;
   callApp(name: string, input?: unknown, options?: MobigentBackendCallOptions): ReturnType<BridgeGateway["callTool"]>;
+  /** @deprecated Use callApp() or function(). Kept for compatibility. */
   call(toolName: string, input?: unknown, options?: MobigentBackendCallOptions): ReturnType<BridgeGateway["callTool"]>;
+  /** @deprecated Use callApp() or function(). Kept for compatibility. */
   invoke(name: string, input?: unknown, options?: MobigentBackendCallOptions): ReturnType<BridgeGateway["callTool"]>;
+  function(name: string): MobigentBackendFunction;
+  /** @deprecated Use function(). Kept for compatibility. */
   appFunction(name: string): MobigentBackendFunction;
+  /** @deprecated Use feature(). Kept for compatibility. */
   appFeature(namespace: string): MobigentBackendFeatureFunctions;
   feature(namespace: string): MobigentBackendFeatureFunctions;
+  /** @deprecated Use feature() or function(). Kept for compatibility. */
   appFunctions(namespace: string): MobigentBackendFeatureFunctions;
+  /** @deprecated Use function() for explicit aliases in user code. Kept for compatibility. */
   appFunctions<const T extends Record<string, string>>(functions: T): MobigentBackendFunctionMap<T>;
+  /** @deprecated Use function(). Kept for compatibility. */
   fn(name: string): MobigentBackendFunction;
 };
 
@@ -294,6 +307,7 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     stop: () => stopBackend(httpServer, gateway),
     ready: (readyOptions) => waitForBackendReady(gateway, readyOptions),
     waitForApp: (readyOptions) => waitForBackendReady(gateway, readyOptions),
+    listFunctions: () => gateway.listTools(),
     functions: () => gateway.listTools(),
     tools: () => gateway.listTools(),
     apps: () => gateway.listApps(),
@@ -302,6 +316,7 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     callApp: invoke,
     call: invoke,
     invoke,
+    function: appFunction,
     appFunction,
     appFeature,
     feature: appFeature,

@@ -50,10 +50,10 @@ assert.doesNotMatch(backendFile, /defaultApp/);
 assert.doesNotMatch(backendFile, /export const mobigentConfig/);
 assert.match(backendFile, /export const waitForApp = mobigent\.waitForApp/);
 assert.match(backendFile, /export const callApp = mobigent\.callApp/);
-assert.match(backendFile, /export const appFunction = mobigent\.appFunction/);
+assert.match(backendFile, /export const listFunctions = mobigent\.listFunctions/);
+assert.match(backendFile, /export const appFunction = mobigent\.function/);
 assert.match(backendFile, /export const feature = mobigent\.feature/);
-assert.match(backendFile, /export const appFunctions = mobigent\.appFunctions/);
-assert.doesNotMatch(backendFile, /BridgeGateway|createHttpApp|mobigent\.appConfigModule\(|copyAppConfig|Copy this/);
+assert.doesNotMatch(backendFile, /appFunctions|mobigent\.appFunction|BridgeGateway|createHttpApp|mobigent\.appConfigModule\(|copyAppConfig|Copy this/);
 
 const backendWithAppDir = createMobigentBackendFiles({
   appId: "com.example.app",
