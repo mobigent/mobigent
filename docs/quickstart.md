@@ -37,6 +37,7 @@ Mobigent is two normal packages:
 - `@mobigent/backend` goes in the backend and calls those functions.
 
 The SDK handles the bridge, config, connection lifecycle, validation, confirmations, agent setup, and audit events.
+Use the same `appId` in the app and backend. That is the normal pairing mechanism.
 
 ## 2. Add App Functions To An Existing App
 
@@ -52,6 +53,7 @@ Create a Mobigent file yourself. There is no app-side init command in the normal
 import { createApp, read, write } from "@mobigent/app";
 
 export const mobigent = createApp({
+  appId: "com.acme.expenses",
   functions: {
     expense: {
       list: read(async () => ({ items: await listExpenses() })),
@@ -77,7 +79,7 @@ import App from "./App";
 export default mobigent.with(App);
 ```
 
-That is enough for local development. Mobigent uses a safe starter app identity until you pass exact production values or import a backend-generated config.
+That is the app integration. For throwaway local demos, Mobigent can use a safe starter app identity, but real apps should pass a stable `appId`.
 
 No app-side init command is required. The SDK handles the bridge setup. The old `mobigent-init --feature ...` flow is only useful when you want generated sample files.
 
@@ -108,20 +110,18 @@ In your server:
 import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent({
-  appDir: "../mobile-app"
+  appId: "com.acme.expenses",
+  appName: "Acme Expenses"
 });
 
 console.log(mobigent.urls.inspector);
 
 const appConfig = mobigent.defaultApp;
-
-console.log(mobigent.appConfigPath);
-console.log(mobigent.appConfigModulePath);
 ```
 
-Mobigent infers starter app identity from the app project when `appDir` is present. Pass exact `app` values only when production needs them.
+The backend and app pair by `appId`. The backend handles the connection, function routing, inspector, agent endpoints, and readiness waiting.
 
-With `appDir`, Mobigent also writes `mobigent.app.json` and `src/mobigent-config.ts` into the app project. Your app package can use those files without any app-side setup command. If no config exists yet, the app SDK still works with safe local defaults.
+Optional local helper: pass `appDir: "../mobile-app"` when you want Mobigent to write `mobigent.app.json` and `src/mobigent-config.ts` into the app project.
 
 Prefer generated sample files? Use the starter. Backend/app init commands are helpers, not required integration.
 
@@ -134,7 +134,7 @@ await expense.create({ merchant: "Coffee", amount: 8 });
 await expense.list();
 ```
 
-With no options, Mobigent infers a starter app id and app name from your project. With `appDir`, it infers from the mobile app project and writes `mobigent.app.json` plus `src/mobigent-config.ts` there for you. Pass `app: { id, name }` only when you want exact production values.
+With no options, Mobigent infers a starter app id and app name from your project. Real apps should pass `appId` explicitly.
 
 Use `mobigent.waitForApp()` only when you want an explicit startup health gate. If the app is not running yet, function calls and readiness checks tell you exactly what is missing.
 

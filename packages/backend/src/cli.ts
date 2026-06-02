@@ -361,10 +361,8 @@ function createBackendFile(options: MobigentBackendInitOptions) {
     : "";
   const appLine = options.appDir
     ? ""
-    : `  app: {
-    id: ${JSON.stringify(options.appId)},
-    name: ${JSON.stringify(options.appName)}
-  },
+    : `  appId: ${JSON.stringify(options.appId)},
+  appName: ${JSON.stringify(options.appName)},
 `;
 
   return `import { startMobigent } from "@mobigent/backend";

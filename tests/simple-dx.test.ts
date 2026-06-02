@@ -320,10 +320,8 @@ test("backend SDK can start with one app config like normal backend plumbing", a
     wsPort: 18991,
     httpPort: 18992,
     appToken: "dev-token",
-    app: {
-      id: "com.example.simple",
-      name: "Simple App"
-    },
+    appId: "com.example.simple",
+    appName: "Simple App",
     silent: true
   });
 
@@ -337,6 +335,27 @@ test("backend SDK can start with one app config like normal backend plumbing", a
     });
     assert.match(backend.copyAppConfig(), /com.example.simple/);
     assert.match(backend.appConfigCode ?? "", /defineMobigentConfig/);
+  } finally {
+    await backend.stop();
+  }
+});
+
+test("backend SDK can pair with an app using only a top-level app id", async () => {
+  const backend = await startMobigent({
+    wsPort: 19009,
+    httpPort: 19010,
+    appId: "com.example.minimal",
+    silent: true
+  });
+
+  try {
+    assert.deepEqual(backend.defaultApp, {
+      appId: "com.example.minimal",
+      appName: "Minimal",
+      connectionUrl: "ws://localhost:19009",
+      authToken: undefined,
+      version: undefined
+    });
   } finally {
     await backend.stop();
   }
@@ -604,6 +623,9 @@ test("backend init CLI infers app identity and prints the short app init command
     assert.match(stdout, /npx tsx src\/mobigent\.ts/);
     assert.doesNotMatch(stdout, /--config/);
     assert.doesNotMatch(stdout, /--env-file/);
+    assert.match(await readFile(join(dir, "src", "mobigent.ts"), "utf8"), /appId: "com\.example\.expense"/);
+    assert.match(await readFile(join(dir, "src", "mobigent.ts"), "utf8"), /appName: "Expense App"/);
+    assert.doesNotMatch(await readFile(join(dir, "src", "mobigent.ts"), "utf8"), /app: \{/);
     assert.match(await readFile(join(dir, "mobigent.app.json"), "utf8"), /Expense App/);
 
     const appDir = join(dir, "mobile-app");

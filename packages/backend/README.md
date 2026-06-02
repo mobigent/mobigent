@@ -14,7 +14,8 @@ npm install @mobigent/backend
 import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent({
-  appDir: "../mobile-app"
+  appId: "com.acme.expenses",
+  appName: "Acme Expenses"
 });
 
 const expense = mobigent.feature("expense");
@@ -25,7 +26,9 @@ await expense.list();
 
 That is the main backend API.
 
-If `appDir` is present, Mobigent also writes the tiny app config into the mobile app so the app package can connect without manual copying.
+The app and backend pair by `appId`. Mobigent handles waiting for the app connection and routing calls to the matching app functions.
+
+If you want the shortest possible local demo, `startMobigent()` also works with inferred starter values. For production, pass a stable app id.
 
 ## Optional Generated Entrypoint
 
@@ -42,12 +45,14 @@ const expense = feature("expense");
 await expense.create({ merchant: "Airport Taxi", amount: 42.25 });
 ```
 
-Mobigent infers local app identity from the app project. Pass exact `app` values only when production needs them.
+Mobigent can infer local starter identity from the project, but real apps should pass a stable `appId`.
+
+Optional local helper: pass `appDir: "../mobile-app"` when you want Mobigent to write the tiny app config into the mobile app.
 
 ## What It Handles
 
 - app connection setup
-- app config files
+- app/backend pairing by app id
 - app function routing
 - validation
 - confirmations

@@ -14,7 +14,7 @@ After npm publishing is enabled:
 npm install @mobigent/app
 ```
 
-No app id ceremony is required for a first run. If no config exists yet, the app SDK uses safe local defaults. When the backend starts with `appDir`, it writes `mobigent.app.json` plus `src/mobigent-config.ts` into the app for exact local or production values.
+Use the same `appId` in the app and backend. For a first throwaway run, the app SDK can use safe local defaults.
 
 ## 2. Expose App Functions
 
@@ -22,6 +22,7 @@ No app id ceremony is required for a first run. If no config exists yet, the app
 import { createApp, read, write } from "@mobigent/app";
 
 export const mobigent = createApp({
+  appId: "com.acme.expenses",
   functions: {
     expense: {
       list: read(async () => ({ items: await listExpenses() })),
@@ -90,11 +91,12 @@ In your backend:
 import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent({
-  appDir: "../mobile-app"
+  appId: "com.acme.expenses",
+  appName: "Acme Expenses"
 });
 ```
 
-Mobigent infers a starter app id and app name from your project. With `appDir`, it infers from the mobile app project and writes `mobigent.app.json` plus `src/mobigent-config.ts` there for you. Pass `app: { id, name }` only when you want exact production values. Backend function calls wait for the app connection automatically.
+Mobigent pairs the backend and app by `appId`. Backend function calls wait for the app connection automatically. Optional local helper: pass `appDir: "../mobile-app"` when you want the backend to write app config files into the mobile app.
 
 ## Non-React Host Or Demo
 

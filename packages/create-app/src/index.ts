@@ -295,10 +295,8 @@ const appPort = ${options.appPort};
 const functionName = "expense.create";
 
 const backend = await startMobigent({
-${portLines}  app: {
-    id: ${JSON.stringify(options.appId)},
-    name: ${JSON.stringify(options.appName)}
-  }
+${portLines}  appId: ${JSON.stringify(options.appId)},
+  appName: ${JSON.stringify(options.appName)}
 });
 const expense = backend.feature("expense");
 

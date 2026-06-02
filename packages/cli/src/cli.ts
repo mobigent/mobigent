@@ -69,7 +69,7 @@ Examples:
   # Add app functions in code, then createApp({ functions }).with(App).
 
   npm install @mobigent/backend
-  # Start Mobigent in server code with startMobigent({ appDir: "../mobile-app" }).
+  # Start Mobigent in server code with startMobigent({ appId: "com.acme.expenses" }).
   # Optional scaffold: npx mobigent backend --app-dir ../mobile-app
 
   npx mobigent new my-demo --install

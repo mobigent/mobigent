@@ -20,6 +20,9 @@ import {
 export type MobigentBackendOptions = {
   wsPort?: number;
   httpPort?: number;
+  appId?: string;
+  appName?: string;
+  version?: string;
   appToken?: string;
   authToken?: string;
   apiKey?: string;
@@ -358,6 +361,15 @@ function resolveDefaultAppOptions(options: MobigentBackendOptions): MobigentBack
     return normalizeDefaultApp(options.app);
   }
 
+  if (options.appId || options.appName || options.version) {
+    const inferred = inferMobigentAppIdentity(options.appDir ?? process.cwd());
+    return normalizeDefaultApp({
+      id: options.appId ?? inferred.appId,
+      name: options.appName,
+      version: options.version
+    });
+  }
+
   return inferMobigentAppIdentity(options.appDir ?? process.cwd());
 }
 
@@ -404,11 +416,12 @@ function assertValidExportName(value: string) {
 
 function normalizeDefaultApp(app: MobigentBackendDefaultAppOptions): MobigentBackendAppConfigOptions {
   const appId = app.appId ?? app.id;
-  const appName = app.appName ?? app.name;
 
-  if (!appId || !appName) {
-    throw new Error("Mobigent backend app config requires app.id/appId and app.name/appName.");
+  if (!appId) {
+    throw new Error("Mobigent backend app config requires appId or app.id.");
   }
+
+  const appName = app.appName ?? app.name ?? inferAppNameFromId(appId);
 
   return {
     appId,
@@ -419,6 +432,10 @@ function normalizeDefaultApp(app: MobigentBackendDefaultAppOptions): MobigentBac
     appToken: app.appToken,
     authToken: app.authToken
   };
+}
+
+function inferAppNameFromId(appId: string): string {
+  return titleFromName(appId.split(".").filter(Boolean).at(-1) ?? appId);
 }
 
 function findProjectName(startDir: string): string {

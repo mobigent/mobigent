@@ -14,6 +14,7 @@ Then expose normal app functions and create one app SDK object:
 import { createApp, read, write } from "@mobigent/app";
 
 export const mobigent = createApp({
+  appId: "com.acme.expenses",
   functions: {
     expense: {
       list: read(async () => ({ items: await listExpenses() })),

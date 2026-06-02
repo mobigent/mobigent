@@ -43,7 +43,9 @@ const backendFile = createMobigentBackendFiles({
 }).find((file) => file.path === "src/mobigent.ts")?.contents ?? "";
 
 assert.match(backendFile, /startMobigent/);
-assert.match(backendFile, /app: \{/);
+assert.match(backendFile, /appId: "com\.example\.app"/);
+assert.match(backendFile, /appName: "Example App"/);
+assert.doesNotMatch(backendFile, /app: \{/);
 assert.match(backendFile, /export const waitForApp = mobigent\.waitForApp/);
 assert.match(backendFile, /export const callApp = mobigent\.callApp/);
 assert.match(backendFile, /export const appFunction = mobigent\.appFunction/);
@@ -133,6 +135,9 @@ assert.match(starterServer, /functions: expenseFunctions/);
 assert.doesNotMatch(starterServer, /connectMobigent/);
 assert.doesNotMatch(starterServer, /const gatewayPort|const httpPort|wsPort: 8787|httpPort: 8788/);
 assert.match(starterServer, /startMobigent\(\{/);
+assert.match(starterServer, /appId: "com\.example\.app"/);
+assert.match(starterServer, /appName: "Example App"/);
+assert.doesNotMatch(starterServer, /app: \{/);
 assert.match(starterServer, /backend\.defaultApp/);
 assert.match(starterServer, /const expense = backend\.feature\("expense"\)/);
 assert.match(starterServer, /expense\.create\(input\)/);
@@ -150,6 +155,11 @@ for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.
     contents,
     /npm install @mobigent\/backend\s+```[\s\S]{0,120}?```[\s\S]{0,80}?npx mobigent-backend --app-dir/,
     `${path} should not make mobigent-backend the required backend setup path`
+  );
+  assert.doesNotMatch(
+    contents,
+    /npm install @mobigent\/backend[\s\S]{0,900}?startMobigent\(\{[\s\S]{0,120}?appDir:/,
+    `${path} should not make startMobigent({ appDir }) the required backend setup path`
   );
 }
 

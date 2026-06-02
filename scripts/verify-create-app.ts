@@ -74,8 +74,9 @@ try {
   assert.equal(packageJson.devDependencies["@types/express"], "^5.0.6");
 
   const server = await readFile(join(target, "src", "server.ts"), "utf8");
-  assert.match(server, /id: "com.mobigent.expense"/);
-  assert.match(server, /name: "Expense Demo"/);
+  assert.match(server, /appId: "com.mobigent.expense"/);
+  assert.match(server, /appName: "Expense Demo"/);
+  assert.doesNotMatch(server, /app: \{/);
   assert.match(server, /Run agent request/);
   assert.match(server, /How this demo works/);
   assert.match(server, /You edit one file/);

@@ -27,7 +27,7 @@ Mobigent has two normal packages:
 
 The app side does not need a setup command. Install the package and expose the functions your app already owns. No `npx mobigent-init` is needed for a real app. That command is only a sample-file generator.
 
-The backend helper can write the tiny app config when you point it at the app folder:
+Use the same app id on both sides, like a normal mobile/backend integration:
 
 ```bash
 npm install @mobigent/app
@@ -38,6 +38,7 @@ The app developer writes ordinary app functions and creates one app SDK object:
 
 ```txt
 const mobigent = createApp({
+  appId: "com.acme.expenses",
   functions: {
     expense: {
       list: read(listExpenses),
@@ -56,14 +57,17 @@ The backend developer starts Mobigent like backend plumbing and calls app functi
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const backend = await startMobigent();
+const backend = await startMobigent({
+  appId: "com.acme.expenses",
+  appName: "Acme Expenses"
+});
 
 const expense = backend.feature("expense");
 
 await expense.create({ merchant: "Coffee", amount: 8 });
 ```
 
-For local development, `startMobigent()` infers the app id and name from your project.
+For local development, Mobigent can infer starter values when you leave the app id out, but real apps should pass the same stable `appId` in the app and backend.
 
 For a non-React host or local demo, use the same app SDK object:
 
@@ -128,6 +132,7 @@ Then create one Mobigent file and wire it once:
 import { createApp, read, write } from "@mobigent/app";
 
 export const mobigent = createApp({
+  appId: "com.acme.expenses",
   functions: {
     expense: {
       list: read(async () => ({ items: await listExpenses() })),
@@ -159,7 +164,8 @@ Then backend code can call app functions like ordinary functions:
 import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent({
-  appDir: "../mobile-app"
+  appId: "com.acme.expenses",
+  appName: "Acme Expenses"
 });
 
 const expense = mobigent.feature("expense");
@@ -193,19 +199,6 @@ Current public fallback:
 npm install https://github.com/mobigent/mobigent/releases/download/v0.1.12/mobigent-backend-0.1.12.tgz
 ```
 
-From the backend, point Mobigent at the app folder and let the SDK write the tiny app config files:
-
-```ts
-import { startMobigent } from "@mobigent/backend";
-
-const backend = await startMobigent({
-  appDir: "../mobile-app"
-});
-
-console.log(backend.appConfigPath);
-console.log(backend.appConfigModulePath);
-```
-
 Prefer generated sample files? Use `mobigent new my-demo --install`. The app-side init command is demo scaffolding, not required integration.
 
 ## Install Packages
@@ -236,7 +229,7 @@ Install the app package:
 npm install @mobigent/app
 ```
 
-You do not need to invent an app id for local development. If `mobigent.app.json` exists in the app, a parent folder, or a common sibling backend folder such as `../backend`, the app package uses it. If no config exists yet, the app SDK uses safe local defaults.
+Use one stable app id and reuse it in the backend. For quick local experiments, the app SDK can use safe local defaults.
 
 Create one Mobigent file and one app SDK object:
 
@@ -244,6 +237,7 @@ Create one Mobigent file and one app SDK object:
 import { createApp, read, write } from "@mobigent/app";
 
 export const mobigent = createApp({
+  appId: "com.acme.expenses",
   functions: {
     expense: {
       list: read(async () => ({ items: await listExpenses() })),
@@ -274,7 +268,7 @@ Need another app area later? Add another namespace inside `functions`.
 
 No app-side init command is required. Starter generation is only for demos.
 
-For local development, the app package uses a safe starter identity when no config is present. For production, pass exact values or drop the backend-generated `mobigent.app.json` into the app and import its typed config.
+For production, pass the same `appId` in the app and backend. If `mobigent.app.json` exists, the app package can still use it, but a generated config file is not required.
 
 If you are wiring a Node demo, test host, or another non-React runtime, use the same app SDK object:
 
@@ -303,7 +297,8 @@ Start Mobigent from your server code:
 import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent({
-  appDir: "../mobile-app"
+  appId: "com.acme.expenses",
+  appName: "Acme Expenses"
 });
 
 console.log(mobigent.urls.inspector);
@@ -312,9 +307,9 @@ console.log(mobigent.urls.openapi);
 const appConfig = mobigent.defaultApp;
 ```
 
-Mobigent infers starter app identity from the app project when `appDir` is present. Pass exact `app` values only when production needs them.
+The app and backend pair by `appId`. For local experiments, `startMobigent()` can infer a starter app id from the project name, but a real app should pass a stable id.
 
-With `appDir`, Mobigent also writes `mobigent.app.json` and `src/mobigent-config.ts` into the app project. Your app package can use those files without any app-side setup command.
+Optional local helper: pass `appDir: "../mobile-app"` when you want the backend to write `mobigent.app.json` and `src/mobigent-config.ts` into the app project.
 
 Prefer a generated backend entrypoint? `npx mobigent-backend --app-dir ../mobile-app` is still available as an optional scaffold.
 
@@ -325,7 +320,7 @@ const mobigent = await startMobigent();
 const appConfig = mobigent.defaultApp;
 ```
 
-That one function starts Mobigent, routes app function calls, writes the app config when `appDir` is set, and exposes the local inspector for debugging.
+That one function starts Mobigent, routes app function calls, pairs with the app id, and exposes the local inspector for debugging.
 
 Call app-owned functions through a normal backend object. Mobigent waits for the app connection when the function is called:
 

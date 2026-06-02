@@ -12,6 +12,7 @@ backend     ->  @mobigent/backend  -> lets agents call those functions
 ```
 
 The app owns the real behavior. The backend calls that behavior. Mobigent owns the connection, discovery, validation, confirmations, retries, and audit trail.
+Use the same `appId` on both sides.
 
 ## 1. Add It To The App
 
@@ -25,6 +26,7 @@ Create one app SDK object and expose the functions agents may call:
 import { createApp, read, write } from "@mobigent/app";
 
 export const mobigent = createApp({
+  appId: "com.acme.expenses",
   functions: {
     expense: {
       list: read(async () => ({ items: await listExpenses() })),
@@ -63,7 +65,8 @@ npm install @mobigent/backend
 import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent({
-  appDir: "../mobile-app"
+  appId: "com.acme.expenses",
+  appName: "Acme Expenses"
 });
 
 const expense = mobigent.feature("expense");
@@ -81,8 +84,8 @@ If you only need one quick call, `callApp("expense.create", input)` is still ava
 ## 3. What The SDK Handles
 
 - app connection
-- local development config
-- backend-generated app config
+- local development defaults
+- app/backend pairing by app id
 - function naming
 - automatic readiness waiting
 - input/output shapes

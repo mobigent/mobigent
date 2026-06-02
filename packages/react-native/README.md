@@ -6,6 +6,7 @@ Mobigent's React Native package should feel like this:
 
 ```ts
 const mobigent = createApp({
+  appId: "com.acme.expenses",
   functions: {
     expense: {
       list: read(listExpenses),
@@ -49,6 +50,7 @@ Create `src/mobigent/expenses.ts`:
 import { createApp, read, write } from "@mobigent/react-native";
 
 export const mobigent = createApp({
+  appId: "com.acme.expenses",
   functions: {
     expense: {
       list: read(async () => ({
@@ -87,7 +89,7 @@ export default mobigent.with(App);
 
 If you prefer explicit feature objects, `defineFeature()`, `withMobigent(App, expenses)`, and `setupMobigent(expenses)` still work.
 
-Run a Mobigent backend from your server with `@mobigent/backend`, then open the inspector URL it prints. For the simplest setup, start the backend with `appDir: "../mobile-app"` so it writes app config files into the app project. Local defaults work before you wire that config explicitly.
+Run a Mobigent backend from your server with `@mobigent/backend`, then open the inspector URL it prints. Use the same `appId` in the app and backend. Local defaults still work for quick demos.
 
 No app-side init command is required. You should not have to run `npx mobigent-init --feature expense --out-dir src` just to integrate Mobigent. That command is only a sample-file generator.
 
