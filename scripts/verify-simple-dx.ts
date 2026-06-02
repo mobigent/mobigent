@@ -143,6 +143,11 @@ for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.
   assert.match(contents, /createApp/, `${path} should teach the app package createApp path`);
   assert.doesNotMatch(
     contents,
+    /npm install @mobigent\/app[\s\S]{0,600}?npx mobigent-init/,
+    `${path} should not make mobigent-init part of the app install path`
+  );
+  assert.doesNotMatch(
+    contents,
     /npm install @mobigent\/backend\s+```[\s\S]{0,120}?```[\s\S]{0,80}?npx mobigent-backend --app-dir/,
     `${path} should not make mobigent-backend the required backend setup path`
   );

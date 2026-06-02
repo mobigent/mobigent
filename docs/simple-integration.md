@@ -51,7 +51,7 @@ export default mobigent.with(App);
 
 That is the frontend integration.
 
-No app-side init command is required. Starter generation is only for demos.
+No app-side init command is required. You should not have to run `npx mobigent-init --feature expense --out-dir src` just to integrate Mobigent. That command is only a sample-file generator.
 
 ## 2. Add It To The Backend
 
@@ -74,7 +74,7 @@ await expense.list();
 
 That is the backend integration.
 
-Prefer a generated backend helper file? `npx mobigent-backend --app-dir ../mobile-app` is available, but it is optional.
+Prefer generated sample files? Use the starter. Backend/app init commands are helpers, not required integration.
 
 If you only need one quick call, `callApp("expense.create", input)` is still available.
 

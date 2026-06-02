@@ -46,7 +46,7 @@ Install the app SDK:
 npm install @mobigent/app
 ```
 
-Create a Mobigent file:
+Create a Mobigent file yourself. There is no app-side init command in the normal path:
 
 ```ts
 import { createApp, read, write } from "@mobigent/app";
@@ -79,7 +79,7 @@ export default mobigent.with(App);
 
 That is enough for local development. Mobigent uses a safe starter app identity until you pass exact production values or import a backend-generated config.
 
-No app-side init command is required. The SDK handles the bridge setup.
+No app-side init command is required. The SDK handles the bridge setup. The old `mobigent-init --feature ...` flow is only useful when you want generated sample files.
 
 For a non-React demo or test host, connect the same feature in one call:
 
@@ -123,7 +123,7 @@ Mobigent infers starter app identity from the app project when `appDir` is prese
 
 With `appDir`, Mobigent also writes `mobigent.app.json` and `src/mobigent-config.ts` into the app project. Your app package can use those files without any app-side setup command. If no config exists yet, the app SDK still works with safe local defaults.
 
-Prefer a generated backend helper file? `npx mobigent-backend --app-dir ../mobile-app` is still available as an optional scaffold.
+Prefer generated sample files? Use the starter. Backend/app init commands are helpers, not required integration.
 
 Create a tiny app function object by feature name. Mobigent waits for the app connection when a function is called:
 

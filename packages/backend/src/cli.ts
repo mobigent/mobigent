@@ -433,11 +433,14 @@ ${files.map((file) => `  ${file.path}`).join("\n")}
 
 Then in your app:
   npm install @mobigent/app
-  Create app functions with createApp({ functions }).with(App).
+  Add a mobigent.ts file, expose normal app functions, then wrap your app once:
+
+    export const mobigent = createApp({ functions: { expense: { list: read(listExpenses) } } });
+    export default mobigent.with(App);
 ${options.appDir ? `\nMobigent already wrote ${join(options.appDir, "mobigent.app.json")} and ${join(options.appDir, appConfigModuleFile ?? join("src", "mobigent-config.ts"))}, so the app package can use the backend connection directly.\n` : "\nTip: pass --app-dir ../mobile-app when you want the backend helper to write the app config for you.\n"}
 
-Optional demo scaffold:
-  npx mobigent-init --feature expense --out-dir src
+Need sample files instead of hand-writing them?
+  Run mobigent new my-demo --install. The app-side init command is only a generator for examples.
 
 Run:
   npx tsx ${join(options.outDir, options.fileName)}

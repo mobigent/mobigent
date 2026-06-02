@@ -66,8 +66,7 @@ Commands:
 
 Examples:
   npm install @mobigent/app
-  # Create app functions, then createApp({ functions }).with(App).
-  # Optional scaffold: npx mobigent init --feature expense --out-dir src
+  # Add app functions in code, then createApp({ functions }).with(App).
 
   npm install @mobigent/backend
   # Start Mobigent in server code with startMobigent({ appDir: "../mobile-app" }).

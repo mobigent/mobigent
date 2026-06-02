@@ -4,16 +4,25 @@ Use this workflow when you are turning a proof of concept into an SDK integratio
 
 ## 1. Start With One Real Capability
 
-Expose one read resource and one confirmed write action from a real feature:
+Expose one read function and one confirmed write function from a real feature. Write this directly in your app code:
 
-```bash
-npx mobigent-init \
-  --app-id com.example.app \
-  --app-name "Example App" \
-  --feature expense \
-  --out-dir src \
-  --custom-confirmation
+```ts
+import { createApp, read, write } from "@mobigent/app";
+
+export const mobigent = createApp({
+  functions: {
+    expense: {
+      list: read(async () => ({ items: await listExpenses() })),
+      create: write(async (input) => createExpense(input), {
+        input: { merchant: "string", amount: "number" },
+        confirm: true
+      })
+    }
+  }
+});
 ```
+
+Then wrap the app once with `mobigent.with(App)`. Use generators only when you want sample files.
 
 ## 2. Inspect The Gateway
 

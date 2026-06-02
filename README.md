@@ -25,7 +25,9 @@ Mobigent has two normal packages:
 - **App package**: `@mobigent/app` lives inside the mobile app and exposes app functions.
 - **Backend package**: `@mobigent/backend` lets your backend call those app functions and handles the agent-facing service.
 
-The app side does not need a setup command. Install the package and expose the functions your app already owns. The backend helper can write the tiny app config when you point it at the app folder:
+The app side does not need a setup command. Install the package and expose the functions your app already owns. No `npx mobigent-init` is needed for a real app. That command is only a sample-file generator.
+
+The backend helper can write the tiny app config when you point it at the app folder:
 
 ```bash
 npm install @mobigent/app
@@ -204,7 +206,7 @@ console.log(backend.appConfigPath);
 console.log(backend.appConfigModulePath);
 ```
 
-Prefer a generated backend entrypoint? `npx mobigent-backend --app-dir ../mobile-app` is still available as an optional scaffold.
+Prefer generated sample files? Use `mobigent new my-demo --install`. The app-side init command is demo scaffolding, not required integration.
 
 ## Install Packages
 

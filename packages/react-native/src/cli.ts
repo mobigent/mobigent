@@ -1590,7 +1590,7 @@ function assertIdentifier(label: string, value: string) {
 }
 
 function helpText() {
-  return `Mobigent React Native initializer
+  return `Mobigent React Native sample generator
 
 Usage:
   mobigent init --feature expense --out-dir src

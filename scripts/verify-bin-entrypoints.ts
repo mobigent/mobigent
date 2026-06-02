@@ -38,7 +38,7 @@ try {
   assert.match(provider, /mobigent-mcp/);
 
   const rn = await run(join(binDir, "mobigent-init"), ["--help"]);
-  assert.match(rn, /Mobigent React Native init/);
+  assert.match(rn, /Mobigent React Native sample generator/);
 
   const mobigent = await run(join(binDir, "mobigent"), ["init", "--help"]);
   assert.match(mobigent, /mobigent init/);
