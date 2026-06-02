@@ -45,8 +45,10 @@ try {
   const rootFile = await readFile(join(dir, "mobigent.tsx"), "utf8");
   assert.match(rootFile, /MobigentRoot/);
   assert.match(rootFile, /@mobigent\/app/);
-  assert.match(rootFile, /setupMobigent/);
+  assert.match(rootFile, /createApp/);
+  assert.match(rootFile, /export const mobigent/);
   assert.match(rootFile, /withMobigentApp/);
+  assert.match(rootFile, /mobigent\.with\(App\)/);
   assert.match(rootFile, /features: \[taskFeature\]/);
   assert.match(rootFile, /ConfirmationComponent: MobigentAgentApproval/);
   assert.match(await readFile(join(dir, "mobigent-confirmation.tsx"), "utf8"), /useMobigentConfirmation/);

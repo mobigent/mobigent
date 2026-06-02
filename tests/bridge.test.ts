@@ -2059,11 +2059,13 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   assert.ok(rootFile);
   assert.ok(starterConfigFile);
   assert.ok(featureFile);
-  assert.match(rootFile.contents, /setupMobigent/);
+  assert.match(rootFile.contents, /createApp/);
+  assert.match(rootFile.contents, /export const mobigent/);
   assert.match(rootFile.contents, /@mobigent\/app/);
   assert.match(rootFile.contents, /config: mobigentConfig/);
   assert.match(rootFile.contents, /features: \[expenseFeature\]/);
   assert.match(rootFile.contents, /withMobigentApp/);
+  assert.match(rootFile.contents, /mobigent\.with\(App\)/);
   assert.doesNotMatch(rootFile.contents, /createMobigentEnvironmentFromEnv/);
   assert.doesNotMatch(rootFile.contents, /createMobigentCapabilityRegistry/);
   assert.match(rootFile.contents, /MobigentRootProps/);
@@ -2095,7 +2097,8 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   const expoRootFile = expoFiles.find((file) => file.path === join("src", "mobigent.tsx"));
   assert.ok(expoRootFile);
   assert.doesNotMatch(expoRootFile.contents, /expo-constants/);
-  assert.match(expoRootFile.contents, /setupMobigent/);
+  assert.match(expoRootFile.contents, /createApp/);
+  assert.match(expoRootFile.contents, /mobigent\.with\(App\)/);
   assert.match(expoRootFile.contents, /@mobigent\/app/);
   assert.doesNotMatch(expoRootFile.contents, /Constants\.expoConfig/);
   assert.doesNotMatch(expoRootFile.contents, /createMobigentEnvironmentFromEnv/);
@@ -2243,7 +2246,8 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
 	  );
 	  assert.equal(initDryRunCode, 0);
 	  assert.equal(stderr, "");
-	  assert.match(stdout, /setupMobigent/);
+	  assert.match(stdout, /createApp/);
+	  assert.match(stdout, /mobigent\.with\(App\)/);
 	  assert.doesNotMatch(stdout, /expo-constants/);
 
 	  stdout = "";
@@ -2267,7 +2271,8 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
 	  );
 	  assert.equal(initBareDryRunCode, 0);
 	  assert.equal(stderr, "");
-	  assert.match(stdout, /setupMobigent/);
+	  assert.match(stdout, /createApp/);
+	  assert.match(stdout, /mobigent\.with\(App\)/);
 	  assert.doesNotMatch(stdout, /expo-constants/);
 
 	  stdout = "";
@@ -2290,7 +2295,8 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   );
   assert.equal(expoDryRunCode, 0);
   assert.equal(stderr, "");
-  assert.match(stdout, /setupMobigent/);
+  assert.match(stdout, /createApp/);
+  assert.match(stdout, /mobigent\.with\(App\)/);
   assert.doesNotMatch(stdout, /expo-constants/);
 
   stdout = "";

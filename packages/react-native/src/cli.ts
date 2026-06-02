@@ -390,7 +390,7 @@ export function createReactNativeDoctorReport(options: ReactNativeInitCliOptions
   pushPackageJsonCheck(checks, packageJsonPath);
 
   pushFileCheck(checks, rootPath, "root_file", (contents) =>
-    contents.includes("setupMobigent") &&
+    (contents.includes("createApp") || contents.includes("setupMobigent")) &&
     contents.includes("features:") &&
     contents.includes("MobigentRoot")
       ? "Root file exports a MobigentRoot with simple feature registration."
@@ -808,15 +808,16 @@ function createMobigentRootFile(options: ReactNativeInitCliOptions) {
     : "";
 
 return `import type { ComponentType, ReactNode } from "react";
-import { setupMobigent, type MobigentAppRootProps } from "@mobigent/app";
+import { createApp, type MobigentAppRootProps } from "@mobigent/app";
 import { ${options.feature}Feature } from "./mobigent-features/${options.feature}";
 import { mobigentConfig } from "./mobigent-config";
 ${confirmationImport}
 
-const { Root } = setupMobigent({
+export const mobigent = createApp({
   config: mobigentConfig${versionLine},
   features: [${options.feature}Feature]${confirmationOption}
 });
+const { Root } = mobigent;
 
 export type MobigentRootProps = Omit<MobigentAppRootProps, "children"> & {
   children: ReactNode;
@@ -827,16 +828,7 @@ export function MobigentRoot(props: MobigentRootProps) {
 }
 
 export function withMobigentApp<P extends object>(App: ComponentType<P>) {
-  function MobigentWrappedApp(props: P) {
-    return (
-      <MobigentRoot>
-        <App {...props} />
-      </MobigentRoot>
-    );
-  }
-
-  MobigentWrappedApp.displayName = \`withMobigentApp(\${App.displayName ?? App.name ?? "App"})\`;
-  return MobigentWrappedApp;
+  return mobigent.with(App);
 }
 `;
 }
@@ -851,15 +843,16 @@ function createMobigentExpoRootFile(options: ReactNativeInitCliOptions) {
     : "";
 
 return `import type { ComponentType, ReactNode } from "react";
-import { setupMobigent, type MobigentAppRootProps } from "@mobigent/app";
+import { createApp, type MobigentAppRootProps } from "@mobigent/app";
 import { ${options.feature}Feature } from "./mobigent-features/${options.feature}";
 import { mobigentConfig } from "./mobigent-config";
 ${confirmationImport}
 
-const { Root } = setupMobigent({
+export const mobigent = createApp({
   config: mobigentConfig${versionLine},
   features: [${options.feature}Feature]${confirmationOption}
 });
+const { Root } = mobigent;
 
 export type MobigentRootProps = Omit<MobigentAppRootProps, "children"> & {
   children: ReactNode;
@@ -870,16 +863,7 @@ export function MobigentRoot(props: MobigentRootProps) {
 }
 
 export function withMobigentApp<P extends object>(App: ComponentType<P>) {
-  function MobigentWrappedApp(props: P) {
-    return (
-      <MobigentRoot>
-        <App {...props} />
-      </MobigentRoot>
-    );
-  }
-
-  MobigentWrappedApp.displayName = \`withMobigentApp(\${App.displayName ?? App.name ?? "App"})\`;
-  return MobigentWrappedApp;
+  return mobigent.with(App);
 }
 `;
 }
@@ -1240,7 +1224,7 @@ function addFeatureToMobigentRoot(contents: string, feature: string) {
     return contents;
   }
 
-  if (!/setupMobigent\(\{/.test(contents) || !/features:\s*\[/.test(contents)) {
+  if (!/(setupMobigent|createApp)\(\{/.test(contents) || !/features:\s*\[/.test(contents)) {
     return undefined;
   }
 
@@ -1285,7 +1269,7 @@ function formatCreatedFilesMessage(options: ReactNativeInitCliOptions) {
   if (options.featureOnly) {
     return (
       `Created Mobigent React Native feature ${options.feature} in ${join(options.outDir, "mobigent-features")}.\n` +
-      `Pass ${options.feature}Feature to setupMobigent(${options.feature}Feature) or MobigentRoot features.\n`
+      `Pass ${options.feature}Feature to createApp({ features }) or MobigentRoot features.\n`
     );
   }
 

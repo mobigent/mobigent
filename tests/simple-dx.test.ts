@@ -519,7 +519,7 @@ test("backend init CLI infers app identity and prints the short app init command
     );
     assert.equal(writeCode, 0, stderr);
     assert.match(stdout, /npm install @mobigent\/app/);
-    assert.match(stdout, /Create one feature with defineFeature\(\), then wrap the app with withMobigent\(\)/);
+    assert.match(stdout, /Create one feature with defineFeature\(\), then createApp\(\{ features \}\)\.with\(App\)/);
     assert.match(stdout, /Optional scaffold:\n  npx mobigent-init --feature expense --out-dir src/);
     assert.match(stdout, /npx tsx src\/mobigent\.ts/);
     assert.doesNotMatch(stdout, /--config/);

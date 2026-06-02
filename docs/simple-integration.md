@@ -19,10 +19,10 @@ The app owns the real behavior. The backend calls that behavior. Mobigent owns t
 npm install @mobigent/app
 ```
 
-Create one feature:
+Create one feature and one app SDK object:
 
 ```ts
-import { defineFeature, read, write } from "@mobigent/app";
+import { createApp, defineFeature, read, write } from "@mobigent/app";
 
 export const expenses = defineFeature("expense", {
   list: read(async () => ({ items: await listExpenses() })),
@@ -39,11 +39,12 @@ export const expenses = defineFeature("expense", {
 Wrap the app once:
 
 ```tsx
-import { withMobigent } from "@mobigent/app";
 import { expenses } from "./mobigent/expenses";
 import App from "./App";
 
-export default withMobigent(App, expenses);
+const mobigent = createApp({ features: expenses });
+
+export default mobigent.with(App);
 ```
 
 That is the frontend integration.

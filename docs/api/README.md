@@ -10,7 +10,7 @@ Lower-level protocol packages still exist, but most developers should not need t
 ## App API
 
 ```ts
-import { defineFeature, read, write } from "@mobigent/app";
+import { createApp, defineFeature, read, write } from "@mobigent/app";
 
 export const expenses = defineFeature("expense", {
   list: read(async () => ({ items: await listExpenses() })),
@@ -22,27 +22,31 @@ export const expenses = defineFeature("expense", {
     confirm: true
   })
 });
+
+export const mobigent = createApp({ features: expenses });
 ```
 
 ```tsx
-import { withMobigent } from "@mobigent/app";
-import { expenses } from "./mobigent/expenses";
+import { mobigent } from "./mobigent/expenses";
 import App from "./App";
 
-export default withMobigent(App, expenses);
+export default mobigent.with(App);
 ```
 
 For non-React hosts, demos, and tests:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { connectMobigent } from "@mobigent/app";
+import { createApp } from "@mobigent/app";
 import { expenses } from "./mobigent/expenses";
 
 const backend = await startMobigent();
-const connection = await connectMobigent(expenses, {
-  connectionUrl: backend.defaultApp.connectionUrl,
+const mobigent = createApp({
+  features: expenses,
+  connectionUrl: backend.defaultApp.connectionUrl
 });
+
+const connection = await mobigent.connect();
 
 connection.disconnect();
 ```
@@ -101,16 +105,20 @@ The returned object includes:
 ## Simple App Helpers
 
 - `defineFeature(namespace, { name: read(fn), name: write(fn) })`: creates a small app feature.
+- `createApp({ features })`: creates the app-side SDK object.
+- `mobigent.with(App)`: wraps an existing React Native app.
+- `mobigent.connect()`: connects a non-React host or demo using the same features.
+- `mobigent.emit(name, payload)`: emits app activity.
 - `defineMobigent({ namespace: { name: read(fn) } })`: creates multiple app areas from one plain object.
 - `defineMobigentConfig(config)`: gives app config a stable SDK type.
 - New configs use `connectionUrl`; existing `gatewayUrl` configs still work.
 - `read(handler, options)`: exposes app state.
 - `write(handler, options)`: exposes confirmed app behavior.
 - `screen(handler, options)`: lets an agent focus a screen or UI surface.
-- `withMobigent(App, feature)`: wraps an existing React Native app in one function call.
+- `withMobigent(App, feature)`: older wrapper helper kept for compatibility.
 - `setupMobigent(feature)`: wraps a React Native app once.
 - `setupMobigent({ config, features })`: production form when you need exact app config.
-- `connectMobigent(feature, options)`: configures, registers features, and connects in one call.
+- `connectMobigent(feature, options)`: lower-level connect helper.
 - `registerFeatures(client, features)`: lower-level attach helper when you need manual lifecycle control.
 
 ## Capability Types

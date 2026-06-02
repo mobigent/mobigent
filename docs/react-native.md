@@ -19,7 +19,7 @@ No app id ceremony is required for a first run. If no config exists yet, the app
 ## 2. Create A Feature
 
 ```ts
-import { defineFeature, read, write } from "@mobigent/app";
+import { createApp, defineFeature, read, write } from "@mobigent/app";
 
 export const expenses = defineFeature("expense", {
   list: read(async () => ({ items: await listExpenses() })),
@@ -44,18 +44,19 @@ Backend code can use those same short names.
 ## 3. Wrap The App
 
 ```tsx
-import { withMobigent } from "@mobigent/app";
 import { expenses } from "./mobigent/expenses";
 import App from "./App";
 
-export default withMobigent(App, expenses);
+const mobigent = createApp({ features: expenses });
+
+export default mobigent.with(App);
 ```
 
-If you prefer explicit JSX wrapping, `setupMobigent(expenses)` still returns `{ Root }`.
+If you prefer the older helper, `withMobigent(App, expenses)` still works. If you prefer explicit JSX wrapping, `setupMobigent(expenses)` still returns `{ Root }`.
 
 That is enough for a local first run.
 
-To add another app area later, create another feature and pass an array to `withMobigent(App, [expenses, invoices])`.
+To add another app area later, create another feature and pass an array to `createApp({ features: [expenses, invoices] })`.
 
 Prefer generated starter files? `npx mobigent-init --feature expense --out-dir src` is still available as an optional scaffold.
 
@@ -98,13 +99,16 @@ If you are running a local demo, test host, or another runtime where you are usi
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { connectMobigent } from "@mobigent/app";
+import { createApp } from "@mobigent/app";
 import { expenses } from "./mobigent/expenses";
 
 const backend = await startMobigent();
-const connection = await connectMobigent(expenses, {
-  connectionUrl: backend.defaultApp.connectionUrl,
+const mobigent = createApp({
+  features: expenses,
+  connectionUrl: backend.defaultApp.connectionUrl
 });
+
+const connection = await mobigent.connect();
 ```
 
 That one call registers the feature, connects to the backend, and returns a `disconnect()` helper.
@@ -138,4 +142,4 @@ Use full JSON Schema or the lower-level `schema.*` helpers only when plain field
 
 ## Advanced
 
-The lower-level provider, hooks, `createAgentModule()`, and manual registration APIs are still available for screen-scoped capabilities, custom confirmation UI, custom environment switching, and manifest signing. Start with `defineFeature()` and `withMobigent()` first.
+The lower-level provider, hooks, `createAgentModule()`, and manual registration APIs are still available for screen-scoped capabilities, custom confirmation UI, custom environment switching, and manifest signing. Start with `defineFeature()` and `createApp()` first.

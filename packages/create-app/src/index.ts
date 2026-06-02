@@ -285,7 +285,7 @@ function createServerFile(options: CreateMobigentAppOptions) {
   return `import { spawn } from "node:child_process";
 import express from "express";
 import { startMobigent } from "@mobigent/backend";
-import { connectMobigent } from "@mobigent/app";
+import { createApp } from "@mobigent/app";
 import { expenseFeature, expenses, parsePrompt } from "./capabilities.js";
 import { createNodeSocket } from "./nodeSocket.js";
 
@@ -332,7 +332,7 @@ const appServer = app.listen(appPort, () => {
   openBrowser(\`http://localhost:\${appPort}\`);
 });
 
-const mobigentConnection = await connectMobigent({
+const mobigent = createApp({
   config: backend.defaultApp,
   features: expenseFeature,
   createSocket: createNodeSocket,
@@ -343,6 +343,7 @@ const mobigentConnection = await connectMobigent({
     return true;
   }
 });
+const mobigentConnection = await mobigent.connect();
 
 function openBrowser(url: string) {
   if (${options.openBrowser ? "false" : "true"} || process.env.MOBIGENT_DEMO_OPEN === "0") {

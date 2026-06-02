@@ -561,7 +561,7 @@ function waitForBackendReady(gateway: BridgeGateway, options: MobigentBackendRea
           new Error(
               `Mobigent backend is waiting for ${minApps} connected app(s) and ${minFunctions} exposed function(s). ` +
               `Current state: ${status.appsWithManifests} app(s), ${status.tools} function(s). ` +
-              "Start the app, wrap it with withMobigent(), and make sure it uses the backend app config."
+              "Start the app, wire it with createApp({ features }).with(App), and make sure it uses the backend app config."
           )
         );
         return;

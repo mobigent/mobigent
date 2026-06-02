@@ -114,7 +114,7 @@ const starterServer = createMobigentAppFiles({
   packageVersion: "1.2.3"
 }).find((file) => file.path === "src/server.ts")?.contents ?? "";
 
-assert.match(rnRoot, /setupMobigent/);
+assert.match(rnRoot, /createApp/);
 assert.match(rnRoot, /config: mobigentConfig/);
 assert.doesNotMatch(rnRoot, /MobigentProvider|createAgentApp|createAgentModule/);
 assert.doesNotMatch(rnRoot, /reconnect|heartbeat/);
@@ -126,6 +126,8 @@ assert.match(starterCapabilities, /emitMobigentEvent/);
 assert.match(starterCapabilities, /defineFeature\("expense", \{/);
 assert.match(starterCapabilities, /create: write\(/);
 assert.doesNotMatch(starterCapabilities, /import \{ defineFeature, mobigent \}/);
+assert.match(starterServer, /createApp\(\{/);
+assert.doesNotMatch(starterServer, /connectMobigent/);
 assert.doesNotMatch(starterServer, /const gatewayPort|const httpPort|wsPort: 8787|httpPort: 8788/);
 assert.match(starterServer, /startMobigent\(\{/);
 assert.match(starterServer, /backend\.defaultApp/);
@@ -135,6 +137,7 @@ assert.doesNotMatch(starterServer, /backend\.appFunctions\(\{/);
 
 for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.md"]) {
   const contents = readFileSync(path, "utf8");
+  assert.match(contents, /createApp/, `${path} should teach the app package createApp path`);
   assert.doesNotMatch(
     contents,
     /npm install @mobigent\/backend\s+```[\s\S]{0,120}?```[\s\S]{0,80}?npx mobigent-backend --app-dir/,

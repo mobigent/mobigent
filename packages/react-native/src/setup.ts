@@ -1,6 +1,13 @@
 import { createElement, type ComponentType } from "react";
 import { createAgentApp, type AgentAppFactoryOptions, type AgentAppRootProps } from "./ui.js";
-import type { MobigentSimpleAppConfig, MobigentSimpleFeature } from "./simple.js";
+import {
+  connectMobigent,
+  emitMobigentEvent,
+  type MobigentSimpleAppConfig,
+  type MobigentSimpleConnection,
+  type MobigentSimpleConnectionSettings,
+  type MobigentSimpleFeature
+} from "./simple.js";
 
 export type MobigentSimpleAppOptions = Omit<AgentAppFactoryOptions, "capabilities" | "modules"> & {
   config?: MobigentSimpleAppConfig;
@@ -15,27 +22,67 @@ export type MobigentWithAppOptions = MobigentSimpleAppOptions & {
   rootProps?: Omit<AgentAppRootProps, "children">;
 };
 
-export function mobigentApp(input: MobigentSimpleAppInput) {
+export type MobigentCreatedApp = ReturnType<typeof createAgentApp> & {
+  with<P extends object>(App: ComponentType<P>, rootProps?: Omit<AgentAppRootProps, "children">): ComponentType<P>;
+  connect(settings?: MobigentSimpleConnectionSettings): Promise<MobigentSimpleConnection>;
+  emit: typeof emitMobigentEvent;
+};
+
+export function mobigentApp(input: MobigentSimpleAppInput): MobigentCreatedApp {
   const options = isMobigentFeatureInput(input) ? { features: input } : input;
   const features = toArray(options.features);
   const { config, ...appOptions } = options;
-
-  return createAgentApp({
+  const app = createAgentApp({
     ...appOptions,
     appId: appOptions.appId ?? config?.appId,
     appName: appOptions.appName ?? config?.appName,
     gatewayUrl: appOptions.gatewayUrl ?? config?.connectionUrl ?? config?.gatewayUrl,
     version: appOptions.version ?? config?.version,
     authToken: appOptions.authToken ?? config?.authToken,
-    capabilities: [
-      ...toArray(options.capabilities),
-      ...features
-    ],
+    capabilities: [...toArray(options.capabilities), ...features],
     modules: options.modules
   });
+
+  const connectionSettings = {
+    config,
+    appId: appOptions.appId ?? config?.appId,
+    appName: appOptions.appName ?? config?.appName,
+    connectionUrl: config?.connectionUrl,
+    gatewayUrl: appOptions.gatewayUrl ?? config?.connectionUrl ?? config?.gatewayUrl,
+    version: appOptions.version ?? config?.version,
+    authToken: appOptions.authToken ?? config?.authToken,
+    signManifest: appOptions.signManifest,
+    createSocket: appOptions.createSocket,
+    reconnect: appOptions.reconnect,
+    eventQueue: appOptions.eventQueue,
+    heartbeat: appOptions.heartbeat
+  };
+
+  return {
+    ...app,
+    with<P extends object>(App: ComponentType<P>, rootProps?: Omit<AgentAppRootProps, "children">) {
+      function MobigentWrappedApp(props: P) {
+        return createElement(app.Root, {
+          ...rootProps,
+          children: createElement(App, props)
+        });
+      }
+
+      MobigentWrappedApp.displayName = `mobigent.with(${App.displayName ?? App.name ?? "App"})`;
+      return MobigentWrappedApp;
+    },
+    connect(settings: MobigentSimpleConnectionSettings = {}) {
+      return connectMobigent(features, {
+        ...connectionSettings,
+        ...settings
+      });
+    },
+    emit: emitMobigentEvent
+  };
 }
 
 export const createMobigentRoot = mobigentApp;
+export const createApp = mobigentApp;
 export const createSimpleMobigentApp = mobigentApp;
 export const setupMobigent = mobigentApp;
 

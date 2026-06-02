@@ -24,6 +24,7 @@ export {
 } from "./confirmation.js";
 export {
   createMobigentRoot,
+  createApp,
   createMobigentWrapper,
   createSimpleMobigentApp,
   mobigentApp,

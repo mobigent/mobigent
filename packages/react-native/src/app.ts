@@ -1,5 +1,6 @@
 export {
   createMobigentRoot,
+  createApp,
   createMobigentWrapper,
   createSimpleMobigentApp,
   mobigentApp,

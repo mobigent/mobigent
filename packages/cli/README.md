@@ -14,7 +14,7 @@ The runtime SDKs are still the two normal packages:
 - `@mobigent/app` in the app
 - `@mobigent/backend` in the backend
 
-This CLI simply routes common commands so developers do not need to learn separate binary names on day one. App-side and backend scaffolding are optional; the normal SDK path is `npm install @mobigent/app`, `npm install @mobigent/backend`, `defineFeature()`, `withMobigent()`, and `startMobigent()`.
+This CLI simply routes common commands so developers do not need to learn separate binary names on day one. App-side and backend scaffolding are optional; the normal SDK path is `npm install @mobigent/app`, `npm install @mobigent/backend`, `defineFeature()`, `createApp({ features }).with(App)`, and `startMobigent()`.
 
 ## Commands
 

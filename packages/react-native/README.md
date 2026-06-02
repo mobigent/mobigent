@@ -42,7 +42,7 @@ npm install @mobigent/react-native
 Create `src/mobigent/expenses.ts`:
 
 ```ts
-import { defineFeature, read, write } from "@mobigent/react-native";
+import { createApp, defineFeature, read, write } from "@mobigent/react-native";
 
 export const expenses = defineFeature("expense", {
   list: read(async () => ({
@@ -57,6 +57,8 @@ export const expenses = defineFeature("expense", {
     confirm: true
   })
 });
+
+export const mobigent = createApp({ features: expenses });
 ```
 
 Your backend calls those app functions with short names like:
@@ -71,14 +73,13 @@ Under the hood, Mobigent maps those functions to provider-safe names for OpenAPI
 ## Wrap Your Existing App
 
 ```tsx
-import { withMobigent } from "@mobigent/react-native";
-import { expenses } from "./src/mobigent/expenses";
+import { mobigent } from "./src/mobigent/expenses";
 import App from "./App";
 
-export default withMobigent(App, expenses);
+export default mobigent.with(App);
 ```
 
-If you prefer an explicit provider component, `setupMobigent(expenses)` still returns `{ Root }`.
+If you prefer the older helper, `withMobigent(App, expenses)` still works. If you prefer an explicit provider component, `setupMobigent(expenses)` still returns `{ Root }`.
 
 Run a Mobigent backend from your server with `@mobigent/backend`, then open the inspector URL it prints. For the simplest setup, start the backend with `appDir: "../mobile-app"` so it writes app config files into the app project. Local defaults work before you wire that config explicitly.
 
@@ -88,13 +89,16 @@ For a Node demo, test host, or another non-React runtime, use the same feature w
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { connectMobigent } from "@mobigent/react-native";
+import { createApp } from "@mobigent/react-native";
 import { expenses } from "./mobigent/expenses";
 
 const backend = await startMobigent();
-const connection = await connectMobigent(expenses, {
-  connectionUrl: backend.defaultApp.connectionUrl,
+const mobigent = createApp({
+  features: expenses,
+  connectionUrl: backend.defaultApp.connectionUrl
 });
+
+const connection = await mobigent.connect();
 ```
 
 ## Field Types
@@ -165,4 +169,4 @@ The package still includes lower-level APIs for mature apps:
 - `schema.*`
 - diagnostics and status hooks
 
-Use these when you need screen-scoped capabilities, custom provider placement, custom confirmation UI, manifest signing, or advanced environment switching. New apps should start with `defineFeature()` and `setupMobigent()`.
+Use these when you need screen-scoped capabilities, custom provider placement, custom confirmation UI, manifest signing, or advanced environment switching. New apps should start with `defineFeature()` and `createApp()`.

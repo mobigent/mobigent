@@ -66,7 +66,7 @@ Commands:
 
 Examples:
   npm install @mobigent/app
-  # Create a feature with defineFeature(), then wrap the app with withMobigent().
+  # Create a feature with defineFeature(), then createApp({ features }).with(App).
   # Optional scaffold: npx mobigent init --feature expense --out-dir src
 
   npm install @mobigent/backend

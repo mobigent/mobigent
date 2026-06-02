@@ -49,7 +49,7 @@ npm install @mobigent/app
 Create a feature file:
 
 ```ts
-import { defineFeature, read, write } from "@mobigent/app";
+import { createApp, defineFeature, read, write } from "@mobigent/app";
 
 export const expenses = defineFeature("expense", {
   list: read(async () => ({ items: await listExpenses() })),
@@ -64,17 +64,18 @@ export const expenses = defineFeature("expense", {
 });
 ```
 
-Wrap your existing app once:
+Create one Mobigent app object and wrap your existing app once:
 
 ```tsx
-import { withMobigent } from "@mobigent/app";
 import { expenses } from "./mobigent/expenses";
 import App from "./App";
 
-export default withMobigent(App, expenses);
+const mobigent = createApp({ features: expenses });
+
+export default mobigent.with(App);
 ```
 
-If you prefer an explicit provider component, `setupMobigent(expenses)` still returns `{ Root }`.
+If you prefer the older wrapper helper, `withMobigent(App, expenses)` still works. If you prefer explicit JSX wrapping, `setupMobigent(expenses)` still returns `{ Root }`.
 
 That is enough for local development. Mobigent uses a safe starter app identity until you pass exact production values or import a backend-generated config.
 
@@ -84,13 +85,16 @@ For a non-React demo or test host, connect the same feature in one call:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { connectMobigent } from "@mobigent/app";
+import { createApp } from "@mobigent/app";
 import { expenses } from "./mobigent/expenses";
 
 const backend = await startMobigent();
-await connectMobigent(expenses, {
-  connectionUrl: backend.defaultApp.connectionUrl,
+const mobigent = createApp({
+  features: expenses,
+  connectionUrl: backend.defaultApp.connectionUrl
 });
+
+await mobigent.connect();
 ```
 
 ## 3. Run The Backend
