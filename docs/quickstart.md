@@ -123,13 +123,11 @@ Optional local helper: pass `appDir: "../mobile-app"` only when you want Mobigen
 
 Prefer generated sample files? Use the starter. Backend/app init commands are helpers, not required integration.
 
-Create a tiny app function object by feature name. Mobigent waits for the app connection when a function is called:
+Call app functions from the backend SDK object. Mobigent waits for the app connection when a function is called:
 
 ```ts
-const expense = mobigent.feature("expense");
-
-await expense.create({ merchant: "Coffee", amount: 8 });
-await expense.list();
+await mobigent.functions.expense.create({ merchant: "Coffee", amount: 8 });
+await mobigent.functions.expense.list();
 ```
 
 With no options, Mobigent infers a starter app id and app name from your project. Real apps should pass `appId` explicitly.

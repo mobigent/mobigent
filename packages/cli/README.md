@@ -18,7 +18,7 @@ This CLI simply routes common commands so developers do not need to learn separa
 
 You do not need the app-side init command for a real integration. Write the functions directly in your app code. The generator exists only when you want sample files.
 
-## Commands
+## Common Commands
 
 ```bash
 mobigent new my-demo --install
@@ -28,23 +28,24 @@ mobigent create my-demo --install
 Create a runnable starter with an app, backend, inspector, and agent playground.
 
 ```bash
+mobigent agent claude
+mobigent agent chatgpt --base-url https://your-backend.example
+```
+
+Print agent setup using the backend package.
+
+## Optional Scaffolding
+
+```bash
+mobigent backend --app com.acme.expenses --app-name "Acme Expenses"
+```
+
+Generate a backend entrypoint if you do not want to write it by hand.
+
+```bash
 mobigent init --feature expense --out-dir src
 mobigent doctor --feature expense --out-dir src
 mobigent security-doctor --feature expense
 ```
 
 Generate or check React Native sample integration files. This is demo scaffolding, not the main SDK path.
-
-```bash
-mobigent backend --app-dir ../mobile-app
-mobigent backend init --app-dir ../mobile-app
-```
-
-Optionally generate a backend entrypoint with `@mobigent/backend`.
-
-```bash
-mobigent agent claude
-mobigent agent chatgpt --base-url https://your-backend.example
-```
-
-Print agent setup using the backend package.

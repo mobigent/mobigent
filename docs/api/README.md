@@ -83,7 +83,8 @@ The returned object includes:
 - `appConfig({ appId, appName })`
 - `copyAppConfig()` for advanced manual config generation
 - `listFunctions()`
-- `functions()` for backward compatibility
+- `functions.expense.create(input)` to call app functions from the backend SDK object
+- `functions()` to list discovered app functions
 - `tools()` for provider internals
 - `apps()`
 - `waitForApp()` when you want an explicit startup health gate

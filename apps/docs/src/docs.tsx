@@ -99,10 +99,8 @@ const mobigent = await startMobigent({
   appName: "Acme Expenses"
 });
 
-const expense = mobigent.feature("expense");
-
-await expense.create({ merchant: "Airport Taxi", amount: 42.25 });
-await expense.list();
+await mobigent.functions.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
+await mobigent.functions.expense.list();
 
 console.log(mobigent.inspectorUrl);`;
 
@@ -288,7 +286,7 @@ const firstRunChecks = [
   ["Install", "Add the app package to React Native and the backend package to your server."],
   ["Expose", "`createApp({ functions })` turns real app functions into typed agent capabilities."],
   ["Connect", "Use the same app id on both sides; pass `connection` only for a physical phone or hosted backend."],
-  ["Call", "`backend.feature(\"expense\")` gives backend code normal functions like `expense.create()`."],
+  ["Call", "`mobigent.functions.expense.create()` calls the app-owned function from backend code."],
   ["Approve", "Risky actions pause inside the app before handlers run."],
   ["Audit", "Calls, approvals, denials, errors, and events appear in `/audit`."]
 ];

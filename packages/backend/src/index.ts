@@ -166,8 +166,7 @@ export type MobigentBackend = {
   ready(options?: MobigentBackendReadyOptions): Promise<ReturnType<BridgeGateway["getStatus"]>>;
   waitForApp(options?: MobigentBackendReadyOptions): Promise<ReturnType<BridgeGateway["getStatus"]>>;
   listFunctions(): ReturnType<BridgeGateway["listTools"]>;
-  /** @deprecated Use listFunctions(). Kept for compatibility. */
-  functions(): ReturnType<BridgeGateway["listTools"]>;
+  functions: MobigentBackendFunctions;
   /** @deprecated Use listFunctions(). Kept for compatibility with provider/tool internals. */
   tools(): ReturnType<BridgeGateway["listTools"]>;
   apps(): GatewayAppSession[];
@@ -196,6 +195,10 @@ export type MobigentBackend = {
 export type MobigentBackendFunction = (input?: unknown, options?: MobigentBackendCallOptions) => ReturnType<BridgeGateway["callTool"]>;
 export type MobigentBackendFeatureFunctions = {
   [functionName: string]: MobigentBackendFunction;
+};
+export type MobigentBackendFunctions = {
+  (): ReturnType<BridgeGateway["listTools"]>;
+  [namespace: string]: MobigentBackendFeatureFunctions;
 };
 export type MobigentBackendFunctionMap<T extends Record<string, string>> = {
   [K in keyof T]: MobigentBackendFunction;
@@ -305,6 +308,7 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     const entries = Object.entries(functions).map(([alias, functionName]) => [alias, appFunction(functionName)]);
     return Object.fromEntries(entries) as MobigentBackendFunctionMap<T>;
   }
+  const functions = createBackendFunctionsAccessor(() => gateway.listTools(), appFeature);
 
   const advanced: MobigentBackendAdvanced = {
     gateway,
@@ -350,7 +354,7 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     ready: (readyOptions) => waitForBackendReady(gateway, readyOptions),
     waitForApp: (readyOptions) => waitForBackendReady(gateway, readyOptions),
     listFunctions: () => gateway.listTools(),
-    functions: () => gateway.listTools(),
+    functions,
     tools: () => gateway.listTools(),
     apps: () => gateway.listApps(),
     resolveFunctionName: (name) => resolveBackendToolName(gateway.listTools(), name, defaultApp),
@@ -365,6 +369,32 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     appFunctions,
     fn: appFunction
   };
+}
+
+function createBackendFunctionsAccessor(
+  list: () => ReturnType<BridgeGateway["listTools"]>,
+  appFeature: (namespace: string) => MobigentBackendFeatureFunctions
+): MobigentBackendFunctions {
+  const cache = new Map<string, MobigentBackendFeatureFunctions>();
+  const callable = (() => list()) as MobigentBackendFunctions;
+
+  return new Proxy(callable, {
+    get(target, property, receiver) {
+      if (typeof property !== "string" || property === "then") {
+        return Reflect.get(target, property, receiver);
+      }
+
+      if (property in target) {
+        return Reflect.get(target, property, receiver);
+      }
+
+      if (!cache.has(property)) {
+        cache.set(property, appFeature(property));
+      }
+
+      return cache.get(property);
+    }
+  });
 }
 
 function createFeatureFunctionProxy(namespace: string, appFunction: (name: string) => MobigentBackendFunction) {

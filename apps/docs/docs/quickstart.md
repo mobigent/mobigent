@@ -106,11 +106,9 @@ Mobigent pairs the backend and app by `appId`, handles the connection, routes ap
 
 Prefer generated sample files? Use the starter. Backend/app init commands are helpers, not required integration.
 
-Create a tiny app function object by feature name. Mobigent waits for the app connection when a function is called:
+Call app functions from the backend SDK object. Mobigent waits for the app connection when a function is called:
 
 ```ts
-const expense = mobigent.feature("expense");
-
-await expense.create({ merchant: "Coffee", amount: 8 });
-await expense.list();
+await mobigent.functions.expense.create({ merchant: "Coffee", amount: 8 });
+await mobigent.functions.expense.list();
 ```

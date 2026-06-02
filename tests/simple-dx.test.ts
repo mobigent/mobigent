@@ -274,6 +274,7 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
     try {
       await backend.waitForApp({ minFunctions: 1 });
       assert.equal(backend.listFunctions()[0]?.name, "com_example_functions.expense_create");
+      assert.equal(backend.functions()[0]?.name, "com_example_functions.expense_create");
       assert.equal(backend.resolveFunctionName("expense.create"), "com_example_functions.expense_create");
       assert.deepEqual(await backend.callApp("expense.create", { merchant: "Cafe" }), {
         id: "EXP-1",
@@ -286,6 +287,11 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
         merchant: "Airport Taxi"
       });
 
+      assert.deepEqual(await backend.functions.expense.create({ merchant: "Bookshop" }), {
+        id: "EXP-1",
+        merchant: "Bookshop"
+      });
+
       const app = backend.feature("expense");
 
       assert.deepEqual(await app.create({ merchant: "Bakery" }), {
@@ -296,6 +302,7 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
         items: [
           { id: "EXP-1", merchant: "Cafe" },
           { id: "EXP-1", merchant: "Airport Taxi" },
+          { id: "EXP-1", merchant: "Bookshop" },
           { id: "EXP-1", merchant: "Bakery" }
         ]
       });
@@ -336,7 +343,7 @@ test("app package connects to a backend object without connection URL ceremony",
 
     try {
       await backend.waitForApp({ minFunctions: 1 });
-      assert.deepEqual(await backend.feature("expense").create({ merchant: "Coffee" }), {
+      assert.deepEqual(await backend.functions.expense.create({ merchant: "Coffee" }), {
         id: "EXP-BACKEND",
         merchant: "Coffee"
       });
@@ -612,6 +619,7 @@ test("backend init helper creates a simple server entrypoint", () => {
   assert.match(files[0]?.contents ?? "", /export const waitForApp = mobigent\.waitForApp/);
   assert.match(files[0]?.contents ?? "", /export const callApp = mobigent\.callApp/);
   assert.match(files[0]?.contents ?? "", /export const listFunctions = mobigent\.listFunctions/);
+  assert.match(files[0]?.contents ?? "", /export const functions = mobigent\.functions/);
   assert.match(files[0]?.contents ?? "", /export const appFunction = mobigent\.function/);
   assert.match(files[0]?.contents ?? "", /export const feature = mobigent\.feature/);
   assert.match(files[0]?.contents ?? "", /mobigent\.inspectorUrl/);
