@@ -66,6 +66,7 @@ assert.ok(packageJsons.get("create-mobigent-app")?.bin?.["create-mobigent-app"],
 assert.ok(packageJsons.get("mobigent")?.bin?.mobigent, "mobigent must ship the friendly mobigent bin.");
 
 const releaseWorkflow = await readFile(".github/workflows/release.yml", "utf8");
+const publishScript = await readFile("scripts/publish-npm.ts", "utf8");
 assert.match(releaseWorkflow, /tags:\s*\n\s+- "v\*\.\*\.\*"/, "release workflow must run on SemVer tags.");
 assert.match(releaseWorkflow, /workflow_dispatch:/, "release workflow must support manual dispatch.");
 assert.match(releaseWorkflow, /id-token: write/, "release workflow must request OIDC id-token permission.");
@@ -81,6 +82,9 @@ assert.match(releaseWorkflow, /npm run verify/, "release workflow must run full 
 assert.match(releaseWorkflow, /npm run npm:publish-ready/, "release workflow must check npm publish readiness before publish.");
 assert.match(releaseWorkflow, /npm run npm:publish/, "release workflow must publish npm packages.");
 assert.match(releaseWorkflow, /npm run npm:status/, "release workflow must verify npm visibility after publish.");
+assert.match(publishScript, /process\.env\.NODE_AUTH_TOKEN \|\| process\.env\.NPM_TOKEN/, "publish script must accept NODE_AUTH_TOKEN or NPM_TOKEN.");
+assert.match(publishScript, /--userconfig/, "publish script must use an explicit npm userconfig for token publishing.");
+assert.match(publishScript, /_authToken=\$\{token\}/, "publish script must write the token into a temporary npm config, not command args.");
 
 console.log("Mobigent npm release preflight passed.");
 

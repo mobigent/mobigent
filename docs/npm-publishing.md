@@ -89,6 +89,8 @@ npm run npm:publish
 npm run npm:status
 ```
 
+If you prefer token-based local publishing, set either `NPM_TOKEN` or `NODE_AUTH_TOKEN` before `npm run npm:publish`. The publish script creates a temporary private npm config for that run, then removes it.
+
 `npm:publish-ready` explains the current npm state before you publish:
 
 - whether the machine is authenticated
