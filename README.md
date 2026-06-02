@@ -72,7 +72,11 @@ For local development, Mobigent can infer starter values when you leave the app 
 For a non-React host or local demo, use the same app SDK object:
 
 ```ts
-await mobigent.connect();
+const backend = await startMobigent({
+  appId: "com.acme.expenses"
+});
+
+await mobigent.connect(backend);
 ```
 
 Everything else, connection URLs, sockets, tokens, registration loops, provider mapping, confirmations, retries, audit events, agent setup, and inspector wiring, is SDK plumbing.
@@ -276,11 +280,11 @@ If you are wiring a Node demo, test host, or another non-React runtime, use the 
 import { startMobigent } from "@mobigent/backend";
 import { mobigent } from "./mobigent";
 
-const backend = await startMobigent();
-
-await mobigent.connect({
-  connectionUrl: backend.defaultApp.connectionUrl
+const backend = await startMobigent({
+  appId: "com.acme.expenses"
 });
+
+await mobigent.connect(backend);
 ```
 
 ## Add It To A Backend
@@ -303,8 +307,6 @@ const mobigent = await startMobigent({
 
 console.log(mobigent.urls.inspector);
 console.log(mobigent.urls.openapi);
-
-const appConfig = mobigent.defaultApp;
 ```
 
 The app and backend pair by `appId`. For local experiments, `startMobigent()` can infer a starter app id from the project name, but a real app should pass a stable id.
@@ -317,10 +319,9 @@ For the fastest first run, this also works:
 
 ```ts
 const mobigent = await startMobigent();
-const appConfig = mobigent.defaultApp;
 ```
 
-That one function starts Mobigent, routes app function calls, pairs with the app id, and exposes the local inspector for debugging.
+That one function starts Mobigent, routes app function calls, infers a local app id for demos, and exposes the local inspector for debugging.
 
 Call app-owned functions through a normal backend object. Mobigent waits for the app connection when the function is called:
 

@@ -85,6 +85,9 @@ try {
   assert.match(server, /backend\.feature\("expense"\)/);
   assert.match(server, /expense\.create\(input\)/);
   assert.match(server, /functions: expenseFunctions/);
+  assert.match(server, /mobigent\.connect\(backend\)/);
+  assert.doesNotMatch(server, /backend\.defaultApp/);
+  assert.doesNotMatch(server, /connectionUrl: backend\.urls\.websocket/);
   assert.match(server, /MOBIGENT_DEMO_OPEN/);
 
   const capabilities = await readFile(join(target, "src", "capabilities.ts"), "utf8");

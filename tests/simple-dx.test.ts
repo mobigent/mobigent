@@ -256,6 +256,47 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
   }
 });
 
+test("app package connects to a backend object without connection URL ceremony", async () => {
+  const backend = await startMobigent({
+    wsPort: 19011,
+    httpPort: 19012,
+    appId: "com.example.backendtarget",
+    appName: "Backend Target App",
+    silent: true
+  });
+  const app = createApp({
+    appId: "com.example.backendtarget",
+    functions: {
+      expense: {
+        create: write(async (input) => ({ id: "EXP-BACKEND", ...input }), {
+          input: {
+            merchant: "string"
+          },
+          confirm: true
+        })
+      }
+    },
+    createSocket: createNodeSocket,
+    confirm: async () => true
+  });
+
+  try {
+    const connection = await app.connect(backend);
+
+    try {
+      await backend.waitForApp({ minFunctions: 1 });
+      assert.deepEqual(await backend.feature("expense").create({ merchant: "Coffee" }), {
+        id: "EXP-BACKEND",
+        merchant: "Coffee"
+      });
+    } finally {
+      connection.disconnect();
+    }
+  } finally {
+    await backend.stop();
+  }
+});
+
 test("backend app functions wait for the app connection automatically", async () => {
   const expenses = feature("expense").write(
     "create",

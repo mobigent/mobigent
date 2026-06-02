@@ -89,11 +89,11 @@ For a non-React demo or test host, connect the same feature in one call:
 import { startMobigent } from "@mobigent/backend";
 import { mobigent } from "./mobigent";
 
-const backend = await startMobigent();
-
-await mobigent.connect({
-  connectionUrl: backend.defaultApp.connectionUrl
+const backend = await startMobigent({
+  appId: "com.acme.expenses"
 });
+
+await mobigent.connect(backend);
 ```
 
 ## 3. Run The Backend
@@ -115,8 +115,6 @@ const mobigent = await startMobigent({
 });
 
 console.log(mobigent.urls.inspector);
-
-const appConfig = mobigent.defaultApp;
 ```
 
 The backend and app pair by `appId`. The backend handles the connection, function routing, inspector, agent endpoints, and readiness waiting.

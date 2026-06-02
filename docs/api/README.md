@@ -41,11 +41,11 @@ For non-React hosts, demos, and tests:
 import { startMobigent } from "@mobigent/backend";
 import { mobigent } from "./mobigent/expenses";
 
-const backend = await startMobigent();
-
-const connection = await mobigent.connect({
-  connectionUrl: backend.defaultApp.connectionUrl
+const backend = await startMobigent({
+  appId: "com.acme.expenses"
 });
+
+const connection = await mobigent.connect(backend);
 
 connection.disconnect();
 ```
@@ -56,22 +56,18 @@ connection.disconnect();
 import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent({
-  appDir: "../mobile-app"
+  appId: "com.acme.expenses",
+  appName: "Acme Expenses"
 });
 
 console.log(mobigent.urls.inspector);
 console.log(mobigent.urls.openapi);
-console.log(mobigent.appConfigPath);
-console.log(mobigent.appConfigModulePath);
-
-const appConfig = mobigent.defaultApp;
 ```
 
-For local development, `startMobigent()` can infer `defaultApp` from your project name:
+For local development, `startMobigent()` can infer a starter app identity from your project name:
 
 ```ts
 const mobigent = await startMobigent();
-const appConfig = mobigent.defaultApp;
 ```
 
 The returned object includes:
@@ -105,14 +101,14 @@ The returned object includes:
 
 - `createApp({ functions: { namespace: { name: read(fn), name: write(fn) } } })`: creates the app-side SDK object.
 - `mobigent.with(App)`: wraps an existing React Native app.
-- `mobigent.connect()`: connects a non-React host or demo using the same features.
+- `mobigent.connect(backend)`: connects a non-React host or demo using the same features.
 - `mobigent.emit(name, payload)`: emits app activity.
 - `defineFunctions({ namespace: { name: read(fn) } })`: converts a functions object to explicit features.
 - `defineFeature(namespace, { name: read(fn), name: write(fn) })`: creates a named feature when you prefer an explicit feature object.
 - `createApp({ features })`: creates the app-side SDK object from explicit features.
 - `defineMobigent({ namespace: { name: read(fn) } })`: older alias for `defineFunctions`.
 - `defineMobigentConfig(config)`: gives app config a stable SDK type.
-- New configs use `connectionUrl`; existing `gatewayUrl` configs still work.
+- Advanced configs can pass `connectionUrl`; existing `gatewayUrl` configs still work.
 - `read(handler, options)`: exposes app state.
 - `write(handler, options)`: exposes confirmed app behavior.
 - `screen(handler, options)`: lets an agent focus a screen or UI surface.

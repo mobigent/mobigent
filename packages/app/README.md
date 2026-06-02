@@ -39,7 +39,7 @@ import App from "./App";
 export default mobigent.with(App);
 ```
 
-For non-React hosts and local demos, call `await mobigent.connect()` instead of wrapping a component. Use `mobigent.emit(name, payload)` for app events.
+For non-React hosts and local demos, call `await mobigent.connect(backend)` instead of wrapping a component. Use `mobigent.emit(name, payload)` for app events.
 
 No app-side init command is required. You should not have to run `npx mobigent-init --feature expense --out-dir src` just to integrate Mobigent. That command is only a sample-file generator.
 

@@ -106,11 +106,11 @@ If you are running a local demo, test host, or another runtime where you are usi
 import { startMobigent } from "@mobigent/backend";
 import { mobigent } from "./mobigent/expenses";
 
-const backend = await startMobigent();
-
-const connection = await mobigent.connect({
-  connectionUrl: backend.defaultApp.connectionUrl
+const backend = await startMobigent({
+  appId: "com.acme.expenses"
 });
+
+const connection = await mobigent.connect(backend);
 
 ```
 

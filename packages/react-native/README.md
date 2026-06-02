@@ -20,7 +20,7 @@ const mobigent = createApp({
 ```
 
 The SDK handles namespacing, JSON Schema generation, validation, confirmation, connection lifecycle, reconnects, heartbeat, event queueing, and agent discovery updates.
-New app configs use `connectionUrl`; existing `gatewayUrl` configs still work.
+Advanced app configs can still pass a connection URL directly, but the normal path does not require one.
 
 ## Install
 
@@ -99,11 +99,11 @@ For a Node demo, test host, or another non-React runtime, use the same app objec
 import { startMobigent } from "@mobigent/backend";
 import { mobigent } from "./mobigent/expenses";
 
-const backend = await startMobigent();
-
-const connection = await mobigent.connect({
-  connectionUrl: backend.defaultApp.connectionUrl
+const backend = await startMobigent({
+  appId: "com.acme.expenses"
 });
+
+const connection = await mobigent.connect(backend);
 ```
 
 ## Field Types
