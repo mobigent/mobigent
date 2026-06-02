@@ -171,6 +171,12 @@ test("backend helper starts HTTP, OpenAPI, and inspector endpoints from one func
     assert.equal(health.ok, true);
     assert.equal(backend.urls.websocket, "ws://localhost:18987");
     assert.equal(backend.urls.openapi, "http://localhost:18988/openapi.json");
+    assert.equal(backend.apiUrl, "http://localhost:18988");
+    assert.equal(backend.inspectorUrl, "http://localhost:18988/inspect");
+    assert.equal(backend.openApiUrl, "http://localhost:18988/openapi.json");
+    assert.equal(backend.advanced.urls, backend.urls);
+    assert.equal(backend.advanced.gateway, backend.gateway);
+    assert.equal(backend.advanced.copyAppConfig(), backend.copyAppConfig());
     assert.deepEqual(backend.app({ appId: "com.example.app", appName: "Example App" }), {
       appId: "com.example.app",
       appName: "Example App",
@@ -563,8 +569,10 @@ test("backend init helper creates a simple server entrypoint", () => {
   assert.match(files[0]?.contents ?? "", /export const listFunctions = mobigent\.listFunctions/);
   assert.match(files[0]?.contents ?? "", /export const appFunction = mobigent\.function/);
   assert.match(files[0]?.contents ?? "", /export const feature = mobigent\.feature/);
+  assert.match(files[0]?.contents ?? "", /mobigent\.inspectorUrl/);
+  assert.match(files[0]?.contents ?? "", /mobigent\.openApiUrl/);
   assert.doesNotMatch(files[0]?.contents ?? "", /appFunctions|mobigent\.appFunction/);
-  assert.doesNotMatch(files[0]?.contents ?? "", /copyAppConfig|Copy this/);
+  assert.doesNotMatch(files[0]?.contents ?? "", /copyAppConfig|mobigent\.urls|Copy this/);
   assert.match(files[1]?.contents ?? "", /# MOBIGENT_AUTH_TOKEN=replace-me/);
   assert.equal(files.some((file) => file.path === "mobigent.app.json"), false);
 });

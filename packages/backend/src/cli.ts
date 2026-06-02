@@ -374,8 +374,8 @@ export const listFunctions = mobigent.listFunctions;
 export const appFunction = mobigent.function;
 export const feature = mobigent.feature;
 
-console.log("Mobigent inspector:", mobigent.urls.inspector);
-console.log("Mobigent OpenAPI:", mobigent.urls.openapi);
+console.log("Mobigent inspector:", mobigent.inspectorUrl);
+console.log("Mobigent OpenAPI:", mobigent.openApiUrl);
 if (mobigent.appConfigPath) {
   console.log("Mobigent app config:", mobigent.appConfigPath);
 }

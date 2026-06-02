@@ -68,7 +68,9 @@ assert.match(backendFile, /export const callApp = mobigent\.callApp/);
 assert.match(backendFile, /export const listFunctions = mobigent\.listFunctions/);
 assert.match(backendFile, /export const appFunction = mobigent\.function/);
 assert.match(backendFile, /export const feature = mobigent\.feature/);
-assert.doesNotMatch(backendFile, /appFunctions|mobigent\.appFunction|BridgeGateway|createHttpApp|mobigent\.appConfigModule\(|copyAppConfig|Copy this/);
+assert.match(backendFile, /mobigent\.inspectorUrl/);
+assert.match(backendFile, /mobigent\.openApiUrl/);
+assert.doesNotMatch(backendFile, /appFunctions|mobigent\.appFunction|mobigent\.urls|BridgeGateway|createHttpApp|mobigent\.appConfigModule\(|copyAppConfig|Copy this/);
 
 const backendWithAppDir = createMobigentBackendFiles({
   appId: "com.example.app",
@@ -179,6 +181,8 @@ assert.doesNotMatch(starterServer, /backend\.defaultApp/);
 assert.match(starterServer, /const expense = backend\.feature\("expense"\)/);
 assert.match(starterServer, /expense\.create\(input\)/);
 assert.doesNotMatch(starterServer, /backend\.appFunctions\(\{/);
+assert.match(starterServer, /backend\.inspectorUrl/);
+assert.doesNotMatch(starterServer, /backend\.urls/);
 assert.match(starterDoctor, /ready\?minApps=1&minFunctions=1/);
 assert.match(starterDoctor, /const backendUrl = "http:\/\/localhost:8788"/);
 assert.doesNotMatch(starterDoctor, /const gatewayUrl|function toolName|app manifest\(s\)|minTools/);

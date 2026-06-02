@@ -115,8 +115,7 @@ export type MobigentAgentOptions = {
   agentId?: string;
 };
 
-export type MobigentBackend = {
-  /** @deprecated Low-level bridge object. Prefer the backend methods on this object. */
+export type MobigentBackendAdvanced = {
   gateway: BridgeGateway;
   httpServer: Server;
   urls: {
@@ -127,13 +126,41 @@ export type MobigentBackend = {
   };
   appConfigPath?: string;
   appConfigModulePath?: string;
+  defaultApp?: MobigentBackendAppConfig;
+  appConfigCode?: string;
+  copyAppConfig(): string;
+};
+
+export type MobigentBackend = {
+  /** @deprecated Low-level bridge object. Prefer the backend methods on this object. */
+  gateway: BridgeGateway;
+  /** @deprecated Use advanced.httpServer. Kept for compatibility. */
+  httpServer: Server;
+  /** @deprecated Use inspectorUrl, apiUrl, openApiUrl, or advanced.urls. Kept for compatibility. */
+  urls: {
+    websocket: string;
+    http: string;
+    inspector: string;
+    openapi: string;
+  };
+  inspectorUrl: string;
+  apiUrl: string;
+  openApiUrl: string;
+  advanced: MobigentBackendAdvanced;
+  /** @deprecated Use advanced.appConfigPath. Kept for compatibility. */
+  appConfigPath?: string;
+  /** @deprecated Use advanced.appConfigModulePath. Kept for compatibility. */
+  appConfigModulePath?: string;
   app(options: MobigentBackendAppConfigOptions): MobigentBackendAppConfig;
   appConfig(options: MobigentBackendAppConfigOptions): MobigentBackendAppConfig;
   appConfigModule(options: MobigentBackendAppConfigModuleOptions): string;
   agent(kind?: MobigentAgentKind, options?: MobigentAgentOptions): ProviderBundle;
   agents(options?: MobigentAgentOptions): ProviderBundle[];
+  /** @deprecated Used internally for local pairing helpers. Prefer passing appId explicitly. */
   defaultApp?: MobigentBackendAppConfig;
+  /** @deprecated Use advanced.appConfigCode. Kept for compatibility. */
   appConfigCode?: string;
+  /** @deprecated Use advanced.copyAppConfig(). Kept for compatibility. */
   copyAppConfig(): string;
   stop(): Promise<void>;
   ready(options?: MobigentBackendReadyOptions): Promise<ReturnType<BridgeGateway["getStatus"]>>;
@@ -279,10 +306,25 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     return Object.fromEntries(entries) as MobigentBackendFunctionMap<T>;
   }
 
+  const advanced: MobigentBackendAdvanced = {
+    gateway,
+    httpServer,
+    urls,
+    appConfigPath: appConfigFiles.jsonPath,
+    appConfigModulePath: appConfigFiles.modulePath,
+    defaultApp,
+    appConfigCode,
+    copyAppConfig: () => appConfigCode
+  };
+
   return {
     gateway,
     httpServer,
     urls,
+    inspectorUrl: urls.inspector,
+    apiUrl: urls.http,
+    openApiUrl: urls.openapi,
+    advanced,
     appConfigPath: appConfigFiles.jsonPath,
     appConfigModulePath: appConfigFiles.modulePath,
     app: appConfig,
@@ -303,7 +345,7 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     agents: (agentOptions = {}) => createAgentCatalog(agentOptions).map((provider) => createProviderBundle(provider)),
     defaultApp,
     appConfigCode,
-    copyAppConfig: () => appConfigCode,
+    copyAppConfig: advanced.copyAppConfig,
     stop: () => stopBackend(httpServer, gateway),
     ready: (readyOptions) => waitForBackendReady(gateway, readyOptions),
     waitForApp: (readyOptions) => waitForBackendReady(gateway, readyOptions),

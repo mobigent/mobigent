@@ -452,7 +452,7 @@ function renderPage() {
         <label for="prompt">Agent request</label>
         <textarea id="prompt">Create a $42.80 meals expense at Expo Coffee with notes: Created from the Mobigent starter</textarea>
         <button id="run">Run agent request</button>
-        <div class="hint">Calls <strong>\${functionName}</strong>. <a class="link" href="\${backend.urls.inspector}" target="_blank" rel="noreferrer">Open inspector</a>.</div>
+        <div class="hint">Calls <strong>\${functionName}</strong>. <a class="link" href="\${backend.inspectorUrl}" target="_blank" rel="noreferrer">Open inspector</a>.</div>
         <div class="result"><pre id="result">Waiting for an agent request...</pre></div>
       </aside>
     </section>

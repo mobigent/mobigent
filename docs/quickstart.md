@@ -114,7 +114,7 @@ const mobigent = await startMobigent({
   appName: "Acme Expenses"
 });
 
-console.log(mobigent.urls.inspector);
+console.log(mobigent.inspectorUrl);
 ```
 
 The backend and app pair by `appId`. The backend handles the connection, function routing, inspector, agent endpoints, and readiness waiting.

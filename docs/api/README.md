@@ -60,8 +60,8 @@ const mobigent = await startMobigent({
   appName: "Acme Expenses"
 });
 
-console.log(mobigent.urls.inspector);
-console.log(mobigent.urls.openapi);
+console.log(mobigent.inspectorUrl);
+console.log(mobigent.openApiUrl);
 ```
 
 For local development, `startMobigent()` can infer a starter app identity from your project name:
@@ -72,10 +72,11 @@ const mobigent = await startMobigent();
 
 The returned object includes:
 
-- `urls.websocket`
-- `urls.http`
-- `urls.inspector`
-- `urls.openapi`
+- `inspectorUrl`
+- `apiUrl`
+- `openApiUrl`
+- `advanced` for lower-level gateway, server, URL, and generated-config details
+- `urls.websocket`, `urls.http`, `urls.inspector`, and `urls.openapi` for backward compatibility
 - `appConfigPath`
 - `appConfigModulePath`
 - `app({ appId, appName })`

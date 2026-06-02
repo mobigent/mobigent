@@ -305,8 +305,8 @@ const mobigent = await startMobigent({
   appName: "Acme Expenses"
 });
 
-console.log(mobigent.urls.inspector);
-console.log(mobigent.urls.openapi);
+console.log(mobigent.inspectorUrl);
+console.log(mobigent.openApiUrl);
 ```
 
 The app and backend pair by `appId`. For local experiments, `startMobigent()` can infer a starter app id from the project name, but a real app should pass a stable id.
