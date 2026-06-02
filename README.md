@@ -311,9 +311,9 @@ console.log(mobigent.urls.openapi);
 
 The app and backend pair by `appId`. For local experiments, `startMobigent()` can infer a starter app id from the project name, but a real app should pass a stable id.
 
-Optional local helper: pass `appDir: "../mobile-app"` when you want the backend to write `mobigent.app.json` and `src/mobigent-config.ts` into the app project.
+Optional local helper: pass `appDir: "../mobile-app"` only when you want the backend to write `mobigent.app.json` and `src/mobigent-config.ts` into an existing app project. The normal path does not need generated config files.
 
-Prefer a generated backend entrypoint? `npx mobigent-backend --app-dir ../mobile-app` is still available as an optional scaffold.
+Prefer a generated backend entrypoint? `npx mobigent-backend --app com.acme.expenses --app-name "Acme Expenses"` is still available as an optional scaffold.
 
 For the fastest first run, this also works:
 

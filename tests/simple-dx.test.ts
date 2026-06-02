@@ -554,9 +554,10 @@ test("backend init helper creates a simple server entrypoint", () => {
     dryRun: true
   });
 
-  assert.deepEqual(files.map((file) => file.path), ["src/mobigent.ts", ".env.mobigent", "mobigent.app.json"]);
+  assert.deepEqual(files.map((file) => file.path), ["src/mobigent.ts", ".env.mobigent"]);
   assert.match(files[0]?.contents ?? "", /startMobigent/);
-  assert.match(files[0]?.contents ?? "", /defaultApp/);
+  assert.doesNotMatch(files[0]?.contents ?? "", /defaultApp/);
+  assert.doesNotMatch(files[0]?.contents ?? "", /export const mobigentConfig/);
   assert.match(files[0]?.contents ?? "", /export const waitForApp = mobigent\.waitForApp/);
   assert.match(files[0]?.contents ?? "", /export const callApp = mobigent\.callApp/);
   assert.match(files[0]?.contents ?? "", /export const appFunction = mobigent\.appFunction/);
@@ -564,7 +565,7 @@ test("backend init helper creates a simple server entrypoint", () => {
   assert.match(files[0]?.contents ?? "", /export const appFunctions = mobigent\.appFunctions/);
   assert.doesNotMatch(files[0]?.contents ?? "", /copyAppConfig|Copy this/);
   assert.match(files[1]?.contents ?? "", /# MOBIGENT_AUTH_TOKEN=replace-me/);
-  assert.match(files[2]?.contents ?? "", /"connectionUrl": "ws:\/\/localhost:8787"/);
+  assert.equal(files.some((file) => file.path === "mobigent.app.json"), false);
 });
 
 test("backend init helper bakes appDir into generated backend code", () => {
@@ -587,7 +588,6 @@ test("backend init helper bakes appDir into generated backend code", () => {
   assert.deepEqual(files.map((file) => file.path), [
     "src/mobigent.ts",
     ".env.mobigent",
-    "mobigent.app.json",
     "../mobile-app/mobigent.app.json",
     "../mobile-app/src/mobigent-config.ts"
   ]);
@@ -620,10 +620,10 @@ test("backend init CLI infers app identity and prints the short app init command
 
     assert.equal(code, 0, stderr);
     const files = JSON.parse(stdout).files as Array<{ path: string; contents: string }>;
-    const config = JSON.parse(files.find((file) => file.path === "mobigent.app.json")?.contents ?? "{}");
-    assert.equal(config.appId, "app.example.expense.hub");
-    assert.equal(config.appName, "Expense Hub");
-    assert.equal("authToken" in config, false);
+    assert.deepEqual(files.map((file) => file.path), ["src/mobigent.ts", ".env.mobigent"]);
+    assert.match(files.find((file) => file.path === "src/mobigent.ts")?.contents ?? "", /appId: "app\.example\.expense\.hub"/);
+    assert.match(files.find((file) => file.path === "src/mobigent.ts")?.contents ?? "", /appName: "Expense Hub"/);
+    assert.equal(files.some((file) => file.path === "mobigent.app.json"), false);
 
     const inferredAppDir = join(dir, "apps", "wallet-mobile");
     await mkdir(inferredAppDir, { recursive: true });
@@ -667,7 +667,7 @@ test("backend init CLI infers app identity and prints the short app init command
     assert.match(await readFile(join(dir, "src", "mobigent.ts"), "utf8"), /appId: "com\.example\.expense"/);
     assert.match(await readFile(join(dir, "src", "mobigent.ts"), "utf8"), /appName: "Expense App"/);
     assert.doesNotMatch(await readFile(join(dir, "src", "mobigent.ts"), "utf8"), /app: \{/);
-    assert.match(await readFile(join(dir, "mobigent.app.json"), "utf8"), /Expense App/);
+    await assert.rejects(readFile(join(dir, "mobigent.app.json"), "utf8"), /ENOENT/);
 
     const appDir = join(dir, "mobile-app");
     stdout = "";

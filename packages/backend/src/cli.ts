@@ -54,15 +54,11 @@ export function createMobigentBackendFiles(options: MobigentBackendInitOptions):
     {
       path: options.envFile,
       contents: createEnvFile()
-    },
-    {
-      path: options.configFile,
-      contents: createAppConfigFile(options)
     }
   ];
 
   if (options.appDir) {
-    const appConfigPath = join(options.appDir, "mobigent.app.json");
+    const appConfigPath = join(options.appDir, options.configFile);
     if (!files.some((file) => file.path === appConfigPath)) {
       files.push({
         path: appConfigPath,
@@ -372,7 +368,6 @@ ${appDirLine}${appConfigModuleLine}${appLine}  appToken: process.env.MOBIGENT_AU
   apiKey: process.env.MOBIGENT_HTTP_API_KEY
 });
 
-export const mobigentConfig = mobigent.defaultApp;
 export const waitForApp = mobigent.waitForApp;
 export const callApp = mobigent.callApp;
 export const appFunction = mobigent.appFunction;
@@ -435,7 +430,7 @@ Then in your app:
 
     export const mobigent = createApp({ functions: { expense: { list: read(listExpenses) } } });
     export default mobigent.with(App);
-${options.appDir ? `\nMobigent already wrote ${join(options.appDir, "mobigent.app.json")} and ${join(options.appDir, appConfigModuleFile ?? join("src", "mobigent-config.ts"))}, so the app package can use the backend connection directly.\n` : "\nTip: pass --app-dir ../mobile-app when you want the backend helper to write the app config for you.\n"}
+${options.appDir ? `\nMobigent already wrote ${join(options.appDir, options.configFile)} and ${join(options.appDir, appConfigModuleFile ?? join("src", "mobigent-config.ts"))}, so the app package can use the backend connection directly.\n` : "\nTip: pass --app-dir ../mobile-app only when you want the backend helper to write app config files for you.\n"}
 
 Need sample files instead of hand-writing them?
   Run mobigent new my-demo --install. The app-side init command is only a generator for examples.
@@ -470,10 +465,10 @@ Options:
   --out-dir <path>    Output directory. Default: src.
   --file <name>       Backend file name. Default: mobigent.ts.
   --env <path>        Env file path. Default: .env.mobigent.
-  --config-file <path> App config JSON for mobile init. Default: mobigent.app.json.
-  --app-dir <path>    Also write app config files into an existing app project.
+  --config-file <path> App config JSON name used with --app-dir. Default: mobigent.app.json.
+  --app-dir <path>    Optional: write app config files into an existing app project.
   --app-config-module <path> React Native config module inside --app-dir. Default: src/mobigent-config.ts.
-  --connection-url <url> App connection URL written to config. Default: ws://localhost:8787.
+  --connection-url <url> App connection URL written when --app-dir is used. Default: ws://localhost:8787.
   --gateway-url <url> Backward-compatible alias for --connection-url.
   --auth-token <token> App auth token written to config. Default: no local app auth.
   --force             Overwrite generated files.

@@ -46,6 +46,8 @@ assert.match(backendFile, /startMobigent/);
 assert.match(backendFile, /appId: "com\.example\.app"/);
 assert.match(backendFile, /appName: "Example App"/);
 assert.doesNotMatch(backendFile, /app: \{/);
+assert.doesNotMatch(backendFile, /defaultApp/);
+assert.doesNotMatch(backendFile, /export const mobigentConfig/);
 assert.match(backendFile, /export const waitForApp = mobigent\.waitForApp/);
 assert.match(backendFile, /export const callApp = mobigent\.callApp/);
 assert.match(backendFile, /export const appFunction = mobigent\.appFunction/);
@@ -71,6 +73,11 @@ assert.match(backendWithAppDirFile, /appDir: "\.\.\/mobile-app"/);
 assert.match(backendWithAppDirFile, /mobigent\.appConfigPath/);
 assert.match(backendWithAppDirFile, /appConfigModuleFile: "src\/mobigent-config\.ts"/);
 assert.doesNotMatch(backendWithAppDirFile, /app: \{/);
+assert.equal(
+  backendWithAppDir.some((file) => file.path === "mobigent.app.json"),
+  false,
+  "backend helper should not write a root app config file by default"
+);
 assert.ok(
   backendWithAppDir.some((file) => file.path === "../mobile-app/src/mobigent-config.ts"),
   "backend appDir flow should write the React Native config module too"
