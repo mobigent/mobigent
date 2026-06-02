@@ -122,6 +122,19 @@ const starterServer = createMobigentAppFiles({
   packageSource: "npm",
   packageVersion: "1.2.3"
 }).find((file) => file.path === "src/server.ts")?.contents ?? "";
+const starterDoctor = createMobigentAppFiles({
+  targetDir: "demo",
+  appId: "com.example.app",
+  appName: "Example App",
+  gatewayPort: 8787,
+  httpPort: 8788,
+  appPort: 8790,
+  openBrowser: false,
+  force: false,
+  dryRun: true,
+  packageSource: "npm",
+  packageVersion: "1.2.3"
+}).find((file) => file.path === "src/doctor.ts")?.contents ?? "";
 
 assert.match(rnRoot, /createApp/);
 assert.match(rnRoot, /config: mobigentConfig/);
@@ -151,6 +164,9 @@ assert.doesNotMatch(starterServer, /backend\.defaultApp/);
 assert.match(starterServer, /const expense = backend\.feature\("expense"\)/);
 assert.match(starterServer, /expense\.create\(input\)/);
 assert.doesNotMatch(starterServer, /backend\.appFunctions\(\{/);
+assert.match(starterDoctor, /ready\?minApps=1&minFunctions=1/);
+assert.match(starterDoctor, /const backendUrl = "http:\/\/localhost:8788"/);
+assert.doesNotMatch(starterDoctor, /const gatewayUrl|function toolName|app manifest\(s\)|minTools/);
 
 for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.md"]) {
   const contents = readFileSync(path, "utf8");

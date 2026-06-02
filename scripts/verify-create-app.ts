@@ -101,7 +101,9 @@ try {
   const doctor = await readFile(join(target, "src", "doctor.ts"), "utf8");
   assert.match(doctor, /Mobigent starter doctor/);
   assert.match(doctor, /com_mobigent_expense.expense_create/);
-  assert.match(doctor, /ready\?minApps=1&minTools=1/);
+  assert.match(doctor, /ready\?minApps=1&minFunctions=1/);
+  assert.match(doctor, /const backendUrl = "http:\/\/localhost:8788"/);
+  assert.doesNotMatch(doctor, /const gatewayUrl|function toolName|app manifest\(s\)/);
 
   const duplicate = run([target, "--no-open"]);
   assert.equal(duplicate.code, 1);

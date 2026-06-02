@@ -640,10 +640,10 @@ function titleCase(value: string) {
 }
 
 function createDoctorFile(options: CreateMobigentAppOptions) {
-  const tool = toolName(options.appId, "expense_create");
+  const functionName = backendFunctionName(options.appId, "expense_create");
   return `const appUrl = "http://localhost:${options.appPort}";
-const gatewayUrl = "http://localhost:${options.httpPort}";
-const expectedFunction = "${tool}";
+const backendUrl = "http://localhost:${options.httpPort}";
+const expectedFunction = "${functionName}";
 
 type Check = {
   name: string;
@@ -661,12 +661,12 @@ await check("App playground", async () => {
 });
 
 await check("Backend health", async () => {
-  const body = await getJson<{ status?: { tools?: number; appsWithManifests?: number } }>(\`\${gatewayUrl}/health\`);
-  return \`\${body.status?.appsWithManifests ?? 0} app manifest(s), \${body.status?.tools ?? 0} function(s)\`;
+  const body = await getJson<{ status?: { tools?: number; appsWithManifests?: number } }>(\`\${backendUrl}/health\`);
+  return \`\${body.status?.appsWithManifests ?? 0} connected app(s), \${body.status?.tools ?? 0} app function(s)\`;
 });
 
 await check("Backend readiness", async () => {
-  const body = await getJson<{ ok?: boolean }>(\`\${gatewayUrl}/ready?minApps=1&minTools=1\`);
+  const body = await getJson<{ ok?: boolean }>(\`\${backendUrl}/ready?minApps=1&minFunctions=1\`);
   if (!body.ok) {
     throw new Error("backend is reachable but not ready for one app and one function yet");
   }
@@ -674,8 +674,8 @@ await check("Backend readiness", async () => {
 });
 
 await check("Expense function", async () => {
-  const body = await getJson<{ tools?: Array<{ name?: string }> }>(\`\${gatewayUrl}/tools\`);
-  const names = body.tools?.map((tool) => tool.name).filter(Boolean) ?? [];
+  const body = await getJson<{ tools?: Array<{ name?: string }> }>(\`\${backendUrl}/tools\`);
+  const names = body.tools?.map((item) => item.name).filter(Boolean) ?? [];
   if (!names.includes(expectedFunction)) {
     throw new Error(\`expected \${expectedFunction}; saw \${names.join(", ") || "no functions"}\`);
   }
@@ -739,7 +739,7 @@ function releaseTarballSpec(packageFileName: string, version: string) {
   return `https://github.com/mobigent/mobigent/releases/download/v${version}/${packageFileName}-${version}.tgz`;
 }
 
-function toolName(appId: string, capability: string) {
+function backendFunctionName(appId: string, capability: string) {
   return `${appId.replace(/[^a-zA-Z0-9]/g, "_")}.${capability}`.toLowerCase();
 }
 
