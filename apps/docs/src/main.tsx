@@ -23,12 +23,12 @@ function App() {
             <Radio size={15} />
             Open-source agent infrastructure for mobile apps
           </div>
-          <h1>The bridge between AI agents and real app functions.</h1>
+          <h1>Make real app functions available to AI agents.</h1>
           <p>
             Install the app package, install the backend package, expose real app functions with
             withMobigent(App, appId, functions) or createApp(appId, functions), then
             startMobigent(appId) and call mobigent.app.expense.create(input).
-            Mobigent handles the bridge, approvals, retries, discovery, and agent setup.
+            Mobigent handles the app connection, approvals, retries, discovery, and agent setup.
           </p>
           <div className="heroActions">
             <a className="primaryButton" href="./docs.html">

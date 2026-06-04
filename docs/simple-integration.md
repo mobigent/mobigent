@@ -2,7 +2,7 @@
 
 Mobigent should feel like two normal SDK installs.
 
-You do not start with protocol plumbing. The SDK owns that until you need advanced production control.
+You do not start with connection plumbing. The SDK owns that until you need advanced production control.
 
 ## The Whole Model
 
@@ -122,7 +122,7 @@ await mobigent.app.expense.list();
 
 That is the backend integration.
 
-Prefer generated sample files? Use the starter. Backend/app init commands are helpers, not required integration.
+Prefer generated sample files? Use the starter. Starter generation is a demo shortcut, not required integration.
 
 If your backend wants its own helper names, bind them once:
 

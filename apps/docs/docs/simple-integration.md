@@ -111,7 +111,7 @@ await mobigent.app.expense.list();
 
 Mobigent pairs the app and backend by `appId`, waits for the app connection when a function is called, and routes the call to the app-owned function.
 
-Starter and backend init commands are optional sample helpers. The normal path is install plus code.
+Starter generation is a demo shortcut. The normal path is install plus code.
 
 If your backend wants its own helper names, bind them once:
 

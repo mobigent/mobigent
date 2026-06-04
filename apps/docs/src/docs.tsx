@@ -302,7 +302,7 @@ const firstRunChecks = [
 
 const model = [
   ["App package", "Lives inside the mobile app and exposes real app functions."],
-  ["Backend package", "Runs the bridge, waits for the app, and gives agents a clean callable API."],
+  ["Backend package", "Runs the agent-facing service, waits for the app, and gives agents a clean callable API."],
   ["Agent", "Calls typed functions and receives typed results instead of touching the UI."],
   ["User", "Approves risky actions inside the app before handlers run."]
 ];
@@ -439,7 +439,7 @@ function Docs() {
           <h1>Everything you need to make a mobile app agent-ready.</h1>
           <p>
             Mobigent lets a mobile app expose real app functions to AI agents through two normal packages.
-            The app owns the behavior, the backend calls it, and the SDK handles the bridge details.
+            The app owns the behavior, the backend calls it, and the SDK handles the connection details.
           </p>
         </div>
       </section>

@@ -1,6 +1,6 @@
 # React Native Integration
 
-Use Mobigent like normal app code: expose a few real functions, wrap the app once, and let the SDK handle the bridge.
+Use Mobigent like normal app code: expose a few real functions, wrap the app once, and let the SDK handle the connection.
 
 ## 1. Install
 
@@ -182,4 +182,4 @@ Use full JSON Schema or the lower-level `schema.*` helpers only when plain field
 
 ## Advanced
 
-The lower-level provider, hooks, `createAgentModule()`, explicit `defineFeature()`, and manual registration APIs are still available for screen-scoped app functions, custom confirmation UI, custom environment switching, and manifest signing. Start with `createApp(appId, functions)` first.
+The lower-level provider, hooks, `createAgentModule()`, explicit `defineFeature()`, and manual registration APIs are still available for screen-scoped app functions, custom confirmation UI, custom environment switching, and advanced signing. Start with `createApp(appId, functions)` first.

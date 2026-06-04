@@ -45,9 +45,8 @@ Generate a backend entrypoint if you do not want to write it by hand.
 ```bash
 mobigent app --doctor --app-root .
 mobigent app --security-doctor --feature expense
-mobigent app --manifest --feature expense
 ```
 
-Check a React Native integration or print advanced artifacts. Real app integration stays in code: install `@mobigent/app`, expose functions, and wrap the app once.
+Check a React Native integration. Advanced artifact commands are available from `mobigent app --help`, but real app integration stays in code: install `@mobigent/app`, expose functions, and wrap the app once.
 
 For a complete throwaway sample, use `mobigent new my-demo --install`. The app helper commands are not part of normal installation.

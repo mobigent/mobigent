@@ -427,6 +427,34 @@ for (const path of [
 }
 
 for (const path of [
+  "README.md",
+  "docs/quickstart.md",
+  "docs/simple-integration.md",
+  "docs/react-native.md",
+  "packages/app/README.md",
+  "packages/backend/README.md",
+  "packages/cli/README.md",
+  "packages/react-native/README.md",
+  "apps/docs/docs/quickstart.md",
+  "apps/docs/docs/simple-integration.md",
+  "apps/docs/docs/react-native.md",
+  "apps/docs/src/main.tsx"
+]) {
+  const contents = readFileSync(path, "utf8");
+  const beginnerSlice = contents.slice(0, Math.min(contents.length, 3500));
+  assert.doesNotMatch(
+    beginnerSlice,
+    /\b(protocol|manifest|registerAction|registerResource|registerComponent|mobigent-init|out-dir|appDir)\b/i,
+    `${path} should keep first-run integration copy free of low-level protocol/init vocabulary`
+  );
+  assert.doesNotMatch(
+    beginnerSlice,
+    /\bbridge\b/i,
+    `${path} should describe the beginner path as app functions and connections, not a bridge`
+  );
+}
+
+for (const path of [
   "apps/docs/docs/simple-integration.md",
   "apps/docs/docs/quickstart.md",
   "apps/docs/docs/react-native.md",

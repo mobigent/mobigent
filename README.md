@@ -6,7 +6,7 @@
 
 **Make mobile apps agent-ready.**
 
-Mobigent is an open-source SDK that lets AI agents use mobile app functions the same way your backend uses Firebase Cloud Messaging: install a client package, install a backend package, pass typed data, and let the SDK handle the bridge.
+Mobigent is an open-source SDK that lets AI agents use mobile app functions the same way your backend uses Firebase Cloud Messaging: install a client package, install a backend package, pass typed data, and let the SDK handle the connection.
 
 Your app exposes normal functions agents are allowed to use:
 
@@ -422,7 +422,7 @@ That single page includes the app UI, an agent request box, the function result,
 
 Use `mobigent.agent("chatgpt")` for ChatGPT Actions setup, `mobigent.agent("claude")` for Claude Desktop setup, or `mobigent.agent("openai")` for server-side OpenAI Responses setup.
 
-Advanced local agent clients can still use MCP:
+Advanced local agent clients can still use the MCP server:
 
 ```bash
 npm run dev:mcp
@@ -442,7 +442,7 @@ Optional helpers:
 - `packages/ios`: native Swift Package for iOS apps
 - `packages/android`: native Kotlin/Android SDK
 
-The rest of the monorepo supports those packages. Day-one app teams should not need to install or understand the lower-level bridge packages.
+The rest of the monorepo supports those packages. Day-one app teams should not need to install or understand lower-level runtime packages.
 
 ## Examples
 
@@ -478,7 +478,7 @@ Advanced docs after the simple loop works:
 - Open `http://localhost:8788/inspect` to see apps, functions, metrics, audit events, and backend snapshot data.
 - Run `npx mobigent app --security-doctor ...` before exposing a hosted backend.
 - Use `fromZod()` or `fromTypeBox()` when you already have schemas.
-- Run `npx mobigent app --platform-actions json ...` to generate optional iOS App Intents and Android App Actions bridge plans.
+- Run `npx mobigent app --platform-actions json ...` only when you need optional iOS App Intents or Android App Actions plans.
 
 ## Why Mobigent Exists
 
@@ -501,7 +501,7 @@ Mobigent is an early developer preview. The proof of concept already includes:
 - React Native SDK APIs
 - Native iOS SDK
 - Native Android SDK
-- Local app/backend bridge
+- Local app/backend connection
 - HTTP and OpenAPI support
 - MCP server support
 - User confirmation flow
@@ -510,7 +510,7 @@ Mobigent is an early developer preview. The proof of concept already includes:
 - Provider examples
 - GitHub Pages docs site
 - Native CI workflow
-- Docker production gateway path
+- Docker production hosting path
 
 The goal is simple: make Mobigent the easiest way to build agentic mobile apps.
 

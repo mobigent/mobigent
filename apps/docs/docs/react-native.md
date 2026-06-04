@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # React Native SDK
 
-Use Mobigent like normal app code: expose a few real functions, wrap the app once, and let the SDK handle the bridge.
+Use Mobigent like normal app code: expose a few real functions, wrap the app once, and let the SDK handle the connection.
 
 ## Install
 
@@ -117,4 +117,4 @@ await expenses.createExpense({ merchant: "Coffee", amount: 8 });
 
 ## Advanced
 
-The lower-level provider, hooks, manual registration, `createAgentModule()`, and `schema.*` APIs are still available. Use them for screen-scoped app functions, custom confirmation UI, advanced environment switching, and manifest signing.
+The lower-level provider, hooks, manual registration, `createAgentModule()`, and `schema.*` APIs are still available. Use them for screen-scoped app functions, custom confirmation UI, advanced environment switching, and signed production setups.

@@ -111,7 +111,7 @@ console.log(mobigent.agent("chatgpt").endpoints.openApi);
 
 Mobigent pairs the backend and app by `appId`, handles the connection, routes app function calls, exposes the inspector, and waits for readiness when needed.
 
-Prefer generated sample files? Use the starter. Backend/app init commands are helpers, not required integration.
+Prefer generated sample files? Use the starter. Starter generation is a demo shortcut, not required integration.
 
 Call app functions from the backend SDK object. Mobigent waits for the app connection when a function is called:
 

@@ -9,7 +9,7 @@ Mobigent is two normal packages:
 - `@mobigent/app` goes in the app and exposes real app functions.
 - `@mobigent/backend` goes in the backend and calls those functions.
 
-The SDK handles the bridge, config, connection lifecycle, validation, confirmations, agent setup, and audit events.
+The SDK handles the app/backend connection, local defaults, validation, confirmations, agent setup, and audit events.
 Use the same `appId` in the app and backend. That is the normal pairing mechanism.
 
 ## 1. Add App Functions To An Existing App
@@ -81,7 +81,7 @@ export default withMobigent(App, "com.acme.expenses", {
 
 That is the app integration. For throwaway local demos, Mobigent can use a safe starter app identity, but real apps should pass a stable `appId`.
 
-No app-side init command is required. The SDK handles the bridge setup. Optional generators are only useful when you want example files.
+No app-side init command is required. The SDK handles the app connection. Optional generators are only useful when you want example files.
 
 For a non-React demo or test host, connect the same feature in one call:
 
@@ -122,7 +122,7 @@ console.log(mobigent.inspectorUrl);
 
 The backend and app pair by `appId`. The backend handles the connection, function routing, inspector, agent endpoints, and readiness waiting.
 
-Prefer generated sample files? Use the starter. Backend/app init commands are helpers, not required integration.
+Prefer generated sample files? Use the starter. Starter generation is a demo shortcut, not required integration.
 
 Call app functions from the backend SDK object. Mobigent waits for the app connection when a function is called:
 
@@ -182,7 +182,7 @@ export const mobigent = createApp("com.acme.expenses", {
 });
 ```
 
-Use your computer's LAN IP for a physical phone. For a hosted backend, use the hosted WebSocket URL:
+Use your computer's LAN IP for a physical phone. For a hosted backend, use the hosted app connection URL:
 
 ```ts
 createApp("com.acme.expenses", functions, {

@@ -81,7 +81,7 @@ expense.list
 expense.create
 ```
 
-Under the hood, Mobigent maps those functions to provider-safe names for OpenAPI, MCP, and model SDKs.
+Under the hood, Mobigent maps those functions into the exact names and shapes each agent integration needs.
 
 ## Wrap Your Existing App
 
@@ -189,4 +189,4 @@ The direct `@mobigent/react-native` package includes lower-level APIs for mature
 - `schema.*`
 - diagnostics and status hooks
 
-Use these when you need screen-scoped app functions, custom provider placement, custom confirmation UI, manifest signing, or advanced environment switching. New apps should start with `createApp(appId, functions)`.
+Use these when you need screen-scoped app functions, custom provider placement, custom confirmation UI, signed production setup, or advanced environment switching. New apps should start with `createApp(appId, functions)`.
