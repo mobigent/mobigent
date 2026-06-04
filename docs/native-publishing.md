@@ -4,8 +4,8 @@ The repository publishes release artifacts from GitHub Actions when a SemVer tag
 
 Current release channels:
 
-- GitHub Release tarballs for `@mobigent/core`, `@mobigent/backend`, `@mobigent/providers`, `@mobigent/app`, `@mobigent/react-native`, and `@mobigent/gateway`
-- GitHub Packages for the same npm packages under the `@mobigent` scope
+- GitHub Release tarballs for the app SDK, backend SDK, CLI/starter, and their runtime dependency packages
+- GitHub Packages for the same npm package set under the `@mobigent` scope
 - Swift Package Manager through Git tags
 
 npmjs.com publishing is enabled in the release workflow when the repository has an `NPM_TOKEN` secret.

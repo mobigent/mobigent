@@ -9,15 +9,15 @@ type NpmView = {
   repository?: string | { type?: string; url?: string; directory?: string };
 };
 
-const packages = [
-  "@mobigent/core",
-  "@mobigent/gateway",
-  "@mobigent/backend",
-  "@mobigent/providers",
-  "@mobigent/react-native",
-  "@mobigent/app",
-  "create-mobigent-app",
-  "mobigent"
+const packageGroups = [
+  {
+    label: "developer-facing packages",
+    packages: ["@mobigent/app", "@mobigent/backend", "create-mobigent-app", "mobigent"]
+  },
+  {
+    label: "runtime dependency packages",
+    packages: ["@mobigent/core", "@mobigent/react-native", "@mobigent/providers", "@mobigent/gateway"]
+  }
 ];
 
 const expectedRepository = "https://github.com/mobigent/mobigent";
@@ -38,23 +38,29 @@ if (!hasToken && !trustedPublishing && !loggedInUser) {
   console.log("fail auth: run npm login, set NODE_AUTH_TOKEN/NPM_TOKEN, or configure npm Trusted Publishing.");
 }
 
-for (const packageName of packages) {
-  const view = await npmView(packageName);
+for (const group of packageGroups) {
+  console.log(`${group.label}:`);
 
-  if (!view) {
-    missing += 1;
-    console.log(`empty ${packageName}: not published yet`);
-    continue;
+  for (const packageName of group.packages) {
+    const view = await npmView(packageName);
+
+    if (!view) {
+      missing += 1;
+      console.log(`  empty ${packageName}: not published yet`);
+      continue;
+    }
+
+    const repository = repositoryUrl(view.repository);
+    if (!repository?.includes(expectedRepository)) {
+      failures += 1;
+      console.log(`  fail ${packageName}: repository is ${repository ?? "missing"}, expected ${expectedRepository}`);
+      continue;
+    }
+
+    console.log(`  ok   ${packageName}@${view.version ?? "unknown"}: published with expected repository`);
   }
 
-  const repository = repositoryUrl(view.repository);
-  if (!repository?.includes(expectedRepository)) {
-    failures += 1;
-    console.log(`fail ${packageName}: repository is ${repository ?? "missing"}, expected ${expectedRepository}`);
-    continue;
-  }
-
-  console.log(`ok   ${packageName}@${view.version ?? "unknown"}: published with expected repository`);
+  console.log("");
 }
 
 if (trustedPublishing && missing > 0 && !hasToken && !loggedInUser) {

@@ -17,27 +17,34 @@ npm exec --yes \
   -- create-mobigent-app my-demo --install
 ```
 
-## Packages To Publish
+## Package Story
+
+Developers should think about these packages:
+
+- `@mobigent/app`: install in the mobile app
+- `@mobigent/backend`: install in the backend
+- `create-mobigent-app`: optional runnable starter
+- `mobigent`: optional CLI for setup, health checks, and agent guides
+
+The release also publishes runtime dependency packages used by the SDKs:
 
 - `@mobigent/core`
-- `@mobigent/gateway`
-- `@mobigent/backend`
-- `@mobigent/providers`
-- `@mobigent/app`
 - `@mobigent/react-native`
-- `create-mobigent-app`
-- `mobigent`
+- `@mobigent/providers`
+- `@mobigent/gateway`
+
+Those dependency packages stay public so normal `npm install @mobigent/app` and `npm install @mobigent/backend` work without local paths, but they are not the day-one adoption surface.
 
 ## Option A: Token Publishing
 
 Use this for the first public publish, because npm Trusted Publishing can only be configured after each package exists on npmjs.com.
 
 1. Create or join the `@mobigent` npm organization.
-2. Create an npm automation token with publish access for the eight packages.
+2. Create an npm automation token with publish access for the developer-facing packages and runtime dependency packages above.
 3. Add that token as the GitHub secret `NPM_TOKEN`.
 4. Rerun the existing tag release workflow or push the next SemVer tag.
 
-The release workflow publishes all npm packages on SemVer tags.
+The release workflow publishes the SDK packages and their runtime dependency packages on SemVer tags.
 
 ### Fastest First Publish
 
@@ -77,14 +84,15 @@ After the first package versions exist on npm, configure trust for the release w
 ```bash
 npm install -g npm@^11.10.0
 
-npm trust github @mobigent/core --repo mobigent/mobigent --file release.yml --allow-publish
-npm trust github @mobigent/gateway --repo mobigent/mobigent --file release.yml --allow-publish
 npm trust github @mobigent/backend --repo mobigent/mobigent --file release.yml --allow-publish
-npm trust github @mobigent/providers --repo mobigent/mobigent --file release.yml --allow-publish
 npm trust github @mobigent/app --repo mobigent/mobigent --file release.yml --allow-publish
-npm trust github @mobigent/react-native --repo mobigent/mobigent --file release.yml --allow-publish
 npm trust github create-mobigent-app --repo mobigent/mobigent --file release.yml --allow-publish
 npm trust github mobigent --repo mobigent/mobigent --file release.yml --allow-publish
+
+npm trust github @mobigent/core --repo mobigent/mobigent --file release.yml --allow-publish
+npm trust github @mobigent/react-native --repo mobigent/mobigent --file release.yml --allow-publish
+npm trust github @mobigent/providers --repo mobigent/mobigent --file release.yml --allow-publish
+npm trust github @mobigent/gateway --repo mobigent/mobigent --file release.yml --allow-publish
 ```
 
 Then set the GitHub repository variable:
@@ -100,7 +108,7 @@ The workflow pins Node 24 and installs `npm@^11.10.0` before publishing so the O
 
 The release workflow always builds GitHub release tarballs. If neither `NPM_TOKEN` nor `NPM_TRUSTED_PUBLISHING=true` is configured, the npmjs publish job logs that npm publishing was skipped and the GitHub release still completes.
 
-When npm credentials are configured, the same workflow runs `npm run verify`, checks publish readiness, publishes all public packages, and verifies package visibility on npmjs.com.
+When npm credentials are configured, the same workflow runs `npm run verify`, checks publish readiness, publishes the SDK packages plus runtime dependency packages, and verifies package visibility on npmjs.com.
 
 The publish script is idempotent per version: if `@mobigent/app@0.1.15` already exists, it skips that package and continues. This makes reruns safer after a partial publish.
 
@@ -118,7 +126,7 @@ If you prefer token-based local publishing, set either `NPM_TOKEN` or `NODE_AUTH
 `npm:publish-ready` explains the current npm state before you publish:
 
 - whether the machine is authenticated
-- whether the eight package names already exist
+- whether the package names already exist
 - whether any existing package points at the wrong repository
 - whether Trusted Publishing can work yet
 

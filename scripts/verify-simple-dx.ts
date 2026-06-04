@@ -482,6 +482,18 @@ const previewInstaller = readFileSync("packages/create-app/src/install.ts", "utf
 assert.match(previewInstaller, /Backend SDK for servers and agent setup/);
 assert.doesNotMatch(previewInstaller, /agent gateway packages|package set/);
 
+const npmPublishingGuide = readFileSync("docs/npm-publishing.md", "utf8");
+assert.match(npmPublishingGuide, /## Package Story/);
+assert.match(npmPublishingGuide, /Developers should think about these packages/);
+assert.match(npmPublishingGuide, /runtime dependency packages used by the SDKs/);
+assert.doesNotMatch(npmPublishingGuide, /## Packages To Publish|eight packages/);
+
+for (const path of ["scripts/check-npm-status.ts", "scripts/check-npm-publish-readiness.ts"]) {
+  const contents = readFileSync(path, "utf8");
+  assert.match(contents, /developer-facing packages/, `${path} should report SDK packages separately`);
+  assert.match(contents, /runtime dependency packages/, `${path} should frame internal packages as runtime dependencies`);
+}
+
 for (const path of ["docs/ios.md", "docs/android.md", "packages/ios/README.md", "packages/android/README.md"]) {
   const contents = readFileSync(path, "utf8");
   assert.match(contents, /@mobigent\/backend/, `${path} should anchor native SDKs to the backend package`);
