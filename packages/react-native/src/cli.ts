@@ -1590,12 +1590,29 @@ function assertIdentifier(label: string, value: string) {
 }
 
 function helpText() {
-  return `Mobigent React Native sample generator
+  return `Mobigent React Native optional helpers
+
+Normal app integration does not need this command:
+  npm install @mobigent/app
+  # createApp({ functions }).with(App)
+
+Use these helpers only when you want generated sample files,
+doctor checks, manifests, platform action plans, or env templates.
 
 Usage:
+  mobigent app --doctor --app-root .
+  mobigent app --security-doctor --gateway-url wss://gateway.example.com
+  mobigent app --manifest --feature expense --out-dir src
+  mobigent app --platform-actions json --feature expense
+  mobigent app --env-template --gateway-url ws://localhost:8787
+
+Optional sample-file generation:
+  mobigent app --feature expense --out-dir src
+  mobigent app --feature expense --out-dir src --expo-router
+  mobigent app --app-id com.example.app --app-name "Example App" --feature expense --out-dir src
+
+Backward-compatible aliases:
   mobigent init --feature expense --out-dir src
-  mobigent init --feature expense --out-dir src --expo-router
-  mobigent init --app-id com.example.app --app-name "Example App" --feature expense --out-dir src
   mobigent doctor --feature expense --out-dir src --app-root .
   mobigent-rn-init --feature expense --out-dir src --dry-run
   mobigent-rn-init --feature expense --out-dir src --custom-confirmation

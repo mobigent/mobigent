@@ -430,9 +430,9 @@ Advanced internals:
 ## Developer Workflow Highlights
 
 - Open `http://localhost:8788/inspect` to see apps, functions, metrics, audit events, and backend snapshot data.
-- Run `npx mobigent-init --security-doctor ...` before exposing a hosted gateway.
+- Run `npx mobigent app --security-doctor ...` before exposing a hosted gateway.
 - Use `fromZod()` or `fromTypeBox()` when you already have schemas.
-- Run `npx mobigent-init --platform-actions json ...` to generate iOS App Intents and Android App Actions bridge plans.
+- Run `npx mobigent app --platform-actions json ...` to generate optional iOS App Intents and Android App Actions bridge plans.
 
 ## Why Mobigent Exists
 

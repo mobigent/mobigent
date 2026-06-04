@@ -43,9 +43,9 @@ mobigent backend --app com.acme.expenses --app-name "Acme Expenses"
 Generate a backend entrypoint if you do not want to write it by hand.
 
 ```bash
-mobigent init --feature expense --out-dir src
-mobigent doctor --feature expense --out-dir src
-mobigent security-doctor --feature expense
+mobigent app --feature expense --out-dir src
+mobigent app --doctor --feature expense --out-dir src
+mobigent app --security-doctor --feature expense
 ```
 
 Generate or check React Native sample integration files. This is demo scaffolding, not the main SDK path.

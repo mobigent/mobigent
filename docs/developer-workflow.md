@@ -37,7 +37,7 @@ The inspector shows connected apps, discovered tools, metrics, recent audit even
 Before sharing a gateway with a hosted agent, check transport and confirmation defaults:
 
 ```bash
-npx mobigent-init \
+npx mobigent app \
   --security-doctor \
   --app-id com.example.app \
   --app-name "Example App" \
@@ -79,17 +79,17 @@ const nativeInput = schema.object({
 Use the same capability contract as a starting point for iOS App Intents and Android App Actions:
 
 ```bash
-npx mobigent-init --platform-actions json \
+npx mobigent app --platform-actions json \
   --app-id com.example.app \
   --app-name "Example App" \
   --feature expense
 
-npx mobigent-init --platform-actions ios-swift \
+npx mobigent app --platform-actions ios-swift \
   --app-id com.example.app \
   --app-name "Example App" \
   --feature expense
 
-npx mobigent-init --platform-actions android-xml \
+npx mobigent app --platform-actions android-xml \
   --app-id com.example.app \
   --app-name "Example App" \
   --feature expense

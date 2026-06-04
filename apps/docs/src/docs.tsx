@@ -16,12 +16,19 @@ import {
 import { createRoot } from "react-dom/client";
 import "./styles.css";
 
-const quickstart = `npm exec --yes \\
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \\
-  -- create-mobigent-app my-demo --package-source github-release --install
+const existingAppInstallCode = `npm install @mobigent/app
+npm install @mobigent/backend`;
 
-cd my-demo
-npm run dev`;
+const existingAppFallbackCode = `npm install \\
+  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-core-0.1.15.tgz \\
+  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-react-native-0.1.15.tgz \\
+  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-app-0.1.15.tgz
+
+npm install \\
+  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-core-0.1.15.tgz \\
+  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-providers-0.1.15.tgz \\
+  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-gateway-0.1.15.tgz \\
+  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-backend-0.1.15.tgz`;
 
 const deviceConnectionCode = `export const mobigent = createApp({
   appId: "com.acme.expenses",
@@ -111,7 +118,6 @@ npx mobigent-backend --app com.acme.expenses --app-name "Acme Expenses"`;
 const securityDoctorCode = `npx mobigent security-doctor \\
   --app-id com.example.app \\
   --app-name "Example App" \\
-  --feature expense \\
   --gateway-url wss://gateway.example.com \\
   --custom-confirmation`;
 
@@ -129,14 +135,14 @@ const taskInput = fromTypeBox({
   required: ["title"]
 });`;
 
-const platformActionsCode = `npx mobigent-init \\
+const platformActionsCode = `npx mobigent app \\
   --platform-actions json \\
   --app-id com.example.app \\
   --app-name "Example App" \\
   --feature expense
 
-npx mobigent-init --platform-actions ios-swift ...
-npx mobigent-init --platform-actions android-xml ...`;
+npx mobigent app --platform-actions ios-swift ...
+npx mobigent app --platform-actions android-xml ...`;
 
 const providerCode = `import { createChatGptActionsProvider } from "@mobigent/providers";
 
@@ -480,7 +486,8 @@ function Docs() {
           <p>Use this path for the first integration. After it works, add more features by product area.</p>
         </div>
         <div className="codeGrid docsCodeGrid">
-          <Code title="1. Install packages" code={quickstart} />
+          <Code title="1. Install packages" code={existingAppInstallCode} />
+          <Code title="Temporary public fallback" code={existingAppFallbackCode} />
           <Code title="2. Define app capability" code={moduleCode} />
           <Code title="Optional validation and approval copy" code={optionalMetadataCode} />
           <Code title="3. Wrap the app" code={appCode} />

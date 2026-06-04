@@ -124,7 +124,7 @@ You should see the app, manifest tools, recent audit events, and metrics. The sa
 Mobigent can generate a first-pass Android App Actions XML plan from the same capability contract used by the gateway:
 
 ```bash
-npx mobigent-init \
+npx mobigent app \
   --platform-actions android-xml \
   --app-id com.example.expenses \
   --app-name "Expenses" \
