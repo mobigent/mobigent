@@ -42,10 +42,13 @@ try {
   assert.match(provider, /mobigent-mcp/);
 
   const rn = await run(join(binDir, "mobigent-init"), ["--help"]);
-  assert.match(rn, /Mobigent React Native sample generator/);
+  assert.match(rn, /Mobigent React Native optional helpers/);
+  assert.match(rn, /npm install @mobigent\/app/);
+  assert.match(rn, /Normal app integration does not need this command/);
 
   const mobigent = await run(join(binDir, "mobigent"), ["init", "--help"]);
-  assert.match(mobigent, /mobigent init/);
+  assert.match(mobigent, /Mobigent React Native optional helpers/);
+  assert.match(mobigent, /mobigent app --feature expense --out-dir src/);
   const mobigentBackendHelp = await run(join(binDir, "mobigent"), ["backend", "--help"]);
   assert.match(mobigentBackendHelp, /mobigent-backend/);
   assert.doesNotMatch(mobigentBackendHelp, /--app-dir \.\.\/mobile-app/);
@@ -65,8 +68,12 @@ async function linkBin(name: string, target: string) {
 
 function run(command: string, args: string[]) {
   return new Promise<string>((resolveRun, reject) => {
-    const child = spawn(command, args, { cwd: process.cwd(), stdio: "pipe" });
+    const child = spawn(process.execPath, [command, ...args], { cwd: process.cwd(), stdio: "pipe" });
     let output = "";
+    const timeout = setTimeout(() => {
+      child.kill("SIGTERM");
+      reject(new Error(`${command} ${args.join(" ")} timed out\n${output}`));
+    }, 15000);
     child.stdout.on("data", (chunk) => {
       output += chunk.toString();
     });
@@ -74,6 +81,7 @@ function run(command: string, args: string[]) {
       output += chunk.toString();
     });
     child.on("close", (code) => {
+      clearTimeout(timeout);
       if (code === 0) {
         resolveRun(output);
         return;
