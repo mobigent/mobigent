@@ -115,7 +115,7 @@ npm exec --yes \
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent("com.acme.expenses", "Acme Expenses");
+const mobigent = await startMobigent("com.acme.expenses");
 ```
 
 Mobigent pairs the backend and app by `appId`. Backend function calls wait for the app connection automatically.
@@ -145,7 +145,7 @@ If you are running a local demo, test host, or another runtime where you are usi
 import { startMobigent } from "@mobigent/backend";
 import { mobigent } from "./mobigent/expenses";
 
-const backend = await startMobigent("com.acme.expenses", "Acme Expenses");
+const backend = await startMobigent("com.acme.expenses");
 
 const connection = await mobigent.connect(backend);
 

@@ -108,17 +108,14 @@ npx mobigent-mcp`;
 
 const backendCode = `import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent("com.acme.expenses", "Acme Expenses");
+const mobigent = await startMobigent("com.acme.expenses");
 
 await mobigent.app.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
 await mobigent.app.expense.list();
 
 console.log(mobigent.inspectorUrl);`;
 
-const backendShortCode = `const mobigent = await startMobigent(
-  "com.acme.expenses",
-  "Acme Expenses"
-);`;
+const backendShortCode = `const mobigent = await startMobigent("com.acme.expenses");`;
 
 const backendUseCode = `const expenses = mobigent.use("expense", {
   createExpense: "create",

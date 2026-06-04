@@ -242,7 +242,7 @@ for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.
     /mobigent\.use\("expense", \{\s+createExpense: "create"/,
     `${path} should teach namespace-first backend function aliases through the simple use() API`
   );
-  assert.match(contents, /startMobigent\("com\.acme\.expenses", "Acme Expenses"\)/, `${path} should teach the short backend start path`);
+  assert.match(contents, /startMobigent\("com\.acme\.expenses"\)/, `${path} should teach the short backend start path`);
   assert.doesNotMatch(
     contents,
     /npm install @mobigent\/app[\s\S]{0,600}?npx mobigent-init/,
@@ -287,7 +287,7 @@ for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.
   assert.doesNotMatch(
     contents,
     /startMobigent\(\{[\s\S]{0,160}?appId: "com\.acme\.expenses"/,
-    `${path} should teach startMobigent(appId, appName) before object options`
+    `${path} should teach startMobigent(appId) before object options`
   );
 }
 
@@ -309,7 +309,7 @@ for (const path of ["packages/app/README.md", "packages/react-native/README.md"]
 
 {
   const backendReadme = readFileSync("packages/backend/README.md", "utf8");
-  assert.match(backendReadme, /startMobigent\("com\.acme\.expenses", "Acme Expenses"\)/);
+  assert.match(backendReadme, /startMobigent\("com\.acme\.expenses"\)/);
   assert.match(backendReadme, /mobigent\.app\.expense\.create/);
   assert.match(backendReadme, /mobigent\.use\("expense", \{\s+createExpense: "create"/);
   assert.doesNotMatch(
@@ -333,10 +333,10 @@ for (const path of [
   assert.match(contents, /startMobigent/, `${path} should teach startMobigent as the backend entrypoint`);
   assert.match(
     contents,
-    /startMobigent\("com\.acme\.expenses", "Acme Expenses"\)|startMobigent\(appId, appName\)/,
-    `${path} should teach startMobigent(appId, appName) as the short backend path`
+    /startMobigent\("com\.acme\.expenses"\)|startMobigent\(appId\)/,
+    `${path} should teach startMobigent(appId) as the short backend path`
   );
-  assert.doesNotMatch(contents, /startMobigent\(appId\)/, `${path} should not teach startMobigent(appId)`);
+  assert.doesNotMatch(contents, /startMobigent\(appId, appName\)/, `${path} should not require an app name in the beginner path`);
   assert.doesNotMatch(
     contents,
     /mobigent-core-0\.1\.15\.tgz/,
@@ -406,7 +406,7 @@ for (const path of ["docs/api/README.md", "apps/docs/docs/api.md"]) {
   );
   assert.match(
     homeQuickstart,
-    /startMobigent\(\s+"com\.acme\.expenses",\s+"Acme Expenses"\s+\)/,
+    /startMobigent\("com\.acme\.expenses"\)/,
     "homepage hero quickstart should show the short backend start path"
   );
   assert.doesNotMatch(
@@ -417,8 +417,8 @@ for (const path of ["docs/api/README.md", "apps/docs/docs/api.md"]) {
 }
 
 const cliReadme = readFileSync("packages/cli/README.md", "utf8");
-assert.match(cliReadme, /startMobigent\(appId, appName\)/);
-assert.doesNotMatch(cliReadme, /startMobigent\(appId\)/);
+assert.match(cliReadme, /startMobigent\(appId\)/);
+assert.doesNotMatch(cliReadme, /startMobigent\(appId, appName\)/);
 
 for (const path of ["docs/ios.md", "docs/android.md", "packages/ios/README.md", "packages/android/README.md"]) {
   const contents = readFileSync(path, "utf8");

@@ -49,7 +49,7 @@ For non-React hosts, demos, and tests:
 import { startMobigent } from "@mobigent/backend";
 import { mobigent } from "./mobigent";
 
-const backend = await startMobigent("com.acme.expenses", "Acme Expenses");
+const backend = await startMobigent("com.acme.expenses");
 
 const connection = await mobigent.connect(backend);
 
@@ -81,7 +81,7 @@ Advanced app helpers are still available when you need manual lifecycle control:
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent("com.acme.expenses", "Acme Expenses");
+const mobigent = await startMobigent("com.acme.expenses");
 
 await mobigent.app.expense.create({ merchant: "Coffee", amount: 8 });
 

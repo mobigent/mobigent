@@ -103,7 +103,7 @@ npm exec --yes \
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent("com.acme.expenses", "Acme Expenses");
+const mobigent = await startMobigent("com.acme.expenses");
 
 await mobigent.app.expense.create({ merchant: "Coffee", amount: 8 });
 await mobigent.app.expense.list();

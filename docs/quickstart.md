@@ -116,7 +116,7 @@ For a non-React demo or test host, connect the same feature in one call:
 import { startMobigent } from "@mobigent/backend";
 import { mobigent } from "./mobigent";
 
-const backend = await startMobigent("com.acme.expenses", "Acme Expenses");
+const backend = await startMobigent("com.acme.expenses");
 
 await mobigent.connect(backend);
 ```
@@ -142,7 +142,7 @@ In your server:
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent("com.acme.expenses", "Acme Expenses");
+const mobigent = await startMobigent("com.acme.expenses");
 
 console.log(mobigent.inspectorUrl);
 ```
@@ -175,7 +175,7 @@ With no options, Mobigent infers a starter app id and app name from your project
 Shortest explicit form:
 
 ```ts
-const mobigent = await startMobigent("com.acme.expenses", "Acme Expenses");
+const mobigent = await startMobigent("com.acme.expenses");
 ```
 
 Use `mobigent.waitForApp()` only when you want an explicit startup health gate. If the app is not running yet, function calls and readiness checks tell you exactly what is missing.
