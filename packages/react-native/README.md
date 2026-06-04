@@ -92,6 +92,20 @@ import App from "./App";
 export default mobigent.with(App);
 ```
 
+Or wrap directly in one file while you are trying the SDK:
+
+```tsx
+import { withMobigent } from "@mobigent/app";
+import App from "./App";
+
+export default withMobigent(App, "com.acme.expenses", {
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
+  }
+});
+```
+
 Run a Mobigent backend from your server with `@mobigent/backend`, then open the inspector URL it prints. Use the same `appId` in the app and backend. Local defaults still work for quick demos.
 
 No app-side init command is required. Write the functions directly in your app code. Optional generators are for examples, not real integration.

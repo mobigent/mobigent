@@ -273,6 +273,22 @@ test("withMobigent wraps an existing React Native app with one normal function c
   assert.equal(WrappedApp.displayName, "withMobigent(ExistingApp)");
 });
 
+test("app package withMobigent accepts app id and functions directly", () => {
+  function ExistingApp() {
+    return null;
+  }
+
+  const WrappedApp = withMobigent(ExistingApp, "com.example.directwrap", {
+    expense: {
+      list: async () => ({ items: [] }),
+      create: async (input) => ({ id: "EXP-WRAP", ...input })
+    }
+  });
+
+  assert.equal(typeof WrappedApp, "function");
+  assert.equal(WrappedApp.displayName, "withMobigent(ExistingApp)");
+});
+
 test("simple event helper hides the low-level singleton from app feature files", () => {
   const sentOrQueued = emitMobigentEvent("expense.created", { id: "EXP-1" });
 

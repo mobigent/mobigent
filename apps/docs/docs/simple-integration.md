@@ -58,6 +58,20 @@ import App from "./App";
 export default mobigent.with(App);
 ```
 
+Or wrap directly in one file while you are trying the SDK:
+
+```tsx
+import { withMobigent } from "@mobigent/app";
+import App from "./App";
+
+export default withMobigent(App, "com.acme.expenses", {
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
+  }
+});
+```
+
 That is the app-side path. No app-side init command is required.
 
 On a physical phone or hosted backend, pass the backend location directly:

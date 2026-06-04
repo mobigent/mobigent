@@ -44,6 +44,20 @@ import App from "./App";
 export default mobigent.with(App);
 ```
 
+Or wrap directly in one file while you are trying the SDK:
+
+```tsx
+import { withMobigent } from "@mobigent/app";
+import App from "./App";
+
+export default withMobigent(App, "com.acme.expenses", {
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
+  }
+});
+```
+
 For a physical phone or hosted backend, pass `connection` in `createApp()`:
 
 ```ts

@@ -53,6 +53,20 @@ import App from "./App";
 export default mobigent.with(App);
 ```
 
+For the fastest existing-app trial, wrap directly:
+
+```tsx
+import { withMobigent } from "@mobigent/app";
+import App from "./App";
+
+export default withMobigent(App, "com.acme.expenses", {
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
+  }
+});
+```
+
 For non-React hosts and local demos, call `await mobigent.connect(backend)` instead of wrapping a component. Use `mobigent.emit(name, payload)` for app events.
 
 No app-side init command is required. Write the functions directly in your app code. Optional generators are for examples, not real integration.

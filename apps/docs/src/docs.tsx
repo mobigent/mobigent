@@ -87,6 +87,16 @@ import App from "./App";
 
 export default mobigent.with(App);`;
 
+const directWrapCode = `import { withMobigent } from "@mobigent/app";
+import App from "./App";
+
+export default withMobigent(App, "com.acme.expenses", {
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
+  }
+});`;
+
 const gatewayCode = `npx mobigent-http
 
 curl http://localhost:8788/health
@@ -490,6 +500,7 @@ function Docs() {
           <Code title="2. Define app functions" code={moduleCode} />
           <Code title="Optional validation and approval copy" code={optionalMetadataCode} />
           <Code title="3. Wrap the app" code={appCode} />
+          <Code title="One-file wrap option" code={directWrapCode} />
           <Code title="4. Physical phone or hosted backend" code={deviceConnectionCode} />
         </div>
       </section>

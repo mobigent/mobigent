@@ -49,6 +49,7 @@ assert.doesNotMatch(
   "@mobigent/app root should not expose bridge/gateway/provider internals in the normal import path"
 );
 assert.match(appPackageRoot, /createApp/);
+assert.match(appPackageRoot, /export function withMobigent/);
 assert.match(appPackageRoot, /read/);
 assert.match(appPackageRoot, /write/);
 assert.match(appPackageRoot, /fromZod/);
@@ -233,6 +234,11 @@ for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.
   assert.match(contents, /mobigent\.app\.expense\.create|backend\.app\.expense\.create/, `${path} should teach the clean backend app function path`);
   assert.match(
     contents,
+    /withMobigent\(App, "com\.acme\.expenses"/,
+    `${path} should teach the direct existing-app wrapper path`
+  );
+  assert.match(
+    contents,
     /mobigent\.use\(\{\s+createExpense: "expense\.create"/,
     `${path} should teach backend-friendly function aliases through the simple use() API`
   );
@@ -358,6 +364,11 @@ for (const path of [
 ]) {
   const contents = readFileSync(path, "utf8");
   assert.match(contents, /mobigent\.use\(\{/, `${path} should teach use() for backend-friendly aliases`);
+  assert.match(
+    contents,
+    /withMobigent\(App, "com\.acme\.expenses"/,
+    `${path} should teach the direct existing-app wrapper path`
+  );
 }
 
 for (const path of ["docs/api/README.md", "apps/docs/docs/api.md"]) {

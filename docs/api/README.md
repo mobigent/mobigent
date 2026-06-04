@@ -27,6 +27,20 @@ import App from "./App";
 export default mobigent.with(App);
 ```
 
+Direct one-file wrapper:
+
+```tsx
+import { withMobigent } from "@mobigent/app";
+import App from "./App";
+
+export default withMobigent(App, "com.acme.expenses", {
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
+  }
+});
+```
+
 For non-React hosts, demos, and tests:
 
 ```ts

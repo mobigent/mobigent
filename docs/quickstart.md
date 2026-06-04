@@ -92,6 +92,20 @@ import App from "./App";
 export default mobigent.with(App);
 ```
 
+Or wrap directly in one file while you are trying the SDK:
+
+```tsx
+import { withMobigent } from "@mobigent/app";
+import App from "./App";
+
+export default withMobigent(App, "com.acme.expenses", {
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
+  }
+});
+```
+
 That is the app integration. For throwaway local demos, Mobigent can use a safe starter app identity, but real apps should pass a stable `appId`.
 
 No app-side init command is required. The SDK handles the bridge setup. Optional generators are only useful when you want example files.

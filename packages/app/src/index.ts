@@ -4,7 +4,7 @@ import {
   defineMobigent,
   emitMobigentEvent,
   setupMobigent,
-  withMobigent,
+  withMobigent as withMobigentRoot,
   type AgentAppRootProps,
   type MobigentSimpleAppInput,
   type MobigentSimpleAppOptions,
@@ -83,7 +83,6 @@ export {
 export {
   mobigent,
   setupMobigent,
-  withMobigent,
   useMobigentConfirmation,
   useMobigentConnected,
   useMobigentConnectionState,
@@ -146,7 +145,7 @@ export function createApp(
   return {
     ...appRoot,
     with<P extends object>(App: ComponentType<P>, rootProps?: Omit<AgentAppRootProps, "children">) {
-      return withMobigent(App, appInput as MobigentSimpleAppInput, rootProps);
+      return withMobigentRoot(App, appInput as MobigentSimpleAppInput, rootProps);
     },
     connect(settings: MobigentAppConnectSettings = {}) {
       return connectMobigent(features, {
@@ -161,6 +160,39 @@ export const app = createApp;
 export const connect = connectMobigent;
 export const emit = emitMobigentEvent;
 export const setup = setupMobigent;
+
+export function withMobigent<P extends object>(
+  App: ComponentType<P>,
+  appId: string,
+  functions: MobigentSimpleFunctionMap,
+  options?: MobigentAppPackageIdentityOptions
+): ComponentType<P>;
+export function withMobigent<P extends object>(
+  App: ComponentType<P>,
+  functions: MobigentSimpleFunctionMap,
+  options?: MobigentAppPackageIdentityOptions
+): ComponentType<P>;
+export function withMobigent<P extends object>(
+  App: ComponentType<P>,
+  input: MobigentAppPackageOptions,
+  rootProps?: Omit<AgentAppRootProps, "children">
+): ComponentType<P>;
+export function withMobigent<P extends object>(
+  App: ComponentType<P>,
+  input: MobigentAppPackageInput,
+  functionsOrOptions?: MobigentSimpleFunctionMap | MobigentAppPackageIdentityOptions | Omit<AgentAppRootProps, "children">,
+  options: MobigentAppPackageIdentityOptions = {}
+): ComponentType<P> {
+  if (typeof input === "string") {
+    return createApp(input, functionsOrOptions as MobigentSimpleFunctionMap, options).with(App);
+  }
+
+  if (isFunctionMapInput(input)) {
+    return createApp(input, functionsOrOptions as MobigentAppPackageIdentityOptions | undefined).with(App);
+  }
+
+  return withMobigentRoot(App, input as MobigentSimpleAppInput, functionsOrOptions as Omit<AgentAppRootProps, "children"> | undefined);
+}
 
 function normalizeCreateAppInput(
   input: MobigentAppPackageInput,

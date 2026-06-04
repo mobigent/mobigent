@@ -162,6 +162,20 @@ import App from "./App";
 export default mobigent.with(App);
 ```
 
+Or wrap directly in one file while you are trying the SDK:
+
+```tsx
+import { withMobigent } from "@mobigent/app";
+import App from "./App";
+
+export default withMobigent(App, "com.acme.expenses", {
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
+  }
+});
+```
+
 In the backend:
 
 ```bash
@@ -275,6 +289,20 @@ import { mobigent } from "./mobigent";
 import App from "./App";
 
 export default mobigent.with(App);
+```
+
+Or wrap directly in one file while you are trying the SDK:
+
+```tsx
+import { withMobigent } from "@mobigent/app";
+import App from "./App";
+
+export default withMobigent(App, "com.acme.expenses", {
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
+  }
+});
 ```
 
 Mobigent handles names, validation, confirmation, connection lifecycle, backend communication, and event queueing.
