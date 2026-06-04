@@ -117,12 +117,13 @@ assert.match(backendFile, /export const app = mobigent\.app/);
 assert.match(backendFile, /export const call = mobigent\.call/);
 assert.match(backendFile, /export const listFunctions = mobigent\.listFunctions/);
 assert.match(backendFile, /export const use = mobigent\.use/);
-assert.match(backendFile, /export const functions = mobigent\.functions/);
 assert.match(backendFile, /export const fn = mobigent\.fn/);
-assert.match(backendFile, /export const feature = mobigent\.feature/);
 assert.match(backendFile, /mobigent\.inspectorUrl/);
 assert.match(backendFile, /mobigent\.openApiUrl/);
-assert.doesNotMatch(backendFile, /callApp|appFunction|appFunctions|mobigent\.appFunction|mobigent\.urls|BridgeGateway|createHttpApp|mobigent\.appConfigModule\(|copyAppConfig|Copy this/);
+assert.doesNotMatch(
+  backendFile,
+  /callApp|appFunction|appFunctions|mobigent\.appFunction|mobigent\.urls|mobigent\.functions|mobigent\.feature|BridgeGateway|createHttpApp|appConfigPath|appConfigModulePath|mobigent\.appConfigModule\(|copyAppConfig|Copy this/
+);
 
 const backendWithAppDir = createMobigentBackendFiles({
   appId: "com.example.app",
@@ -139,9 +140,9 @@ const backendWithAppDir = createMobigentBackendFiles({
 });
 const backendWithAppDirFile = backendWithAppDir.find((file) => file.path === "src/mobigent.ts")?.contents ?? "";
 assert.match(backendWithAppDirFile, /appDir: "\.\.\/mobile-app"/);
-assert.match(backendWithAppDirFile, /mobigent\.appConfigPath/);
 assert.match(backendWithAppDirFile, /appConfigModuleFile: "src\/mobigent-config\.ts"/);
 assert.doesNotMatch(backendWithAppDirFile, /app: \{/);
+assert.doesNotMatch(backendWithAppDirFile, /appConfigPath|appConfigModulePath|mobigent\.functions|mobigent\.feature/);
 assert.equal(
   backendWithAppDir.some((file) => file.path === "mobigent.app.json"),
   false,

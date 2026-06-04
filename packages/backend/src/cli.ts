@@ -371,18 +371,10 @@ export const app = mobigent.app;
 export const call = mobigent.call;
 export const listFunctions = mobigent.listFunctions;
 export const use = mobigent.use;
-export const functions = mobigent.functions;
 export const fn = mobigent.fn;
-export const feature = mobigent.feature;
 
 console.log("Mobigent inspector:", mobigent.inspectorUrl);
 console.log("Mobigent OpenAPI:", mobigent.openApiUrl);
-if (mobigent.appConfigPath) {
-  console.log("Mobigent app config:", mobigent.appConfigPath);
-}
-if (mobigent.appConfigModulePath) {
-  console.log("Mobigent app config module:", mobigent.appConfigModulePath);
-}
 `;
 }
 

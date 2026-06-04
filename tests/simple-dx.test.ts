@@ -843,13 +843,11 @@ test("backend init helper creates a simple server entrypoint", () => {
   assert.match(files[0]?.contents ?? "", /export const waitForApp = mobigent\.waitForApp/);
   assert.match(files[0]?.contents ?? "", /export const call = mobigent\.call/);
   assert.match(files[0]?.contents ?? "", /export const listFunctions = mobigent\.listFunctions/);
-  assert.match(files[0]?.contents ?? "", /export const functions = mobigent\.functions/);
   assert.match(files[0]?.contents ?? "", /export const fn = mobigent\.fn/);
-  assert.match(files[0]?.contents ?? "", /export const feature = mobigent\.feature/);
   assert.match(files[0]?.contents ?? "", /mobigent\.inspectorUrl/);
   assert.match(files[0]?.contents ?? "", /mobigent\.openApiUrl/);
   assert.doesNotMatch(files[0]?.contents ?? "", /callApp|appFunction|appFunctions|mobigent\.appFunction/);
-  assert.doesNotMatch(files[0]?.contents ?? "", /copyAppConfig|mobigent\.urls|Copy this/);
+  assert.doesNotMatch(files[0]?.contents ?? "", /copyAppConfig|mobigent\.urls|mobigent\.functions|mobigent\.feature|appConfigPath|appConfigModulePath|Copy this/);
   assert.match(files[1]?.contents ?? "", /# MOBIGENT_AUTH_TOKEN=replace-me/);
   assert.equal(files.some((file) => file.path === "mobigent.app.json"), false);
 });
@@ -880,8 +878,7 @@ test("backend init helper bakes appDir into generated backend code", () => {
   assert.match(backendFile, /appDir: "\.\.\/mobile-app"/);
   assert.match(backendFile, /appConfigModuleFile: "src\/mobigent-config\.ts"/);
   assert.doesNotMatch(backendFile, /app: \{/);
-  assert.match(backendFile, /mobigent\.appConfigPath/);
-  assert.match(backendFile, /mobigent\.appConfigModulePath/);
+  assert.doesNotMatch(backendFile, /appConfigPath|appConfigModulePath|mobigent\.functions|mobigent\.feature/);
   assert.match(files.find((file) => file.path === "../mobile-app/src/mobigent-config.ts")?.contents ?? "", /defineMobigentConfig/);
 });
 

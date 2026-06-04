@@ -25,7 +25,7 @@ Mobigent has two normal packages:
 - **App package**: `@mobigent/app` lives inside the mobile app and exposes app functions.
 - **Backend package**: `@mobigent/backend` lets your backend call those app functions and handles the agent-facing service.
 
-The app side does not need a setup command. Install the package and expose the functions your app already owns. Optional generators are for examples, not real integration.
+The app side does not need a setup command. Install the package and expose the functions your app already owns. The old app init binary is only an optional sample-file generator for demos, not something real app teams should need before they can adopt Mobigent.
 
 Use the same app id on both sides, like a normal mobile/backend integration:
 

@@ -656,7 +656,9 @@ await check("App playground", async () => {
 
 await check("Backend health", async () => {
   const body = await getJson<{ status?: { tools?: number; appsWithManifests?: number } }>(\`\${backendUrl}/health\`);
-  return \`\${body.status?.appsWithManifests ?? 0} connected app(s), \${body.status?.tools ?? 0} app function(s)\`;
+  const appCount = body.status?.appsWithManifests ?? 0;
+  const functionCount = body.status?.tools ?? 0;
+  return \`\${appCount} connected app(s), \${functionCount} app function(s)\`;
 });
 
 await check("Backend readiness", async () => {
@@ -669,9 +671,9 @@ await check("Backend readiness", async () => {
 
 await check("Expense function", async () => {
   const body = await getJson<{ tools?: Array<{ name?: string }> }>(\`\${backendUrl}/tools\`);
-  const names = body.tools?.map((item) => item.name).filter(Boolean) ?? [];
-  if (!names.includes(expectedFunction)) {
-    throw new Error(\`expected \${expectedFunction}; saw \${names.join(", ") || "no functions"}\`);
+  const appFunctions = body.tools?.map((item) => item.name).filter(Boolean) ?? [];
+  if (!appFunctions.includes(expectedFunction)) {
+    throw new Error(\`expected \${expectedFunction}; saw \${appFunctions.join(", ") || "no functions"}\`);
   }
   return expectedFunction;
 });
