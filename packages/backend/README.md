@@ -47,7 +47,7 @@ If you want the shortest possible local demo, `startMobigent()` also works with 
 Bind backend-friendly names once when you do not want backend code to mirror app namespaces:
 
 ```ts
-const expenses = mobigent.functions({
+const expenses = mobigent.use({
   createExpense: "expense.create",
   listExpenses: "expense.list"
 });

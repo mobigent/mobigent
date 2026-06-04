@@ -70,6 +70,13 @@ import { startMobigent } from "@mobigent/backend";
 const mobigent = await startMobigent("com.acme.expenses", "Acme Expenses");
 
 await mobigent.app.expense.create({ merchant: "Coffee", amount: 8 });
+
+const expenses = mobigent.use({
+  createExpense: "expense.create",
+  listExpenses: "expense.list"
+});
+
+await expenses.createExpense({ merchant: "Coffee", amount: 8 });
 ```
 
 The backend object exposes:
@@ -82,6 +89,7 @@ The backend object exposes:
 - `listFunctions()`
 - `waitForApp()` to wait until an app is connected and callable
 - `app.expense.create(input)` or `app.expense.list()` to call app functions with the clean package API
+- `use("expense").create(input)` or `use({ createExpense: "expense.create" })` to bind app functions in backend code
 - `feature("expense")` when you need the older grouped API shape
 - `functions.expense.create(input)` for backward compatibility with the older object-style backend SDK shape
 - `call("expense.create", input)` or `call("expense.list")`

@@ -87,6 +87,7 @@ assert.match(backendFile, /export const waitForApp = mobigent\.waitForApp/);
 assert.match(backendFile, /export const app = mobigent\.app/);
 assert.match(backendFile, /export const call = mobigent\.call/);
 assert.match(backendFile, /export const listFunctions = mobigent\.listFunctions/);
+assert.match(backendFile, /export const use = mobigent\.use/);
 assert.match(backendFile, /export const functions = mobigent\.functions/);
 assert.match(backendFile, /export const fn = mobigent\.fn/);
 assert.match(backendFile, /export const feature = mobigent\.feature/);
@@ -232,8 +233,8 @@ for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.
   assert.match(contents, /mobigent\.app\.expense\.create|backend\.app\.expense\.create/, `${path} should teach the clean backend app function path`);
   assert.match(
     contents,
-    /mobigent\.functions\(\{\s+createExpense: "expense\.create"/,
-    `${path} should teach backend-friendly function aliases`
+    /mobigent\.use\(\{\s+createExpense: "expense\.create"/,
+    `${path} should teach backend-friendly function aliases through the simple use() API`
   );
   assert.match(contents, /startMobigent\("com\.acme\.expenses", "Acme Expenses"\)/, `${path} should teach the short backend start path`);
   assert.doesNotMatch(
@@ -304,7 +305,7 @@ for (const path of ["packages/app/README.md", "packages/react-native/README.md"]
   const backendReadme = readFileSync("packages/backend/README.md", "utf8");
   assert.match(backendReadme, /startMobigent\("com\.acme\.expenses", "Acme Expenses"\)/);
   assert.match(backendReadme, /mobigent\.app\.expense\.create/);
-  assert.match(backendReadme, /mobigent\.functions\(\{\s+createExpense: "expense\.create"/);
+  assert.match(backendReadme, /mobigent\.use\(\{\s+createExpense: "expense\.create"/);
   assert.doesNotMatch(
     backendReadme,
     /backend\.defaultApp|mobigent\.app\.json|appDir\b|npx mobigent-backend|mobigent-backend --app/,
@@ -346,6 +347,17 @@ for (const path of [
     /defineFeature[\s\S]{0,500}?withMobigent|withMobigent[\s\S]{0,500}?defineFeature/,
     `${path} should not present defineFeature + withMobigent as the beginner integration`
   );
+}
+
+for (const path of [
+  "apps/docs/docs/simple-integration.md",
+  "apps/docs/docs/quickstart.md",
+  "apps/docs/docs/react-native.md",
+  "apps/docs/docs/api.md",
+  "apps/docs/src/docs.tsx"
+]) {
+  const contents = readFileSync(path, "utf8");
+  assert.match(contents, /mobigent\.use\(\{/, `${path} should teach use() for backend-friendly aliases`);
 }
 
 for (const path of ["docs/api/README.md", "apps/docs/docs/api.md"]) {

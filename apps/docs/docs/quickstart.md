@@ -133,7 +133,7 @@ await mobigent.app.expense.list();
 Or bind backend-friendly names once:
 
 ```ts
-const expenses = mobigent.functions({
+const expenses = mobigent.use({
   createExpense: "expense.create",
   listExpenses: "expense.list"
 });

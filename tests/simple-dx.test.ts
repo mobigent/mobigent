@@ -388,6 +388,21 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
         merchant: "Juice Bar"
       });
 
+      assert.deepEqual(await backend.use("expense").create({ merchant: "Pizzeria" }), {
+        id: "EXP-1",
+        merchant: "Pizzeria"
+      });
+
+      const expenseHelpers = backend.use({
+        createExpense: "expense.create",
+        listExpenses: "expense.list"
+      });
+
+      assert.deepEqual(await expenseHelpers.createExpense({ merchant: "Deli" }), {
+        id: "EXP-1",
+        merchant: "Deli"
+      });
+
       const app = backend.feature("expense");
 
       assert.deepEqual(await app.create({ merchant: "Bakery" }), {
@@ -400,6 +415,8 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
           { id: "EXP-1", merchant: "Airport Taxi" },
           { id: "EXP-1", merchant: "Bookshop" },
           { id: "EXP-1", merchant: "Juice Bar" },
+          { id: "EXP-1", merchant: "Pizzeria" },
+          { id: "EXP-1", merchant: "Deli" },
           { id: "EXP-1", merchant: "Bakery" }
         ]
       });
@@ -1042,7 +1059,7 @@ test("existing app DX connects simple app features to backend calls end to end",
       items: [result]
     });
 
-    const backendExpenses = backend.functions({
+    const backendExpenses = backend.use({
       createExpense: "expense.create",
       listExpenses: "expense.list"
     });

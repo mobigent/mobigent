@@ -90,6 +90,17 @@ For `appId: "com.example.app"` and the `expense` function namespace:
 
 Backend code can use those same short names.
 
+Or bind the app functions to backend helper names:
+
+```ts
+const expenses = mobigent.use({
+  createExpense: "expense.create",
+  listExpenses: "expense.list"
+});
+
+await expenses.createExpense({ merchant: "Coffee", amount: 8 });
+```
+
 ## Advanced
 
 The lower-level provider, hooks, manual registration, `createAgentModule()`, and `schema.*` APIs are still available. Use them for screen-scoped app functions, custom confirmation UI, advanced environment switching, and manifest signing.

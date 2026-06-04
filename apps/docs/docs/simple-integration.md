@@ -102,7 +102,7 @@ Starter and backend init commands are optional sample helpers. The normal path i
 If your backend wants its own helper names, bind them once:
 
 ```ts
-const expenses = mobigent.functions({
+const expenses = mobigent.use({
   createExpense: "expense.create",
   listExpenses: "expense.list"
 });

@@ -370,6 +370,7 @@ export const waitForApp = mobigent.waitForApp;
 export const app = mobigent.app;
 export const call = mobigent.call;
 export const listFunctions = mobigent.listFunctions;
+export const use = mobigent.use;
 export const functions = mobigent.functions;
 export const fn = mobigent.fn;
 export const feature = mobigent.feature;

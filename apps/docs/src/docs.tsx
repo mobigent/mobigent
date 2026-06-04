@@ -110,6 +110,16 @@ const backendShortCode = `const mobigent = await startMobigent(
   "Acme Expenses"
 );`;
 
+const backendUseCode = `const expenses = mobigent.use({
+  createExpense: "expense.create",
+  listExpenses: "expense.list"
+});
+
+await expenses.createExpense({
+  merchant: "Airport Taxi",
+  amount: 42.25
+});`;
+
 const securityDoctorCode = `npx mobigent security-doctor \\
   --app-id com.example.app \\
   --app-name "Example App" \\
@@ -341,7 +351,7 @@ const nativeApis = [
 const backendApis = [
   ["startMobigent()", "Starts the backend service with a stable app id and local defaults."],
   ["waitForApp()", "Optional health gate when startup should wait for a connected app."],
-  ["feature()", "Creates a tiny object of normal backend functions for one app feature."],
+  ["use()", "Binds app functions into backend helpers, either by group or by friendly aliases."],
   ["call()", "Makes a quick one-off app function call by name."],
   ["fn()", "Creates a reusable backend function wrapper for repeated calls."],
   ["agent()", "Prints setup for ChatGPT, Claude, OpenAPI, and supported providers after the app loop works."]
@@ -492,7 +502,7 @@ function Docs() {
         </div>
         <div className="codeGrid two">
           <Code title="Backend SDK" code={backendCode} />
-          <Code title="Shortest explicit start" code={backendShortCode} />
+          <Code title="Backend helper names" code={backendUseCode} />
           <div className="apiList endpointList">
             {backendApis.map(([name, text]) => (
               <Row key={name} title={name} text={text} />
@@ -620,6 +630,7 @@ function Docs() {
         <div className="codeGrid three">
           <Code title="Backend SDK" code={backendCode} />
           <Code title="Shortest explicit start" code={backendShortCode} />
+          <Code title="Backend helper names" code={backendUseCode} />
           <div className="apiList endpointList">
             {gatewayEndpoints.map(([name, text]) => (
               <Row key={name} title={name} text={text} />
