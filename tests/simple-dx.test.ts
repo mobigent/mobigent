@@ -10,6 +10,17 @@ import {
   startMobigent,
   startMobigentBackend
 } from "@mobigent/backend";
+import type {
+  AppFunction,
+  AppFunctionInfo,
+  AppSession,
+  Backend,
+  BackendConnection,
+  BackendOptions,
+  BackendStatus,
+  CallOptions,
+  CallResult
+} from "@mobigent/backend";
 import { createMobigentBackendFiles, runMobigentBackendCli } from "@mobigent/backend/cli";
 import {
   action,
@@ -18,6 +29,15 @@ import {
   read,
   withMobigent,
   write
+} from "@mobigent/app";
+import type {
+  AppConnection,
+  AppConnectionSettings,
+  AppFunctionMap,
+  AppFunctions,
+  AppOptions,
+  BackendConnection as AppBackendConnection,
+  MobigentApp
 } from "@mobigent/app";
 import {
   connectMobigent,
@@ -32,8 +52,34 @@ import type { MobigentSocketFactory } from "@mobigent/react-native";
 import { createApp as createReactNativeApp, mobigent } from "@mobigent/react-native";
 
 const createNodeSocket: MobigentSocketFactory = (url) => new WebSocket(url);
+type PublicAppTypeAliasesCompile = [
+  AppFunctions,
+  AppFunctionMap,
+  AppOptions,
+  AppConnection,
+  AppConnectionSettings,
+  AppBackendConnection,
+  MobigentApp
+];
+type PublicBackendTypeAliasesCompile = [
+  Backend,
+  BackendOptions,
+  BackendConnection,
+  BackendStatus,
+  AppFunction,
+  AppFunctionInfo,
+  AppSession,
+  CallOptions,
+  CallResult
+];
+const publicTypeAliasesCompile = null as unknown as {
+  app: PublicAppTypeAliasesCompile;
+  backend: PublicBackendTypeAliasesCompile;
+};
 
 test("simple React Native feature API creates agent-ready capabilities without schema ceremony", async () => {
+  assert.equal(typeof publicTypeAliasesCompile, "object");
+
   const expenses = feature("expense")
     .read("list", async () => ({ items: [] }), {
       output: {

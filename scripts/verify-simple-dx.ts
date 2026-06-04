@@ -70,9 +70,33 @@ assert.match(appPackageRoot, /export function withMobigent/);
 assert.match(appPackageRoot, /read/);
 assert.match(appPackageRoot, /write/);
 assert.match(appPackageRoot, /fromZod/);
+for (const typeName of [
+  "AppFunctions",
+  "AppFunctionMap",
+  "AppOptions",
+  "AppConnection",
+  "AppConnectionSettings",
+  "BackendConnection",
+  "MobigentApp"
+]) {
+  assert.match(appPackageRoot, new RegExp(`export type ${typeName}\\b`), `@mobigent/app should expose friendly ${typeName} type`);
+}
 assert.match(backendPackageRoot, /connection: MobigentBackendClient/, "@mobigent/backend should expose a clean backend.connection pairing object");
 assert.match(backendPackageRoot, /agentUrl: string/, "@mobigent/backend should expose a friendly agentUrl alias");
 assert.match(backendPackageRoot, /appConnectionUrl: string/, "@mobigent/backend should expose a friendly appConnectionUrl alias");
+for (const typeName of [
+  "Backend",
+  "BackendOptions",
+  "BackendConnection",
+  "BackendStatus",
+  "AppFunction",
+  "AppFunctionInfo",
+  "AppSession",
+  "CallOptions",
+  "CallResult"
+]) {
+  assert.match(backendPackageRoot, new RegExp(`export type ${typeName}\\b`), `@mobigent/backend should expose friendly ${typeName} type`);
+}
 assert.match(appBackendTargetType, /connection\?: MobigentSimpleConnectionSettings/, "@mobigent/app should accept backend.connection as the clean pairing surface");
 assert.doesNotMatch(
   appBackendTargetType,
@@ -379,7 +403,15 @@ for (const path of ["packages/app/README.md", "packages/react-native/README.md"]
 }
 
 {
+  const appReadme = readFileSync("packages/app/README.md", "utf8");
+  assert.match(appReadme, /type AppFunctions/, "packages/app/README.md should teach the friendly AppFunctions type");
+  assert.match(appReadme, /MobigentApp/, "packages/app/README.md should list the friendly MobigentApp type");
+}
+
+{
   const backendReadme = readFileSync("packages/backend/README.md", "utf8");
+  assert.match(backendReadme, /type Backend/, "packages/backend/README.md should teach the friendly Backend type");
+  assert.match(backendReadme, /BackendOptions/, "packages/backend/README.md should list the friendly BackendOptions type");
   assert.match(backendReadme, /startMobigent\("com\.acme\.expenses"\)/);
   assert.match(backendReadme, /mobigent\.app\.expense\.create/);
   assert.match(backendReadme, /mobigent\.use\("expense", \{\s+createExpense: "create"/);

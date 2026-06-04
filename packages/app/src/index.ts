@@ -118,6 +118,14 @@ export type MobigentAppPackage = ReturnType<typeof setupMobigent> & {
   emit: typeof emitMobigentEvent;
 };
 
+export type AppFunctions = MobigentSimpleFunctionMap;
+export type AppFunctionMap = MobigentSimpleFunctionMap;
+export type AppOptions = MobigentAppPackageIdentityOptions;
+export type AppConnection = MobigentSimpleConnection;
+export type AppConnectionSettings = MobigentAppConnectSettings;
+export type BackendConnection = MobigentBackendConnectionTarget;
+export type MobigentApp = MobigentAppPackage;
+
 export function createApp(
   appId: string,
   functions: MobigentSimpleFunctionMap,

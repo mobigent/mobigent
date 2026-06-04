@@ -270,6 +270,16 @@ export type MobigentBackendOptionsWithApp = MobigentBackendOptions & {
   app: MobigentBackendDefaultAppOptions;
 };
 
+export type Backend = MobigentBackend;
+export type BackendOptions = MobigentBackendOptions;
+export type BackendConnection = MobigentBackendClient;
+export type BackendStatus = MobigentBackendStatus;
+export type AppFunction = MobigentBackendFunction;
+export type AppFunctionInfo = MobigentFunctionInfo;
+export type AppSession = MobigentAppSession;
+export type CallOptions = MobigentBackendCallOptions;
+export type CallResult = MobigentCallResult;
+
 export async function startMobigentBackend(
   appId: string,
   appName?: string,

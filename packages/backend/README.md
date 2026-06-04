@@ -19,9 +19,9 @@ npm exec --yes \
 ## Call App Functions
 
 ```ts
-import { startMobigent } from "@mobigent/backend";
+import { startMobigent, type Backend } from "@mobigent/backend";
 
-const mobigent = await startMobigent("com.acme.expenses");
+const mobigent: Backend = await startMobigent("com.acme.expenses");
 
 await mobigent.app.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
 await mobigent.app.expense.list();
@@ -71,6 +71,10 @@ For quick one-off explicit calls, use `mobigent.call("expense.create", input)`. 
 
 The public TypeScript surface uses backend names:
 
+- `Backend` for the object returned by `startMobigent(...)`
+- `BackendOptions` for startup options
+- `BackendConnection` for `backend.connection`
+- `AppFunction` for a callable app function on the backend
 - `MobigentFunctionInfo` for `listFunctions()`
 - `MobigentBackendStatus` for `ready()` and `waitForApp()`
 - `MobigentAppSession` for `apps()`

@@ -19,14 +19,16 @@ npm exec --yes \
 Then expose normal app functions and create one app SDK object:
 
 ```ts
-import { createApp } from "@mobigent/app";
+import { createApp, type AppFunctions } from "@mobigent/app";
 
-export const mobigent = createApp("com.acme.expenses", {
+const appFunctions: AppFunctions = {
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
   }
-});
+};
+
+export const mobigent = createApp("com.acme.expenses", appFunctions);
 ```
 
 For quick local demos, pass the function map directly:
@@ -72,3 +74,5 @@ For non-React hosts and local demos, call `await mobigent.connect(backend)` inst
 No app-side init command is required. Write the functions directly in your app code. Optional generators are for examples, not real integration.
 
 The root `@mobigent/app` import is intentionally small: app functions, schema helpers, confirmation/status UI, and connection helpers. Advanced React Native APIs remain available from explicit subpaths such as `@mobigent/app/app`, `@mobigent/app/ui`, `@mobigent/app/schema-adapters`, `@mobigent/app/platform-actions`, and `@mobigent/app/expo`.
+
+Friendly public types are available from the root import when you want annotations: `AppFunctions`, `AppFunctionMap`, `MobigentApp`, `AppConnection`, `AppConnectionSettings`, and `BackendConnection`.
