@@ -87,7 +87,7 @@ If you prefer explicit feature objects, `defineFeature()`, `withMobigent(App, ex
 
 Run a Mobigent backend from your server with `@mobigent/backend`, then open the inspector URL it prints. Use the same `appId` in the app and backend. Local defaults still work for quick demos.
 
-No app-side init command is required. You should not have to run `npx mobigent-init --feature expense --out-dir src` just to integrate Mobigent. That command is only a sample-file generator.
+No app-side init command is required. Write the functions directly in your app code. Optional generators are for examples, not real integration.
 
 For a Node demo, test host, or another non-React runtime, use the same app object:
 

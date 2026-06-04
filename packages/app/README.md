@@ -43,6 +43,6 @@ export default mobigent.with(App);
 
 For non-React hosts and local demos, call `await mobigent.connect(backend)` instead of wrapping a component. Use `mobigent.emit(name, payload)` for app events.
 
-No app-side init command is required. You should not have to run `npx mobigent-init --feature expense --out-dir src` just to integrate Mobigent. That command is only a sample-file generator.
+No app-side init command is required. Write the functions directly in your app code. Optional generators are for examples, not real integration.
 
 The root `@mobigent/app` import is intentionally small: app functions, schema helpers, confirmation/status UI, and connection helpers. Advanced React Native APIs remain available from explicit subpaths such as `@mobigent/app/ui`, `@mobigent/app/schema-adapters`, `@mobigent/app/platform-actions`, and `@mobigent/app/expo`.

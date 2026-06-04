@@ -25,7 +25,7 @@ Mobigent has two normal packages:
 - **App package**: `@mobigent/app` lives inside the mobile app and exposes app functions.
 - **Backend package**: `@mobigent/backend` lets your backend call those app functions and handles the agent-facing service.
 
-The app side does not need a setup command. Install the package and expose the functions your app already owns. No `npx mobigent-init` is needed for a real app. That command is only a sample-file generator.
+The app side does not need a setup command. Install the package and expose the functions your app already owns. Optional generators are for examples, not real integration.
 
 Use the same app id on both sides, like a normal mobile/backend integration:
 

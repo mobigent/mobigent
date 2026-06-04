@@ -49,7 +49,8 @@ try {
   assert.match(rootFile, /export const mobigent/);
   assert.match(rootFile, /withMobigentApp/);
   assert.match(rootFile, /mobigent\.with\(App\)/);
-  assert.match(rootFile, /functions: \{ \.\.\.taskFunctions \}/);
+  assert.match(rootFile, /createApp\("com\.mobigent\.smoke", \{ \.\.\.taskFunctions \}, \{/);
+  assert.match(rootFile, /appName: "Mobigent Smoke"/);
   assert.match(rootFile, /ConfirmationComponent: MobigentAgentApproval/);
   assert.match(await readFile(join(dir, "mobigent-confirmation.tsx"), "utf8"), /useMobigentConfirmation/);
   assert.match(
@@ -76,8 +77,11 @@ try {
     process.chdir(previousCwd);
   }
   const autoConfigRoot = await readFile(join(dir, "auto-config", "mobigent.tsx"), "utf8");
-  assert.match(await readFile(join(dir, "auto-config", "mobigent-config.ts"), "utf8"), /com.mobigent.auto/);
-  assert.match(autoConfigRoot, /config: mobigentConfig/);
+  assert.match(autoConfigRoot, /createApp\("com\.mobigent\.auto", \{ \.\.\.autoFunctions \}, \{/);
+  assert.match(autoConfigRoot, /appName: "Auto Config App"/);
+  assert.match(autoConfigRoot, /connection: "ws:\/\/localhost:8787"/);
+  assert.match(autoConfigRoot, /authToken: "dev-token"/);
+  assert.doesNotMatch(autoConfigRoot, /config: mobigentConfig/);
   assert.doesNotMatch(autoConfigRoot, /gatewayUrl: process\.env/);
 
   const backendDir = join(dir, "backend");
@@ -100,7 +104,9 @@ try {
     join(dir, "backend-dir-config")
   ]);
   assert.equal(backendDirInit.code, 0, backendDirInit.stderr);
-  assert.match(await readFile(join(dir, "backend-dir-config", "mobigent-config.ts"), "utf8"), /com.mobigent.backenddir/);
+  const backendDirRoot = await readFile(join(dir, "backend-dir-config", "mobigent.tsx"), "utf8");
+  assert.match(backendDirRoot, /createApp\("com\.mobigent\.backenddir", \{ \.\.\.backenddirFunctions \}, \{/);
+  assert.match(backendDirRoot, /appName: "Backend Dir App"/);
 
   const backendFirstDir = join(dir, "backend-first");
   await mkdir(backendFirstDir);
@@ -127,9 +133,10 @@ export const mobigentConfig = defineMobigentConfig({
     backendFirstDir
   ]);
   assert.equal(backendFirstInit.code, 0, backendFirstInit.stderr);
-  assert.match(await readFile(join(backendFirstDir, "mobigent.tsx"), "utf8"), /config: mobigentConfig/);
-  assert.match(await readFile(join(backendFirstDir, "mobigent-config.ts"), "utf8"), /com.mobigent.backendfirst/);
-  assert.doesNotMatch(await readFile(join(backendFirstDir, "mobigent-config.ts"), "utf8"), /com.mobigent.generated/);
+  const backendFirstGeneratedRoot = await readFile(join(backendFirstDir, "mobigent.tsx"), "utf8");
+  assert.match(backendFirstGeneratedRoot, /createApp\("com\.mobigent\.generated", \{ \.\.\.backendfirstFunctions \}, \{/);
+  assert.match(backendFirstGeneratedRoot, /appName: "Generated App"/);
+  assert.doesNotMatch(backendFirstGeneratedRoot, /config: mobigentConfig/);
 
   const secondFeatureInit = run([
     "--app-id",
@@ -172,7 +179,8 @@ export const mobigentConfig = defineMobigentConfig({
   } finally {
     process.chdir(previousSiblingCwd);
   }
-  assert.match(await readFile(join(workspaceAppDir, "src", "mobigent-config.ts"), "utf8"), /com.mobigent.sibling/);
+  const siblingRoot = await readFile(join(workspaceAppDir, "src", "mobigent.tsx"), "utf8");
+  assert.match(siblingRoot, /createApp\("com\.mobigent\.sibling", \{ \.\.\.siblingFunctions \}, \{/);
 
   const doctor = run([
     "--doctor",

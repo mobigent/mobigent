@@ -2057,13 +2057,16 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   const featureFile = files.find((file) => file.path === join("src", "mobigent-functions", "expense.ts"));
 
   assert.ok(rootFile);
-  assert.ok(starterConfigFile);
+  assert.equal(starterConfigFile, undefined);
   assert.ok(featureFile);
   assert.match(rootFile.contents, /createApp/);
   assert.match(rootFile.contents, /export const mobigent/);
   assert.match(rootFile.contents, /@mobigent\/app/);
-  assert.match(rootFile.contents, /config: mobigentConfig/);
-  assert.match(rootFile.contents, /functions: \{ \.\.\.expenseFunctions \}/);
+  assert.match(rootFile.contents, /createApp\("com\.mobigent\.demo", \{ \.\.\.expenseFunctions \}, \{/);
+  assert.match(rootFile.contents, /appName: "Demo App"/);
+  assert.match(rootFile.contents, /version: "1\.2\.3"/);
+  assert.doesNotMatch(rootFile.contents, /config: mobigentConfig/);
+  assert.doesNotMatch(rootFile.contents, /mobigent-config/);
   assert.match(rootFile.contents, /withMobigentApp/);
   assert.match(rootFile.contents, /mobigent\.with\(App\)/);
   assert.doesNotMatch(rootFile.contents, /createMobigentEnvironmentFromEnv/);
@@ -2071,7 +2074,6 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   assert.match(rootFile.contents, /MobigentRootProps/);
   assert.doesNotMatch(rootFile.contents, /mobigentEnvironment/);
   assert.doesNotMatch(rootFile.contents, /mobigentCapabilities/);
-  assert.match(starterConfigFile.contents, /com.mobigent.demo/);
   assert.doesNotMatch(rootFile.contents, /modules: \[expenseModule\]/);
   assert.doesNotMatch(rootFile.contents, /\.\.\.mobigentEnvironment/);
   assert.match(rootFile.contents, /expenseFunctions/);
@@ -2177,10 +2179,13 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   });
   const configFile = configFiles.find((file) => file.path === join("src", "mobigent-config.ts"));
   const configRootFile = configFiles.find((file) => file.path === join("src", "mobigent.tsx"));
-  assert.ok(configFile);
+  assert.equal(configFile, undefined);
   assert.ok(configRootFile);
-  assert.match(configFile.contents, /defineMobigentConfig/);
-  assert.match(configRootFile.contents, /config: mobigentConfig/);
+  assert.match(configRootFile.contents, /createApp\("com\.mobigent\.config", \{ \.\.\.expenseFunctions \}, \{/);
+  assert.match(configRootFile.contents, /appName: "Config App"/);
+  assert.match(configRootFile.contents, /connection: "ws:\/\/localhost:19000"/);
+  assert.match(configRootFile.contents, /authToken: "dev-token"/);
+  assert.doesNotMatch(configRootFile.contents, /config: mobigentConfig/);
   assert.doesNotMatch(configRootFile.contents, /gatewayUrl: process\.env/);
   assert.match(envTemplate, /EXPO_PUBLIC_MOBIGENT_AUTH_TOKEN/);
 
@@ -2398,7 +2403,10 @@ export const mobigentConfig = defineMobigentConfig({
     { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
   );
   assert.equal(backendFirstCode, 0, stderr);
-  assert.match(await readFile(join(backendFirstDir, "mobigent.tsx"), "utf8"), /config: mobigentConfig/);
+  const backendFirstRoot = await readFile(join(backendFirstDir, "mobigent.tsx"), "utf8");
+  assert.match(backendFirstRoot, /createApp\("com\.mobigent\.generated", \{ \.\.\.expenseFunctions \}, \{/);
+  assert.match(backendFirstRoot, /appName: "Generated App"/);
+  assert.doesNotMatch(backendFirstRoot, /config: mobigentConfig/);
   assert.match(await readFile(join(backendFirstDir, "mobigent-config.ts"), "utf8"), /com.mobigent.backendfirst/);
   assert.doesNotMatch(await readFile(join(backendFirstDir, "mobigent-config.ts"), "utf8"), /com.mobigent.generated/);
   stderr = "";
@@ -2417,9 +2425,9 @@ export const mobigentConfig = defineMobigentConfig({
     { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
   );
   assert.equal(secondFeatureCode, 0, stderr);
-  const backendFirstRoot = await readFile(join(backendFirstDir, "mobigent.tsx"), "utf8");
-  assert.match(backendFirstRoot, /expenseFunctions/);
-  assert.match(backendFirstRoot, /invoiceFunctions/);
+  const backendFirstRootWithInvoice = await readFile(join(backendFirstDir, "mobigent.tsx"), "utf8");
+  assert.match(backendFirstRootWithInvoice, /expenseFunctions/);
+  assert.match(backendFirstRootWithInvoice, /invoiceFunctions/);
   assert.match(
     await readFile(join(backendFirstDir, "mobigent-functions", "invoice.ts"), "utf8"),
     /export const invoiceFunctions = \{/
@@ -2646,13 +2654,14 @@ test("React Native init CLI prints a machine-readable integration manifest", () 
       components: []
     }
   ]);
-  assert.match(manifest.commands.generate, /mobigent-rn-init/);
-	  assert.match(
-	    createReactNativeIntegrationManifest({
-	      ...manifestOptions,
-	      expo: true
-	    }).commands.generate,
-    /mobigent-init/
+  assert.match(manifest.commands.generate, /mobigent app/);
+  assert.doesNotMatch(manifest.commands.generate, /mobigent-rn-init|mobigent-init/);
+  assert.match(
+    createReactNativeIntegrationManifest({
+      ...manifestOptions,
+      expo: true
+    }).commands.generate,
+    /mobigent app/
   );
   assert.match(manifest.commands.doctor, /--doctor/);
 

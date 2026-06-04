@@ -157,10 +157,17 @@ const starterDoctor = createMobigentAppFiles({
 }).find((file) => file.path === "src/doctor.ts")?.contents ?? "";
 
 assert.match(rnRoot, /createApp/);
-assert.match(rnRoot, /config: mobigentConfig/);
-assert.match(rnRoot, /functions: \{ \.\.\.expenseFunctions \}/);
+assert.match(rnRoot, /createApp\("com\.example\.app", \{ \.\.\.expenseFunctions \}, \{/);
+assert.match(rnRoot, /appName: "Example App"/);
+assert.doesNotMatch(rnRoot, /config: mobigentConfig/);
+assert.doesNotMatch(rnRoot, /defineMobigentConfig|mobigent-config/);
 assert.doesNotMatch(rnRoot, /MobigentProvider|createAgentApp|createAgentModule/);
 assert.doesNotMatch(rnRoot, /reconnect|heartbeat/);
+assert.equal(
+  rnFiles.some((file) => file.path === "src/mobigent-config.ts"),
+  false,
+  "React Native sample helper should not create app config as the default path"
+);
 assert.match(rnFeature, /export const expenseFunctions = \{/);
 assert.match(rnFeature, /expense: \{/);
 assert.match(rnFeature, /list: read\(/);
@@ -203,6 +210,7 @@ for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.
     /npm install @mobigent\/app[\s\S]{0,600}?npx mobigent-init/,
     `${path} should not make mobigent-init part of the app install path`
   );
+  assert.doesNotMatch(contents, /npx mobigent-init/, `${path} should not teach the legacy app init binary`);
   assert.doesNotMatch(
     contents,
     /npm install @mobigent\/backend\s+```[\s\S]{0,120}?```[\s\S]{0,80}?npx mobigent-backend --app-dir/,

@@ -82,7 +82,7 @@ export default mobigent.with(App);
 
 That is the app integration. For throwaway local demos, Mobigent can use a safe starter app identity, but real apps should pass a stable `appId`.
 
-No app-side init command is required. The SDK handles the bridge setup. The old `mobigent-init --feature ...` flow is only useful when you want generated sample files.
+No app-side init command is required. The SDK handles the bridge setup. Optional generators are only useful when you want example files.
 
 For a non-React demo or test host, connect the same feature in one call:
 

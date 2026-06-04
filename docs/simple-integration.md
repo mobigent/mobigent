@@ -69,7 +69,7 @@ export default mobigent.with(App);
 
 That is the frontend integration.
 
-No app-side init command is required. You should not have to run `npx mobigent-init --feature expense --out-dir src` just to integrate Mobigent. That command is only a sample-file generator.
+No app-side init command is required. Write the functions directly in your app code. Optional generators are for examples, not real integration.
 
 ## 2. Add It To The Backend
 

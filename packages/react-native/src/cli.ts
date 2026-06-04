@@ -135,11 +135,6 @@ export function createReactNativeStarterFiles(options: ReactNativeInitCliOptions
 
   const files: ReactNativeGeneratedFile[] = [
     {
-      path: join(options.outDir, "mobigent-config.ts"),
-      contents: createMobigentConfigFile(options),
-      preserveExisting: true
-    },
-    {
       path: join(options.outDir, "mobigent.tsx"),
       contents: createMobigentRootFile(options),
       updateExisting: (contents) => addFeatureToMobigentRoot(contents, options.feature)
@@ -304,8 +299,8 @@ export function createReactNativeIntegrationManifest(
   const confirmationFile = join(options.outDir, "mobigent-confirmation.tsx");
   const appVersion = options.appVersion ? ` --app-version ${shellQuote(options.appVersion)}` : "";
   const customConfirmation = options.customConfirmation ? " --custom-confirmation" : "";
-  const command = options.expo ? "mobigent-init" : "mobigent-rn-init";
-  const expo = options.expo && command !== "mobigent-init" ? " --expo" : "";
+  const command = "mobigent app";
+  const expo = options.expo ? " --expo" : "";
   const baseCommand =
     `${command} --app-id ${shellQuote(options.appId)} --app-name ${shellQuote(options.appName)}` +
     `${appVersion} --feature ${shellQuote(options.feature)} --out-dir ${shellQuote(options.outDir)}${customConfirmation}${expo}`;
@@ -390,9 +385,7 @@ export function createReactNativeDoctorReport(options: ReactNativeInitCliOptions
   pushPackageJsonCheck(checks, packageJsonPath);
 
   pushFileCheck(checks, rootPath, "root_file", (contents) =>
-    (contents.includes("createApp") || contents.includes("setupMobigent")) &&
-    contents.includes("functions:") &&
-    contents.includes("MobigentRoot")
+    (contents.includes("createApp") || contents.includes("setupMobigent")) && contents.includes("MobigentRoot")
       ? "Root file exports a MobigentRoot with simple app functions."
       : "Root file exists but does not look like the standard MobigentRoot scaffold."
   );
@@ -799,24 +792,17 @@ function createMobigentRootFile(options: ReactNativeInitCliOptions) {
     return createMobigentExpoRootFile(options);
   }
 
-  const versionLine = options.appVersion ? `,\n  version: ${JSON.stringify(options.appVersion)}` : "";
   const confirmationImport = options.customConfirmation
     ? `import { MobigentAgentApproval } from "./mobigent-confirmation";\n`
     : "";
-  const confirmationOption = options.customConfirmation
-    ? ",\n  ConfirmationComponent: MobigentAgentApproval"
-    : "";
+  const createAppCall = createMobigentCreateAppCall(options);
 
 return `import type { ComponentType, ReactNode } from "react";
 import { createApp, type MobigentAppRootProps } from "@mobigent/app";
 import { ${options.feature}Functions } from "./mobigent-functions/${options.feature}";
-import { mobigentConfig } from "./mobigent-config";
 ${confirmationImport}
 
-export const mobigent = createApp({
-  config: mobigentConfig${versionLine},
-  functions: { ...${options.feature}Functions }${confirmationOption}
-});
+export const mobigent = ${createAppCall};
 const { Root } = mobigent;
 
 export type MobigentRootProps = Omit<MobigentAppRootProps, "children"> & {
@@ -834,24 +820,17 @@ export function withMobigentApp<P extends object>(App: ComponentType<P>) {
 }
 
 function createMobigentExpoRootFile(options: ReactNativeInitCliOptions) {
-  const versionLine = options.appVersion ? `,\n  version: ${JSON.stringify(options.appVersion)}` : "";
   const confirmationImport = options.customConfirmation
     ? `import { MobigentAgentApproval } from "./mobigent-confirmation";\n`
     : "";
-  const confirmationOption = options.customConfirmation
-    ? ",\n  ConfirmationComponent: MobigentAgentApproval"
-    : "";
+  const createAppCall = createMobigentCreateAppCall(options);
 
 return `import type { ComponentType, ReactNode } from "react";
 import { createApp, type MobigentAppRootProps } from "@mobigent/app";
 import { ${options.feature}Functions } from "./mobigent-functions/${options.feature}";
-import { mobigentConfig } from "./mobigent-config";
 ${confirmationImport}
 
-export const mobigent = createApp({
-  config: mobigentConfig${versionLine},
-  functions: { ...${options.feature}Functions }${confirmationOption}
-});
+export const mobigent = ${createAppCall};
 const { Root } = mobigent;
 
 export type MobigentRootProps = Omit<MobigentAppRootProps, "children"> & {
@@ -866,6 +845,47 @@ export function withMobigentApp<P extends object>(App: ComponentType<P>) {
   return mobigent.with(App);
 }
 `;
+}
+
+function createMobigentCreateAppCall(options: ReactNativeInitCliOptions) {
+  const optionLines = createMobigentCreateAppOptionLines(options);
+  const base = `createApp(${JSON.stringify(options.appId)}, { ...${options.feature}Functions }`;
+
+  if (optionLines.length === 0) {
+    return `${base})`;
+  }
+
+  return `${base}, {\n${optionLines.map((line) => `  ${line}`).join(",\n")}\n})`;
+}
+
+function createMobigentCreateAppOptionLines(options: ReactNativeInitCliOptions) {
+  const lines: string[] = [];
+  const connectionUrl = options.appConfig?.connectionUrl ?? options.appConfig?.gatewayUrl ?? options.gatewayUrl;
+  const appName = options.appName || options.appConfig?.appName;
+  const version = options.appVersion ?? options.appConfig?.version;
+  const authToken = options.appConfig?.authToken;
+
+  if (appName) {
+    lines.push(`appName: ${JSON.stringify(appName)}`);
+  }
+
+  if (connectionUrl) {
+    lines.push(`connection: ${JSON.stringify(connectionUrl)}`);
+  }
+
+  if (version) {
+    lines.push(`version: ${JSON.stringify(version)}`);
+  }
+
+  if (authToken) {
+    lines.push(`authToken: ${JSON.stringify(authToken)}`);
+  }
+
+  if (options.customConfirmation) {
+    lines.push("ConfirmationComponent: MobigentAgentApproval");
+  }
+
+  return lines;
 }
 
 function createExpoRouterLayoutFile(options: ReactNativeInitCliOptions) {
@@ -1226,7 +1246,7 @@ function addFeatureToMobigentRoot(contents: string, feature: string) {
     return contents;
   }
 
-  if (!/(setupMobigent|createApp)\(\{/.test(contents) || !/functions:\s*{/.test(contents)) {
+  if (!/(setupMobigent|createApp)\(/.test(contents)) {
     return undefined;
   }
 
@@ -1243,14 +1263,29 @@ function addFeatureToMobigentRoot(contents: string, feature: string) {
   lines.splice(insertIndex, 0, importLine);
   const withImport = lines.join("\n");
 
-  return withImport.replace(/functions:\s*{([^}]*)}/s, (_match, rawFunctions: string) => {
-    const existingFunctions = rawFunctions
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean);
-    const functions = [...existingFunctions, `...${functionsBinding}`];
-    return `functions: { ${functions.join(", ")} }`;
-  });
+  if (/functions:\s*{/.test(withImport)) {
+    return withImport.replace(/functions:\s*{([^}]*)}/s, (_match, rawFunctions: string) => {
+      const existingFunctions = rawFunctions
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+      const functions = [...existingFunctions, `...${functionsBinding}`];
+      return `functions: { ${functions.join(", ")} }`;
+    });
+  }
+
+  if (/createApp\(\s*["'][^"']+["']\s*,\s*{/.test(withImport)) {
+    return withImport.replace(/createApp\((\s*["'][^"']+["']\s*,\s*){([^}]*)}/s, (_match, prefix: string, rawFunctions: string) => {
+      const existingFunctions = rawFunctions
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+      const functions = [...existingFunctions, `...${functionsBinding}`];
+      return `createApp(${prefix}{ ${functions.join(", ")} }`;
+    });
+  }
+
+  return undefined;
 }
 
 function escapeRegExp(value: string) {
@@ -1307,7 +1342,7 @@ function pushFileCheck(
     checks.push({
       name,
       status: "warn",
-      message: `${path} does not exist yet. Run mobigent-init to generate it.`
+      message: `${path} does not exist yet. Create it manually with createApp(appId, functions), or run mobigent app --feature expense --out-dir src for optional sample files.`
     });
     return;
   }
