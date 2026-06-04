@@ -2,18 +2,20 @@
 
 Create a runnable Mobigent starter with a visible app, backend, inspector, and agent playground.
 
-```bash
-npm create mobigent-app@latest my-demo -- --install
-cd my-demo
-npm run dev
-```
-
-Until npmjs publishing is connected, use the public release tarball fallback:
+Until npmjs publishing is connected, run the public release preview:
 
 ```bash
 npm exec --yes \
   --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
-  -- create-mobigent-app my-demo --package-source github-release --install
+  -- create-mobigent-app my-demo --install
+cd my-demo
+npm run dev
+```
+
+After npmjs publishing is connected, the starter becomes:
+
+```bash
+npm create mobigent-app@latest my-demo -- --install
 cd my-demo
 npm run dev
 ```
@@ -56,7 +58,7 @@ Use `--no-open` when you do not want the browser to open automatically:
 ```bash
 npm exec --yes \
   --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
-  -- create-mobigent-app my-demo --package-source github-release --no-open
+  -- create-mobigent-app my-demo --no-open
 ```
 
 Skip `--install` when you want to review files before installing dependencies.

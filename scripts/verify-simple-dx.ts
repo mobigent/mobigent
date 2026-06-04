@@ -213,6 +213,11 @@ for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.
   assert.doesNotMatch(contents, /npx mobigent-init/, `${path} should not teach the legacy app init binary`);
   assert.doesNotMatch(
     contents,
+    /package-source github-release/,
+    `${path} should not expose package-source flags in the public starter path`
+  );
+  assert.doesNotMatch(
+    contents,
     /npm install @mobigent\/backend\s+```[\s\S]{0,120}?```[\s\S]{0,80}?npx mobigent-backend --app-dir/,
     `${path} should not make mobigent-backend the required backend setup path`
   );

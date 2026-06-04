@@ -61,16 +61,19 @@ try {
   );
   assert.equal(
     packageJson.dependencies["@mobigent/backend"],
-    "^0.1.15"
+    "https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-backend-0.1.15.tgz"
   );
   assert.equal(
     packageJson.dependencies["@mobigent/app"],
-    "^0.1.15"
+    "https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-app-0.1.15.tgz"
   );
   assert.equal("@mobigent/core" in packageJson.dependencies, false);
   assert.equal("@mobigent/gateway" in packageJson.dependencies, false);
   assert.equal("@mobigent/providers" in packageJson.dependencies, false);
-  assert.equal(packageJson.overrides, undefined);
+  assert.match(
+    packageJson.overrides["@mobigent/core"],
+    /https:\/\/github\.com\/mobigent\/mobigent\/releases\/download\/v0\.1\.15\/mobigent-core-0\.1\.15\.tgz/
+  );
   assert.equal(packageJson.devDependencies["@types/express"], "^5.0.6");
 
   const server = await readFile(join(target, "src", "server.ts"), "utf8");
@@ -120,14 +123,14 @@ try {
   assert.equal(help.code, 0, help.stderr);
   assert.match(help.stdout, /--install/);
   assert.match(help.stdout, /--package-source/);
-  assert.match(help.stdout, /Default: npm/);
+  assert.match(help.stdout, /Default: github-release until npmjs packages are live/);
   assert.match(help.stdout, /--connection-port/);
   assert.match(help.stdout, /Stable app id shared by app and backend/);
   assert.doesNotMatch(help.stdout, /App id for the Mobigent manifest/);
   assert.doesNotMatch(help.stdout, /HTTP\/OpenAPI\/inspector backend port/);
 
   const releaseTarget = join(dir, "release-demo");
-  const releaseInit = run([releaseTarget, "--no-open", "--package-source", "github-release"]);
+  const releaseInit = run([releaseTarget, "--no-open"]);
   assert.equal(releaseInit.code, 0, releaseInit.stderr);
   const releasePackageJson = JSON.parse(await readFile(join(releaseTarget, "package.json"), "utf8"));
   assert.equal(

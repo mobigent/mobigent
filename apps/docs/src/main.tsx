@@ -4,7 +4,7 @@ import "./styles.css";
 
 const quickstart = `npm exec --yes \\
   --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \\
-  -- create-mobigent-app my-demo --package-source github-release --install
+  -- create-mobigent-app my-demo --install
 
 cd my-demo
 npm run dev`;
