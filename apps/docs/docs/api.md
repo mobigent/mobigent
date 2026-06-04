@@ -52,8 +52,11 @@ import { mobigent } from "./mobigent";
 const backend = await startMobigent("com.acme.expenses");
 
 const connection = await mobigent.connect(backend);
+// Or pass the app-side settings explicitly:
+const explicitConnection = await mobigent.connect(backend.appClient());
 
 connection.disconnect();
+explicitConnection.disconnect();
 ```
 
 ## Simple App Helpers
@@ -61,6 +64,7 @@ connection.disconnect();
 - `createApp(appId, { namespace: { name: fn } })`: creates the app-side SDK object.
 - `mobigent.with(App)`: wraps an existing React Native app.
 - `mobigent.connect(backend)`: connects a non-React host or demo using the same functions.
+- `mobigent.connect(backend.appClient())`: connects with explicit app-side settings from the backend.
 - `mobigent.emit(name, payload)`: emits app activity.
 - `createApp(appId, functions, { connection: { host: "192.168.1.20" } })`: connects a physical phone to your local backend.
 - `createApp(appId, functions, { connection: "wss://your-backend.example.com" })`: connects an app to a hosted backend.
@@ -100,6 +104,7 @@ The backend object exposes:
 - `agentUrl`
 - `openApiUrl`
 - `appConnectionUrl`
+- `appClient()` to produce app-side connection settings
 - `agent("chatgpt" | "claude" | "openai")`
 - `agents()`
 - `listFunctions()`

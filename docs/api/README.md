@@ -50,8 +50,11 @@ import { mobigent } from "./mobigent/expenses";
 const backend = await startMobigent("com.acme.expenses");
 
 const connection = await mobigent.connect(backend);
+// Or pass the app-side settings explicitly:
+const explicitConnection = await mobigent.connect(backend.appClient());
 
 connection.disconnect();
+explicitConnection.disconnect();
 ```
 
 ## Backend API
@@ -81,6 +84,7 @@ The common backend object includes:
 - `agentUrl`
 - `openApiUrl`
 - `appConnectionUrl`
+- `appClient()` to produce app-side connection settings
 - `app.expense.create(input)` or `app.expense.list()` to call app functions with the clean package API
 - `use("expense", { createExpense: "create" })` to bind backend-friendly helper names
 - `use("expense").create(input)` or `use("expense", ["create", "list"])` to bind app function groups
@@ -98,7 +102,7 @@ Advanced and compatibility fields are still available, but they should not be ne
 - `advanced.urls.websocket`, `advanced.urls.http`, `advanced.urls.inspector`, and `advanced.urls.openapi` for transport details
 - `advanced.appConfigPath` and `advanced.appConfigModulePath` for optional generated local files
 - `advanced.appConfig({ appId, appName })`, `advanced.appConfigModule(...)`, and `advanced.copyAppConfig()` for manual app pairing artifacts
-- `client()` when a non-React test host needs app connection settings
+- `client()` as the older name for `appClient()`
 - `app({ appId, appName })` when you need to produce a connection object for another app id
 - `feature("expense")` and `functions.expense.create(input)` for older backend SDK styles
 - `tools()`, `resolveToolName()`, `callApp()`, `function()`, `appFunction()`, `appFunctions()`, and `invoke()` for provider internals or backward compatibility
@@ -109,6 +113,7 @@ Advanced and compatibility fields are still available, but they should not be ne
 - `createApp({ namespace: { name: fn } })`: quick local demo setup.
 - `mobigent.with(App)`: wraps an existing React Native app.
 - `mobigent.connect(backend)`: connects a non-React host or demo using the same app functions.
+- `mobigent.connect(backend.appClient())`: connects with explicit app-side settings from the backend.
 - `mobigent.emit(name, payload)`: emits app activity.
 - `createApp(appId, functions, { connection: { host: "192.168.1.20" } })`: connects a physical phone to your local backend.
 - `createApp(appId, functions, { connection: "wss://your-backend.example.com" })`: connects an app to a hosted backend.

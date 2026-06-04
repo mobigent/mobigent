@@ -69,7 +69,7 @@ export default withMobigent(App, "com.acme.expenses", {
 });
 ```
 
-For non-React hosts and local demos, call `await mobigent.connect(backend)` instead of wrapping a component. Use `mobigent.emit(name, payload)` for app events.
+For non-React hosts and local demos, call `await mobigent.connect(backend)` instead of wrapping a component. If your backend hands you app-side settings, `await mobigent.connect(backend.appClient())` works too. Use `mobigent.emit(name, payload)` for app events.
 
 No app-side init command is required. Write the functions directly in your app code. Optional generators are for examples, not real integration.
 

@@ -41,7 +41,13 @@ const backend = await startMobigent("com.acme.expenses");
 await mobigent.connect(backend);
 ```
 
-The public `backend.connection` object contains the pairing details. You usually do not need to read or copy it yourself.
+When you want the app-side settings explicitly, use `backend.appClient()`:
+
+```ts
+await mobigent.connect(backend.appClient());
+```
+
+The public `backend.connection` object contains the same pairing details. You usually do not need to read or copy it yourself.
 For debugging, `backend.appConnectionUrl` shows where apps connect and `backend.agentUrl` shows the agent-facing API.
 
 ## What It Handles
@@ -73,7 +79,7 @@ The public TypeScript surface uses backend names:
 
 - `Backend` for the object returned by `startMobigent(...)`
 - `BackendOptions` for startup options
-- `BackendConnection` for `backend.connection`
+- `BackendConnection` for `backend.connection` and `backend.appClient()`
 - `AppFunction` for a callable app function on the backend
 - `MobigentFunctionInfo` for `listFunctions()`
 - `MobigentBackendStatus` for `ready()` and `waitForApp()`

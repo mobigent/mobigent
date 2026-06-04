@@ -618,6 +618,38 @@ test("app package accepts backend appConnectionUrl as a friendly connection targ
   }
 });
 
+test("app package connects with backend appClient settings", async () => {
+  const backend = await startMobigent("com.example.appclient", "App Client App", {
+    wsPort: 19021,
+    httpPort: 19022,
+    silent: true
+  });
+  const app = createApp({
+    functions: {
+      expense: {
+        list: async () => ({ items: [{ id: "EXP-CLIENT" }] })
+      }
+    },
+    createSocket: createNodeSocket
+  });
+
+  try {
+    assert.deepEqual(backend.appClient(), backend.connection);
+    const connection = await app.connect(backend.appClient());
+
+    try {
+      await backend.waitForApp({ minFunctions: 1 });
+      assert.deepEqual(await backend.app.expense.list(), {
+        items: [{ id: "EXP-CLIENT" }]
+      });
+    } finally {
+      connection.disconnect();
+    }
+  } finally {
+    await backend.stop();
+  }
+});
+
 test("app and backend SDKs can pair with matching string app identity", async () => {
   const previousWsPort = process.env.MOBIGENT_WS_PORT;
   const previousHttpPort = process.env.MOBIGENT_HTTP_PORT;
