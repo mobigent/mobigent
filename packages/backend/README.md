@@ -68,6 +68,13 @@ await expenses.listExpenses();
 
 For quick one-off explicit calls, use `mobigent.call("expense.create", input)`. For shutdown, call `await mobigent.stop()`.
 
+The public TypeScript surface uses backend names:
+
+- `MobigentFunctionInfo` for `listFunctions()`
+- `MobigentBackendStatus` for `ready()` and `waitForApp()`
+- `MobigentAppSession` for `apps()`
+- `MobigentCallResult` for app function call results
+
 Prefer generated sample files? Use `create-mobigent-app`. The backend package is designed so real integrations can stay as install plus code.
 
 Advanced docs cover OpenAPI, MCP, custom auth, provider runtimes, and hosted deployments after the simple app/backend loop works.

@@ -1077,8 +1077,8 @@ test("existing app DX connects simple app features to backend calls end to end",
     });
 
     const status = await backend.waitForApp();
-    assert.equal(status.appsWithManifests, 1);
-    assert.equal(status.tools, 2);
+    assert.equal(status.appsWithFunctions, 1);
+    assert.equal(status.functions, 2);
 
     assert.equal(backend.resolveFunctionName("expense.create"), "com_example_existing.expense_create");
 

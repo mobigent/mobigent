@@ -3,10 +3,7 @@ import type { Server } from "node:http";
 import { basename, dirname, join } from "node:path";
 import {
   BridgeGateway,
-  createHttpApp,
-  type AgentProfile,
-  type GatewayAppSession,
-  type ToolCallOptions
+  createHttpApp
 } from "@mobigent/gateway";
 import { sanitize, type JsonObject } from "@mobigent/core";
 import {
@@ -31,7 +28,7 @@ export type MobigentBackendOptions = {
   auditLogPath?: string;
   auditRedactKeys?: string[];
   allowedAppIds?: string[];
-  agentProfiles?: Record<string, AgentProfile>;
+  agentProfiles?: Record<string, MobigentAgentProfile>;
   manifestSigningSecret?: string;
   jsonBodyLimit?: string;
   idempotencyRecordTtlMs?: number;
@@ -89,7 +86,11 @@ export type MobigentBackendReadyOptions = {
   intervalMs?: number;
 };
 
-export type MobigentBackendCallOptions = ToolCallOptions & {
+export type MobigentBackendCallOptions = {
+  agentId?: string;
+  idempotencyKey?: string;
+  timeoutMs?: number;
+  requestId?: string;
   waitForApp?: boolean;
   waitTimeoutMs?: number;
   waitIntervalMs?: number;
@@ -119,8 +120,81 @@ export type MobigentAgentOptions = {
   agentId?: string;
 };
 
+export type MobigentAgentProfile = {
+  description?: string;
+  allowedTools?: string[];
+  deniedTools?: string[];
+  readOnly?: boolean;
+  maxRisk?: "low" | "medium" | "high";
+};
+
+export type MobigentJsonSchema = {
+  type: string | string[];
+  properties?: Record<string, MobigentJsonSchema>;
+  required?: string[];
+  items?: MobigentJsonSchema;
+  description?: string;
+  enum?: string[];
+};
+
+export type MobigentFunctionInfo = {
+  name: string;
+  description: string;
+  inputSchema: MobigentJsonSchema;
+  outputSchema?: MobigentJsonSchema;
+  readOnly: boolean;
+  risk: "low" | "medium" | "high";
+  app: {
+    id: string;
+    name: string;
+  };
+};
+
+export type MobigentAppSession = {
+  sessionId: string;
+  connectedAt: string;
+  lastSeenAt: string;
+  ageMs: number;
+  idleMs: number;
+  authenticated: boolean;
+  app?: {
+    id: string;
+    name: string;
+    sdk: string;
+    version: string;
+    protocolVersion: number;
+    protocolCompatible: boolean;
+  };
+  capabilities: {
+    actions: number;
+    resources: number;
+    components: number;
+    functions: number;
+  };
+  manifest?: {
+    acceptedAt: string;
+    signed: boolean;
+    keyId?: string;
+  };
+};
+
+export type MobigentBackendStatus = {
+  appSessions: number;
+  authenticatedAppSessions: number;
+  appsWithFunctions: number;
+  functions: number;
+  auditEvents: number;
+  idempotencyRecords: number;
+  rateLimitBuckets: number;
+  manifestSigningRequired: boolean;
+  appAllowlistEnabled: boolean;
+  agentProfilesConfigured: boolean;
+};
+
+export type MobigentCallResult = unknown;
+
 export type MobigentBackendAdvanced = {
-  gateway: BridgeGateway;
+  gateway: unknown;
   httpServer: Server;
   urls: {
     websocket: string;
@@ -150,17 +224,17 @@ export type MobigentBackend = {
   agent(kind?: MobigentAgentKind, options?: MobigentAgentOptions): ProviderBundle;
   agents(options?: MobigentAgentOptions): ProviderBundle[];
   stop(): Promise<void>;
-  ready(options?: MobigentBackendReadyOptions): Promise<ReturnType<BridgeGateway["getStatus"]>>;
-  waitForApp(options?: MobigentBackendReadyOptions): Promise<ReturnType<BridgeGateway["getStatus"]>>;
-  listFunctions(): ReturnType<BridgeGateway["listTools"]>;
+  ready(options?: MobigentBackendReadyOptions): Promise<MobigentBackendStatus>;
+  waitForApp(options?: MobigentBackendReadyOptions): Promise<MobigentBackendStatus>;
+  listFunctions(): MobigentFunctionInfo[];
   use: MobigentBackendUse;
-  apps(): GatewayAppSession[];
+  apps(): MobigentAppSession[];
   resolveFunctionName(name: string): string;
-  call(name: string, input?: unknown, options?: MobigentBackendCallOptions): ReturnType<BridgeGateway["callTool"]>;
+  call(name: string, input?: unknown, options?: MobigentBackendCallOptions): Promise<MobigentCallResult>;
   fn(name: string): MobigentBackendFunction;
 };
 
-export type MobigentBackendFunction = (input?: unknown, options?: MobigentBackendCallOptions) => ReturnType<BridgeGateway["callTool"]>;
+export type MobigentBackendFunction = (input?: unknown, options?: MobigentBackendCallOptions) => Promise<MobigentCallResult>;
 export type MobigentBackendFeatureFunctions = {
   [functionName: string]: MobigentBackendFunction;
 };
@@ -171,7 +245,7 @@ export type MobigentBackendUse = {
   <const T extends Record<string, string>>(functions: T): MobigentBackendFunctionMap<T>;
 };
 export type MobigentBackendFunctions = {
-  (): ReturnType<BridgeGateway["listTools"]>;
+  (): MobigentFunctionInfo[];
   <const T extends Record<string, string>>(functions: T): MobigentBackendFunctionMap<T>;
   [namespace: string]: MobigentBackendFeatureFunctions;
 };
@@ -284,7 +358,7 @@ export async function startMobigentBackend(
   };
 
   const appFunction = (name: string): MobigentBackendFunction =>
-    (input: unknown = {}, callOptions?: ToolCallOptions) => invoke(name, input, callOptions);
+    (input: unknown = {}, callOptions?: MobigentBackendCallOptions) => invoke(name, input, callOptions);
   const appFeature = (namespace: string): MobigentBackendFeatureFunctions => createFeatureFunctionProxy(namespace, appFunction);
   function appFunctions(namespace: string): MobigentBackendFeatureFunctions;
   function appFunctions<const T extends readonly string[]>(namespace: string, functions: T): MobigentBackendNamedFunctionMap<T>;
@@ -373,13 +447,13 @@ export async function startMobigentBackend(
     appConfigCode,
     copyAppConfig: advanced.copyAppConfig,
     stop: () => stopBackend(httpServer, gateway),
-    ready: (readyOptions?: MobigentBackendReadyOptions) => waitForBackendReady(gateway, readyOptions),
-    waitForApp: (readyOptions?: MobigentBackendReadyOptions) => waitForBackendReady(gateway, readyOptions),
-    listFunctions: () => gateway.listTools(),
+    ready: async (readyOptions?: MobigentBackendReadyOptions) => toBackendStatus(await waitForBackendReady(gateway, readyOptions)),
+    waitForApp: async (readyOptions?: MobigentBackendReadyOptions) => toBackendStatus(await waitForBackendReady(gateway, readyOptions)),
+    listFunctions: () => gateway.listTools().map(toBackendFunctionInfo),
     use: appFunctions,
     functions,
     tools: () => gateway.listTools(),
-    apps: () => gateway.listApps(),
+    apps: () => gateway.listApps().map(toBackendAppSession),
     resolveFunctionName: (name: string) => resolveBackendToolName(gateway.listTools(), name, defaultApp),
     resolveToolName: (name: string) => resolveBackendToolName(gateway.listTools(), name, defaultApp),
     callApp: invoke,
@@ -423,7 +497,7 @@ function normalizeBackendOptions(
 }
 
 function createBackendFunctionsAccessor(
-  list: () => ReturnType<BridgeGateway["listTools"]>,
+  list: () => MobigentFunctionInfo[],
   appFeature: (namespace: string) => MobigentBackendFeatureFunctions,
   appFunction: (name: string) => MobigentBackendFunction
 ): MobigentBackendFunctions {
@@ -573,6 +647,59 @@ export const mobigentBackend = {
 export const startMobigent: typeof startMobigentBackend = startMobigentBackend;
 export const createMobigentBackend: typeof startMobigentBackend = startMobigentBackend;
 
+function toBackendFunctionInfo(functionInfo: MobigentFunctionInfo): MobigentFunctionInfo {
+  return functionInfo;
+}
+
+function toBackendAppSession(session: ReturnType<BridgeGateway["listApps"]>[number]): MobigentAppSession {
+  return {
+    sessionId: session.sessionId,
+    connectedAt: session.connectedAt,
+    lastSeenAt: session.lastSeenAt,
+    ageMs: session.ageMs,
+    idleMs: session.idleMs,
+    authenticated: session.authenticated,
+    app: session.app
+      ? {
+          id: session.app.id,
+          name: session.app.name,
+          sdk: session.app.sdk,
+          version: session.app.version,
+          protocolVersion: session.app.protocolVersion,
+          protocolCompatible: session.app.protocolCompatible
+        }
+      : undefined,
+    capabilities: {
+      actions: session.capabilities.actions,
+      resources: session.capabilities.resources,
+      components: session.capabilities.components,
+      functions: session.capabilities.tools
+    },
+    manifest: session.manifest
+      ? {
+          acceptedAt: session.manifest.acceptedAt,
+          signed: session.manifest.signed,
+          keyId: session.manifest.keyId
+        }
+      : undefined
+  };
+}
+
+function toBackendStatus(status: ReturnType<BridgeGateway["getStatus"]>): MobigentBackendStatus {
+  return {
+    appSessions: status.appSessions,
+    authenticatedAppSessions: status.authenticatedAppSessions,
+    appsWithFunctions: status.appsWithManifests,
+    functions: status.tools,
+    auditEvents: status.auditEvents,
+    idempotencyRecords: status.idempotencyRecords,
+    rateLimitBuckets: status.rateLimitBuckets,
+    manifestSigningRequired: status.manifestSigningRequired,
+    appAllowlistEnabled: status.appAllowlistEnabled,
+    agentProfilesConfigured: status.agentProfilesConfigured
+  };
+}
+
 function listen(app: ReturnType<typeof createHttpApp>, port: number) {
   return new Promise<Server>((resolve, reject) => {
     const server = app.listen(port, () => resolve(server));
@@ -677,7 +804,7 @@ function normalizeAgentKind(kind: MobigentAgentKind): ProviderKind {
 }
 
 function resolveBackendToolName(
-  tools: ReturnType<BridgeGateway["listTools"]>,
+  tools: MobigentFunctionInfo[],
   name: string,
   defaultApp?: MobigentBackendAppConfig
 ) {
@@ -685,7 +812,7 @@ function resolveBackendToolName(
 }
 
 function findBackendToolName(
-  tools: ReturnType<BridgeGateway["listTools"]>,
+  tools: MobigentFunctionInfo[],
   name: string,
   defaultApp?: MobigentBackendAppConfig
 ) {

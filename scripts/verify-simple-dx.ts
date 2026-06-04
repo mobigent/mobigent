@@ -73,6 +73,14 @@ assert.doesNotMatch(
   /^\s*(gateway|httpServer|urls|defaultApp|appConfigCode|copyAppConfig|tools|resolveToolName|callApp|invoke|function|appFunction|appFeature|appFunctions|functions)\b/m,
   "@mobigent/backend root type should keep bridge/tool compatibility fields out of top-level autocomplete"
 );
+assert.doesNotMatch(
+  backendPublicType,
+  /BridgeGateway|ToolCallOptions|GatewayAppSession|ReturnType<|listTools|callTool|getStatus/,
+  "@mobigent/backend public type should use product-facing backend names instead of lower-level gateway types"
+);
+assert.match(backendPackageRoot, /export type MobigentFunctionInfo/);
+assert.match(backendPackageRoot, /export type MobigentBackendStatus/);
+assert.match(backendPackageRoot, /export type MobigentAppSession/);
 for (const [path, packageJson] of packageJsons) {
   assert.match(packageJson.description ?? "", /app functions|backend SDK|starter|CLI/i, `${path} should describe the simple SDK model`);
   if (path !== "packages/cli/package.json") {
