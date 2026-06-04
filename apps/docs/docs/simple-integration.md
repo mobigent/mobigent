@@ -87,12 +87,6 @@ await mobigent.app.expense.list();
 
 Mobigent pairs the app and backend by `appId`, waits for the app connection when a function is called, and routes the call to the app-owned function.
 
-When you only need app identity, the shortest explicit backend start is:
-
-```ts
-const mobigent = await startMobigent("com.acme.expenses", "Acme Expenses");
-```
-
 Starter and backend init commands are optional sample helpers. The normal path is install plus code.
 
 ## What Mobigent Handles

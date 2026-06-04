@@ -22,9 +22,9 @@ function App() {
           <h1>The bridge between AI agents and real app capability.</h1>
           <p>
             Install the app package, install the backend package, expose real app functions with
-            createApp(appId, functions) and startMobigent(appId), then call
-            mobigent.app.expense.create(input) while Mobigent handles the bridge, approvals, retries,
-            agent discovery, and provider setup.
+            createApp(appId, functions), then startMobigent(appId, appName) and call
+            mobigent.app.expense.create(input). Mobigent handles the bridge, approvals, retries,
+            discovery, and agent setup.
           </p>
           <div className="heroActions">
             <a className="primaryButton" href="./docs.html">
@@ -76,7 +76,7 @@ function App() {
             Sensitive actions can stop inside the app until the user says yes.
           </Feature>
           <Feature icon={<Terminal />} title="Provider-ready">
-            Connect through MCP, HTTP, OpenAPI, ChatGPT Actions, Claude, Cursor, and more.
+            Start with the backend SDK, then connect ChatGPT Actions, Claude, Cursor, and more when you are ready.
           </Feature>
         </div>
       </section>

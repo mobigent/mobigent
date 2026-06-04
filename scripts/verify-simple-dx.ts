@@ -232,6 +232,12 @@ for (const path of [
   assert.match(contents, /createApp/, `${path} should teach createApp as the app-side entrypoint`);
   assert.match(contents, /createApp\("com\.acme\.expenses"|createApp\(appId, functions/, `${path} should teach the short app identity path`);
   assert.match(contents, /startMobigent/, `${path} should teach startMobigent as the backend entrypoint`);
+  assert.match(
+    contents,
+    /startMobigent\("com\.acme\.expenses", "Acme Expenses"\)|startMobigent\(appId, appName\)/,
+    `${path} should teach startMobigent(appId, appName) as the short backend path`
+  );
+  assert.doesNotMatch(contents, /startMobigent\(appId\)/, `${path} should not teach startMobigent(appId)`);
   assert.match(contents, /mobigent\.app\.expense\.create|backend\.app\.expense\.create/, `${path} should teach the clean backend app function path`);
   assert.doesNotMatch(
     contents,
@@ -244,6 +250,10 @@ for (const path of [
     `${path} should not present defineFeature + withMobigent as the beginner integration`
   );
 }
+
+const cliReadme = readFileSync("packages/cli/README.md", "utf8");
+assert.match(cliReadme, /startMobigent\(appId, appName\)/);
+assert.doesNotMatch(cliReadme, /startMobigent\(appId\)/);
 
 const quickstart = readFileSync("docs/quickstart.md", "utf8");
 assert.match(quickstart, /connection: \{ host: "192\.168\.1\.20" \}/);
