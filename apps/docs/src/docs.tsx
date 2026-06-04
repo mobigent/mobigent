@@ -97,15 +97,6 @@ export default withMobigent(App, "com.acme.expenses", {
   }
 });`;
 
-const gatewayCode = `npx mobigent-http
-
-curl http://localhost:8788/health
-curl http://localhost:8788/tools
-curl http://localhost:8788/openapi.json
-open http://localhost:8788/inspect
-
-npx mobigent-mcp`;
-
 const backendCode = `import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent("com.acme.expenses");
@@ -127,11 +118,12 @@ await expenses.createExpense({
   amount: 42.25
 });`;
 
-const securityDoctorCode = `npx mobigent security-doctor \\
-  --app-id com.example.app \\
-  --app-name "Example App" \\
-  --gateway-url wss://gateway.example.com \\
-  --custom-confirmation`;
+const doctorCode = `npm run doctor
+
+# checks:
+# app reachable
+# backend ready
+# app functions visible`;
 
 const schemaAdapterCode = `import { fromZod, fromTypeBox } from "@mobigent/app";
 import { z } from "zod";
@@ -156,12 +148,12 @@ const platformActionsCode = `npx mobigent app \\
 npx mobigent app --platform-actions ios-swift ...
 npx mobigent app --platform-actions android-xml ...`;
 
-const providerCode = `import { createChatGptActionsProvider } from "@mobigent/providers";
+const providerCode = `const chatgpt = mobigent.agent("chatgpt", {
+  publicUrl: "https://backend.example.com",
+  auth: "api-key"
+});
 
-createChatGptActionsProvider({
-  baseUrl: "https://your-gateway.example.com",
-  auth: "bearer"
-});`;
+console.log(chatgpt.guide);`;
 
 const iosInstallCode = `// Package.swift
 dependencies: [
@@ -296,7 +288,7 @@ const nativeUrls = [
   ["iOS simulator default", "ws://localhost:8787"],
   ["Android emulator default", "ws://10.0.2.2:8787"],
   ["Physical device override", "ws://YOUR_MAC_LAN_IP:8787"],
-  ["Hosted backend override", "wss://your-gateway.example.com"]
+  ["Hosted backend override", "wss://backend.example.com"]
 ];
 
 const firstRunChecks = [
@@ -329,10 +321,7 @@ const packages = [
   ["@mobigent/app", "App-side SDK", "Expo/React Native roots, modules, hooks, UI helpers, confirmation flow."],
   ["@mobigent/backend", "Backend SDK", "One function starts the backend, exposes agent setup, waits for app readiness, and routes calls."],
   ["Mobigent iOS", "Swift package", "Native iOS client with actions, resources, components, confirmations, reconnect, heartbeat, and events."],
-  ["Mobigent Android", "Kotlin library", "Native Android client with the same gateway protocol and local emulator-friendly defaults."],
-  ["@mobigent/gateway", "Advanced internals", "Lower-level WebSocket app sessions, HTTP API, OpenAPI schema, and MCP server."],
-  ["@mobigent/providers", "Advanced internals", "Provider descriptors and runtime helpers behind the backend SDK."],
-  ["@mobigent/core", "Advanced internals", "Shared types, protocol messages, schemas, and validation contracts."]
+  ["Mobigent Android", "Kotlin library", "Native Android client with local emulator-friendly defaults and the same app function model."]
 ];
 
 const reactNativeApis = [
@@ -361,19 +350,18 @@ const backendApis = [
   ["use()", "Binds app functions into backend helpers, either by group or by friendly aliases."],
   ["call()", "Makes a quick one-off app function call by name."],
   ["fn()", "Creates a reusable backend function wrapper for repeated calls."],
-  ["agent()", "Prints setup for ChatGPT, Claude, OpenAPI, and supported providers after the app loop works."]
+  ["agent()", "Prints setup for ChatGPT, Claude, and supported providers after the app loop works."]
 ];
 
-const gatewayEndpoints = [
-  ["GET /health", "Liveness, session counts, tool counts, and operational status."],
-  ["GET /ready", "Readiness check for deployments and agent startup."],
-  ["GET /tools", "Provider-facing discovery generated from your app functions."],
-  ["POST /tools/{name}/call", "Call an app function with validated JSON input."],
-  ["GET /openapi.json", "Importable OpenAPI schema for ChatGPT Actions and HTTP agents."],
-  ["GET /providers", "Provider setup descriptors for supported agent platforms."],
-  ["GET /audit", "Recent audit events for tool calls, approvals, and failures."],
-  ["GET /metrics", "Operational counters for sessions, calls, tools, and rate limits."],
-  ["GET /inspect", "A local browser inspector for apps, functions, metrics, audit events, and snapshot JSON."]
+const backendRuntime = [
+  ["App connection", "Keeps mobile app sessions connected and reconnects when needed."],
+  ["Function routing", "Maps backend calls such as `mobigent.app.expense.create()` to the right app-owned handler."],
+  ["Readiness", "Waits for connected apps before the backend or agent flow calls app functions."],
+  ["Validation", "Checks input and output shapes before results leave the app boundary."],
+  ["Approvals", "Pauses risky writes inside the app until the user confirms."],
+  ["Agent setup", "Generates provider setup after the app/backend loop works."],
+  ["Inspector", "Shows connected apps, functions, metrics, and audit events during development."],
+  ["Audit", "Records calls, approvals, denials, errors, and app events for debugging."]
 ];
 
 const providers = [
@@ -381,7 +369,7 @@ const providers = [
   "OpenAI Responses",
   "Claude Desktop",
   "Cursor",
-  "MCP clients",
+  "Local agent clients",
   "Anthropic",
   "Gemini",
   "AWS Bedrock",
@@ -398,24 +386,24 @@ const providers = [
 const safety = [
   ["Input validation", "Every action receives JSON validated by the declared schema."],
   ["In-app approval", "Sensitive calls pause inside the app until the user confirms."],
-  ["Agent scoping", "allowedAgents and gateway profiles hide or block tools per provider."],
-  ["Rate limits", "Per-agent and per-tool limits reduce accidental loops."],
+  ["Agent scoping", "Agent profiles hide or block functions per provider."],
+  ["Rate limits", "Per-agent and per-function limits reduce accidental loops."],
   ["Idempotency", "Safe retries avoid running the same write twice."],
   ["Audit logs", "Calls, approvals, denials, and failures can be traced."]
 ];
 
 const developerExperience = [
-  ["Inspector", "Open `/inspect` during development to see connected apps, functions, metrics, audit events, and raw gateway snapshot data."],
+  ["Inspector", "Open the inspector during development to see connected apps, functions, metrics, and audit events."],
   ["Security doctor", "Run `--security-doctor` before sharing a hosted connection to catch unsafe transport and missing approval UI."],
-  ["Schema adapters", "Use Zod, TypeBox-style JSON Schema, or the built-in helpers without changing the gateway contract."],
-  ["Native assistant bridges", "Generate App Intents and Android App Actions plans from the same capability manifest."]
+  ["Schema adapters", "Use Zod, TypeBox-style JSON Schema, or the built-in helpers without changing app code shape."],
+  ["Native assistant bridges", "Generate App Intents and Android App Actions plans from the same app function definitions."]
 ];
 
-const productionGateway = [
-  ["Auth", "Use app session auth plus HTTP API keys or per-agent keys before exposing a gateway."],
-  ["Deploy", "Run `mobigent-http` behind HTTPS/WSS with the included Dockerfile or your Node platform."],
+const productionBackend = [
+  ["Auth", "Use app session auth plus HTTP API keys or per-agent keys before exposing a hosted backend."],
+  ["Deploy", "Run Mobigent behind HTTPS/WSS with the included Dockerfile or your Node platform."],
   ["Observe", "Use `/health`, `/ready`, `/metrics`, `/metrics/prometheus`, `/apps`, and `/audit`."],
-  ["Restrict", "Set allowed app ids, signed manifests, CORS origins, JSON limits, and agent profiles."],
+  ["Restrict", "Set allowed app ids, signed app definitions, CORS origins, JSON limits, and agent profiles."],
   ["Retry safely", "Forward request ids and idempotency keys from provider calls."]
 ];
 
@@ -450,8 +438,8 @@ function Docs() {
           </div>
           <h1>Everything you need to make a mobile app agent-ready.</h1>
           <p>
-            Mobigent lets a mobile app expose typed actions, resources, screens, and approval flows to AI
-            agents through a backend package that handles the bridge details. The app stays the source of truth.
+            Mobigent lets a mobile app expose real app functions to AI agents through two normal packages.
+            The app owns the behavior, the backend calls it, and the SDK handles the bridge details.
           </p>
         </div>
       </section>
@@ -523,7 +511,7 @@ function Docs() {
         <div className="sectionHeader">
           <span className="eyebrow"><Code2 size={15} /> SDK surface</span>
           <h2>What Mobigent exposes.</h2>
-          <p>The SDK is small on purpose: declare functions in the app, run one backend helper, then connect providers after the app loop works.</p>
+          <p>The day-one SDK surface is small on purpose: declare functions in the app, run one backend helper, then connect providers after the app loop works.</p>
         </div>
 
         <div className="docsGrid packageGrid">
@@ -623,7 +611,7 @@ function Docs() {
           ))}
         </div>
         <div className="codeGrid three">
-          <Code title="Security doctor" code={securityDoctorCode} />
+          <Code title="Project doctor" code={doctorCode} />
           <Code title="Schema adapters" code={schemaAdapterCode} />
           <Code title="Native assistant bridges" code={platformActionsCode} />
         </div>
@@ -632,15 +620,15 @@ function Docs() {
       <section className="section codeSection">
         <div className="sectionHeader compact">
           <span className="eyebrow"><Network size={15} /> Backend</span>
-          <h2>One backend function, multiple agent protocols.</h2>
-          <p>Use the backend SDK in Node. The lower-level CLI stays available when you want a separate gateway process.</p>
+          <h2>The backend package owns the hard parts.</h2>
+          <p>Use the backend SDK in Node. Most apps should start with `startMobigent(appId)` and let the SDK run the service.</p>
         </div>
         <div className="codeGrid three">
           <Code title="Backend SDK" code={backendCode} />
           <Code title="Shortest explicit start" code={backendShortCode} />
           <Code title="Backend helper names" code={backendUseCode} />
           <div className="apiList endpointList">
-            {gatewayEndpoints.map(([name, text]) => (
+            {backendRuntime.map(([name, text]) => (
               <Row key={name} title={name} text={text} />
             ))}
           </div>
@@ -649,12 +637,12 @@ function Docs() {
 
       <section id="production" className="section docsBlock">
         <div className="sectionHeader compact">
-          <span className="eyebrow"><Network size={15} /> Production gateway</span>
-          <h2>Ship the gateway like an API service.</h2>
-          <p>Use the Dockerfile or `npx mobigent-http`, put it behind HTTPS/WSS, require auth, and monitor readiness before agent startup.</p>
+          <span className="eyebrow"><Network size={15} /> Hosted backend</span>
+          <h2>Ship Mobigent like backend infrastructure.</h2>
+          <p>Put the backend behind HTTPS/WSS, require auth, and monitor readiness before agent startup.</p>
         </div>
         <div className="apiList">
-          {productionGateway.map(([name, text]) => (
+          {productionBackend.map(([name, text]) => (
             <Row key={name} title={name} text={text} />
           ))}
         </div>
@@ -664,7 +652,7 @@ function Docs() {
         <div className="sectionHeader">
           <span className="eyebrow"><KeyRound size={15} /> Provider setup</span>
           <h2>Use the same app functions from many agent runtimes.</h2>
-          <p>Provider helpers generate configuration and runtime adapters. Public hosted providers need a public gateway URL; local agents can use localhost or MCP.</p>
+          <p>The backend package generates provider setup. Public hosted providers need a public backend URL; local agents can use localhost.</p>
         </div>
         <div className="codeGrid two">
           <Code title="ChatGPT Actions helper" code={providerCode} />
@@ -700,7 +688,7 @@ function Docs() {
       <section className="section finalCta">
         <div className="launchCard">
           <strong>Recommended first build</strong>
-          <p>Expose one read function and one confirmed write function from real app logic. Then connect ChatGPT Actions or an MCP client and test the full loop.</p>
+          <p>Expose one read function and one confirmed write function from real app logic. Then connect one provider and test the full loop.</p>
           <a className="primaryButton" href="https://github.com/mobigent/mobigent">
             Open the repo
             <ArrowRight size={17} />

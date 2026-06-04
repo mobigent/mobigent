@@ -420,6 +420,16 @@ for (const path of ["docs/api/README.md", "apps/docs/docs/api.md"]) {
     /Define app capability|Register capabilities|typed agent capabilities|App capabilities|same capability contract|mobile capabilities|declared capability/,
     "website docs should use app-function language in beginner-facing copy"
   );
+  assert.doesNotMatch(
+    docsPage,
+    /@mobigent\/gateway|@mobigent\/core|@mobigent\/providers|GET \/tools|POST \/tools|gateway protocol|capability manifest|raw gateway|your-gateway|gateway\.example/,
+    "website docs should not lead with internal packages, raw tool endpoints, or gateway-first language"
+  );
+  assert.match(
+    docsPage,
+    /const chatgpt = mobigent\.agent\("chatgpt"/,
+    "website docs should route provider setup through the backend package helper"
+  );
 }
 
 {
