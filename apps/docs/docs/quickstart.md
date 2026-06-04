@@ -130,6 +130,18 @@ await mobigent.app.expense.create({ merchant: "Coffee", amount: 8 });
 await mobigent.app.expense.list();
 ```
 
+Or bind backend-friendly names once:
+
+```ts
+const expenses = mobigent.functions({
+  createExpense: "expense.create",
+  listExpenses: "expense.list"
+});
+
+await expenses.createExpense({ merchant: "Coffee", amount: 8 });
+await expenses.listExpenses();
+```
+
 Shortest explicit backend start:
 
 ```ts

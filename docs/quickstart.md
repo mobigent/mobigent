@@ -146,6 +146,18 @@ await mobigent.app.expense.create({ merchant: "Coffee", amount: 8 });
 await mobigent.app.expense.list();
 ```
 
+Or bind backend-friendly names once and use them like normal helpers:
+
+```ts
+const expenses = mobigent.functions({
+  createExpense: "expense.create",
+  listExpenses: "expense.list"
+});
+
+await expenses.createExpense({ merchant: "Coffee", amount: 8 });
+await expenses.listExpenses();
+```
+
 With no options, Mobigent infers a starter app id and app name from your project. Real apps should pass `appId` explicitly.
 
 Shortest explicit form:

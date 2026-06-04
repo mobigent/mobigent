@@ -110,7 +110,19 @@ That is the backend integration.
 
 Prefer generated sample files? Use the starter. Backend/app init commands are helpers, not required integration.
 
-For one quick explicit call, use `mobigent.call("expense.create", input)`. If you prefer the object shape, `mobigent.functions.expense.create(input)` is still available.
+If your backend wants its own helper names, bind them once:
+
+```ts
+const expenses = mobigent.functions({
+  createExpense: "expense.create",
+  listExpenses: "expense.list"
+});
+
+await expenses.createExpense({ merchant: "Airport Taxi", amount: 42.25 });
+await expenses.listExpenses();
+```
+
+For one quick explicit call, use `mobigent.call("expense.create", input)`.
 
 ## 3. What The SDK Handles
 

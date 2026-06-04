@@ -336,13 +336,25 @@ await mobigent.app.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
 await mobigent.app.expense.list();
 ```
 
+Or bind backend-friendly names once:
+
+```ts
+const expenses = mobigent.functions({
+  createExpense: "expense.create",
+  listExpenses: "expense.list"
+});
+
+await expenses.createExpense({ merchant: "Airport Taxi", amount: 42.25 });
+await expenses.listExpenses();
+```
+
 Use `waitForApp()` only when you want an explicit startup health gate:
 
 ```ts
 await mobigent.waitForApp();
 ```
 
-For quick one-off calls, use `mobigent.call("expense.create", input)`. For reusable single-function aliases, use `mobigent.fn("expense.create")`.
+For quick one-off calls, use `mobigent.call("expense.create", input)`.
 
 It also gives you agent setup from the same backend object:
 

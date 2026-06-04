@@ -201,6 +201,7 @@ export type MobigentBackendFeatureFunctions = {
 };
 export type MobigentBackendFunctions = {
   (): ReturnType<BridgeGateway["listTools"]>;
+  <const T extends Record<string, string>>(functions: T): MobigentBackendFunctionMap<T>;
   [namespace: string]: MobigentBackendFeatureFunctions;
 };
 export type MobigentBackendAppAccessor = {
@@ -325,7 +326,7 @@ export async function startMobigentBackend(
     const entries = Object.entries(functions).map(([alias, functionName]) => [alias, appFunction(functionName)]);
     return Object.fromEntries(entries) as MobigentBackendFunctionMap<T>;
   }
-  const functions = createBackendFunctionsAccessor(() => gateway.listTools(), appFeature);
+  const functions = createBackendFunctionsAccessor(() => gateway.listTools(), appFeature, appFunction);
   const appAccessor = createBackendAppAccessor(appConfig, appFeature);
 
   const advanced: MobigentBackendAdvanced = {
@@ -399,10 +400,18 @@ function normalizeBackendOptions(
 
 function createBackendFunctionsAccessor(
   list: () => ReturnType<BridgeGateway["listTools"]>,
-  appFeature: (namespace: string) => MobigentBackendFeatureFunctions
+  appFeature: (namespace: string) => MobigentBackendFeatureFunctions,
+  appFunction: (name: string) => MobigentBackendFunction
 ): MobigentBackendFunctions {
   const cache = new Map<string, MobigentBackendFeatureFunctions>();
-  const callable = (() => list()) as MobigentBackendFunctions;
+  const callable = ((aliases?: Record<string, string>) => {
+    if (!aliases) {
+      return list();
+    }
+
+    const entries = Object.entries(aliases).map(([alias, functionName]) => [alias, appFunction(functionName)]);
+    return Object.fromEntries(entries);
+  }) as MobigentBackendFunctions;
 
   return new Proxy(callable, {
     get(target, property, receiver) {

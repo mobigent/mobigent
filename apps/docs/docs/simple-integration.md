@@ -99,6 +99,18 @@ Mobigent pairs the app and backend by `appId`, waits for the app connection when
 
 Starter and backend init commands are optional sample helpers. The normal path is install plus code.
 
+If your backend wants its own helper names, bind them once:
+
+```ts
+const expenses = mobigent.functions({
+  createExpense: "expense.create",
+  listExpenses: "expense.list"
+});
+
+await expenses.createExpense({ merchant: "Coffee", amount: 8 });
+await expenses.listExpenses();
+```
+
 ## What Mobigent Handles
 
 - local development config

@@ -1026,6 +1026,29 @@ test("existing app DX connects simple app features to backend calls end to end",
     assert.deepEqual(await backend.call("expense.list"), {
       items: [result]
     });
+
+    const backendExpenses = backend.functions({
+      createExpense: "expense.create",
+      listExpenses: "expense.list"
+    });
+    assert.deepEqual(await backendExpenses.createExpense({
+      merchant: "Bakery",
+      amount: 12
+    }), {
+      id: "EXP-2",
+      merchant: "Bakery",
+      amount: 12
+    });
+    assert.deepEqual(await backendExpenses.listExpenses(), {
+      items: [
+        result,
+        {
+          id: "EXP-2",
+          merchant: "Bakery",
+          amount: 12
+        }
+      ]
+    });
   } finally {
     mobigentConnection?.disconnect();
     await backend.stop();
