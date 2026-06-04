@@ -469,15 +469,18 @@ assert.doesNotMatch(cliReadme, /startMobigent\(appId, appName\)/);
 for (const path of ["docs/ios.md", "docs/android.md", "packages/ios/README.md", "packages/android/README.md"]) {
   const contents = readFileSync(path, "utf8");
   assert.match(contents, /@mobigent\/backend/, `${path} should anchor native SDKs to the backend package`);
+  assert.match(contents, /client\.write\(/, `${path} should teach app functions with client.write(...)`);
   assert.doesNotMatch(
     contents,
-    /through the Mobigent gateway/,
-    `${path} should not introduce native SDKs as gateway-first`
+    /gateway|gatewayURL|gatewayUrl|Register Capabilities|registerAction|registerResource|hello|manifest|protocol/i,
+    `${path} should keep native docs package-first instead of exposing bridge internals`
   );
 }
 
 const iosGuide = readFileSync("docs/ios.md", "utf8");
 assert.match(iosGuide, /MobigentClient\(\s*[\s\S]{0,120}?appId: "com\.example\.expenses"[\s\S]{0,120}?appName: "Expenses"[\s\S]{0,80}?\)/);
+assert.match(iosGuide, /backendURL: URL\(string: "ws:\/\/YOUR_MAC_LAN_IP:8787"\)!/);
+assert.match(iosGuide, /client\.read\(/);
 assert.doesNotMatch(
   iosGuide.slice(iosGuide.indexOf("## Create A Client"), iosGuide.indexOf("That default connects")),
   /gatewayURL:/,
@@ -486,6 +489,8 @@ assert.doesNotMatch(
 
 const androidGuide = readFileSync("docs/android.md", "utf8");
 assert.match(androidGuide, /MobigentClient\.Builder\(context\)[\s\S]{0,160}?\.appId\("com\.example\.expenses"\)[\s\S]{0,80}?\.appName\("Expenses"\)[\s\S]{0,80}?\.build\(\)/);
+assert.match(androidGuide, /\.backendUrl\("ws:\/\/YOUR_MAC_LAN_IP:8787"\)/);
+assert.match(androidGuide, /client\.read\(/);
 assert.doesNotMatch(
   androidGuide.slice(androidGuide.indexOf("## Create A Client"), androidGuide.indexOf("That default connects")),
   /\.gatewayUrl\(/,

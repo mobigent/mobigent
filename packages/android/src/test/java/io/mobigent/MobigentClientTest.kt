@@ -51,6 +51,39 @@ class MobigentClientTest {
     }
 
     @Test
+    fun friendlyFunctionAliasesBuildTheSameManifest() {
+        val client = MobigentClient.Builder()
+            .appId("com.example.app")
+            .appName("Example")
+            .backendUrl("ws://localhost:8787")
+            .build()
+
+        client.write(
+            name = "create",
+            description = "Create an expense.",
+            inputSchema = MobigentSchema.obj(
+                mapOf("amount" to MobigentSchema.number()),
+                required = listOf("amount")
+            ),
+            confirmation = MobigentConfirmationPolicy(required = true, risk = MobigentRisk.Medium)
+        ) { input -> input }
+
+        client.read(name = "list", description = "List expenses.") {
+            mapOf("items" to emptyList<Map<String, Any?>>())
+        }
+
+        client.screen(name = "details", description = "Focus expense details.") { props ->
+            props
+        }
+
+        val manifest = client.manifest()
+        assertEquals("ws://localhost:8787", client.diagnostics.backendUrl)
+        assertEquals(1, (manifest["actions"] as List<*>).size)
+        assertEquals(1, (manifest["resources"] as List<*>).size)
+        assertEquals(1, (manifest["components"] as List<*>).size)
+    }
+
+    @Test
     fun connectSendsHelloManifestAndQueuedEvent() {
         val transport = MockTransport()
         val client = MobigentClient.Builder()

@@ -246,6 +246,10 @@ public struct MobigentDiagnostics: Sendable {
     public let reconnectEnabled: Bool
     public let heartbeatEnabled: Bool
     public let lastError: String?
+
+    public var backendURL: URL {
+        gatewayURL
+    }
 }
 
 public struct MobigentReconnectOptions: Sendable {
@@ -393,6 +397,30 @@ public final class MobigentClient {
         self.webSocketFactory = webSocketFactory
     }
 
+    public convenience init(
+        appId: String,
+        appName: String,
+        backendURL: URL,
+        version: String = "0.1.15",
+        authToken: String? = nil,
+        reconnect: MobigentReconnectOptions = .init(),
+        heartbeat: MobigentHeartbeatOptions = .init(),
+        eventQueue: MobigentEventQueueOptions = .init(),
+        webSocketFactory: @escaping WebSocketFactory = { URLSessionMobigentWebSocket(url: $0) }
+    ) {
+        self.init(
+            appId: appId,
+            appName: appName,
+            gatewayURL: backendURL,
+            version: version,
+            authToken: authToken,
+            reconnect: reconnect,
+            heartbeat: heartbeat,
+            eventQueue: eventQueue,
+            webSocketFactory: webSocketFactory
+        )
+    }
+
     public var diagnostics: MobigentDiagnostics {
         MobigentDiagnostics(
             configured: true,
@@ -421,6 +449,30 @@ public final class MobigentClient {
         sendManifestIfConnected()
     }
 
+    public func write(_ action: MobigentAction) {
+        registerAction(action)
+    }
+
+    public func write(
+        name: String,
+        description: String,
+        inputSchema: MobigentSchema = .object(),
+        outputSchema: MobigentSchema? = nil,
+        confirmation: MobigentConfirmationPolicy? = nil,
+        policy: MobigentCapabilityPolicy? = nil,
+        handler: @escaping @Sendable (MobigentJSON) async throws -> Any
+    ) {
+        registerAction(MobigentAction(
+            name: name,
+            description: description,
+            inputSchema: inputSchema,
+            outputSchema: outputSchema,
+            confirmation: confirmation,
+            policy: policy,
+            handler: handler
+        ))
+    }
+
     @discardableResult
     public func unregisterAction(_ name: String) -> Bool {
         let removed = actions.removeValue(forKey: name) != nil
@@ -434,6 +486,26 @@ public final class MobigentClient {
         sendManifestIfConnected()
     }
 
+    public func read(_ resource: MobigentResource) {
+        registerResource(resource)
+    }
+
+    public func read(
+        name: String,
+        description: String,
+        outputSchema: MobigentSchema? = nil,
+        policy: MobigentCapabilityPolicy? = nil,
+        handler: @escaping @Sendable () async throws -> Any
+    ) {
+        registerResource(MobigentResource(
+            name: name,
+            description: description,
+            outputSchema: outputSchema,
+            policy: policy,
+            read: handler
+        ))
+    }
+
     @discardableResult
     public func unregisterResource(_ name: String) -> Bool {
         let removed = resources.removeValue(forKey: name) != nil
@@ -445,6 +517,26 @@ public final class MobigentClient {
         assertCapabilityAvailable(name: component.name)
         components[component.name] = component
         sendManifestIfConnected()
+    }
+
+    public func screen(_ component: MobigentComponent) {
+        registerComponent(component)
+    }
+
+    public func screen(
+        name: String,
+        description: String,
+        propsSchema: MobigentSchema? = nil,
+        policy: MobigentCapabilityPolicy? = nil,
+        handler: @escaping @Sendable (MobigentJSON) async throws -> Any
+    ) {
+        registerComponent(MobigentComponent(
+            name: name,
+            description: description,
+            propsSchema: propsSchema,
+            policy: policy,
+            focus: handler
+        ))
     }
 
     @discardableResult

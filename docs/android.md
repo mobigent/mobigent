@@ -40,48 +40,44 @@ val client = MobigentClient.Builder(context)
     .build()
 ```
 
-That default connects the Android emulator to the local Mobigent backend. For a physical device or hosted backend, pass `gatewayUrl(...)` explicitly:
+That default connects the Android emulator to the local Mobigent backend. For a physical device or hosted backend, pass `backendUrl(...)` explicitly:
 
 ```kotlin
 val client = MobigentClient.Builder(context)
     .appId("com.example.expenses")
     .appName("Expenses")
-    .gatewayUrl("ws://YOUR_MAC_LAN_IP:8787")
+    .backendUrl("ws://YOUR_MAC_LAN_IP:8787")
     .build()
 ```
 
-## Register Capabilities
+## Expose App Functions
 
 ```kotlin
-client.registerAction(
-    MobigentAction(
-        name = "create",
-        description = "Create an expense after approval.",
-        inputSchema = MobigentSchema.obj(
-            mapOf(
-                "merchant" to MobigentSchema.string(),
-                "amount" to MobigentSchema.number()
-            ),
-            required = listOf("merchant", "amount")
+client.write(
+    name = "create",
+    description = "Create an expense after approval.",
+    inputSchema = MobigentSchema.obj(
+        mapOf(
+            "merchant" to MobigentSchema.string(),
+            "amount" to MobigentSchema.number()
         ),
-        confirmation = MobigentConfirmationPolicy(required = true, risk = MobigentRisk.Medium)
-    ) { input ->
-        mapOf("id" to "EXP-1", "merchant" to input["merchant"], "amount" to input["amount"])
-    }
-)
+        required = listOf("merchant", "amount")
+    ),
+    confirmation = MobigentConfirmationPolicy(required = true, risk = MobigentRisk.Medium)
+) { input ->
+    mapOf("id" to "EXP-1", "merchant" to input["merchant"], "amount" to input["amount"])
+}
 
-client.registerResource(
-    MobigentResource(
-        name = "list",
-        description = "List expenses.",
-        outputSchema = MobigentSchema.obj(
-            mapOf("items" to MobigentSchema.array(MobigentSchema.obj())),
-            required = listOf("items")
-        )
-    ) {
-        mapOf("items" to emptyList<Map<String, Any?>>())
-    }
-)
+client.read(
+    name = "list",
+    description = "List expenses.",
+    outputSchema = MobigentSchema.obj(
+        mapOf("items" to MobigentSchema.array(MobigentSchema.obj())),
+        required = listOf("items")
+    )
+) {
+    mapOf("items" to emptyList<Map<String, Any?>>())
+}
 ```
 
 ## Confirm Sensitive Actions
@@ -102,7 +98,7 @@ client.connect()
 client.emit("expense.created", mapOf("id" to "EXP-1"))
 ```
 
-The client sends the same `hello`, `manifest`, `event`, `action_result`, `resource_result`, `component_result`, and `ping` messages used by the React Native SDK.
+After the app connects, the backend can call the functions you exposed and receive the returned values.
 
 ## Test The Full Loop
 
@@ -130,11 +126,11 @@ For local testing from this repo you can run:
 npm run dev:http
 ```
 
-Use these gateway URLs:
+Use these backend URLs:
 
 - Android emulator: `ws://10.0.2.2:8787`
 - physical device: `ws://YOUR_MAC_LAN_IP:8787`
-- hosted gateway: `wss://your-gateway.example.com`
+- hosted backend: `wss://your-backend.example.com`
 
 Open the local inspector:
 
@@ -144,9 +140,9 @@ open http://localhost:8788/inspect
 
 You should see the app functions, recent audit events, and metrics. The same functions are also available to the backend through `mobigent.app.expense.create(...)` and to agents through the backend service.
 
-## App Actions Bridge Plan
+## Optional App Actions Starter
 
-Mobigent can generate a first-pass Android App Actions XML plan from the same capability contract used by the gateway:
+Mobigent can generate a first-pass Android App Actions XML file when you want a starter for shortcuts or deep links:
 
 ```bash
 npx mobigent app \
@@ -156,7 +152,7 @@ npx mobigent app \
   --feature expense
 ```
 
-Use the generated XML as a starting point for app action shortcuts/deep links, then forward the Android entry point into your Mobigent client or app service layer.
+Use the generated XML as a starting point, then forward the Android entry point into your Mobigent client or app service layer. You do not need this command for normal Mobigent integration.
 
 ## Example
 

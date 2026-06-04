@@ -188,7 +188,9 @@ data class MobigentDiagnostics(
     val reconnectEnabled: Boolean,
     val heartbeatEnabled: Boolean,
     val lastError: String?
-)
+) {
+    val backendUrl: String get() = gatewayUrl
+}
 
 interface MobigentTransport {
     val isOpen: Boolean
@@ -251,6 +253,7 @@ class MobigentClient private constructor(
         fun appId(value: String) = apply { appId = value }
         fun appName(value: String) = apply { appName = value }
         fun gatewayUrl(value: String) = apply { gatewayUrl = value }
+        fun backendUrl(value: String) = gatewayUrl(value)
         fun version(value: String) = apply { version = value }
         fun authToken(value: String?) = apply { authToken = value }
         fun reconnect(value: MobigentReconnectOptions) = apply { reconnect = value }
@@ -301,6 +304,22 @@ class MobigentClient private constructor(
         sendManifestIfConnected()
     }
 
+    fun write(action: MobigentAction) = apply {
+        registerAction(action)
+    }
+
+    fun write(
+        name: String,
+        description: String,
+        inputSchema: MobigentSchema = MobigentSchema.obj(),
+        outputSchema: MobigentSchema? = null,
+        confirmation: MobigentConfirmationPolicy? = null,
+        policy: MobigentCapabilityPolicy? = null,
+        handler: suspend (MobigentJson) -> Any?
+    ) = apply {
+        registerAction(MobigentAction(name, description, inputSchema, outputSchema, confirmation, policy, handler))
+    }
+
     fun unregisterAction(name: String) = actions.remove(name) != null
 
     fun registerResource(resource: MobigentResource) {
@@ -309,12 +328,40 @@ class MobigentClient private constructor(
         sendManifestIfConnected()
     }
 
+    fun read(resource: MobigentResource) = apply {
+        registerResource(resource)
+    }
+
+    fun read(
+        name: String,
+        description: String,
+        outputSchema: MobigentSchema? = null,
+        policy: MobigentCapabilityPolicy? = null,
+        handler: suspend () -> Any?
+    ) = apply {
+        registerResource(MobigentResource(name, description, outputSchema, policy, handler))
+    }
+
     fun unregisterResource(name: String) = resources.remove(name) != null
 
     fun registerComponent(component: MobigentComponent) {
         assertCapabilityAvailable(component.name)
         components[component.name] = component
         sendManifestIfConnected()
+    }
+
+    fun screen(component: MobigentComponent) = apply {
+        registerComponent(component)
+    }
+
+    fun screen(
+        name: String,
+        description: String,
+        propsSchema: MobigentSchema? = null,
+        policy: MobigentCapabilityPolicy? = null,
+        handler: suspend (MobigentJson) -> Any?
+    ) = apply {
+        registerComponent(MobigentComponent(name, description, propsSchema, policy, handler))
     }
 
     fun unregisterComponent(name: String) = components.remove(name) != null
