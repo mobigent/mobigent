@@ -74,7 +74,11 @@ assert.ok(packageJsons.get("mobigent")?.bin?.mobigent, "mobigent must ship the f
 const releaseWorkflow = await readFile(".github/workflows/release.yml", "utf8");
 const publishScript = await readFile("scripts/publish-npm.ts", "utf8");
 assert.match(releaseWorkflow, /tags:\s*\n\s+- "v\*\.\*\.\*"/, "release workflow must run on SemVer tags.");
-assert.match(releaseWorkflow, /workflow_dispatch:/, "release workflow must support manual dispatch.");
+assert.doesNotMatch(
+  releaseWorkflow,
+  /workflow_dispatch:/,
+  "release workflow must stay tag-only so manual branch runs cannot create or publish non-tag releases."
+);
 assert.match(releaseWorkflow, /id-token: write/, "release workflow must request OIDC id-token permission.");
 assert.match(releaseWorkflow, /node-version: 24/, "release workflow must use Node 24 for npm trusted publishing.");
 assert.match(

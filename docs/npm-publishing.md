@@ -35,9 +35,31 @@ Use this for the first public publish, because npm Trusted Publishing can only b
 1. Create or join the `@mobigent` npm organization.
 2. Create an npm automation token with publish access for the eight packages.
 3. Add that token as the GitHub secret `NPM_TOKEN`.
-4. Push the next SemVer tag.
+4. Rerun the existing tag release workflow or push the next SemVer tag.
 
 The release workflow publishes all npm packages on SemVer tags.
+
+### Fastest First Publish
+
+After the `@mobigent` npm organization exists and you are logged in locally, the current unpublished version can be published without waiting for another tag:
+
+```bash
+npm login
+npm run npm:publish-ready
+npm run verify
+npm run npm:publish
+npm run npm:status
+```
+
+This should make the real install path work:
+
+```bash
+npm install @mobigent/app
+npm install @mobigent/backend
+npm create mobigent-app@latest my-demo -- --install
+```
+
+If you prefer GitHub Actions for the first publish, add `NPM_TOKEN`, then rerun the release workflow for the latest `v*.*.*` tag. The release workflow intentionally runs only on SemVer tags so it cannot accidentally publish or create a release named after a branch.
 
 ## Option B: npm Trusted Publishing
 
