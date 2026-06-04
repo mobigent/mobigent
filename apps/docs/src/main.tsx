@@ -2,12 +2,19 @@ import { ArrowRight, Check, Github, Lock, PlugZap, Radio, ShieldCheck, Smartphon
 import { createRoot } from "react-dom/client";
 import "./styles.css";
 
-const quickstart = `npm exec --yes \\
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \\
-  -- create-mobigent-app my-demo --install
+const quickstart = `npm install @mobigent/app
+npm install @mobigent/backend
 
-cd my-demo
-npm run dev`;
+export default withMobigent(App, "com.acme.expenses", {
+  expense: { list, create }
+});
+
+const mobigent = await startMobigent(
+  "com.acme.expenses",
+  "Acme Expenses"
+);
+
+await mobigent.use("expense").create(input);`;
 
 function App() {
   return (
@@ -22,9 +29,9 @@ function App() {
           <h1>The bridge between AI agents and real app functions.</h1>
           <p>
             Install the app package, install the backend package, expose real app functions with
-            createApp(appId, functions), then startMobigent(appId, appName) and call
-            mobigent.app.expense.create(input). Mobigent handles the bridge, approvals, retries,
-            discovery, and agent setup.
+            withMobigent(App, appId, functions) or createApp(appId, functions), then
+            startMobigent(appId, appName) and call mobigent.app.expense.create(input).
+            Mobigent handles the bridge, approvals, retries, discovery, and agent setup.
           </p>
           <div className="heroActions">
             <a className="primaryButton" href="./docs.html">
@@ -55,7 +62,7 @@ function App() {
             </div>
             <pre>{quickstart}</pre>
             <div className="signalGrid">
-              <Metric label="Install" value="1 command" />
+              <Metric label="Install" value="2 packages" />
               <Metric label="Surface" value="typed" />
               <Metric label="Control" value="yours" />
             </div>

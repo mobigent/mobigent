@@ -388,10 +388,31 @@ for (const path of ["docs/api/README.md", "apps/docs/docs/api.md"]) {
 
 {
   const homePage = readFileSync("apps/docs/src/main.tsx", "utf8");
+  const homeQuickstart = homePage.slice(homePage.indexOf("const quickstart"), homePage.indexOf("function App"));
   assert.doesNotMatch(
     homePage,
     /real app capability|app capabilities|capability layer/,
     "homepage should lead with app functions instead of abstract capability language"
+  );
+  assert.match(
+    homeQuickstart,
+    /npm install @mobigent\/app[\s\S]{0,80}?npm install @mobigent\/backend/,
+    "homepage hero quickstart should lead with normal SDK installs"
+  );
+  assert.match(
+    homeQuickstart,
+    /withMobigent\(App, "com\.acme\.expenses"/,
+    "homepage hero quickstart should show direct existing-app wrapping"
+  );
+  assert.match(
+    homeQuickstart,
+    /startMobigent\(\s+"com\.acme\.expenses",\s+"Acme Expenses"\s+\)/,
+    "homepage hero quickstart should show the short backend start path"
+  );
+  assert.doesNotMatch(
+    homeQuickstart,
+    /create-mobigent-app|mobigent-init|npm exec/,
+    "homepage hero quickstart should not look generator-first"
   );
 }
 

@@ -69,9 +69,20 @@ await mobigent.connect(backend);
 
 Everything else, connection URLs, sockets, tokens, registration loops, provider mapping, confirmations, retries, audit events, agent setup, and inspector wiring, is SDK plumbing.
 
-## Quick Start
+## Add It To An App
 
-After npm publishing is enabled, the first run is:
+The product path is boring on purpose:
+
+```bash
+npm install @mobigent/app
+npm install @mobigent/backend
+```
+
+Then wrap your app and start the backend as shown above. No app-side init command is required.
+
+## Run A Demo App
+
+If you want a full sample before touching an existing app, use the starter:
 
 ```bash
 npm create mobigent-app@latest my-demo -- --install
@@ -91,7 +102,7 @@ npm run dev
 
 That opens a visible app beside an agent playground. Click **Run agent request** and Mobigent calls the app's `expense.create` function, asks for approval in the app host, and adds a new row to the app state. In another terminal, run `npm run doctor` to confirm everything is healthy, then `npm run agent:local`, `npm run agent:openapi`, or `npm run agent:chatgpt` for copy-paste agent setup.
 
-When you are ready to adapt it, start with `src/app-functions.ts`. That is the small file that owns the sample app functions.
+The starter is demo scaffolding, not required integration. When you are ready to adapt it, start with `src/app-functions.ts`. That is the small file that owns the sample app functions.
 
 Working from this repo? Create the same starter locally:
 

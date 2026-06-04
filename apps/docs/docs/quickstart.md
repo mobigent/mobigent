@@ -4,36 +4,20 @@ sidebar_position: 2
 
 # Quickstart
 
-The easiest path is the starter:
+Mobigent should feel like adding any other app/backend SDK. The normal path is install two packages, expose app functions, then call those functions from the backend.
 
-```bash
-npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
-  -- create-mobigent-app my-demo --install
-cd my-demo
-npm run dev
-```
-
-Click **Run agent request**. The demo calls the app-owned `expense.create` function and updates visible app state.
-
-In another terminal:
-
-```bash
-npm run doctor
-```
-
-You should see app, backend, readiness, and function checks pass.
-
-## Simple Model
-
-Use `@mobigent/app` in the mobile app and `@mobigent/backend` in the backend. The app exposes functions. The backend waits for the app and calls those functions. Mobigent handles connection, validation, confirmations, retries, and agent setup.
-
-## Existing React Native App
+## Add To An Existing App
 
 Install the app SDK:
 
 ```bash
 npm install @mobigent/app
+```
+
+Install the backend SDK:
+
+```bash
+npm install @mobigent/backend
 ```
 
 Current public fallback until npmjs publishing is connected:
@@ -42,7 +26,15 @@ Current public fallback until npmjs publishing is connected:
 npm exec --yes \
   --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
   -- mobigent-install app
+
+npm exec --yes \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
+  -- mobigent-install backend
 ```
+
+That is it for setup. No app-side init command is required.
+
+## App
 
 Create one Mobigent file:
 
@@ -95,8 +87,6 @@ export default withMobigent(App, "com.acme.expenses", {
 });
 ```
 
-No app-side init command is required.
-
 For a non-React demo or test host, use the same app SDK object:
 
 ```ts
@@ -109,20 +99,6 @@ await mobigent.connect(backend);
 ```
 
 ## Backend
-
-Install the backend SDK:
-
-```bash
-npm install @mobigent/backend
-```
-
-Current public fallback until npmjs publishing is connected:
-
-```bash
-npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
-  -- mobigent-install backend
-```
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
@@ -161,3 +137,25 @@ Shortest explicit backend start:
 ```ts
 const mobigent = await startMobigent("com.acme.expenses", "Acme Expenses");
 ```
+
+## Optional Demo App
+
+Prefer a generated sample you can run before touching your app? Use the starter:
+
+```bash
+npm exec --yes \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
+  -- create-mobigent-app my-demo --install
+cd my-demo
+npm run dev
+```
+
+Click **Run agent request**. The demo calls the app-owned `expense.create` function and updates visible app state.
+
+In another terminal:
+
+```bash
+npm run doctor
+```
+
+You should see app, backend, readiness, and function checks pass. The starter is only a demo shortcut; the real integration path is install plus code.
