@@ -206,6 +206,8 @@ export type MobigentBackendAdvanced = {
   appConfigModulePath?: string;
   defaultApp?: MobigentBackendAppConfig;
   appConfigCode?: string;
+  appConfig(options: MobigentBackendAppConfigOptions): MobigentBackendAppConfig;
+  appConfigModule(options: MobigentBackendAppConfigModuleOptions): string;
   copyAppConfig(): string;
 };
 
@@ -219,8 +221,6 @@ export type MobigentBackend = {
   client(appId: string, appName?: string, options?: Omit<MobigentBackendAppConfigOptions, "appId" | "appName">): MobigentBackendClient;
   client(options: MobigentBackendAppConfigOptions): MobigentBackendClient;
   app: MobigentBackendAppAccessor;
-  appConfig(options: MobigentBackendAppConfigOptions): MobigentBackendAppConfig;
-  appConfigModule(options: MobigentBackendAppConfigModuleOptions): string;
   agent(kind?: MobigentAgentKind, options?: MobigentAgentOptions): ProviderBundle;
   agents(options?: MobigentAgentOptions): ProviderBundle[];
   stop(): Promise<void>;
@@ -412,6 +412,8 @@ export async function startMobigentBackend(
     appConfigModulePath: appConfigFiles.modulePath,
     defaultApp,
     appConfigCode,
+    appConfig,
+    appConfigModule,
     copyAppConfig: () => appConfigCode
   };
 

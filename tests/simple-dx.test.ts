@@ -338,7 +338,7 @@ test("backend helper starts HTTP, OpenAPI, and inspector endpoints from one func
       version: undefined
     });
     assert.match(
-      backend.appConfigModule({ appId: "com.example.app", appName: "Example App" }),
+      backend.advanced.appConfigModule({ appId: "com.example.app", appName: "Example App" }),
       /export const mobigentConfig = defineMobigentConfig/
     );
     assert.equal(backend.agent("chatgpt").provider.id, "chatgpt-actions");

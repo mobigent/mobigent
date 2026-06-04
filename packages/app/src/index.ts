@@ -93,6 +93,9 @@ export type MobigentAppPackageIdentityOptions = Omit<MobigentSimpleAppOptions, "
 export type MobigentAppPackageInput = MobigentAppPackageOptions | MobigentSimpleFunctionMap | string;
 export type MobigentBackendConnectionTarget = {
   connection?: MobigentSimpleConnectionSettings;
+};
+type MobigentLegacyBackendConnectionTarget = MobigentBackendConnectionTarget & {
+  connection?: MobigentSimpleConnectionSettings;
   urls?: {
     websocket?: string;
   };
@@ -285,14 +288,14 @@ function resolvePackageConnectSettings(
     ? {
         ...connectionSettings,
         ...appSettings
-      }
+      } as MobigentSimpleConnectionSettings
     : {
         ...appSettings,
         ...connectionSettings
-      };
+      } as MobigentSimpleConnectionSettings;
 }
 
-function resolveBackendConnectionSettings(target: MobigentBackendConnectionTarget): MobigentSimpleConnectionSettings {
+function resolveBackendConnectionSettings(target: MobigentLegacyBackendConnectionTarget): MobigentSimpleConnectionSettings {
   const config = target.connection ?? target.defaultApp ?? {};
 
   return {
@@ -305,7 +308,7 @@ function resolveBackendConnectionSettings(target: MobigentBackendConnectionTarge
   };
 }
 
-function isBackendConnectionTarget(value: MobigentAppConnectSettings): value is MobigentBackendConnectionTarget {
+function isBackendConnectionTarget(value: MobigentAppConnectSettings): value is MobigentLegacyBackendConnectionTarget {
   return Boolean(
     value &&
       typeof value === "object" &&

@@ -92,10 +92,11 @@ The common backend object includes:
 Advanced and compatibility fields are still available, but they should not be needed for the normal package path:
 
 - `advanced` for lower-level server and transport details
-- `urls.websocket`, `urls.http`, `urls.inspector`, and `urls.openapi` for backward compatibility
-- `appConfigPath` and `appConfigModulePath` for optional generated local files
+- `advanced.urls.websocket`, `advanced.urls.http`, `advanced.urls.inspector`, and `advanced.urls.openapi` for transport details
+- `advanced.appConfigPath` and `advanced.appConfigModulePath` for optional generated local files
+- `advanced.appConfig({ appId, appName })`, `advanced.appConfigModule(...)`, and `advanced.copyAppConfig()` for manual app pairing artifacts
 - `client()` when a non-React test host needs app connection settings
-- `app({ appId, appName })`, `appConfig({ appId, appName })`, and `copyAppConfig()` for manual app pairing artifacts
+- `app({ appId, appName })` when you need to produce a connection object for another app id
 - `feature("expense")` and `functions.expense.create(input)` for older backend SDK styles
 - `tools()`, `resolveToolName()`, `callApp()`, `function()`, `appFunction()`, `appFunctions()`, and `invoke()` for provider internals or backward compatibility
 

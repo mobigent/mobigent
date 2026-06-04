@@ -21,6 +21,7 @@ const starterPackage = JSON.parse(
 );
 const appPackageRoot = readFileSync("packages/app/src/index.ts", "utf8");
 const backendPackageRoot = readFileSync("packages/backend/src/index.ts", "utf8");
+const appBackendTargetType = appPackageRoot.match(/export type MobigentBackendConnectionTarget = \{[\s\S]*?^};/m)?.[0] ?? "";
 const backendPublicType = backendPackageRoot.match(/export type MobigentBackend = \{[\s\S]*?^};/m)?.[0] ?? "";
 const packageJsons = new Map(
   [
@@ -67,10 +68,16 @@ assert.match(appPackageRoot, /read/);
 assert.match(appPackageRoot, /write/);
 assert.match(appPackageRoot, /fromZod/);
 assert.match(backendPackageRoot, /connection: MobigentBackendClient/, "@mobigent/backend should expose a clean backend.connection pairing object");
+assert.match(appBackendTargetType, /connection\?: MobigentSimpleConnectionSettings/, "@mobigent/app should accept backend.connection as the clean pairing surface");
+assert.doesNotMatch(
+  appBackendTargetType,
+  /urls|defaultApp|gatewayUrl/,
+  "@mobigent/app public backend target type should not advertise legacy backend internals"
+);
 assert.match(backendPublicType, /connection: MobigentBackendClient/, "@mobigent/backend public type should expose backend.connection");
 assert.doesNotMatch(
   backendPublicType,
-  /^\s*(gateway|httpServer|urls|defaultApp|appConfigCode|copyAppConfig|tools|resolveToolName|callApp|invoke|function|appFunction|appFeature|appFunctions|functions)\b/m,
+  /^\s*(gateway|httpServer|urls|defaultApp|appConfig|appConfigModule|appConfigCode|copyAppConfig|tools|resolveToolName|callApp|invoke|function|appFunction|appFeature|appFunctions|functions)\b/m,
   "@mobigent/backend root type should keep bridge/tool compatibility fields out of top-level autocomplete"
 );
 assert.doesNotMatch(
