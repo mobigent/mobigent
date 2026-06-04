@@ -298,6 +298,21 @@ test("backend helper starts HTTP, OpenAPI, and inspector endpoints from one func
     assert.equal(backend.advanced.urls, backend.urls);
     assert.equal(backend.advanced.gateway, backend.gateway);
     assert.equal(backend.advanced.copyAppConfig(), backend.copyAppConfig());
+    assert.deepEqual(backend.client(), backend.defaultApp);
+    assert.deepEqual(backend.client("com.example.client", "Client App"), {
+      appId: "com.example.client",
+      appName: "Client App",
+      connectionUrl: "ws://localhost:18987",
+      authToken: "dev-token",
+      version: undefined
+    });
+    assert.deepEqual(backend.client({ appId: "com.example.client", appName: "Client App" }), {
+      appId: "com.example.client",
+      appName: "Client App",
+      connectionUrl: "ws://localhost:18987",
+      authToken: "dev-token",
+      version: undefined
+    });
     assert.deepEqual(backend.app({ appId: "com.example.app", appName: "Example App" }), {
       appId: "com.example.app",
       appName: "Example App",
@@ -343,7 +358,7 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
 
   try {
     const connection = await connectMobigent(expenses, {
-      config: backend.defaultApp,
+      config: backend.client(),
       createSocket: createNodeSocket
     });
 
@@ -522,7 +537,7 @@ test("backend app functions wait for the app connection automatically", async ()
 
     setTimeout(() => {
       connectionPromise = connectMobigent(expenses, {
-        config: backend.defaultApp,
+        config: backend.client(),
         createSocket: createNodeSocket,
         confirm: async () => true
       });
@@ -1086,7 +1101,7 @@ test("existing app DX can connect without passing the singleton client manually"
 
   try {
     mobigentConnection = await connectMobigent(expenses, {
-      config: backend.defaultApp,
+      config: backend.client(),
       createSocket: createNodeSocket,
       confirm: async () => true
     });

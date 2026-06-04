@@ -78,6 +78,7 @@ export type MobigentBackendAppConfig = {
   version?: string;
   authToken?: string;
 };
+export type MobigentBackendClient = MobigentBackendAppConfig;
 
 export type MobigentBackendReadyOptions = {
   minApps?: number;
@@ -154,6 +155,9 @@ export type MobigentBackend = {
   appConfigPath?: string;
   /** @deprecated Use advanced.appConfigModulePath. Kept for compatibility. */
   appConfigModulePath?: string;
+  client(): MobigentBackendClient;
+  client(appId: string, appName?: string, options?: Omit<MobigentBackendAppConfigOptions, "appId" | "appName">): MobigentBackendClient;
+  client(options: MobigentBackendAppConfigOptions): MobigentBackendClient;
   app: MobigentBackendAppAccessor;
   appConfig(options: MobigentBackendAppConfigOptions): MobigentBackendAppConfig;
   appConfigModule(options: MobigentBackendAppConfigModuleOptions): string;
@@ -327,6 +331,26 @@ export async function startMobigentBackend(
     return Object.fromEntries(entries) as MobigentBackendFunctionMap<T>;
   }
   const functions = createBackendFunctionsAccessor(() => gateway.listTools(), appFeature, appFunction);
+  function client(): MobigentBackendClient;
+  function client(appId: string, appName?: string, options?: Omit<MobigentBackendAppConfigOptions, "appId" | "appName">): MobigentBackendClient;
+  function client(options: MobigentBackendAppConfigOptions): MobigentBackendClient;
+  function client(
+    input?: string | MobigentBackendAppConfigOptions,
+    appName?: string,
+    clientOptions: Omit<MobigentBackendAppConfigOptions, "appId" | "appName"> = {}
+  ): MobigentBackendClient {
+    if (!input) {
+      return defaultApp;
+    }
+
+    return typeof input === "string"
+      ? appConfig({
+          ...clientOptions,
+          appId: input,
+          appName: appName ?? inferAppNameFromId(input)
+        })
+      : appConfig(input);
+  }
   const appAccessor = createBackendAppAccessor(appConfig, appFeature);
 
   const advanced: MobigentBackendAdvanced = {
@@ -350,6 +374,7 @@ export async function startMobigentBackend(
     advanced,
     appConfigPath: appConfigFiles.jsonPath,
     appConfigModulePath: appConfigFiles.modulePath,
+    client,
     app: appAccessor,
     appConfig,
     appConfigModule,
