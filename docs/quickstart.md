@@ -68,6 +68,19 @@ export const mobigent = createApp("com.acme.expenses", {
 });
 ```
 
+For local demos, the package also accepts the plain function map directly:
+
+```ts
+export const mobigent = createApp({
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
+  }
+});
+```
+
+Use `createApp(appId, functions)` for real apps so the backend can pair with the correct app.
+
 That is enough for a first integration. Mobigent treats `list`, `get`, `read`, `fetch`, `search`, and `load` as reads. Other plain functions are confirmed writes by default. Add `write()` later only when you want input validation or custom approval text.
 
 Create one Mobigent app object and wrap your existing app once:

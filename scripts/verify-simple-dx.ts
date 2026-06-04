@@ -203,6 +203,11 @@ for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.
   const contents = readFileSync(path, "utf8");
   assert.match(contents, /createApp/, `${path} should teach the app package createApp path`);
   assert.match(contents, /createApp\("com\.acme\.expenses"|createApp\(appId, functions/, `${path} should teach the short app identity path`);
+  assert.match(
+    contents,
+    /createApp\(\{\s+expense:/,
+    `${path} should teach direct function-map mode for local demos`
+  );
   assert.match(contents, /mobigent\.app\.expense\.create|backend\.app\.expense\.create/, `${path} should teach the clean backend app function path`);
   assert.match(contents, /startMobigent\("com\.acme\.expenses", "Acme Expenses"\)/, `${path} should teach the short backend start path`);
   assert.doesNotMatch(

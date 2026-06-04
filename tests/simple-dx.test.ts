@@ -136,6 +136,38 @@ test("createApp accepts app functions directly for the lowest ceremony path", ()
   assert.equal(app.options.capabilities[0]?.actions[0]?.name, "expense_create");
 });
 
+test("app package createApp accepts a plain function map with no wrapper key", () => {
+  const app = createApp({
+    expense: {
+      list: async () => ({ items: [] }),
+      create: async (input) => ({ id: "EXP-PLAIN", ...input })
+    }
+  });
+
+  assert.equal(app.options.appId, undefined);
+  assert.equal(app.options.capabilities[0]?.namespace, "expense");
+  assert.equal(app.options.capabilities[0]?.resources[0]?.name, "expense_list");
+  assert.equal(app.options.capabilities[0]?.actions[0]?.name, "expense_create");
+});
+
+test("app package createApp accepts a plain function map with identity options", () => {
+  const app = createApp(
+    {
+      expense: {
+        list: async () => ({ items: [] })
+      }
+    },
+    {
+      appName: "Plain Expenses",
+      connection: "ws://localhost:8787"
+    }
+  );
+
+  assert.equal(app.options.appName, "Plain Expenses");
+  assert.equal(app.options.gatewayUrl, "ws://localhost:8787");
+  assert.equal(app.options.capabilities[0]?.namespace, "expense");
+});
+
 test("createApp accepts an app id and functions as the shortest app path", () => {
   const app = createApp("com.example.shortapp", {
     expense: {

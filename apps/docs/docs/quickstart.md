@@ -57,6 +57,19 @@ export const mobigent = createApp("com.acme.expenses", {
 });
 ```
 
+For quick local demos, pass the function map directly:
+
+```ts
+export const mobigent = createApp({
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
+  }
+});
+```
+
+Use `createApp(appId, functions)` before connecting real apps and agents.
+
 That is the normal path. Mobigent treats `list`, `get`, `read`, `fetch`, `search`, and `load` as reads. Other plain functions are confirmed writes by default. Add `write()` only when you want validation or custom approval copy.
 
 Wrap the app once:

@@ -131,6 +131,19 @@ export const mobigent = createApp("com.acme.expenses", {
 });
 ```
 
+For a quick local demo, you can pass the function map directly:
+
+```ts
+export const mobigent = createApp({
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
+  }
+});
+```
+
+Use `createApp(appId, functions)` before connecting real apps and agents.
+
 Mobigent treats `list`/`get`/`read`/`fetch`/`search`/`load` functions as reads. Other plain functions are writes and require confirmation by default. When you want validation or custom approval copy, wrap that one function:
 
 ```ts
@@ -241,6 +254,19 @@ export const mobigent = createApp("com.acme.expenses", {
   }
 });
 ```
+
+For quick local experiments, this also works:
+
+```ts
+export const mobigent = createApp({
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
+  }
+});
+```
+
+Use `createApp(appId, functions)` before connecting real apps and agents.
 
 Wrap the app once:
 

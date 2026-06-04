@@ -104,7 +104,7 @@ export type MobigentAppPackageOptions = MobigentSimpleAppInput | MobigentWithApp
 export type MobigentAppPackageIdentityOptions = Omit<MobigentSimpleAppOptions, "appId" | "functions"> & {
   appName?: string;
 };
-export type MobigentAppPackageInput = MobigentAppPackageOptions | string;
+export type MobigentAppPackageInput = MobigentAppPackageOptions | MobigentSimpleFunctionMap | string;
 export type MobigentBackendConnectionTarget = {
   urls?: {
     websocket?: string;
@@ -132,10 +132,11 @@ export function createApp(
   functions: MobigentSimpleFunctionMap,
   options?: MobigentAppPackageIdentityOptions
 ): MobigentAppPackage;
+export function createApp(functions: MobigentSimpleFunctionMap, options?: MobigentAppPackageIdentityOptions): MobigentAppPackage;
 export function createApp(input: MobigentAppPackageOptions): MobigentAppPackage;
 export function createApp(
   input: MobigentAppPackageInput,
-  functions?: MobigentSimpleFunctionMap,
+  functions?: MobigentSimpleFunctionMap | MobigentAppPackageIdentityOptions,
   options: MobigentAppPackageIdentityOptions = {}
 ): MobigentAppPackage {
   const appInput = normalizeCreateAppInput(input, functions, options);
@@ -163,22 +164,62 @@ export const setup = setupMobigent;
 
 function normalizeCreateAppInput(
   input: MobigentAppPackageInput,
-  functions: MobigentSimpleFunctionMap | undefined,
+  functionsOrOptions: MobigentSimpleFunctionMap | MobigentAppPackageIdentityOptions | undefined,
   options: MobigentAppPackageIdentityOptions
 ): MobigentAppPackageOptions {
   if (typeof input !== "string") {
+    if (isFunctionMapInput(input)) {
+      return {
+        ...(functionsOrOptions as MobigentAppPackageIdentityOptions | undefined),
+        functions: input
+      };
+    }
+
     return input;
   }
 
-  if (!functions) {
+  if (!functionsOrOptions || isIdentityOptions(functionsOrOptions)) {
     throw new Error("createApp(appId, functions) requires an app functions object.");
   }
 
   return {
     ...options,
     appId: input,
-    functions
+    functions: functionsOrOptions
   };
+}
+
+function isFunctionMapInput(value: MobigentAppPackageInput): value is MobigentSimpleFunctionMap {
+  if (!value || typeof value !== "object" || Array.isArray(value) || isFeatureInput(value as MobigentAppPackageOptions)) {
+    return false;
+  }
+
+  return Object.values(value).every(isCapabilityMap);
+}
+
+function isIdentityOptions(value: MobigentSimpleFunctionMap | MobigentAppPackageIdentityOptions): value is MobigentAppPackageIdentityOptions {
+  return !isFunctionMapInput(value);
+}
+
+function isCapabilityMap(value: unknown): value is MobigentSimpleFunctionMap[string] {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      !Array.isArray(value) &&
+      Object.values(value).every(isSimpleFunction)
+  );
+}
+
+function isSimpleFunction(value: unknown): value is MobigentSimpleFunctionMap[string][string] {
+  return (
+    typeof value === "function" ||
+    Boolean(
+      value &&
+        typeof value === "object" &&
+        "kind" in value &&
+        (value.kind === "action" || value.kind === "resource" || value.kind === "component")
+    )
+  );
 }
 
 function resolvePackageFeatures(input: MobigentAppPackageOptions): MobigentSimpleFeature | MobigentSimpleFeature[] {
