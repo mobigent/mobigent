@@ -107,9 +107,9 @@ Backend code can use those same short names.
 Or bind the app functions to backend helper names:
 
 ```ts
-const expenses = mobigent.use({
-  createExpense: "expense.create",
-  listExpenses: "expense.list"
+const expenses = mobigent.use("expense", {
+  createExpense: "create",
+  listExpenses: "list"
 });
 
 await expenses.createExpense({ merchant: "Coffee", amount: 8 });

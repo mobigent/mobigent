@@ -127,9 +127,9 @@ Prefer generated sample files? Use the starter. Backend/app init commands are he
 If your backend wants its own helper names, bind them once:
 
 ```ts
-const expenses = mobigent.use({
-  createExpense: "expense.create",
-  listExpenses: "expense.list"
+const expenses = mobigent.use("expense", {
+  createExpense: "create",
+  listExpenses: "list"
 });
 
 await expenses.createExpense({ merchant: "Airport Taxi", amount: 42.25 });

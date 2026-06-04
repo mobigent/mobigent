@@ -120,9 +120,9 @@ const backendShortCode = `const mobigent = await startMobigent(
   "Acme Expenses"
 );`;
 
-const backendUseCode = `const expenses = mobigent.use({
-  createExpense: "expense.create",
-  listExpenses: "expense.list"
+const backendUseCode = `const expenses = mobigent.use("expense", {
+  createExpense: "create",
+  listExpenses: "list"
 });
 
 await expenses.createExpense({

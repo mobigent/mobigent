@@ -161,9 +161,9 @@ await mobigent.app.expense.list();
 Or bind backend-friendly names once and use them like normal helpers:
 
 ```ts
-const expenses = mobigent.use({
-  createExpense: "expense.create",
-  listExpenses: "expense.list"
+const expenses = mobigent.use("expense", {
+  createExpense: "create",
+  listExpenses: "list"
 });
 
 await expenses.createExpense({ merchant: "Coffee", amount: 8 });

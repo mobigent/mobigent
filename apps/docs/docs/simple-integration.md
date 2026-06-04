@@ -116,9 +116,9 @@ Starter and backend init commands are optional sample helpers. The normal path i
 If your backend wants its own helper names, bind them once:
 
 ```ts
-const expenses = mobigent.use({
-  createExpense: "expense.create",
-  listExpenses: "expense.list"
+const expenses = mobigent.use("expense", {
+  createExpense: "create",
+  listExpenses: "list"
 });
 
 await expenses.createExpense({ merchant: "Coffee", amount: 8 });

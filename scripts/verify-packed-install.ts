@@ -65,6 +65,8 @@ assert.equal(mobigent.resolveFunctionName("expense.create"), "expense.create");
 assert.equal(Array.isArray(mobigent.listFunctions()), true);
 assert.equal(Array.isArray(mobigent.functions()), true);
 assert.equal(typeof mobigent.use("expense").create, "function");
+assert.equal(typeof mobigent.use("expense", { createExpense: "create" }).createExpense, "function");
+assert.equal(typeof mobigent.use("expense", ["create"]).create, "function");
 assert.equal(typeof mobigent.use({ createExpense: "expense.create" }).createExpense, "function");
 assert.equal(typeof mobigent.fn("expense.create"), "function");
 assert.equal(typeof mobigent.call, "function");

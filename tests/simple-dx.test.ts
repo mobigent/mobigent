@@ -419,6 +419,21 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
         merchant: "Deli"
       });
 
+      const namedExpenses = backend.use("expense", {
+        createExpense: "create",
+        listExpenses: "list"
+      });
+      assert.deepEqual(await namedExpenses.createExpense({ merchant: "Market" }), {
+        id: "EXP-1",
+        merchant: "Market"
+      });
+
+      const directExpenses = backend.use("expense", ["create", "list"] as const);
+      assert.deepEqual(await directExpenses.create({ merchant: "Grocer" }), {
+        id: "EXP-1",
+        merchant: "Grocer"
+      });
+
       const app = backend.feature("expense");
 
       assert.deepEqual(await app.create({ merchant: "Bakery" }), {
@@ -433,6 +448,8 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
           { id: "EXP-1", merchant: "Juice Bar" },
           { id: "EXP-1", merchant: "Pizzeria" },
           { id: "EXP-1", merchant: "Deli" },
+          { id: "EXP-1", merchant: "Market" },
+          { id: "EXP-1", merchant: "Grocer" },
           { id: "EXP-1", merchant: "Bakery" }
         ]
       });
@@ -1094,6 +1111,34 @@ test("existing app DX connects simple app features to backend calls end to end",
           id: "EXP-2",
           merchant: "Bakery",
           amount: 12
+        }
+      ]
+    });
+
+    const cleanBackendExpenses = backend.use("expense", {
+      createExpense: "create",
+      listExpenses: "list"
+    });
+    assert.deepEqual(await cleanBackendExpenses.createExpense({
+      merchant: "Bookshop",
+      amount: 18
+    }), {
+      id: "EXP-3",
+      merchant: "Bookshop",
+      amount: 18
+    });
+    assert.deepEqual(await cleanBackendExpenses.listExpenses(), {
+      items: [
+        result,
+        {
+          id: "EXP-2",
+          merchant: "Bakery",
+          amount: 12
+        },
+        {
+          id: "EXP-3",
+          merchant: "Bookshop",
+          amount: 18
         }
       ]
     });

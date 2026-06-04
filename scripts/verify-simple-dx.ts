@@ -239,8 +239,8 @@ for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.
   );
   assert.match(
     contents,
-    /mobigent\.use\(\{\s+createExpense: "expense\.create"/,
-    `${path} should teach backend-friendly function aliases through the simple use() API`
+    /mobigent\.use\("expense", \{\s+createExpense: "create"/,
+    `${path} should teach namespace-first backend function aliases through the simple use() API`
   );
   assert.match(contents, /startMobigent\("com\.acme\.expenses", "Acme Expenses"\)/, `${path} should teach the short backend start path`);
   assert.doesNotMatch(
@@ -311,7 +311,7 @@ for (const path of ["packages/app/README.md", "packages/react-native/README.md"]
   const backendReadme = readFileSync("packages/backend/README.md", "utf8");
   assert.match(backendReadme, /startMobigent\("com\.acme\.expenses", "Acme Expenses"\)/);
   assert.match(backendReadme, /mobigent\.app\.expense\.create/);
-  assert.match(backendReadme, /mobigent\.use\(\{\s+createExpense: "expense\.create"/);
+  assert.match(backendReadme, /mobigent\.use\("expense", \{\s+createExpense: "create"/);
   assert.doesNotMatch(
     backendReadme,
     /backend\.defaultApp|mobigent\.app\.json|appDir\b|npx mobigent-backend|mobigent-backend --app/,
@@ -363,7 +363,7 @@ for (const path of [
   "apps/docs/src/docs.tsx"
 ]) {
   const contents = readFileSync(path, "utf8");
-  assert.match(contents, /mobigent\.use\(\{/, `${path} should teach use() for backend-friendly aliases`);
+  assert.match(contents, /mobigent\.use\("expense", \{/, `${path} should teach namespace-first use() for backend-friendly aliases`);
   assert.match(
     contents,
     /withMobigent\(App, "com\.acme\.expenses"/,

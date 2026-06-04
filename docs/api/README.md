@@ -79,8 +79,8 @@ The common backend object includes:
 - `apiUrl`
 - `openApiUrl`
 - `app.expense.create(input)` or `app.expense.list()` to call app functions with the clean package API
-- `use({ createExpense: "expense.create" })` to bind backend-friendly helper names
-- `use("expense").create(input)` to bind one app function group
+- `use("expense", { createExpense: "create" })` to bind backend-friendly helper names
+- `use("expense").create(input)` or `use("expense", ["create", "list"])` to bind app function groups
 - `call("expense.create", input)` or `call("expense.list")`; pass `{ waitForApp: false }` only when you want an immediate failure if the app is not connected
 - `fn("expense.create")` to create a reusable backend function
 - `listFunctions()` to inspect discovered app functions
