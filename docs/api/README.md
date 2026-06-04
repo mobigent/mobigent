@@ -5,7 +5,7 @@ Start with the two-package path:
 - `@mobigent/app`: app SDK for exposing app functions.
 - `@mobigent/backend`: backend SDK for the agent-facing API, inspector, OpenAPI, MCP-ready routing, and app connections.
 
-Lower-level protocol packages still exist, but most developers should not need them on day one.
+Lower-level packages exist inside the repo, but most developers should not need them on day one.
 
 ## App API
 
@@ -186,8 +186,6 @@ createApp("com.acme.expenses", {
 
 Full JSON Schema and lower-level `schema.*` helpers are still available for advanced shapes.
 
-## Advanced Packages
+## Advanced Internals
 
-- `@mobigent/core`: shared protocol, manifests, schemas, and validation.
-- `@mobigent/gateway`: lower-level gateway, HTTP/OpenAPI server, and MCP stdio server.
-- `@mobigent/providers`: provider setup helpers and runtime adapters behind `mobigent.agent(...)`.
+The app and backend packages own the public integration path. Internal packages still power schema validation, transport, provider mapping, and hosting, but app teams should reach for them only when building Mobigent itself or a custom hosting/runtime layer.

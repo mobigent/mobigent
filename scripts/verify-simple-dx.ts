@@ -411,6 +411,11 @@ for (const path of ["docs/api/README.md", "apps/docs/docs/api.md"]) {
   const contents = readFileSync(path, "utf8");
   assert.doesNotMatch(contents, /## Capability Types/, `${path} should frame beginner docs as app functions`);
   assert.doesNotMatch(contents, /defineFeature\("cart"/, `${path} should not teach defineFeature in the first API examples`);
+  assert.doesNotMatch(
+    contents,
+    /@mobigent\/core|@mobigent\/gateway|@mobigent\/providers/,
+    `${path} should not list internal packages as part of the public API surface`
+  );
 }
 
 {
@@ -498,12 +503,25 @@ assert.doesNotMatch(
 );
 
 const quickstart = readFileSync("docs/quickstart.md", "utf8");
+assert.ok(
+  quickstart.indexOf("## 1. Add App Functions To An Existing App") < quickstart.indexOf("## 5. Optional Starter"),
+  "docs/quickstart.md should teach real existing-app integration before starter scaffolding"
+);
 assert.match(quickstart, /connection: \{ host: "192\.168\.1\.20" \}/);
 assert.match(quickstart, /connection: "wss:\/\/your-backend\.example\.com"/);
 assert.doesNotMatch(
   quickstart,
   /set the app connection URL in `mobigent\.app\.json`/,
   "device setup should use createApp(appId, functions, { connection }) instead of generated config"
+);
+
+const rootReadme = readFileSync("README.md", "utf8");
+const packageSection = rootReadme.slice(rootReadme.indexOf("## Packages"), rootReadme.indexOf("## Examples"));
+assert.match(packageSection, /@mobigent\/app[\s\S]{0,200}?@mobigent\/backend/, "README packages should lead with the two public SDK packages");
+assert.doesNotMatch(
+  packageSection,
+  /@mobigent\/core|@mobigent\/gateway|@mobigent\/providers/,
+  "README package section should not advertise internal packages as adoption steps"
 );
 
 console.log("Mobigent simple DX guardrails passed.");

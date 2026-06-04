@@ -430,23 +430,19 @@ npm run dev:mcp
 
 ## Packages
 
-Most apps start with two packages:
+Most apps use two packages:
 
-- `@mobigent/app`: app SDK for `createApp()`, app functions, app events, and React Native wrapping
-- `@mobigent/backend`: backend SDK for `startMobigent()`, `mobigent.app.expense.create(...)`, inspector, agent HTTP, and app connections
+- `@mobigent/app`: install this in the mobile app to expose app functions, app events, and React Native wrapping
+- `@mobigent/backend`: install this in the backend to call app functions, open the inspector, and connect agents
 
-Useful extras:
+Optional helpers:
 
-- `mobigent`: optional CLI for creating starters and printing agent setup
-- `create-mobigent-app`: one-command starter app with backend, inspector, visible app, and agent playground
+- `mobigent`: CLI for starters, health checks, and agent setup
+- `create-mobigent-app`: starter app for trying Mobigent before touching an existing app
 - `packages/ios`: native Swift Package for iOS apps
 - `packages/android`: native Kotlin/Android SDK
 
-Advanced internals:
-
-- `@mobigent/core`: protocol and shared types
-- `@mobigent/gateway`: lower-level internal bridge package for custom hosting, HTTP/OpenAPI, and MCP
-- `@mobigent/providers`: provider setup helpers behind `mobigent.agent(...)`
+The rest of the monorepo supports those packages. Day-one app teams should not need to install or understand the lower-level bridge packages.
 
 ## Examples
 
@@ -461,23 +457,26 @@ Advanced internals:
 - Docs: https://mobigent.github.io/mobigent/docs.html
 - Flagship demo: [docs/flagship-demo.md](./docs/flagship-demo.md)
 - First run: [docs/quickstart.md](./docs/quickstart.md)
-- MCP setup: [docs/mcp.md](./docs/mcp.md)
-- ChatGPT Actions: [docs/chatgpt-actions.md](./docs/chatgpt-actions.md)
 - React Native guide: [docs/react-native.md](./docs/react-native.md)
 - iOS guide: [docs/ios.md](./docs/ios.md)
 - Android guide: [docs/android.md](./docs/android.md)
-- Capability design: [docs/capability-design.md](./docs/capability-design.md)
 - Security model: [docs/security.md](./docs/security.md)
-- Production gateway: [docs/production-gateway.md](./docs/production-gateway.md)
-- Hosted gateway and tunnels: [docs/hosted-gateway.md](./docs/hosted-gateway.md)
 - Native publishing plan: [docs/native-publishing.md](./docs/native-publishing.md)
 - npm publishing: [docs/npm-publishing.md](./docs/npm-publishing.md)
 - Developer workflow: [docs/developer-workflow.md](./docs/developer-workflow.md)
 
+Advanced docs after the simple loop works:
+
+- MCP setup: [docs/mcp.md](./docs/mcp.md)
+- ChatGPT Actions: [docs/chatgpt-actions.md](./docs/chatgpt-actions.md)
+- Function design: [docs/capability-design.md](./docs/capability-design.md)
+- Production backend: [docs/production-gateway.md](./docs/production-gateway.md)
+- Hosted backend and tunnels: [docs/hosted-gateway.md](./docs/hosted-gateway.md)
+
 ## Developer Workflow Highlights
 
 - Open `http://localhost:8788/inspect` to see apps, functions, metrics, audit events, and backend snapshot data.
-- Run `npx mobigent app --security-doctor ...` before exposing a hosted gateway.
+- Run `npx mobigent app --security-doctor ...` before exposing a hosted backend.
 - Use `fromZod()` or `fromTypeBox()` when you already have schemas.
 - Run `npx mobigent app --platform-actions json ...` to generate optional iOS App Intents and Android App Actions bridge plans.
 

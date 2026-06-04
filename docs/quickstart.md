@@ -2,33 +2,6 @@
 
 This guide gets you from an app with no agent interface to a working Mobigent loop: app SDK, backend SDK, discovered app functions, confirmed write, and read function.
 
-## 1. Run The Starter
-
-```bash
-npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
-  -- create-mobigent-app my-demo --install
-cd my-demo
-npm run dev
-```
-
-Click **Run agent request** in the browser. That one click calls the app-owned `expense.create` function, asks for confirmation, and updates visible app state.
-
-Run the starter doctor in another terminal:
-
-```bash
-npm run doctor
-```
-
-For this repository checkout:
-
-```bash
-npm install
-npm run demo:app
-```
-
-The demo starts a Mobigent backend, connects a sample expense app, calls a confirmed write function, then reads the updated expense list.
-
 ## The Simple Mental Model
 
 Mobigent is two normal packages:
@@ -39,7 +12,7 @@ Mobigent is two normal packages:
 The SDK handles the bridge, config, connection lifecycle, validation, confirmations, agent setup, and audit events.
 Use the same `appId` in the app and backend. That is the normal pairing mechanism.
 
-## 2. Add App Functions To An Existing App
+## 1. Add App Functions To An Existing App
 
 Install the app SDK:
 
@@ -121,7 +94,7 @@ const backend = await startMobigent("com.acme.expenses");
 await mobigent.connect(backend);
 ```
 
-## 3. Run The Backend
+## 2. Run The Backend
 
 Install the backend SDK:
 
@@ -194,7 +167,7 @@ curl http://localhost:8788/health
 open http://localhost:8788/inspect
 ```
 
-## 4. Connect From A Device
+## 3. Connect From A Device
 
 For local simulators, the SDK usually picks the right local connection. If you are on a physical device or hosted backend, pass the backend location directly in your app:
 
@@ -219,7 +192,7 @@ createApp("com.acme.expenses", functions, {
 
 No generated app config file is needed.
 
-## 5. Verify The Loop
+## 4. Verify The Loop
 
 You know the first integration works when:
 
@@ -229,6 +202,35 @@ You know the first integration works when:
 - the handler only runs after approval
 - the read function returns the updated state
 - `/audit` shows the call, approval, result, and any emitted app events
+
+## 5. Optional Starter
+
+If you want to see a full sample before touching an existing app, run the starter:
+
+```bash
+npm exec --yes \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
+  -- create-mobigent-app my-demo --install
+cd my-demo
+npm run dev
+```
+
+Click **Run agent request** in the browser. That one click calls the app-owned `expense.create` function, asks for confirmation, and updates visible app state.
+
+Run the starter doctor in another terminal:
+
+```bash
+npm run doctor
+```
+
+For this repository checkout:
+
+```bash
+npm install
+npm run demo:app
+```
+
+The demo starts a Mobigent backend, connects a sample expense app, calls a confirmed write function, then reads the updated expense list. The starter is only a sample; real app integration is install plus code.
 
 ## Next Steps
 

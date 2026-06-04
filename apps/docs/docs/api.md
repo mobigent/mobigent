@@ -116,8 +116,8 @@ The backend object exposes:
 
 Most apps use `mobigent.agent("chatgpt")`, `mobigent.agent("claude")`, or `mobigent.agent("openai")` from `@mobigent/backend`.
 
-`@mobigent/providers` is the advanced package behind that helper. Use it directly when you are building setup screens, custom CLIs, or runtime adapters for ChatGPT Actions, OpenAI Responses, Anthropic, Gemini, Bedrock, Vercel AI SDK, LangChain, LlamaIndex, Cursor, Claude Desktop, and MCP-compatible clients.
+The lower-level provider layer is behind that helper. Use it directly only when you are building setup screens, custom CLIs, or runtime adapters for ChatGPT Actions, OpenAI Responses, Anthropic, Gemini, Bedrock, Vercel AI SDK, LangChain, LlamaIndex, Cursor, Claude Desktop, and MCP-compatible clients.
 
 ## Advanced
 
-`@mobigent/core` and `@mobigent/gateway` are lower-level packages for protocol work, custom gateway hosting, MCP stdio, and advanced security controls.
+The app and backend packages own the public integration path. Internal packages still power schema validation, transport, provider mapping, MCP stdio, and advanced security controls, but app teams should not need them for normal adoption.
