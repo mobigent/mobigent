@@ -73,6 +73,8 @@ const mobigent = await startMobigent({
   appId: "com.acme.expenses",
   appName: "Acme Expenses"
 });
+
+await mobigent.app.expense.create({ merchant: "Coffee", amount: 8 });
 ```
 
 The backend object exposes:
@@ -84,8 +86,9 @@ The backend object exposes:
 - `agents()`
 - `listFunctions()`
 - `waitForApp()` to wait until an app is connected and callable
-- `feature("expense")` to create a tiny object of normal backend functions for one app feature
-- `functions.expense.create(input)` when you prefer the object-style backend SDK shape
+- `app.expense.create(input)` or `app.expense.list()` to call app functions with the clean package API
+- `feature("expense")` when you prefer binding one feature object first
+- `functions.expense.create(input)` for backward compatibility with the older object-style backend SDK shape
 - `call("expense.create", input)` or `call("expense.list")`
 - `fn("expense.create")` to create a reusable backend function
 - `resolveFunctionName("expense.create")`

@@ -22,8 +22,9 @@ function App() {
           <h1>The bridge between AI agents and real app capability.</h1>
           <p>
             Install the app package, install the backend package, expose real app functions with
-            createApp({"{"} functions {"}"}) and startMobigent({"{"} appId {"}"}), and let Mobigent
-            handle the bridge, approvals, retries, agent discovery, and provider setup.
+            createApp({"{"} functions {"}"}) and startMobigent({"{"} appId {"}"}), then call
+            mobigent.app.expense.create(input) while Mobigent handles the bridge, approvals, retries,
+            agent discovery, and provider setup.
           </p>
           <div className="heroActions">
             <a className="primaryButton" href="./docs.html">

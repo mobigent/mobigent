@@ -98,10 +98,8 @@ const mobigent = await startMobigent({
   appName: "Acme Expenses"
 });
 
-const expenses = mobigent.feature("expense");
-
-await expenses.create({ merchant: "Airport Taxi", amount: 42.25 });
-await expenses.list();
+await mobigent.app.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
+await mobigent.app.expense.list();
 ```
 
 That is the backend integration.

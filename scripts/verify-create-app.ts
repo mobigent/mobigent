@@ -82,8 +82,8 @@ try {
   assert.match(server, /You edit one file/);
   assert.match(server, /src\/capabilities\.ts/);
   assert.match(server, /startMobigent/);
-  assert.match(server, /const expense = backend\.feature\("expense"\)/);
-  assert.match(server, /expense\.create\(input\)/);
+  assert.doesNotMatch(server, /const expense = backend\.feature\("expense"\)/);
+  assert.match(server, /backend\.app\.expense\.create\(input\)/);
   assert.doesNotMatch(server, /backend\.functions\.expense\.create\(input\)/);
   assert.match(server, /functions: expenseFunctions/);
   assert.match(server, /mobigent\.connect\(backend\)/);

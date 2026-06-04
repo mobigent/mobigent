@@ -54,6 +54,8 @@ const mobigent = await startMobigent({
   appName: "Acme Expenses"
 });
 
+await mobigent.app.expense.create({ merchant: "Coffee", amount: 8 });
+
 console.log(mobigent.inspectorUrl);
 console.log(mobigent.openApiUrl);
 ```
@@ -73,16 +75,17 @@ The returned object includes:
 - `urls.websocket`, `urls.http`, `urls.inspector`, and `urls.openapi` for backward compatibility
 - `appConfigPath`
 - `appConfigModulePath`
-- `app({ appId, appName })`
+- `app.expense.create(input)` or `app.expense.list()` to call app functions with the clean package API
+- `app({ appId, appName })` for advanced manual app config generation
 - `appConfig({ appId, appName })`
 - `copyAppConfig()` for advanced manual config generation
 - `listFunctions()`
-- `feature("expense")` to create a tiny object of normal backend functions for one app feature; calls wait for the app function by default
+- `feature("expense")` when you prefer binding one feature object first
 - `functions()` to list discovered app functions
 - `tools()` for provider internals
 - `apps()`
 - `waitForApp()` when you want an explicit startup health gate
-- `functions.expense.create(input)` when you prefer the object-style backend SDK shape
+- `functions.expense.create(input)` for backward compatibility with the older object-style backend SDK shape
 - `call("expense.create", input)` or `call("expense.list")`; pass `{ waitForApp: false }` only when you want an immediate failure if the app is not connected
 - `fn("expense.create")` to create a reusable backend function
 - `callApp("expense.create", input)` for backward compatibility

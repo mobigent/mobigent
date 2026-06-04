@@ -64,6 +64,7 @@ assert.doesNotMatch(backendFile, /app: \{/);
 assert.doesNotMatch(backendFile, /defaultApp/);
 assert.doesNotMatch(backendFile, /export const mobigentConfig/);
 assert.match(backendFile, /export const waitForApp = mobigent\.waitForApp/);
+assert.match(backendFile, /export const app = mobigent\.app/);
 assert.match(backendFile, /export const call = mobigent\.call/);
 assert.match(backendFile, /export const listFunctions = mobigent\.listFunctions/);
 assert.match(backendFile, /export const functions = mobigent\.functions/);
@@ -181,8 +182,8 @@ assert.doesNotMatch(starterServer, /app: \{/);
 assert.match(starterServer, /mobigent\.connect\(backend\)/);
 assert.doesNotMatch(starterServer, /connectionUrl: backend\.urls\.websocket/);
 assert.doesNotMatch(starterServer, /backend\.defaultApp/);
-assert.match(starterServer, /const expense = backend\.feature\("expense"\)/);
-assert.match(starterServer, /expense\.create\(input\)/);
+assert.doesNotMatch(starterServer, /const expense = backend\.feature\("expense"\)/);
+assert.match(starterServer, /backend\.app\.expense\.create\(input\)/);
 assert.doesNotMatch(starterServer, /backend\.functions\.expense\.create\(input\)/);
 assert.doesNotMatch(starterServer, /backend\.appFunctions\(\{/);
 assert.match(starterServer, /backend\.inspectorUrl/);
@@ -194,6 +195,7 @@ assert.doesNotMatch(starterDoctor, /const gatewayUrl|function toolName|app manif
 for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.md"]) {
   const contents = readFileSync(path, "utf8");
   assert.match(contents, /createApp/, `${path} should teach the app package createApp path`);
+  assert.match(contents, /mobigent\.app\.expense\.create|backend\.app\.expense\.create/, `${path} should teach the clean backend app function path`);
   assert.match(contents, /startMobigent\("com\.acme\.expenses", "Acme Expenses"\)/, `${path} should teach the short backend start path`);
   assert.doesNotMatch(
     contents,
@@ -223,6 +225,7 @@ for (const path of [
   const contents = readFileSync(path, "utf8");
   assert.match(contents, /createApp/, `${path} should teach createApp as the app-side entrypoint`);
   assert.match(contents, /startMobigent/, `${path} should teach startMobigent as the backend entrypoint`);
+  assert.match(contents, /mobigent\.app\.expense\.create|backend\.app\.expense\.create/, `${path} should teach the clean backend app function path`);
   assert.doesNotMatch(
     contents,
     /backend\.defaultApp|connectionUrl: backend|appDir: "\.\.\/mobile-app"|mobigent-backend --app-dir/,

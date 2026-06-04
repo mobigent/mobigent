@@ -369,6 +369,7 @@ ${appDirLine}${appConfigModuleLine}${appLine}  appToken: process.env.MOBIGENT_AU
 });
 
 export const waitForApp = mobigent.waitForApp;
+export const app = mobigent.app;
 export const call = mobigent.call;
 export const listFunctions = mobigent.listFunctions;
 export const functions = mobigent.functions;

@@ -153,7 +153,7 @@ export type MobigentBackend = {
   appConfigPath?: string;
   /** @deprecated Use advanced.appConfigModulePath. Kept for compatibility. */
   appConfigModulePath?: string;
-  app(options: MobigentBackendAppConfigOptions): MobigentBackendAppConfig;
+  app: MobigentBackendAppAccessor;
   appConfig(options: MobigentBackendAppConfigOptions): MobigentBackendAppConfig;
   appConfigModule(options: MobigentBackendAppConfigModuleOptions): string;
   agent(kind?: MobigentAgentKind, options?: MobigentAgentOptions): ProviderBundle;
@@ -200,6 +200,10 @@ export type MobigentBackendFeatureFunctions = {
 };
 export type MobigentBackendFunctions = {
   (): ReturnType<BridgeGateway["listTools"]>;
+  [namespace: string]: MobigentBackendFeatureFunctions;
+};
+export type MobigentBackendAppAccessor = {
+  (options: MobigentBackendAppConfigOptions): MobigentBackendAppConfig;
   [namespace: string]: MobigentBackendFeatureFunctions;
 };
 export type MobigentBackendFunctionMap<T extends Record<string, string>> = {
@@ -316,6 +320,7 @@ export async function startMobigentBackend(
     return Object.fromEntries(entries) as MobigentBackendFunctionMap<T>;
   }
   const functions = createBackendFunctionsAccessor(() => gateway.listTools(), appFeature);
+  const appAccessor = createBackendAppAccessor(appConfig, appFeature);
 
   const advanced: MobigentBackendAdvanced = {
     gateway,
@@ -338,7 +343,7 @@ export async function startMobigentBackend(
     advanced,
     appConfigPath: appConfigFiles.jsonPath,
     appConfigModulePath: appConfigFiles.modulePath,
-    app: appConfig,
+    app: appAccessor,
     appConfig,
     appConfigModule,
     agent: (kind = "chatgpt-actions", agentOptions = {}) => {
@@ -388,6 +393,32 @@ function createBackendFunctionsAccessor(
 ): MobigentBackendFunctions {
   const cache = new Map<string, MobigentBackendFeatureFunctions>();
   const callable = (() => list()) as MobigentBackendFunctions;
+
+  return new Proxy(callable, {
+    get(target, property, receiver) {
+      if (typeof property !== "string" || property === "then") {
+        return Reflect.get(target, property, receiver);
+      }
+
+      if (property in target) {
+        return Reflect.get(target, property, receiver);
+      }
+
+      if (!cache.has(property)) {
+        cache.set(property, appFeature(property));
+      }
+
+      return cache.get(property);
+    }
+  });
+}
+
+function createBackendAppAccessor(
+  appConfig: (options: MobigentBackendAppConfigOptions) => MobigentBackendAppConfig,
+  appFeature: (namespace: string) => MobigentBackendFeatureFunctions
+): MobigentBackendAppAccessor {
+  const cache = new Map<string, MobigentBackendFeatureFunctions>();
+  const callable = appConfig as MobigentBackendAppAccessor;
 
   return new Proxy(callable, {
     get(target, property, receiver) {

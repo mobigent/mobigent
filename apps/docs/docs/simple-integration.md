@@ -83,9 +83,7 @@ const mobigent = await startMobigent({
   appName: "Acme Expenses"
 });
 
-const expenses = mobigent.feature("expense");
-
-await expenses.create({ merchant: "Coffee", amount: 8 });
+await mobigent.app.expense.create({ merchant: "Coffee", amount: 8 });
 await expenses.list();
 ```
 

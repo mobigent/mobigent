@@ -298,7 +298,6 @@ const backend = await startMobigent({
 ${portLines}  appId: ${JSON.stringify(options.appId)},
   appName: ${JSON.stringify(options.appName)}
 });
-const expense = backend.feature("expense");
 
 const app = express();
 app.use(express.json());
@@ -315,7 +314,7 @@ app.post("/agent/run", async (req, res) => {
   };
 
   try {
-    const response = await expense.create(input);
+    const response = await backend.app.expense.create(input);
     lastAgentRun = { ...run, response };
     res.json(lastAgentRun);
   } catch (error) {

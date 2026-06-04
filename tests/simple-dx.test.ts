@@ -308,6 +308,11 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
         merchant: "Bookshop"
       });
 
+      assert.deepEqual(await backend.app.expense.create({ merchant: "Juice Bar" }), {
+        id: "EXP-1",
+        merchant: "Juice Bar"
+      });
+
       const app = backend.feature("expense");
 
       assert.deepEqual(await app.create({ merchant: "Bakery" }), {
@@ -319,6 +324,7 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
           { id: "EXP-1", merchant: "Cafe" },
           { id: "EXP-1", merchant: "Airport Taxi" },
           { id: "EXP-1", merchant: "Bookshop" },
+          { id: "EXP-1", merchant: "Juice Bar" },
           { id: "EXP-1", merchant: "Bakery" }
         ]
       });
@@ -359,6 +365,10 @@ test("app package connects to a backend object without connection URL ceremony",
 
     try {
       await backend.waitForApp({ minFunctions: 1 });
+      assert.deepEqual(await backend.app.expense.create({ merchant: "Tea" }), {
+        id: "EXP-BACKEND",
+        merchant: "Tea"
+      });
       assert.deepEqual(await backend.functions.expense.create({ merchant: "Coffee" }), {
         id: "EXP-BACKEND",
         merchant: "Coffee"

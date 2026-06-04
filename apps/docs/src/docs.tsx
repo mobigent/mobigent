@@ -107,10 +107,8 @@ const mobigent = await startMobigent({
   appName: "Acme Expenses"
 });
 
-const expenses = mobigent.feature("expense");
-
-await expenses.create({ merchant: "Airport Taxi", amount: 42.25 });
-await expenses.list();
+await mobigent.app.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
+await mobigent.app.expense.list();
 
 console.log(mobigent.inspectorUrl);`;
 
@@ -300,7 +298,7 @@ const firstRunChecks = [
   ["Install", "Add the app package to React Native and the backend package to your server."],
   ["Expose", "`createApp({ functions })` turns real app functions into typed agent capabilities."],
   ["Connect", "Use the same app id on both sides; pass `connection` only for a physical phone or hosted backend."],
-  ["Call", "`mobigent.feature(\"expense\").create()` calls the app-owned function from backend code."],
+  ["Call", "`mobigent.app.expense.create()` calls the app-owned function from backend code."],
   ["Approve", "Risky actions pause inside the app before handlers run."],
   ["Audit", "Calls, approvals, denials, errors, and events appear in `/audit`."]
 ];
@@ -506,7 +504,7 @@ function Docs() {
         <div className="sectionHeader compact">
           <span className="eyebrow"><Terminal size={15} /> Backend usage</span>
           <h2>Call app functions like backend functions.</h2>
-          <p>Start Mobigent in your server, wait for the app, then call app-owned functions from a tiny feature object.</p>
+          <p>Start Mobigent in your server, wait for the app, then call app-owned functions from the clean package API.</p>
         </div>
         <div className="codeGrid two">
           <Code title="Backend SDK" code={backendCode} />
