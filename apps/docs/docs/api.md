@@ -47,25 +47,25 @@ For non-React hosts, demos, and tests:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { mobigent } from "./mobigent";
+import { createApp } from "@mobigent/app";
+import { expenseFunctions } from "./app-functions";
 
 const backend = await startMobigent("com.acme.expenses");
+const mobigent = createApp("com.acme.expenses", expenseFunctions, {
+  pairing: backend.pairing()
+});
 
-const connection = await mobigent.connect(backend);
-// Or pass the app pairing explicitly:
-const explicitConnection = await mobigent.connect(backend.pairing());
+const connection = await mobigent.connect();
 
 connection.disconnect();
-explicitConnection.disconnect();
 ```
 
 ## Simple App Helpers
 
 - `createApp(appId, { namespace: { name: fn } })`: creates the app-side SDK object.
 - `mobigent.with(App)`: wraps an existing React Native app.
-- `mobigent.connect(backend)`: connects a non-React host or demo using the same functions.
-- `mobigent.connect(backend.pairing())`: connects with explicit app-side pairing from the backend.
 - `createApp(appId, functions, { pairing })`: bakes backend pairing into app setup when you do not want to pass it later.
+- `mobigent.connect()`: connects a non-React host or demo after setup.
 - `mobigent.emit(name, payload)`: emits app activity.
 - `createApp(appId, functions, { connection: { host: "192.168.1.20" } })`: connects a physical phone to your local backend.
 - `createApp(appId, functions, { connection: "wss://your-backend.example.com" })`: connects an app to a hosted backend.

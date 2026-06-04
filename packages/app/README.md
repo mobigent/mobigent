@@ -69,7 +69,21 @@ export default withMobigent(App, "com.acme.expenses", {
 });
 ```
 
-For non-React hosts and local demos, call `await mobigent.connect(backend)` instead of wrapping a component. If your backend hands you an app pairing, `await mobigent.connect(backend.pairing())` works too. Use `mobigent.emit(name, payload)` for app events.
+For non-React hosts and local demos, give the app object the backend pairing once, then connect with no arguments:
+
+```ts
+import { startMobigent } from "@mobigent/backend";
+import { createApp } from "@mobigent/app";
+
+const backend = await startMobigent("com.acme.expenses");
+const mobigent = createApp("com.acme.expenses", appFunctions, {
+  pairing: backend.pairing()
+});
+
+await mobigent.connect();
+```
+
+Use `mobigent.emit(name, payload)` for app events.
 
 No app-side init command is required. Write the functions directly in your app code. Optional generators are for examples, not real integration.
 

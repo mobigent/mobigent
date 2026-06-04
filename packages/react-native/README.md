@@ -114,12 +114,15 @@ For a Node demo, test host, or another non-React runtime, use the same app objec
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { mobigent } from "./mobigent/expenses";
+import { createApp } from "@mobigent/app";
+import { expenseFunctions } from "./app-functions";
 
 const backend = await startMobigent("com.acme.expenses");
+const mobigent = createApp("com.acme.expenses", expenseFunctions, {
+  pairing: backend.pairing()
+});
 
-const connection = await mobigent.connect(backend);
-// Or: await mobigent.connect(backend.pairing());
+const connection = await mobigent.connect();
 ```
 
 ## Field Types

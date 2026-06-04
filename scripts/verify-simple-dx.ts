@@ -474,22 +474,30 @@ for (const path of [
 
 for (const path of ["docs/api/README.md", "apps/docs/docs/api.md"]) {
   const contents = readFileSync(path, "utf8");
-  assert.match(contents, /mobigent\.connect\(backend\.pairing\(\)\)/, `${path} should teach explicit backend pairing handoff`);
   assert.match(contents, /createApp\(appId, functions, \{ pairing \}\)/, `${path} should teach app setup with pairing`);
+  assert.match(contents, /\.\s*connect\(\)/, `${path} should teach no-argument connect after setup`);
   assert.match(contents, /AppPairing.*BackendPairing.*Pairing/, `${path} should teach pairing type names`);
+  assert.doesNotMatch(contents, /mobigent\.connect\(backend\)/, `${path} should not teach backend-object connect as the beginner path`);
+  assert.doesNotMatch(contents, /mobigent\.connect\(backend\.pairing\(\)\)/, `${path} should not teach connect-time pairing as the beginner path`);
 }
 
 for (const path of [
   "README.md",
   "docs/quickstart.md",
   "docs/react-native.md",
+  "docs/api/README.md",
+  "packages/app/README.md",
+  "packages/backend/README.md",
+  "packages/react-native/README.md",
   "apps/docs/docs/quickstart.md",
-  "apps/docs/docs/react-native.md"
+  "apps/docs/docs/react-native.md",
+  "apps/docs/docs/api.md"
 ]) {
   const contents = readFileSync(path, "utf8");
   assert.match(contents, /pairing: backend\.pairing\(\)/, `${path} should teach app setup with backend pairing`);
-  assert.match(contents, /mobigent\.connect\(\)/, `${path} should teach no-argument connect after pairing setup`);
+  assert.match(contents, /\.\s*connect\(\)/, `${path} should teach no-argument connect after pairing setup`);
   assert.doesNotMatch(contents, /mobigent\.connect\(backend\)/, `${path} should not teach backend-object connect as the beginner path`);
+  assert.doesNotMatch(contents, /mobigent\.connect\(backend\.pairing\(\)\)/, `${path} should not teach connect-time pairing as the beginner path`);
 }
 
 for (const path of [
