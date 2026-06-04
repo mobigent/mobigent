@@ -11,6 +11,7 @@ try {
   await mkdir(binDir, { recursive: true });
 
   await linkBin("create-mobigent-app", "packages/create-app/dist/cli.js");
+  await linkBin("mobigent-install", "packages/create-app/dist/install.js");
   await linkBin("mobigent-backend", "packages/backend/dist/cli.js");
   await linkBin("mobigent-mcp", "packages/backend/dist/mcp.js");
   await linkBin("mobigent-provider", "packages/providers/dist/cli.js");
@@ -21,6 +22,11 @@ try {
   assert.match(createApp, /create-mobigent-app/);
   assert.match(createApp, /Stable app id shared by app and backend/);
   assert.doesNotMatch(createApp, /App id for the Mobigent manifest/);
+
+  const installer = await run(join(binDir, "mobigent-install"), ["app", "--dry-run"]);
+  assert.match(installer, /npm install/);
+  assert.match(installer, /mobigent-app-0\.1\.15\.tgz/);
+  assert.doesNotMatch(installer, /mobigent-backend-0\.1\.15\.tgz/);
 
   const backend = await run(join(binDir, "mobigent-backend"), ["--help"]);
   assert.match(backend, /mobigent-backend/);

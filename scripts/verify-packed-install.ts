@@ -83,6 +83,7 @@ await mobigent.stop();
   assert.match(await run(join(binDir, "mobigent"), ["backend", "--help"], appDir), /mobigent-backend/);
   assert.match(await run(join(binDir, "mobigent"), ["new", "--help"], appDir), /create-mobigent-app/);
   assert.match(await run(join(binDir, "create-mobigent-app"), ["--help"], appDir), /create-mobigent-app/);
+  assert.match(await run(join(binDir, "mobigent-install"), ["backend", "--dry-run"], appDir), /mobigent-backend-0\.1\.15\.tgz/);
 
   console.log("Mobigent packed install smoke check passed.");
 } finally {

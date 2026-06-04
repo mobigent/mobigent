@@ -95,15 +95,14 @@ npx mobigent app --platform-actions android-xml \
 
 These outputs are bridge plans, not magic app-store configuration. Review them, connect them to your native entry points, and keep Mobigent as the app-owned execution layer.
 
-## 6. Install Public Tarballs
+## 6. Install From The Preview Release
 
-Tagged releases attach public package tarballs to GitHub Releases:
+Until npmjs publishing is connected, use the tiny preview installer:
 
 ```bash
-npm install \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-core-0.1.15.tgz \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-react-native-0.1.15.tgz \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-app-0.1.15.tgz
+npm exec --yes \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
+  -- mobigent-install app
 ```
 
 Use the starter tarball for the easiest first run:

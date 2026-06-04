@@ -211,6 +211,21 @@ for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.
     `${path} should not make mobigent-init part of the app install path`
   );
   assert.doesNotMatch(contents, /npx mobigent-init/, `${path} should not teach the legacy app init binary`);
+  assert.match(
+    contents,
+    /mobigent-install app/,
+    `${path} should hide preview app tarball details behind mobigent-install`
+  );
+  assert.match(
+    contents,
+    /mobigent-install backend/,
+    `${path} should hide preview backend tarball details behind mobigent-install`
+  );
+  assert.doesNotMatch(
+    contents,
+    /mobigent-core-0\.1\.15\.tgz/,
+    `${path} should not expose internal package tarballs in beginner docs`
+  );
   assert.doesNotMatch(
     contents,
     /package-source github-release/,
@@ -251,6 +266,11 @@ for (const path of [
     `${path} should teach startMobigent(appId, appName) as the short backend path`
   );
   assert.doesNotMatch(contents, /startMobigent\(appId\)/, `${path} should not teach startMobigent(appId)`);
+  assert.doesNotMatch(
+    contents,
+    /mobigent-core-0\.1\.15\.tgz/,
+    `${path} should not expose internal package tarballs in beginner docs`
+  );
   assert.match(contents, /mobigent\.app\.expense\.create|backend\.app\.expense\.create/, `${path} should teach the clean backend app function path`);
   assert.doesNotMatch(
     contents,

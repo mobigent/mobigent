@@ -176,10 +176,9 @@ npm install @mobigent/app
 Current public fallback:
 
 ```bash
-npm install \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-core-0.1.15.tgz \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-react-native-0.1.15.tgz \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-app-0.1.15.tgz
+npm exec --yes \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
+  -- mobigent-install app
 ```
 
 For a backend/server app, the intended npm path is:
@@ -191,26 +190,23 @@ npm install @mobigent/backend
 Current public fallback:
 
 ```bash
-npm install \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-core-0.1.15.tgz \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-providers-0.1.15.tgz \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-gateway-0.1.15.tgz \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-backend-0.1.15.tgz
+npm exec --yes \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
+  -- mobigent-install backend
 ```
 
 Prefer generated sample files? Use `mobigent new my-demo --install`. The app-side init command is demo scaffolding, not required integration.
 
 ## Install Packages
 
-Until npmjs.com publishing is connected with an `NPM_TOKEN`, packages are published from tagged releases to GitHub Packages and attached to GitHub Releases.
+Until npmjs.com publishing is connected with an `NPM_TOKEN`, the preview installer pulls packages from the public GitHub release.
 
-Install the app SDK directly from public release tarballs:
+Install the app SDK during the preview:
 
 ```bash
-npm install \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-core-0.1.15.tgz \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-react-native-0.1.15.tgz \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-app-0.1.15.tgz
+npm exec --yes \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
+  -- mobigent-install app
 ```
 
 Or install from npmjs after npm publishing is connected:

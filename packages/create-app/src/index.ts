@@ -124,7 +124,7 @@ export function installMobigentAppDependencies(options: Pick<CreateMobigentAppOp
   };
 }
 
-const defaultMobigentVersion = "0.1.15";
+export const defaultMobigentVersion = "0.1.15";
 
 function createPackageJson(packageName: string, options?: CreateMobigentAppOptions) {
   const packageSource = options?.packageSource ?? "github-release";
@@ -729,7 +729,7 @@ function localPackageSpec(options: CreateMobigentAppOptions, packageDir: string)
   return `file:${packagePath.replaceAll("\\", "/")}`;
 }
 
-function releaseTarballSpec(packageFileName: string, version: string) {
+export function releaseTarballSpec(packageFileName: string, version: string) {
   return `https://github.com/mobigent/mobigent/releases/download/v${version}/${packageFileName}-${version}.tgz`;
 }
 

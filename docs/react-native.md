@@ -5,16 +5,15 @@ Use Mobigent like normal app code: expose a few real functions, wrap the app onc
 ## 1. Install
 
 ```bash
-npm install \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-core-0.1.15.tgz \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-react-native-0.1.15.tgz \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-app-0.1.15.tgz
+npm install @mobigent/app
 ```
 
-After npm publishing is enabled:
+Current public fallback until npmjs publishing is connected:
 
 ```bash
-npm install @mobigent/app
+npm exec --yes \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
+  -- mobigent-install app
 ```
 
 Use the same `appId` in the app and backend. For a first throwaway run, the app SDK can use safe local defaults.

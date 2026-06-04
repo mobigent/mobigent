@@ -19,16 +19,13 @@ import "./styles.css";
 const existingAppInstallCode = `npm install @mobigent/app
 npm install @mobigent/backend`;
 
-const existingAppFallbackCode = `npm install \\
-  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-core-0.1.15.tgz \\
-  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-react-native-0.1.15.tgz \\
-  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-app-0.1.15.tgz
+const existingAppFallbackCode = `npm exec --yes \\
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \\
+  -- mobigent-install app
 
-npm install \\
-  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-core-0.1.15.tgz \\
-  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-providers-0.1.15.tgz \\
-  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-gateway-0.1.15.tgz \\
-  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-backend-0.1.15.tgz`;
+npm exec --yes \\
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \\
+  -- mobigent-install backend`;
 
 const deviceConnectionCode = `export const mobigent = createApp("com.acme.expenses", {
   expense: { list, create }

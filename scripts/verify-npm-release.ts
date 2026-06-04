@@ -69,6 +69,7 @@ assert.equal(
   "@mobigent/app should stay SDK-only and must not export CLI internals."
 );
 assert.ok(packageJsons.get("create-mobigent-app")?.bin?.["create-mobigent-app"], "create-mobigent-app must ship create-mobigent-app bin.");
+assert.ok(packageJsons.get("create-mobigent-app")?.bin?.["mobigent-install"], "create-mobigent-app must ship mobigent-install bin.");
 assert.ok(packageJsons.get("mobigent")?.bin?.mobigent, "mobigent must ship the friendly mobigent bin.");
 
 const releaseWorkflow = await readFile(".github/workflows/release.yml", "utf8");

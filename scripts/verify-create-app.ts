@@ -3,6 +3,7 @@ import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { runCreateMobigentAppCli } from "../packages/create-app/src/cli.js";
+import { runMobigentInstallCli } from "../packages/create-app/src/install.js";
 
 const dir = await mkdtemp(join(tmpdir(), "mobigent-create-app-"));
 
@@ -10,6 +11,18 @@ function run(args: string[]) {
   let stdout = "";
   let stderr = "";
   const code = runCreateMobigentAppCli(
+    args,
+    { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
+    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
+  );
+
+  return { code, stdout, stderr };
+}
+
+function runInstall(args: string[]) {
+  let stdout = "";
+  let stderr = "";
+  const code = runMobigentInstallCli(
     args,
     { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
     { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
@@ -128,6 +141,23 @@ try {
   assert.match(help.stdout, /Stable app id shared by app and backend/);
   assert.doesNotMatch(help.stdout, /App id for the Mobigent manifest/);
   assert.doesNotMatch(help.stdout, /HTTP\/OpenAPI\/inspector backend port/);
+
+  const installHelp = runInstall(["--help"]);
+  assert.equal(installHelp.code, 0, installHelp.stderr);
+  assert.match(installHelp.stdout, /mobigent-install/);
+  assert.match(installHelp.stdout, /React Native app SDK packages/);
+
+  const appInstall = runInstall(["app", "--dry-run"]);
+  assert.equal(appInstall.code, 0, appInstall.stderr);
+  assert.match(appInstall.stdout, /npm install/);
+  assert.match(appInstall.stdout, /mobigent-app-0\.1\.15\.tgz/);
+  assert.match(appInstall.stdout, /mobigent-react-native-0\.1\.15\.tgz/);
+  assert.doesNotMatch(appInstall.stdout, /mobigent-backend-0\.1\.15\.tgz/);
+
+  const backendInstall = runInstall(["backend", "--dry-run"]);
+  assert.equal(backendInstall.code, 0, backendInstall.stderr);
+  assert.match(backendInstall.stdout, /mobigent-backend-0\.1\.15\.tgz/);
+  assert.doesNotMatch(backendInstall.stdout, /mobigent-app-0\.1\.15\.tgz/);
 
   const releaseTarget = join(dir, "release-demo");
   const releaseInit = run([releaseTarget, "--no-open"]);
