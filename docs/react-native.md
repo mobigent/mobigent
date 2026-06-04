@@ -38,6 +38,19 @@ This exposes:
 
 Backend code can use those same short names.
 
+For a quick throwaway local demo, you can pass the function map directly:
+
+```ts
+export const mobigent = createApp({
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
+  }
+});
+```
+
+Use `createApp(appId, functions)` before connecting real apps and agents.
+
 ## 3. Wrap The App
 
 ```tsx
@@ -46,8 +59,6 @@ import App from "./App";
 
 export default mobigent.with(App);
 ```
-
-If you prefer explicit feature objects, `defineFeature("expense", ...)`, `withMobigent(App, expenses)`, and `setupMobigent(expenses)` still work.
 
 That is enough for a local first run.
 
@@ -75,13 +86,42 @@ export const mobigent = createApp("com.acme.expenses", {
 
 In your backend:
 
+```bash
+npm install @mobigent/backend
+```
+
+Current public fallback until npmjs publishing is connected:
+
+```bash
+npm exec --yes \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
+  -- mobigent-install backend
+```
+
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent("com.acme.expenses", "Acme Expenses");
 ```
 
-Mobigent pairs the backend and app by `appId`. Backend function calls wait for the app connection automatically. Optional local helper: pass `appDir: "../mobile-app"` when you want the backend to write app config files into the mobile app.
+Mobigent pairs the backend and app by `appId`. Backend function calls wait for the app connection automatically.
+
+Your backend can either call app namespaces directly:
+
+```ts
+await mobigent.app.expense.create({ merchant: "Coffee", amount: 8 });
+```
+
+Or bind backend-friendly helper names once:
+
+```ts
+const expenses = mobigent.functions({
+  createExpense: "expense.create",
+  listExpenses: "expense.list"
+});
+
+await expenses.createExpense({ merchant: "Coffee", amount: 8 });
+```
 
 ## Non-React Host Or Demo
 

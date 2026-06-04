@@ -1,25 +1,36 @@
 # @mobigent/react-native
 
-Make a React Native app callable by AI agents with normal app functions.
+Full React Native implementation package for Mobigent.
 
-Mobigent's React Native package should feel like this:
+Most React Native and Expo apps should start with the smaller app SDK:
+
+```bash
+npm install @mobigent/app
+```
+
+`@mobigent/app` is the normal product surface. It reuses this package internally and keeps the first integration focused on one thing: expose app functions.
+
+If you install this package directly, the simple path is the same:
 
 ```ts
 const mobigent = createApp("com.acme.expenses", {
   expense: {
-    list: read(listExpenses),
-    create: write(createExpense, {
-      input: { merchant: "string", amount: "number" },
-      confirm: true
-    })
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
   }
 });
 ```
 
 The SDK handles namespacing, JSON Schema generation, validation, confirmation, connection lifecycle, reconnects, heartbeat, event queueing, and agent discovery updates.
-Advanced app configs can still pass a connection URL directly, but the normal path does not require one.
+Advanced apps can still pass a backend connection directly, but the normal path does not require generated files or setup commands.
 
 ## Install
+
+Recommended app package:
+
+```bash
+npm install @mobigent/app
+```
 
 Until npmjs publishing is connected, install from the public GitHub release:
 
@@ -29,7 +40,7 @@ npm exec --yes \
   -- mobigent-install app
 ```
 
-After npmjs publishing is enabled:
+Install this package directly only when you need the full React Native API surface:
 
 ```bash
 npm install @mobigent/react-native
@@ -37,32 +48,30 @@ npm install @mobigent/react-native
 
 ## Add App Functions
 
-In an existing app, install the package:
-
-```bash
-npm install @mobigent/react-native
-```
-
-Create `src/mobigent/expenses.ts`:
+Create `src/mobigent.ts`:
 
 ```ts
-import { createApp, read, write } from "@mobigent/react-native";
+import { createApp } from "@mobigent/app";
 
 export const mobigent = createApp("com.acme.expenses", {
   expense: {
-    list: read(async () => ({
-      items: await listExpenses()
-    })),
-    create: write(async (input) => createExpense(input), {
-      input: {
-        merchant: "string",
-        amount: "number",
-        notes: "string"
-      },
-      confirm: true
-    })
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
   }
 });
+```
+
+Plain `list`, `get`, `read`, `fetch`, `search`, and `load` functions are treated as reads. Other plain functions are confirmed writes by default.
+
+Use `write()` only when you want validation, descriptions, or custom approval copy:
+
+```ts
+import { write } from "@mobigent/app";
+
+create: write(createExpense, {
+  input: { merchant: "string", amount: "number" },
+  confirm: "Create expense?"
+})
 ```
 
 Your backend calls those app functions with short names like:
@@ -77,13 +86,11 @@ Under the hood, Mobigent maps those functions to provider-safe names for OpenAPI
 ## Wrap Your Existing App
 
 ```tsx
-import { mobigent } from "./src/mobigent/expenses";
+import { mobigent } from "./src/mobigent";
 import App from "./App";
 
 export default mobigent.with(App);
 ```
-
-If you prefer explicit feature objects, `defineFeature()`, `withMobigent(App, expenses)`, and `setupMobigent(expenses)` still work.
 
 Run a Mobigent backend from your server with `@mobigent/backend`, then open the inspector URL it prints. Use the same `appId` in the app and backend. Local defaults still work for quick demos.
 
@@ -156,7 +163,7 @@ You can customize confirmation UI with the lower-level `MobigentProvider` and co
 
 ## Advanced APIs
 
-The package still includes lower-level APIs for mature apps:
+The direct `@mobigent/react-native` package includes lower-level APIs for mature apps:
 
 - `MobigentProvider`
 - `mobigent.registerAction()`
@@ -168,4 +175,4 @@ The package still includes lower-level APIs for mature apps:
 - `schema.*`
 - diagnostics and status hooks
 
-Use these when you need screen-scoped capabilities, custom provider placement, custom confirmation UI, manifest signing, or advanced environment switching. New apps should start with `defineFeature()` and `createApp()`.
+Use these when you need screen-scoped capabilities, custom provider placement, custom confirmation UI, manifest signing, or advanced environment switching. New apps should start with `createApp(appId, functions)`.

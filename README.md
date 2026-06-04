@@ -283,7 +283,7 @@ Need another app area later? Add another namespace inside `functions`.
 
 No app-side init command is required. Starter generation is only for demos.
 
-For production, pass the same `appId` in the app and backend. If `mobigent.app.json` exists, the app package can still use it, but a generated config file is not required.
+For production, pass the same `appId` in the app and backend.
 
 If you are wiring a Node demo, test host, or another non-React runtime, use the same app SDK object:
 
@@ -316,10 +316,6 @@ console.log(mobigent.openApiUrl);
 ```
 
 The app and backend pair by `appId`. For local experiments, `startMobigent()` can infer a starter app id from the project name, but a real app should pass a stable id.
-
-Optional local helper: pass `appDir: "../mobile-app"` only when you want the backend to write `mobigent.app.json` and `src/mobigent-config.ts` into an existing app project. The normal path does not need generated config files.
-
-Prefer a generated backend entrypoint? `npx mobigent-backend --app com.acme.expenses --app-name "Acme Expenses"` is still available as an optional scaffold.
 
 For the fastest first run, this also works:
 

@@ -199,7 +199,7 @@ assert.match(starterDoctor, /ready\?minApps=1&minFunctions=1/);
 assert.match(starterDoctor, /const backendUrl = "http:\/\/localhost:8788"/);
 assert.doesNotMatch(starterDoctor, /const gatewayUrl|function toolName|app manifest\(s\)|minTools/);
 
-for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.md"]) {
+for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.md", "docs/react-native.md"]) {
   const contents = readFileSync(path, "utf8");
   assert.match(contents, /createApp/, `${path} should teach the app package createApp path`);
   assert.match(contents, /createApp\("com\.acme\.expenses"|createApp\(appId, functions/, `${path} should teach the short app identity path`);
@@ -253,8 +253,41 @@ for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.
   );
   assert.doesNotMatch(
     contents,
+    /backend\.defaultApp|connectionUrl: backend|mobigent\.app\.json|appDir\b|npx mobigent-backend|mobigent-backend --app/,
+    `${path} should not teach generated config, backend.defaultApp, or init scaffolds as the beginner path`
+  );
+  assert.doesNotMatch(
+    contents,
     /startMobigent\(\{[\s\S]{0,160}?appId: "com\.acme\.expenses"/,
     `${path} should teach startMobigent(appId, appName) before object options`
+  );
+}
+
+for (const path of ["packages/app/README.md", "packages/react-native/README.md"]) {
+  const contents = readFileSync(path, "utf8");
+  assert.match(contents, /createApp\("com\.acme\.expenses"/, `${path} should teach createApp(appId, functions) first`);
+  assert.match(
+    contents,
+    /No app-side init command is required|normal path does not require generated files/,
+    `${path} should make setup commands unnecessary`
+  );
+  assert.doesNotMatch(contents, /npx mobigent-init|mobigent\.app\.json|appDir\b/, `${path} should not teach app init or generated app config`);
+  assert.doesNotMatch(
+    contents,
+    /New apps should start with `defineFeature\(\)`|defineFeature\(\)[\s\S]{0,500}?withMobigent/,
+    `${path} should not make defineFeature the first integration model`
+  );
+}
+
+{
+  const backendReadme = readFileSync("packages/backend/README.md", "utf8");
+  assert.match(backendReadme, /startMobigent\("com\.acme\.expenses", "Acme Expenses"\)/);
+  assert.match(backendReadme, /mobigent\.app\.expense\.create/);
+  assert.match(backendReadme, /mobigent\.functions\(\{\s+createExpense: "expense\.create"/);
+  assert.doesNotMatch(
+    backendReadme,
+    /backend\.defaultApp|mobigent\.app\.json|appDir\b|npx mobigent-backend|mobigent-backend --app/,
+    "packages/backend/README.md should keep the package path as install plus code"
   );
 }
 
@@ -284,8 +317,8 @@ for (const path of [
   assert.match(contents, /mobigent\.app\.expense\.create|backend\.app\.expense\.create/, `${path} should teach the clean backend app function path`);
   assert.doesNotMatch(
     contents,
-    /backend\.defaultApp|connectionUrl: backend|appDir: "\.\.\/mobile-app"|mobigent-backend --app-dir/,
-    `${path} should not teach generated config or backend.defaultApp as the beginner path`
+    /backend\.defaultApp|connectionUrl: backend|mobigent\.app\.json|appDir\b|npx mobigent-backend|mobigent-backend --app/,
+    `${path} should not teach generated config, backend.defaultApp, or init scaffolds as the beginner path`
   );
   assert.doesNotMatch(
     contents,

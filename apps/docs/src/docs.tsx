@@ -110,9 +110,6 @@ const backendShortCode = `const mobigent = await startMobigent(
   "Acme Expenses"
 );`;
 
-const backendOptionalScaffoldCode = `# optional, only if you want a generated backend helper file
-npx mobigent-backend --app com.acme.expenses --app-name "Acme Expenses"`;
-
 const securityDoctorCode = `npx mobigent security-doctor \\
   --app-id com.example.app \\
   --app-name "Example App" \\
@@ -627,7 +624,6 @@ function Docs() {
         <div className="codeGrid three">
           <Code title="Backend SDK" code={backendCode} />
           <Code title="Shortest explicit start" code={backendShortCode} />
-          <Code title="Optional backend scaffold" code={backendOptionalScaffoldCode} />
           <div className="apiList endpointList">
             {gatewayEndpoints.map(([name, text]) => (
               <Row key={name} title={name} text={text} />

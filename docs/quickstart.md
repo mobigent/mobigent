@@ -135,8 +135,6 @@ console.log(mobigent.inspectorUrl);
 
 The backend and app pair by `appId`. The backend handles the connection, function routing, inspector, agent endpoints, and readiness waiting.
 
-Optional local helper: pass `appDir: "../mobile-app"` only when you want Mobigent to write `mobigent.app.json` and `src/mobigent-config.ts` into an existing app project. The normal path does not need generated config files.
-
 Prefer generated sample files? Use the starter. Backend/app init commands are helpers, not required integration.
 
 Call app functions from the backend SDK object. Mobigent waits for the app connection when a function is called:
