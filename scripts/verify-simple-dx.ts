@@ -21,6 +21,9 @@ const starterPackage = JSON.parse(
 );
 const appPackageRoot = readFileSync("packages/app/src/index.ts", "utf8");
 const backendPackageRoot = readFileSync("packages/backend/src/index.ts", "utf8");
+const mobigentCliSource = readFileSync("packages/cli/src/cli.ts", "utf8");
+const reactNativeCliSource = readFileSync("packages/react-native/src/cli.ts", "utf8");
+const mobigentCliReadme = readFileSync("packages/cli/README.md", "utf8");
 const appBackendTargetType = appPackageRoot.match(/export type MobigentBackendConnectionTarget = \{[\s\S]*?^};/m)?.[0] ?? "";
 const backendPublicType = backendPackageRoot.match(/export type MobigentBackend = \{[\s\S]*?^};/m)?.[0] ?? "";
 const packageJsons = new Map(
@@ -91,6 +94,31 @@ assert.doesNotMatch(
   backendPackageRoot,
   /App WebSocket|Agent HTTP/,
   "@mobigent/backend startup logs should use app/backend product language instead of transport-first labels"
+);
+assert.match(
+  mobigentCliSource,
+  /mobigent app --help/,
+  "root CLI help should point app users to the app command, not the legacy init alias"
+);
+assert.doesNotMatch(
+  mobigentCliSource.slice(mobigentCliSource.indexOf("function helpText")),
+  /mobigent init --help|init\s+Optional alias/,
+  "root CLI help should not advertise the legacy app init alias"
+);
+assert.match(
+  reactNativeCliSource,
+  /Normal app integration does not need this command/,
+  "React Native helper help should lead with the no-generator app path"
+);
+assert.doesNotMatch(
+  reactNativeCliSource.slice(reactNativeCliSource.indexOf("function helpText")),
+  /mobigent init --feature|mobigent-rn-init --feature expense --out-dir src/,
+  "React Native helper help should not teach the old init/out-dir command as a visible adoption step"
+);
+assert.doesNotMatch(
+  mobigentCliReadme,
+  /mobigent app --feature expense --out-dir src/,
+  "CLI README should not teach generated app files as a normal adoption command"
 );
 assert.match(backendPackageRoot, /export type MobigentFunctionInfo/);
 assert.match(backendPackageRoot, /export type MobigentBackendStatus/);

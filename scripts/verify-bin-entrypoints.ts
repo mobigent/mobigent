@@ -48,17 +48,24 @@ try {
   assert.match(provider, /mobigent-mcp/);
 
   const rn = await run(join(binDir, "mobigent-init"), ["--help"]);
-  assert.match(rn, /Mobigent React Native optional helpers/);
+  assert.match(rn, /Mobigent React Native developer tools/);
   assert.match(rn, /npm install @mobigent\/app/);
   assert.match(rn, /Normal app integration does not need this command/);
+  assert.doesNotMatch(rn, /mobigent init --feature/);
+  assert.doesNotMatch(rn, /mobigent-rn-init --feature expense --out-dir src/);
 
-  const mobigent = await run(join(binDir, "mobigent"), ["init", "--help"]);
-  assert.match(mobigent, /Mobigent React Native optional helpers/);
-  assert.match(mobigent, /mobigent app --feature expense --out-dir src/);
+  const mobigentApp = await run(join(binDir, "mobigent"), ["app", "--help"]);
+  assert.match(mobigentApp, /Mobigent React Native developer tools/);
+  assert.match(mobigentApp, /createApp\(appId, functions\)\.with\(App\)/);
+  assert.doesNotMatch(mobigentApp, /mobigent init --feature/);
+  assert.doesNotMatch(mobigentApp, /mobigent-rn-init --feature expense --out-dir src/);
   const mobigentBackendHelp = await run(join(binDir, "mobigent"), ["backend", "--help"]);
   assert.match(mobigentBackendHelp, /mobigent-backend/);
   assert.doesNotMatch(mobigentBackendHelp, /--app-dir \.\.\/mobile-app/);
-  assert.match(await run(join(binDir, "mobigent"), ["--help"]), /backend --app com\.acme\.expenses/);
+  const rootHelp = await run(join(binDir, "mobigent"), ["--help"]);
+  assert.match(rootHelp, /backend --app com\.acme\.expenses/);
+  assert.match(rootHelp, /mobigent app --help/);
+  assert.doesNotMatch(rootHelp, /mobigent init --help/);
   assert.match(await run(join(binDir, "mobigent"), ["new", "--help"]), /create-mobigent-app/);
 
   console.log("Mobigent bin entrypoint smoke check passed.");

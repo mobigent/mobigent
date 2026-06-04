@@ -34,7 +34,7 @@ mobigent agent chatgpt --base-url https://your-backend.example
 
 Print agent setup using the backend package.
 
-## Optional Scaffolding
+## Optional Tools
 
 ```bash
 mobigent backend --app com.acme.expenses
@@ -43,9 +43,11 @@ mobigent backend --app com.acme.expenses
 Generate a backend entrypoint if you do not want to write it by hand.
 
 ```bash
-mobigent app --feature expense --out-dir src
-mobigent app --doctor --feature expense --out-dir src
+mobigent app --doctor --app-root .
 mobigent app --security-doctor --feature expense
+mobigent app --manifest --feature expense
 ```
 
-Generate or check React Native sample integration files. This is demo scaffolding, not the main SDK path.
+Check a React Native integration or print advanced artifacts. Real app integration stays in code: install `@mobigent/app`, expose functions, and wrap the app once.
+
+For a complete throwaway sample, use `mobigent new my-demo --install`. The app helper commands are not part of normal installation.

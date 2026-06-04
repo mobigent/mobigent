@@ -56,13 +56,12 @@ Commands:
   new, create          Create a runnable starter app.
   backend, server     Optionally scaffold a backend entrypoint.
   agent               Print setup for ChatGPT, Claude, OpenAI, or OpenAPI agents.
-  app                 Optional React Native app helper commands.
+  app                 React Native checks and advanced artifact commands.
   doctor              Optional: check React Native integration files.
   security-doctor     Optional: check transport and confirmation defaults.
   manifest            Advanced: print a React Native integration manifest.
   contract            Advanced: print a capability contract.
   env                 Print a React Native environment template.
-  init                Optional alias for React Native app helper commands.
 
 Examples:
   npm install @mobigent/app
@@ -75,7 +74,7 @@ Examples:
   npx mobigent new my-demo --install
 
 Use command-specific help for details:
-  mobigent init --help
+  mobigent app --help
   mobigent backend --help
   mobigent new --help
 `;

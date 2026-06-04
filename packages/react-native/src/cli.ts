@@ -1342,7 +1342,7 @@ function pushFileCheck(
     checks.push({
       name,
       status: "warn",
-      message: `${path} does not exist yet. Create it manually with createApp(appId, functions), or run mobigent app --feature expense --out-dir src for optional sample files.`
+      message: `${path} does not exist yet. Create it manually with createApp(appId, functions). For a complete demo, run mobigent new my-demo --install.`
     });
     return;
   }
@@ -1625,42 +1625,30 @@ function assertIdentifier(label: string, value: string) {
 }
 
 function helpText() {
-  return `Mobigent React Native optional helpers
+  return `Mobigent React Native developer tools
 
 Normal app integration does not need this command:
   npm install @mobigent/app
   # createApp(appId, functions).with(App)
 
-Use these helpers only when you want generated sample files,
-doctor checks, manifests, platform action plans, or env templates.
+Add Mobigent to real apps in code. Use this CLI only for checks
+and advanced integration artifacts.
 
 Usage:
   mobigent app --doctor --app-root .
   mobigent app --security-doctor --gateway-url wss://gateway.example.com
-  mobigent app --manifest --feature expense --out-dir src
+  mobigent app --manifest --feature expense
   mobigent app --platform-actions json --feature expense
   mobigent app --env-template --gateway-url ws://localhost:8787
 
-Optional sample-file generation:
-  mobigent app --feature expense --out-dir src
-  mobigent app --feature expense --out-dir src --expo-router
-  mobigent app --app-id com.example.app --app-name "Example App" --feature expense --out-dir src
+For a throwaway demo, use the starter instead:
+  mobigent new my-demo --install
 
-Backward-compatible aliases:
-  mobigent init --feature expense --out-dir src
-  mobigent doctor --feature expense --out-dir src --app-root .
-  mobigent-rn-init --feature expense --out-dir src --dry-run
-  mobigent-rn-init --feature expense --out-dir src --custom-confirmation
-  mobigent-rn-init --feature invoice --out-dir src --feature-only
-  mobigent-rn-init --security-doctor --feature expense --custom-confirmation
-  mobigent-rn-init --manifest --feature expense --out-dir src
-  mobigent-rn-init --write-manifest ./mobigent-integration.json --feature expense --out-dir src
+Advanced artifact commands:
+  mobigent app --write-manifest ./mobigent-integration.json --feature expense
   mobigent-rn-init --validate-manifest ./mobigent-integration.json
-  mobigent-rn-init --contract --feature expense
-  mobigent-rn-init --platform-actions json --feature expense
-  mobigent-rn-init --write-contract ./mobigent-contract.json --feature expense
+  mobigent app --write-contract ./mobigent-contract.json --feature expense
   mobigent-rn-init --validate-contract ./mobigent-contract.json
-  mobigent-rn-init --env-template --gateway-url ws://localhost:8787
   mobigent-rn-init --write-env ./.env.mobigent --gateway-url ws://localhost:8787
 
 Options:
@@ -1671,13 +1659,13 @@ Options:
   --backend-dir <path>   Read mobigent.app.json from a backend project directory.
   --feature <name>       Feature module name. Default: expense.
   --app-root <path>      React Native app root for package.json doctor checks. Default: current directory.
-  --out-dir <path>       Output directory. Default: src.
+  --out-dir <path>       Output directory for optional generated demo files. Default: src.
   --gateway-url <url>    WebSocket gateway URL for doctor checks.
   --expo                 Generate an Expo-friendly root.
   --react-native, --bare Generate a bare React Native root from an Expo-first command.
   --expo-router          Also generate app/_layout.tsx for Expo Router.
   --custom-confirmation  Generate and wire an editable confirmation component.
-  --feature-only         Generate only the feature module for an existing capability registry.
+  --feature-only         Generate only a sample function module for an existing app.
   --doctor               Check local React Native integration files.
   --security-doctor      Check transport, confirmation, and manifest safety defaults.
   --manifest             Print a machine-readable integration manifest.
