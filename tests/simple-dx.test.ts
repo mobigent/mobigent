@@ -476,6 +476,33 @@ test("backend SDK can pair with an app using only a top-level app id", async () 
   }
 });
 
+test("backend SDK can start from just an app id string", async () => {
+  const previousWsPort = process.env.MOBIGENT_WS_PORT;
+  const previousHttpPort = process.env.MOBIGENT_HTTP_PORT;
+  process.env.MOBIGENT_WS_PORT = "19013";
+  process.env.MOBIGENT_HTTP_PORT = "19014";
+
+  const backend = await startMobigent("com.example.stringapp", "String App");
+
+  try {
+    assert.equal(backend.defaultApp.appId, "com.example.stringapp");
+    assert.equal(backend.defaultApp.appName, "String App");
+    assert.equal(backend.inspectorUrl, "http://localhost:19014/inspect");
+  } finally {
+    await backend.stop();
+    if (previousWsPort === undefined) {
+      delete process.env.MOBIGENT_WS_PORT;
+    } else {
+      process.env.MOBIGENT_WS_PORT = previousWsPort;
+    }
+    if (previousHttpPort === undefined) {
+      delete process.env.MOBIGENT_HTTP_PORT;
+    } else {
+      process.env.MOBIGENT_HTTP_PORT = previousHttpPort;
+    }
+  }
+});
+
 test("backend SDK infers app identity when no app config is passed", async () => {
   const dir = await mkdtemp(join(tmpdir(), "mobigent-infer-sdk-"));
   const previousCwd = process.cwd();

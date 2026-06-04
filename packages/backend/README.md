@@ -40,6 +40,12 @@ The app and backend pair by `appId`. Mobigent handles waiting for the app connec
 
 If you want the shortest possible local demo, `startMobigent()` also works with inferred starter values. For production, pass a stable app id.
 
+Prefer the shortest explicit form? This is equivalent when you only need app identity:
+
+```ts
+const mobigent = await startMobigent("com.acme.expenses", "Acme Expenses");
+```
+
 ## Optional Generated Entrypoint
 
 If you prefer a generated `src/mobigent.ts` helper file:

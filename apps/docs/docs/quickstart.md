@@ -129,3 +129,9 @@ const expenses = mobigent.feature("expense");
 await expenses.create({ merchant: "Coffee", amount: 8 });
 await expenses.list();
 ```
+
+Shortest explicit backend start:
+
+```ts
+const mobigent = await startMobigent("com.acme.expenses", "Acme Expenses");
+```

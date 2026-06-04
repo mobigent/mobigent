@@ -148,6 +148,12 @@ await expenses.list();
 
 With no options, Mobigent infers a starter app id and app name from your project. Real apps should pass `appId` explicitly.
 
+Shortest explicit form:
+
+```ts
+const mobigent = await startMobigent("com.acme.expenses", "Acme Expenses");
+```
+
 Use `mobigent.waitForApp()` only when you want an explicit startup health gate. If the app is not running yet, function calls and readiness checks tell you exactly what is missing.
 
 Need agent setup? Use the same backend object:

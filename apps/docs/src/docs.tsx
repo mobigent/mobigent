@@ -114,6 +114,11 @@ await expenses.list();
 
 console.log(mobigent.inspectorUrl);`;
 
+const backendShortCode = `const mobigent = await startMobigent(
+  "com.acme.expenses",
+  "Acme Expenses"
+);`;
+
 const backendOptionalScaffoldCode = `# optional, only if you want a generated backend helper file
 npx mobigent-backend --app com.acme.expenses --app-name "Acme Expenses"`;
 
@@ -505,6 +510,7 @@ function Docs() {
         </div>
         <div className="codeGrid two">
           <Code title="Backend SDK" code={backendCode} />
+          <Code title="Shortest explicit start" code={backendShortCode} />
           <div className="apiList endpointList">
             {backendApis.map(([name, text]) => (
               <Row key={name} title={name} text={text} />
@@ -631,6 +637,7 @@ function Docs() {
         </div>
         <div className="codeGrid three">
           <Code title="Backend SDK" code={backendCode} />
+          <Code title="Shortest explicit start" code={backendShortCode} />
           <Code title="Optional backend scaffold" code={backendOptionalScaffoldCode} />
           <div className="apiList endpointList">
             {gatewayEndpoints.map(([name, text]) => (

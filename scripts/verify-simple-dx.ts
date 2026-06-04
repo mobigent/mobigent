@@ -194,6 +194,7 @@ assert.doesNotMatch(starterDoctor, /const gatewayUrl|function toolName|app manif
 for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.md"]) {
   const contents = readFileSync(path, "utf8");
   assert.match(contents, /createApp/, `${path} should teach the app package createApp path`);
+  assert.match(contents, /startMobigent\("com\.acme\.expenses", "Acme Expenses"\)/, `${path} should teach the short backend start path`);
   assert.doesNotMatch(
     contents,
     /npm install @mobigent\/app[\s\S]{0,600}?npx mobigent-init/,

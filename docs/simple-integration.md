@@ -108,6 +108,12 @@ That is the backend integration.
 
 Prefer generated sample files? Use the starter. Backend/app init commands are helpers, not required integration.
 
+When you only need app identity, the shortest explicit backend start is:
+
+```ts
+const mobigent = await startMobigent("com.acme.expenses", "Acme Expenses");
+```
+
 For one quick explicit call, use `mobigent.call("expense.create", input)`. If you prefer the object shape, `mobigent.functions.expense.create(input)` is still available.
 
 ## 3. What The SDK Handles

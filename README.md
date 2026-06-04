@@ -65,6 +65,12 @@ const expenses = backend.feature("expense");
 await expenses.create({ merchant: "Coffee", amount: 8 });
 ```
 
+The shortest explicit backend start also works:
+
+```ts
+const backend = await startMobigent("com.acme.expenses", "Acme Expenses");
+```
+
 For local development, Mobigent can infer starter values when you leave the app id out, but real apps should pass the same stable `appId` in the app and backend.
 
 For a non-React host or local demo, use the same app SDK object:

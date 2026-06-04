@@ -45,6 +45,8 @@ export type MobigentBackendOptions = {
   writeAppConfig?: boolean;
 };
 
+export type MobigentBackendInput = MobigentBackendOptions | string;
+
 export type MobigentBackendDefaultAppOptions = {
   id?: string;
   name?: string;
@@ -213,8 +215,13 @@ export type MobigentBackendOptionsWithApp = MobigentBackendOptions & {
   app: MobigentBackendDefaultAppOptions;
 };
 
+export async function startMobigentBackend(appId: string, appName?: string): Promise<MobigentBackendWithApp>;
 export async function startMobigentBackend(options?: MobigentBackendOptions): Promise<MobigentBackendWithApp>;
-export async function startMobigentBackend(options: MobigentBackendOptions = {}): Promise<MobigentBackendWithApp> {
+export async function startMobigentBackend(
+  input: MobigentBackendInput = {},
+  appName?: string
+): Promise<MobigentBackendWithApp> {
+  const options = normalizeBackendOptions(input, appName);
   const wsPort = options.wsPort ?? Number(process.env.MOBIGENT_WS_PORT ?? 8787);
   const httpPort = options.httpPort ?? Number(process.env.MOBIGENT_HTTP_PORT ?? 8788);
   const host = options.host ?? "localhost";
@@ -369,6 +376,10 @@ export async function startMobigentBackend(options: MobigentBackendOptions = {})
     appFunctions,
     fn: appFunction
   };
+}
+
+function normalizeBackendOptions(input: MobigentBackendInput, appName?: string): MobigentBackendOptions {
+  return typeof input === "string" ? { appId: input, appName } : input;
 }
 
 function createBackendFunctionsAccessor(
