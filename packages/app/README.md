@@ -12,9 +12,9 @@ Until npmjs publishing is connected, install the public release tarballs togethe
 
 ```bash
 npm install \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.14/mobigent-core-0.1.14.tgz \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.14/mobigent-react-native-0.1.14.tgz \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.14/mobigent-app-0.1.14.tgz
+  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-core-0.1.15.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-react-native-0.1.15.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-app-0.1.15.tgz
 ```
 
 Then expose normal app functions and create one app SDK object:

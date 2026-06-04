@@ -164,7 +164,7 @@ Create a runnable Mobigent starter with a visible app, backend, inspector, and a
 
 Usage:
   npm create mobigent-app my-demo -- --install
-  npm exec --package https://github.com/mobigent/mobigent/releases/download/v0.1.14/create-mobigent-app-0.1.14.tgz -- create-mobigent-app my-demo --package-source github-release --install
+  npm exec --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz -- create-mobigent-app my-demo --package-source github-release --install
 
 Options:
   --app-id <id>          Stable app id shared by app and backend. Default: com.mobigent.demo

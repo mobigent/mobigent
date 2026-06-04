@@ -6,7 +6,7 @@ For a new project from the public GitHub release:
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.14/create-mobigent-app-0.1.14.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
   -- create-mobigent-app my-demo --package-source github-release --install
 cd my-demo
 npm run dev

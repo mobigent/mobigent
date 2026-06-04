@@ -1,6 +1,6 @@
 {
   "name": "@mobigent/app",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "description": "App-side Mobigent SDK for exposing mobile app functions to AI agents.",
   "type": "module",
   "license": "MIT",
@@ -63,7 +63,7 @@
     "prepublishOnly": "npm run build && npm run typecheck"
   },
   "dependencies": {
-    "@mobigent/react-native": "0.1.14"
+    "@mobigent/react-native": "0.1.15"
   },
   "peerDependencies": {
     "react": "^19.2.6",
