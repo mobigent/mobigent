@@ -45,6 +45,9 @@ try {
   assert.equal(init.code, 0, init.stderr);
   assert.match(init.stdout, /Installing dependencies/);
 
+  const check = await run("npm", ["run", "check"], target);
+  assert.match(check, /tsc -p tsconfig\.json --noEmit/);
+
   server = spawn(join(target, "node_modules", ".bin", process.platform === "win32" ? "tsx.cmd" : "tsx"), ["src/server.ts"], {
     cwd: target,
     env: {

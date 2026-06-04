@@ -1,6 +1,6 @@
 {
   "name": "@mobigent/react-native",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "React Native SDK for exposing app capabilities to AI agents through Mobigent.",
   "type": "module",
   "license": "MIT",
@@ -72,7 +72,7 @@
     "prepublishOnly": "npm run build && npm run typecheck"
   },
   "dependencies": {
-    "@mobigent/core": "0.1.13",
+    "@mobigent/core": "0.1.14",
     "zod": "^4.4.3"
   },
   "devDependencies": {

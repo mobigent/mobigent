@@ -24,9 +24,9 @@ Current public fallback until npmjs publishing is connected:
 
 ```bash
 npm install \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-core-0.1.13.tgz \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-react-native-0.1.13.tgz \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-app-0.1.13.tgz
+  https://github.com/mobigent/mobigent/releases/download/v0.1.14/mobigent-core-0.1.14.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.14/mobigent-react-native-0.1.14.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.14/mobigent-app-0.1.14.tgz
 ```
 
 Create one app SDK object and expose the functions agents may call:
@@ -74,10 +74,10 @@ Current public fallback until npmjs publishing is connected:
 
 ```bash
 npm install \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-core-0.1.13.tgz \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-providers-0.1.13.tgz \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-gateway-0.1.13.tgz \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-backend-0.1.13.tgz
+  https://github.com/mobigent/mobigent/releases/download/v0.1.14/mobigent-core-0.1.14.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.14/mobigent-providers-0.1.14.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.14/mobigent-gateway-0.1.14.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.14/mobigent-backend-0.1.14.tgz
 ```
 
 ```ts

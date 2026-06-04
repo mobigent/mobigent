@@ -93,7 +93,7 @@ Current public fallback until npmjs publishing is connected:
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.13/create-mobigent-app-0.1.13.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.14/create-mobigent-app-0.1.14.tgz \
   -- create-mobigent-app my-demo --package-source github-release --install
 cd my-demo
 npm run dev
@@ -185,9 +185,9 @@ Current public fallback:
 
 ```bash
 npm install \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-core-0.1.13.tgz \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-react-native-0.1.13.tgz \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-app-0.1.13.tgz
+  https://github.com/mobigent/mobigent/releases/download/v0.1.14/mobigent-core-0.1.14.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.14/mobigent-react-native-0.1.14.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.14/mobigent-app-0.1.14.tgz
 ```
 
 For a backend/server app, the intended npm path is:
@@ -200,10 +200,10 @@ Current public fallback:
 
 ```bash
 npm install \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-core-0.1.13.tgz \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-providers-0.1.13.tgz \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-gateway-0.1.13.tgz \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-backend-0.1.13.tgz
+  https://github.com/mobigent/mobigent/releases/download/v0.1.14/mobigent-core-0.1.14.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.14/mobigent-providers-0.1.14.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.14/mobigent-gateway-0.1.14.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.14/mobigent-backend-0.1.14.tgz
 ```
 
 Prefer generated sample files? Use `mobigent new my-demo --install`. The app-side init command is demo scaffolding, not required integration.
@@ -216,9 +216,9 @@ Install the app SDK directly from public release tarballs:
 
 ```bash
 npm install \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-core-0.1.13.tgz \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-react-native-0.1.13.tgz \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-app-0.1.13.tgz
+  https://github.com/mobigent/mobigent/releases/download/v0.1.14/mobigent-core-0.1.14.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.14/mobigent-react-native-0.1.14.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.14/mobigent-app-0.1.14.tgz
 ```
 
 Or install from npmjs after npm publishing is connected:

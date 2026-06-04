@@ -106,16 +106,16 @@ Tagged releases attach public package tarballs to GitHub Releases:
 
 ```bash
 npm install \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-core-0.1.13.tgz \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-react-native-0.1.13.tgz \
-  https://github.com/mobigent/mobigent/releases/download/v0.1.13/mobigent-app-0.1.13.tgz
+  https://github.com/mobigent/mobigent/releases/download/v0.1.14/mobigent-core-0.1.14.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.14/mobigent-react-native-0.1.14.tgz \
+  https://github.com/mobigent/mobigent/releases/download/v0.1.14/mobigent-app-0.1.14.tgz
 ```
 
 Use the starter tarball for the easiest first run:
 
 ```bash
 npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.13/create-mobigent-app-0.1.13.tgz \
+  --package https://github.com/mobigent/mobigent/releases/download/v0.1.14/create-mobigent-app-0.1.14.tgz \
   -- create-mobigent-app my-demo --package-source github-release --install
 ```
 

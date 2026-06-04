@@ -124,7 +124,7 @@ export function installMobigentAppDependencies(options: Pick<CreateMobigentAppOp
   };
 }
 
-const defaultMobigentVersion = "0.1.13";
+const defaultMobigentVersion = "0.1.14";
 
 function createPackageJson(packageName: string, options?: CreateMobigentAppOptions) {
   const packageSource = options?.packageSource ?? "npm";

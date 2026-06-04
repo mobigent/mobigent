@@ -8,6 +8,7 @@ import {
   type MobigentSimpleAppConfig,
   type MobigentSimpleBackendConnection,
   type MobigentSimpleConnection,
+  type MobigentSimpleConnectionOptions,
   type MobigentSimpleConnectionSettings,
   type MobigentSimpleFeature,
   type MobigentSimpleFunctionMap
@@ -17,6 +18,7 @@ export type MobigentSimpleAppOptions = Omit<AgentAppFactoryOptions, "capabilitie
   config?: MobigentSimpleAppConfig;
   connection?: MobigentSimpleBackendConnection;
   connectionUrl?: string;
+  confirm?: MobigentSimpleConnectionOptions["confirm"];
   features?: MobigentSimpleFeature | MobigentSimpleFeature[];
   functions?: MobigentSimpleFunctionMap;
   capabilities?: AgentAppFactoryOptions["capabilities"];
@@ -38,7 +40,7 @@ export type MobigentCreatedApp = ReturnType<typeof createAgentApp> & {
 export function mobigentApp(input: MobigentSimpleAppInput): MobigentCreatedApp {
   const options = isMobigentFeatureInput(input) ? { features: input } : input;
   const features = [...toArray(options.features), ...resolveFunctionFeatures(options.functions)];
-  const { config, functions: _functions, ...appOptions } = options;
+  const { config, functions: _functions, confirm, ...appOptions } = options;
   const appConnectionUrl =
     appOptions.gatewayUrl ??
     appOptions.connectionUrl ??
@@ -66,6 +68,7 @@ export function mobigentApp(input: MobigentSimpleAppInput): MobigentCreatedApp {
     gatewayUrl: appOptions.gatewayUrl ?? config?.gatewayUrl,
     version: appOptions.version ?? config?.version,
     authToken: appOptions.authToken ?? config?.authToken,
+    confirm,
     signManifest: appOptions.signManifest,
     createSocket: appOptions.createSocket,
     reconnect: appOptions.reconnect,
