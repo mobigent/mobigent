@@ -281,6 +281,9 @@ function createServerFile(options: CreateMobigentAppOptions) {
     options.gatewayPort === 8787 ? "" : `  wsPort: ${options.gatewayPort},\n`,
     options.httpPort === 8788 ? "" : `  httpPort: ${options.httpPort},\n`
   ].join("");
+  const backendStart = portLines
+    ? `startMobigent(${JSON.stringify(options.appId)}, ${JSON.stringify(options.appName)}, {\n${portLines}})`
+    : `startMobigent(${JSON.stringify(options.appId)}, ${JSON.stringify(options.appName)})`;
 
   return `import { spawn } from "node:child_process";
 import express from "express";
@@ -294,10 +297,7 @@ let lastAgentRun: unknown;
 const appPort = ${options.appPort};
 const functionName = "expense.create";
 
-const backend = await startMobigent({
-${portLines}  appId: ${JSON.stringify(options.appId)},
-  appName: ${JSON.stringify(options.appName)}
-});
+const backend = await ${backendStart};
 
 const app = express();
 app.use(express.json());

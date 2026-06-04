@@ -90,10 +90,7 @@ npm install \
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent({
-  appId: "com.acme.expenses",
-  appName: "Acme Expenses"
-});
+const mobigent = await startMobigent("com.acme.expenses", "Acme Expenses");
 
 await mobigent.app.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
 await mobigent.app.expense.list();

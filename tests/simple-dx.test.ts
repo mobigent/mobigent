@@ -365,11 +365,9 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
 });
 
 test("app package connects to a backend object without connection URL ceremony", async () => {
-  const backend = await startMobigent({
+  const backend = await startMobigent("com.example.backendtarget", "Backend Target App", {
     wsPort: 19011,
     httpPort: 19012,
-    appId: "com.example.backendtarget",
-    appName: "Backend Target App",
     silent: true
   });
   const app = createApp({
@@ -476,13 +474,9 @@ test("backend app functions wait for the app connection automatically", async ()
       confirm: true
     }
   );
-  const backend = await startMobigent({
+  const backend = await startMobigent("com.example.autowait", "Auto Wait App", {
     wsPort: 19007,
     httpPort: 19008,
-    app: {
-      id: "com.example.autowait",
-      name: "Auto Wait App"
-    },
     silent: true
   });
   let connection: { disconnect(): void } | undefined;
@@ -519,13 +513,11 @@ test("backend app functions wait for the app connection automatically", async ()
   }
 });
 
-test("backend SDK can start with one app config like normal backend plumbing", async () => {
-  const backend = await startMobigent({
+test("backend SDK can start with one app identity and normal backend options", async () => {
+  const backend = await startMobigent("com.example.simple", "Simple App", {
     wsPort: 18991,
     httpPort: 18992,
     appToken: "dev-token",
-    appId: "com.example.simple",
-    appName: "Simple App",
     silent: true
   });
 
@@ -545,10 +537,9 @@ test("backend SDK can start with one app config like normal backend plumbing", a
 });
 
 test("backend SDK can pair with an app using only a top-level app id", async () => {
-  const backend = await startMobigent({
+  const backend = await startMobigent("com.example.minimal", undefined, {
     wsPort: 19009,
     httpPort: 19010,
-    appId: "com.example.minimal",
     silent: true
   });
 
@@ -815,8 +806,10 @@ test("backend init CLI infers app identity and prints the short app init command
     assert.equal(code, 0, stderr);
     const files = JSON.parse(stdout).files as Array<{ path: string; contents: string }>;
     assert.deepEqual(files.map((file) => file.path), ["src/mobigent.ts", ".env.mobigent"]);
-    assert.match(files.find((file) => file.path === "src/mobigent.ts")?.contents ?? "", /appId: "app\.example\.expense\.hub"/);
-    assert.match(files.find((file) => file.path === "src/mobigent.ts")?.contents ?? "", /appName: "Expense Hub"/);
+    assert.match(
+      files.find((file) => file.path === "src/mobigent.ts")?.contents ?? "",
+      /startMobigent\("app\.example\.expense\.hub", "Expense Hub", \{/
+    );
     assert.equal(files.some((file) => file.path === "mobigent.app.json"), false);
 
     const inferredAppDir = join(dir, "apps", "wallet-mobile");
@@ -863,9 +856,11 @@ test("backend init CLI infers app identity and prints the short app init command
     assert.match(stdout, /npx tsx src\/mobigent\.ts/);
     assert.doesNotMatch(stdout, /--config/);
     assert.doesNotMatch(stdout, /--env-file/);
-    assert.match(await readFile(join(dir, "src", "mobigent.ts"), "utf8"), /appId: "com\.example\.expense"/);
-    assert.match(await readFile(join(dir, "src", "mobigent.ts"), "utf8"), /appName: "Expense App"/);
-    assert.doesNotMatch(await readFile(join(dir, "src", "mobigent.ts"), "utf8"), /app: \{/);
+    const generatedBackend = await readFile(join(dir, "src", "mobigent.ts"), "utf8");
+    assert.match(generatedBackend, /startMobigent\("com\.example\.expense", "Expense App", \{/);
+    assert.doesNotMatch(generatedBackend, /appId: "com\.example\.expense"/);
+    assert.doesNotMatch(generatedBackend, /appName: "Expense App"/);
+    assert.doesNotMatch(generatedBackend, /app: \{/);
     await assert.rejects(readFile(join(dir, "mobigent.app.json"), "utf8"), /ENOENT/);
 
     const appDir = join(dir, "mobile-app");
@@ -1027,13 +1022,9 @@ test("existing app DX can connect without passing the singleton client manually"
     }
   );
 
-  const backend = await startMobigent({
+  const backend = await startMobigent("com.example.onecall", "One Call App", {
     wsPort: 18993,
     httpPort: 18994,
-    app: {
-      id: "com.example.onecall",
-      name: "One Call App"
-    },
     silent: true
   });
   let mobigentConnection: { disconnect(): void } | undefined;

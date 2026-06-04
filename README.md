@@ -52,18 +52,9 @@ The backend developer starts Mobigent like backend plumbing and calls app functi
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const backend = await startMobigent({
-  appId: "com.acme.expenses",
-  appName: "Acme Expenses"
-});
+const backend = await startMobigent("com.acme.expenses", "Acme Expenses");
 
 await backend.app.expense.create({ merchant: "Coffee", amount: 8 });
-```
-
-The shortest explicit backend start also works:
-
-```ts
-const backend = await startMobigent("com.acme.expenses", "Acme Expenses");
 ```
 
 For local development, Mobigent can infer starter values when you leave the app id out, but real apps should pass the same stable `appId` in the app and backend.
@@ -71,9 +62,7 @@ For local development, Mobigent can infer starter values when you leave the app 
 For a non-React host or local demo, use the same app SDK object:
 
 ```ts
-const backend = await startMobigent({
-  appId: "com.acme.expenses"
-});
+const backend = await startMobigent("com.acme.expenses", "Acme Expenses");
 
 await mobigent.connect(backend);
 ```
@@ -171,10 +160,7 @@ Then backend code can call app functions like ordinary functions:
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent({
-  appId: "com.acme.expenses",
-  appName: "Acme Expenses"
-});
+const mobigent = await startMobigent("com.acme.expenses", "Acme Expenses");
 
 await mobigent.app.expense.create({ merchant: "Coffee", amount: 8 });
 ```
@@ -283,9 +269,7 @@ If you are wiring a Node demo, test host, or another non-React runtime, use the 
 import { startMobigent } from "@mobigent/backend";
 import { mobigent } from "./mobigent";
 
-const backend = await startMobigent({
-  appId: "com.acme.expenses"
-});
+const backend = await startMobigent("com.acme.expenses", "Acme Expenses");
 
 await mobigent.connect(backend);
 ```
@@ -303,10 +287,7 @@ Start Mobigent from your server code:
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent({
-  appId: "com.acme.expenses",
-  appName: "Acme Expenses"
-});
+const mobigent = await startMobigent("com.acme.expenses", "Acme Expenses");
 
 console.log(mobigent.inspectorUrl);
 console.log(mobigent.openApiUrl);

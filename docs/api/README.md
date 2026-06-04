@@ -33,9 +33,7 @@ For non-React hosts, demos, and tests:
 import { startMobigent } from "@mobigent/backend";
 import { mobigent } from "./mobigent/expenses";
 
-const backend = await startMobigent({
-  appId: "com.acme.expenses"
-});
+const backend = await startMobigent("com.acme.expenses", "Acme Expenses");
 
 const connection = await mobigent.connect(backend);
 
@@ -47,10 +45,7 @@ connection.disconnect();
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent({
-  appId: "com.acme.expenses",
-  appName: "Acme Expenses"
-});
+const mobigent = await startMobigent("com.acme.expenses", "Acme Expenses");
 
 await mobigent.app.expense.create({ merchant: "Coffee", amount: 8 });
 
@@ -104,7 +99,7 @@ The returned object includes:
 - `mobigent.emit(name, payload)`: emits app activity.
 - `defineFunctions({ namespace: { name: read(fn) } })`: converts a functions object to explicit features.
 - `defineFeature(namespace, { name: read(fn), name: write(fn) })`: creates a named feature when you prefer an explicit feature object.
-- `createApp({ features })`: creates the app-side SDK object from explicit features.
+- `createApp(appId, functions)`: normal app setup. Use `createApp({ features })` only when you already built explicit feature objects.
 - `defineMobigent({ namespace: { name: read(fn) } })`: older alias for `defineFunctions`.
 - `defineMobigentConfig(config)`: gives app config a stable SDK type.
 - `createApp(appId, functions, { connection: { host: "192.168.1.20" } })`: connects a physical phone to your local backend.

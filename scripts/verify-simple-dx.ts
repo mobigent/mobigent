@@ -58,8 +58,9 @@ const backendFile = createMobigentBackendFiles({
 }).find((file) => file.path === "src/mobigent.ts")?.contents ?? "";
 
 assert.match(backendFile, /startMobigent/);
-assert.match(backendFile, /appId: "com\.example\.app"/);
-assert.match(backendFile, /appName: "Example App"/);
+assert.match(backendFile, /startMobigent\("com\.example\.app", "Example App", \{/);
+assert.doesNotMatch(backendFile, /appId: "com\.example\.app"/);
+assert.doesNotMatch(backendFile, /appName: "Example App"/);
 assert.doesNotMatch(backendFile, /app: \{/);
 assert.doesNotMatch(backendFile, /defaultApp/);
 assert.doesNotMatch(backendFile, /export const mobigentConfig/);
@@ -175,9 +176,8 @@ assert.match(starterServer, /createApp\("com\.example\.app", expenseFunctions/);
 assert.doesNotMatch(starterServer, /functions: expenseFunctions/);
 assert.doesNotMatch(starterServer, /connectMobigent/);
 assert.doesNotMatch(starterServer, /const gatewayPort|const httpPort|wsPort: 8787|httpPort: 8788/);
-assert.match(starterServer, /startMobigent\(\{/);
-assert.match(starterServer, /appId: "com\.example\.app"/);
-assert.match(starterServer, /appName: "Example App"/);
+assert.match(starterServer, /startMobigent\("com\.example\.app", "Example App"\)/);
+assert.doesNotMatch(starterServer, /appId: "com\.example\.app"/);
 assert.doesNotMatch(starterServer, /app: \{/);
 assert.match(starterServer, /mobigent\.connect\(backend\)/);
 assert.doesNotMatch(starterServer, /connectionUrl: backend\.urls\.websocket/);
@@ -212,6 +212,11 @@ for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.
     contents,
     /npm install @mobigent\/backend[\s\S]{0,900}?startMobigent\(\{[\s\S]{0,120}?appDir:/,
     `${path} should not make startMobigent({ appDir }) the required backend setup path`
+  );
+  assert.doesNotMatch(
+    contents,
+    /startMobigent\(\{[\s\S]{0,160}?appId: "com\.acme\.expenses"/,
+    `${path} should teach startMobigent(appId, appName) before object options`
   );
 }
 

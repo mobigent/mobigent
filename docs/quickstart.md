@@ -90,9 +90,7 @@ For a non-React demo or test host, connect the same feature in one call:
 import { startMobigent } from "@mobigent/backend";
 import { mobigent } from "./mobigent";
 
-const backend = await startMobigent({
-  appId: "com.acme.expenses"
-});
+const backend = await startMobigent("com.acme.expenses", "Acme Expenses");
 
 await mobigent.connect(backend);
 ```
@@ -120,10 +118,7 @@ In your server:
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent({
-  appId: "com.acme.expenses",
-  appName: "Acme Expenses"
-});
+const mobigent = await startMobigent("com.acme.expenses", "Acme Expenses");
 
 console.log(mobigent.inspectorUrl);
 ```

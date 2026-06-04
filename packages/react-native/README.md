@@ -95,9 +95,7 @@ For a Node demo, test host, or another non-React runtime, use the same app objec
 import { startMobigent } from "@mobigent/backend";
 import { mobigent } from "./mobigent/expenses";
 
-const backend = await startMobigent({
-  appId: "com.acme.expenses"
-});
+const backend = await startMobigent("com.acme.expenses", "Acme Expenses");
 
 const connection = await mobigent.connect(backend);
 ```

@@ -79,10 +79,7 @@ In your backend:
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent({
-  appId: "com.acme.expenses",
-  appName: "Acme Expenses"
-});
+const mobigent = await startMobigent("com.acme.expenses", "Acme Expenses");
 ```
 
 Mobigent pairs the backend and app by `appId`. Backend function calls wait for the app connection automatically. Optional local helper: pass `appDir: "../mobile-app"` when you want the backend to write app config files into the mobile app.
@@ -95,9 +92,7 @@ If you are running a local demo, test host, or another runtime where you are usi
 import { startMobigent } from "@mobigent/backend";
 import { mobigent } from "./mobigent/expenses";
 
-const backend = await startMobigent({
-  appId: "com.acme.expenses"
-});
+const backend = await startMobigent("com.acme.expenses", "Acme Expenses");
 
 const connection = await mobigent.connect(backend);
 

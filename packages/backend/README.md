@@ -23,10 +23,7 @@ npm install \
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent({
-  appId: "com.acme.expenses",
-  appName: "Acme Expenses"
-});
+const mobigent = await startMobigent("com.acme.expenses", "Acme Expenses");
 
 await mobigent.app.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
 await mobigent.app.expense.list();
@@ -37,12 +34,6 @@ That is the main backend API.
 The app and backend pair by `appId`. Mobigent handles waiting for the app connection and routing calls to the matching app functions.
 
 If you want the shortest possible local demo, `startMobigent()` also works with inferred starter values. For production, pass a stable app id.
-
-Prefer the shortest explicit form? This is equivalent when you only need app identity:
-
-```ts
-const mobigent = await startMobigent("com.acme.expenses", "Acme Expenses");
-```
 
 ## Optional Generated Entrypoint
 

@@ -35,9 +35,7 @@ For non-React hosts, demos, and tests:
 import { startMobigent } from "@mobigent/backend";
 import { mobigent } from "./mobigent";
 
-const backend = await startMobigent({
-  appId: "com.acme.expenses"
-});
+const backend = await startMobigent("com.acme.expenses", "Acme Expenses");
 
 const connection = await mobigent.connect(backend);
 
@@ -66,10 +64,7 @@ connection.disconnect();
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent({
-  appId: "com.acme.expenses",
-  appName: "Acme Expenses"
-});
+const mobigent = await startMobigent("com.acme.expenses", "Acme Expenses");
 
 await mobigent.app.expense.create({ merchant: "Coffee", amount: 8 });
 ```

@@ -62,10 +62,7 @@ createApp("com.acme.expenses", functions, {
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent({
-  appId: "com.acme.expenses",
-  appName: "Acme Expenses"
-});
+const mobigent = await startMobigent("com.acme.expenses", "Acme Expenses");
 ```
 
 The app and backend pair by `appId`. Backend calls wait for the app connection automatically.
@@ -78,9 +75,7 @@ If you are running a local demo, test host, or another runtime:
 import { startMobigent } from "@mobigent/backend";
 import { mobigent } from "./mobigent";
 
-const backend = await startMobigent({
-  appId: "com.acme.expenses"
-});
+const backend = await startMobigent("com.acme.expenses", "Acme Expenses");
 
 const connection = await mobigent.connect(backend);
 ```

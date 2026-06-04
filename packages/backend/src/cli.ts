@@ -350,23 +350,21 @@ function formatAgentSetup(options: MobigentBackendAgentOptions) {
 }
 
 function createBackendFile(options: MobigentBackendInitOptions) {
-  const appDirLine = options.appDir ? `  appDir: ${JSON.stringify(options.appDir)},\n` : "";
   const appConfigModuleFile = resolveAppConfigModuleFile(options);
-  const appConfigModuleLine = appConfigModuleFile
-    ? `  appConfigModuleFile: ${JSON.stringify(appConfigModuleFile)},\n`
-    : "";
-  const appLine = options.appDir
-    ? ""
-    : `  appId: ${JSON.stringify(options.appId)},
-  appName: ${JSON.stringify(options.appName)},
-`;
+  const optionLines = [
+    options.appDir ? `  appDir: ${JSON.stringify(options.appDir)}` : "",
+    appConfigModuleFile ? `  appConfigModuleFile: ${JSON.stringify(appConfigModuleFile)}` : "",
+    "  appToken: process.env.MOBIGENT_AUTH_TOKEN",
+    "  apiKey: process.env.MOBIGENT_HTTP_API_KEY"
+  ].filter(Boolean);
+  const optionsBlock = optionLines.join(",\n");
+  const startExpression = options.appDir
+    ? `startMobigent({\n${optionsBlock}\n})`
+    : `startMobigent(${JSON.stringify(options.appId)}, ${JSON.stringify(options.appName)}, {\n${optionsBlock}\n})`;
 
   return `import { startMobigent } from "@mobigent/backend";
 
-export const mobigent = await startMobigent({
-${appDirLine}${appConfigModuleLine}${appLine}  appToken: process.env.MOBIGENT_AUTH_TOKEN,
-  apiKey: process.env.MOBIGENT_HTTP_API_KEY
-});
+export const mobigent = await ${startExpression};
 
 export const waitForApp = mobigent.waitForApp;
 export const app = mobigent.app;

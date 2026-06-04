@@ -55,7 +55,11 @@ const expenses = feature("expense").write("create", async (input) => ({ ok: true
 assert.equal(expenses.actions[0].name, "expense_create");
 assert.equal(simpleSchema({ amount: "number" }).properties.amount.type, "number");
 
-const mobigent = await startMobigent({ wsPort: 19081, httpPort: 19082, silent: true });
+const mobigent = await startMobigent("app.mobigent.local", "Mobigent App", {
+  wsPort: 19081,
+  httpPort: 19082,
+  silent: true
+});
 assert.equal(mobigent.defaultApp.connectionUrl, "ws://localhost:19081");
 assert.equal(mobigent.resolveFunctionName("expense.create"), "expense.create");
 assert.equal(Array.isArray(mobigent.listFunctions()), true);
