@@ -650,6 +650,70 @@ test("app package connects with backend appClient settings", async () => {
   }
 });
 
+test("app package connects with backend pairing settings", async () => {
+  const backend = await startMobigent("com.example.pairing", "Pairing App", {
+    wsPort: 19023,
+    httpPort: 19024,
+    silent: true
+  });
+  const app = createApp({
+    functions: {
+      expense: {
+        list: async () => ({ items: [{ id: "EXP-PAIRING" }] })
+      }
+    },
+    createSocket: createNodeSocket
+  });
+
+  try {
+    assert.deepEqual(backend.pairing(), backend.connection);
+    const connection = await app.connect(backend.pairing());
+
+    try {
+      await backend.waitForApp({ minFunctions: 1 });
+      assert.deepEqual(await backend.app.expense.list(), {
+        items: [{ id: "EXP-PAIRING" }]
+      });
+    } finally {
+      connection.disconnect();
+    }
+  } finally {
+    await backend.stop();
+  }
+});
+
+test("app package accepts backend pairing as a named setup option", async () => {
+  const backend = await startMobigent("com.example.namedpairing", "Named Pairing App", {
+    wsPort: 19025,
+    httpPort: 19026,
+    silent: true
+  });
+  const app = createApp({
+    pairing: backend.pairing(),
+    functions: {
+      expense: {
+        list: async () => ({ items: [{ id: "EXP-NAMED-PAIRING" }] })
+      }
+    },
+    createSocket: createNodeSocket
+  });
+
+  try {
+    const connection = await app.connect();
+
+    try {
+      await backend.waitForApp({ minFunctions: 1 });
+      assert.deepEqual(await backend.app.expense.list(), {
+        items: [{ id: "EXP-NAMED-PAIRING" }]
+      });
+    } finally {
+      connection.disconnect();
+    }
+  } finally {
+    await backend.stop();
+  }
+});
+
 test("app and backend SDKs can pair with matching string app identity", async () => {
   const previousWsPort = process.env.MOBIGENT_WS_PORT;
   const previousHttpPort = process.env.MOBIGENT_HTTP_PORT;

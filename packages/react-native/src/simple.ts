@@ -130,6 +130,7 @@ export type MobigentSimpleBackendConnection =
 export type MobigentSimpleConnectionOptions = {
   appId?: string;
   appName?: string;
+  pairing?: MobigentSimpleAppConfig;
   connection?: MobigentSimpleBackendConnection;
   connectionUrl?: string;
   gatewayUrl?: string;
@@ -163,6 +164,7 @@ export type MobigentSimpleConfiguredConnectionOptions = Omit<
   config: MobigentSimpleAppConfig;
   appId?: string;
   appName?: string;
+  pairing?: MobigentSimpleAppConfig;
   connection?: MobigentSimpleBackendConnection;
   connectionUrl?: string;
   gatewayUrl?: string;
@@ -492,21 +494,27 @@ function resolveConnectionOptions(
   options: MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions
 ): MobigentResolvedConnectionOptions {
   if (!("config" in options)) {
+    const pairing = options.pairing;
+
     return {
       ...options,
-      appId: options.appId ?? defaultMobigentSimpleAppIdentity.id,
-      appName: options.appName ?? defaultMobigentSimpleAppIdentity.name,
+      appId: options.appId ?? pairing?.appId ?? defaultMobigentSimpleAppIdentity.id,
+      appName: options.appName ?? pairing?.appName ?? defaultMobigentSimpleAppIdentity.name,
       gatewayUrl:
         options.gatewayUrl ??
         options.connectionUrl ??
         resolveMobigentConnectionUrl(options.connection) ??
+        pairing?.gatewayUrl ??
+        pairing?.connectionUrl ??
+        resolveMobigentConnectionUrl(pairing?.connection) ??
         createMobigentGatewayUrl()
     };
   }
 
   const { config, ...rest } = options;
-  const appId = rest.appId ?? config.appId ?? defaultMobigentSimpleAppIdentity.id;
-  const appName = rest.appName ?? config.appName ?? defaultMobigentSimpleAppIdentity.name;
+  const pairing = rest.pairing;
+  const appId = rest.appId ?? pairing?.appId ?? config.appId ?? defaultMobigentSimpleAppIdentity.id;
+  const appName = rest.appName ?? pairing?.appName ?? config.appName ?? defaultMobigentSimpleAppIdentity.name;
 
   return {
     ...rest,
@@ -516,12 +524,15 @@ function resolveConnectionOptions(
       rest.gatewayUrl ??
       rest.connectionUrl ??
       resolveMobigentConnectionUrl(rest.connection) ??
+      pairing?.gatewayUrl ??
+      pairing?.connectionUrl ??
+      resolveMobigentConnectionUrl(pairing?.connection) ??
       config.gatewayUrl ??
       config.connectionUrl ??
       resolveMobigentConnectionUrl(config.connection) ??
       createMobigentGatewayUrl(),
-    version: rest.version ?? config.version,
-    authToken: rest.authToken ?? config.authToken
+    version: rest.version ?? pairing?.version ?? config.version,
+    authToken: rest.authToken ?? pairing?.authToken ?? config.authToken
   };
 }
 

@@ -8,6 +8,7 @@ import {
   type AgentAppRootProps,
   type MobigentSimpleAppInput,
   type MobigentSimpleAppOptions,
+  type MobigentSimpleAppConfig,
   type MobigentSimpleBackendConnection,
   type MobigentSimpleConnection,
   type MobigentSimpleConnectionSettings,
@@ -91,7 +92,9 @@ export type MobigentAppPackageIdentityOptions = Omit<MobigentSimpleAppOptions, "
   appName?: string;
 };
 export type MobigentAppPackageInput = MobigentAppPackageOptions | MobigentSimpleFunctionMap | string;
+export type MobigentAppPairingSource = MobigentSimpleAppConfig | (() => MobigentSimpleAppConfig);
 export type MobigentBackendConnectionTarget = {
+  pairing?: MobigentAppPairingSource;
   connection?: MobigentSimpleConnectionSettings;
   appConnectionUrl?: string;
 };
@@ -124,6 +127,7 @@ export type AppOptions = MobigentAppPackageIdentityOptions;
 export type AppConnection = MobigentSimpleConnection;
 export type AppConnectionSettings = MobigentAppConnectSettings;
 export type BackendConnection = MobigentBackendConnectionTarget;
+export type AppPairing = MobigentSimpleAppConfig;
 export type MobigentApp = MobigentAppPackage;
 
 export function createApp(
@@ -305,11 +309,13 @@ function resolvePackageConnectSettings(
 }
 
 function resolveBackendConnectionSettings(target: MobigentLegacyBackendConnectionTarget): MobigentSimpleConnectionSettings {
-  const config = target.connection ?? target.defaultApp ?? {};
+  const pairing = resolveAppPairing(target.pairing);
+  const config = pairing ?? target.connection ?? target.defaultApp ?? {};
 
   return {
     appId: config.appId,
     appName: config.appName,
+    pairing,
     connection: config.connection,
     connectionUrl: config.connectionUrl ?? config.gatewayUrl ?? target.appConnectionUrl ?? target.urls?.websocket,
     version: config.version,
@@ -321,11 +327,17 @@ function isBackendConnectionTarget(value: MobigentAppConnectSettings): value is 
   return Boolean(
     value &&
       typeof value === "object" &&
-      (("connection" in value && typeof value.connection === "object") ||
+      (("pairing" in value && typeof value.pairing === "object") ||
+        ("pairing" in value && typeof value.pairing === "function") ||
+        ("connection" in value && typeof value.connection === "object") ||
         ("appConnectionUrl" in value && typeof value.appConnectionUrl === "string") ||
         ("urls" in value && typeof value.urls === "object") ||
         ("defaultApp" in value && typeof value.defaultApp === "object"))
   );
+}
+
+function resolveAppPairing(pairing: MobigentAppPairingSource | undefined): MobigentSimpleAppConfig | undefined {
+  return typeof pairing === "function" ? pairing() : pairing;
 }
 
 function isFeatureInput(value: MobigentAppPackageOptions): value is MobigentSimpleFeature | MobigentSimpleFeature[] {

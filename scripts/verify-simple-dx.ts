@@ -74,6 +74,7 @@ for (const typeName of [
   "AppFunctions",
   "AppFunctionMap",
   "AppOptions",
+  "AppPairing",
   "AppConnection",
   "AppConnectionSettings",
   "BackendConnection",
@@ -85,6 +86,7 @@ assert.match(backendPackageRoot, /connection: MobigentBackendClient/, "@mobigent
 assert.match(backendPackageRoot, /agentUrl: string/, "@mobigent/backend should expose a friendly agentUrl alias");
 assert.match(backendPackageRoot, /appConnectionUrl: string/, "@mobigent/backend should expose a friendly appConnectionUrl alias");
 assert.match(backendPackageRoot, /appClient\(\): MobigentBackendClient/, "@mobigent/backend should expose backend.appClient() as the clear app settings handoff");
+assert.match(backendPackageRoot, /pairing\(\): MobigentBackendClient/, "@mobigent/backend should expose backend.pairing() as the clearest app handoff");
 for (const typeName of [
   "Backend",
   "BackendOptions",
@@ -98,7 +100,9 @@ for (const typeName of [
 ]) {
   assert.match(backendPackageRoot, new RegExp(`export type ${typeName}\\b`), `@mobigent/backend should expose friendly ${typeName} type`);
 }
-assert.match(appBackendTargetType, /connection\?: MobigentSimpleConnectionSettings/, "@mobigent/app should accept backend.connection as the clean pairing surface");
+assert.match(appBackendTargetType, /pairing\?: MobigentAppPairingSource/, "@mobigent/app should accept backend pairing as the clean app handoff");
+assert.match(appPackageRoot, /MobigentSimpleAppConfig \| \(\(\) => MobigentSimpleAppConfig\)/, "@mobigent/app should accept a pairing object or backend.pairing method");
+assert.match(appBackendTargetType, /connection\?: MobigentSimpleConnectionSettings/, "@mobigent/app should keep backend.connection compatibility");
 assert.doesNotMatch(
   appBackendTargetType,
   /urls|defaultApp|gatewayUrl/,
@@ -407,14 +411,14 @@ for (const path of ["packages/app/README.md", "packages/react-native/README.md"]
   const appReadme = readFileSync("packages/app/README.md", "utf8");
   assert.match(appReadme, /type AppFunctions/, "packages/app/README.md should teach the friendly AppFunctions type");
   assert.match(appReadme, /MobigentApp/, "packages/app/README.md should list the friendly MobigentApp type");
-  assert.match(appReadme, /backend\.appClient\(\)/, "packages/app/README.md should teach explicit backend app client settings");
+  assert.match(appReadme, /backend\.pairing\(\)/, "packages/app/README.md should teach explicit backend pairing settings");
 }
 
 {
   const backendReadme = readFileSync("packages/backend/README.md", "utf8");
   assert.match(backendReadme, /type Backend/, "packages/backend/README.md should teach the friendly Backend type");
   assert.match(backendReadme, /BackendOptions/, "packages/backend/README.md should list the friendly BackendOptions type");
-  assert.match(backendReadme, /backend\.appClient\(\)/, "packages/backend/README.md should teach backend.appClient()");
+  assert.match(backendReadme, /backend\.pairing\(\)/, "packages/backend/README.md should teach backend.pairing()");
   assert.match(backendReadme, /startMobigent\("com\.acme\.expenses"\)/);
   assert.match(backendReadme, /mobigent\.app\.expense\.create/);
   assert.match(backendReadme, /mobigent\.use\("expense", \{\s+createExpense: "create"/);
@@ -463,7 +467,8 @@ for (const path of [
 
 for (const path of ["docs/api/README.md", "apps/docs/docs/api.md"]) {
   const contents = readFileSync(path, "utf8");
-  assert.match(contents, /mobigent\.connect\(backend\.appClient\(\)\)/, `${path} should teach explicit backend app client handoff`);
+  assert.match(contents, /mobigent\.connect\(backend\.pairing\(\)\)/, `${path} should teach explicit backend pairing handoff`);
+  assert.match(contents, /createApp\(appId, functions, \{ pairing \}\)/, `${path} should teach app setup with pairing`);
 }
 
 for (const path of [

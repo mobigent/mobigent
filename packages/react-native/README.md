@@ -119,6 +119,7 @@ import { mobigent } from "./mobigent/expenses";
 const backend = await startMobigent("com.acme.expenses");
 
 const connection = await mobigent.connect(backend);
+// Or: await mobigent.connect(backend.pairing());
 ```
 
 ## Field Types

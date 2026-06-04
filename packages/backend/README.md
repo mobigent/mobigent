@@ -41,10 +41,10 @@ const backend = await startMobigent("com.acme.expenses");
 await mobigent.connect(backend);
 ```
 
-When you want the app-side settings explicitly, use `backend.appClient()`:
+When you want the app-side pairing explicitly, use `backend.pairing()`:
 
 ```ts
-await mobigent.connect(backend.appClient());
+await mobigent.connect(backend.pairing());
 ```
 
 The public `backend.connection` object contains the same pairing details. You usually do not need to read or copy it yourself.
@@ -79,7 +79,7 @@ The public TypeScript surface uses backend names:
 
 - `Backend` for the object returned by `startMobigent(...)`
 - `BackendOptions` for startup options
-- `BackendConnection` for `backend.connection` and `backend.appClient()`
+- `BackendConnection` for `backend.connection`, `backend.pairing()`, and `backend.appClient()`
 - `AppFunction` for a callable app function on the backend
 - `MobigentFunctionInfo` for `listFunctions()`
 - `MobigentBackendStatus` for `ready()` and `waitForApp()`

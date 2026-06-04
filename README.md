@@ -65,7 +65,8 @@ For a non-React host or local demo, use the same app SDK object:
 const backend = await startMobigent("com.acme.expenses");
 
 await mobigent.connect(backend);
-// Or: await mobigent.connect(backend.appClient());
+// Or pass the app pairing explicitly:
+await mobigent.connect(backend.pairing());
 ```
 
 Everything else, connection URLs, sockets, tokens, registration loops, provider mapping, confirmations, retries, audit events, agent setup, and inspector wiring, is SDK plumbing.

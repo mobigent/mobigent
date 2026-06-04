@@ -16,6 +16,7 @@ import {
 
 export type MobigentSimpleAppOptions = Omit<AgentAppFactoryOptions, "capabilities" | "modules"> & {
   config?: MobigentSimpleAppConfig;
+  pairing?: MobigentSimpleAppConfig;
   connection?: MobigentSimpleBackendConnection;
   connectionUrl?: string;
   confirm?: MobigentSimpleConnectionOptions["confirm"];
@@ -54,29 +55,33 @@ export function mobigentApp(
   const normalizedInput = normalizeMobigentAppInput(input, functions, identityOptions);
   const options = isMobigentFeatureInput(normalizedInput) ? { features: normalizedInput } : normalizedInput;
   const features = [...toArray(options.features), ...resolveFunctionFeatures(options.functions)];
-  const { config, functions: _functions, confirm, ...appOptions } = options;
+  const { config, pairing, functions: _functions, confirm, ...appOptions } = options;
   const appConnectionUrl =
     appOptions.gatewayUrl ??
     appOptions.connectionUrl ??
     resolveMobigentConnectionUrl(appOptions.connection) ??
+    pairing?.gatewayUrl ??
+    pairing?.connectionUrl ??
+    resolveMobigentConnectionUrl(pairing?.connection) ??
     config?.gatewayUrl ??
     config?.connectionUrl ??
     resolveMobigentConnectionUrl(config?.connection);
   const app = createAgentApp({
     ...appOptions,
-    appId: appOptions.appId ?? config?.appId,
-    appName: appOptions.appName ?? config?.appName,
+    appId: appOptions.appId ?? pairing?.appId ?? config?.appId,
+    appName: appOptions.appName ?? pairing?.appName ?? config?.appName,
     gatewayUrl: appConnectionUrl,
-    version: appOptions.version ?? config?.version,
-    authToken: appOptions.authToken ?? config?.authToken,
+    version: appOptions.version ?? pairing?.version ?? config?.version,
+    authToken: appOptions.authToken ?? pairing?.authToken ?? config?.authToken,
     capabilities: [...toArray(options.capabilities), ...features],
     modules: options.modules
   });
 
   const connectionSettings = {
     config,
-    appId: appOptions.appId ?? config?.appId,
-    appName: appOptions.appName ?? config?.appName,
+    pairing,
+    appId: appOptions.appId ?? pairing?.appId ?? config?.appId,
+    appName: appOptions.appName ?? pairing?.appName ?? config?.appName,
     connection: appOptions.connection ?? config?.connection,
     connectionUrl: appOptions.connectionUrl ?? config?.connectionUrl,
     gatewayUrl: appOptions.gatewayUrl ?? config?.gatewayUrl,
