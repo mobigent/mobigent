@@ -537,7 +537,7 @@ function renderPage() {
 }
 
 function createCapabilitiesFile() {
-  return `import { emitMobigentEvent, read, write } from "@mobigent/app";
+  return `import { emitMobigentEvent, write } from "@mobigent/app";
 
 export type Expense = {
   id: string;
@@ -560,10 +560,7 @@ export const expenses: Expense[] = [
 
 export const expenseFunctions = {
   expense: {
-    list: read(async () => ({ expenses }), {
-      description: "Read expenses from the app.",
-      output: { expenses: ["object"] }
-    }),
+    list: async () => ({ expenses }),
     create: write(
       async (input) => {
         const expense = await createExpense({

@@ -25,7 +25,7 @@ Edit `src/capabilities.ts` first. That file contains the sample app state and th
 ```ts
 export const expenseFunctions = {
   expense: {
-    list: read(listExpenses),
+    list: async () => listExpenses(),
     create: write(createExpense, {
       input: { amount: "number", merchant: "string" }
     })

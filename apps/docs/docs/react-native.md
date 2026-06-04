@@ -26,21 +26,14 @@ No setup command is required on the app side. Create one Mobigent file, expose t
 ## Create The App SDK Object
 
 ```ts
-import { createApp, read, write } from "@mobigent/app";
+import { createApp } from "@mobigent/app";
 
 export const mobigent = createApp({
   appId: "com.acme.expenses",
   functions: {
     expense: {
-      list: read(async () => ({ items: await listExpenses() })),
-      create: write(async (input) => createExpense(input), {
-        input: {
-          merchant: "string",
-          amount: "number",
-          notes: "string"
-        },
-        confirm: true
-      })
+      list: async () => ({ items: await listExpenses() }),
+      create: async (input) => createExpense(input)
     }
   }
 });

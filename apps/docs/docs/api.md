@@ -12,20 +12,14 @@ Most integrations use two packages:
 ## React Native
 
 ```ts
-import { createApp, read, write } from "@mobigent/app";
+import { createApp } from "@mobigent/app";
 
 export const mobigent = createApp({
   appId: "com.acme.expenses",
   functions: {
     expense: {
-      list: read(async () => ({ items: await listExpenses() })),
-      create: write(async (input) => createExpense(input), {
-        input: {
-          merchant: "string",
-          amount: "number"
-        },
-        confirm: true
-      })
+      list: async () => ({ items: await listExpenses() }),
+      create: async (input) => createExpense(input)
     }
   }
 });
@@ -55,12 +49,12 @@ connection.disconnect();
 
 ## Simple App Helpers
 
-- `createApp({ functions: { namespace: { name: read(fn), name: write(fn) } } })`: creates the app-side SDK object.
+- `createApp({ functions: { namespace: { name: fn } } })`: creates the app-side SDK object.
 - `mobigent.with(App)`: wraps an existing React Native app.
 - `mobigent.connect(backend)`: connects a non-React host or demo using the same functions.
 - `mobigent.emit(name, payload)`: emits app activity.
-- `defineFunctions({ namespace: { name: read(fn) } })`: converts a functions object to explicit features.
-- `defineFeature(namespace, { name: read(fn), name: write(fn) })`: creates a named feature when you prefer an explicit feature object.
+- `defineFunctions({ namespace: { name: fn } })`: converts a functions object to explicit features.
+- `defineFeature(namespace, { name: fn })`: creates a named feature when you prefer an explicit feature object.
 - `createApp({ connection: { host: "192.168.1.20" } })`: connects a physical phone to your local backend.
 - `createApp({ connection: "wss://your-backend.example.com" })`: connects an app to a hosted backend.
 - `defineMobigentConfig(config)`: gives app config a stable SDK type.

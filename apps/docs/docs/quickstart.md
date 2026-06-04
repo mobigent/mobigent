@@ -48,24 +48,20 @@ npm install \
 Create one Mobigent file:
 
 ```ts
-import { createApp, read, write } from "@mobigent/app";
+import { createApp } from "@mobigent/app";
 
 export const mobigent = createApp({
   appId: "com.acme.expenses",
   functions: {
     expense: {
-      list: read(async () => ({ items: await listExpenses() })),
-      create: write(async (input) => createExpense(input), {
-        input: {
-          merchant: "string",
-          amount: "number"
-        },
-        confirm: true
-      })
+      list: async () => ({ items: await listExpenses() }),
+      create: async (input) => createExpense(input)
     }
   }
 });
 ```
+
+That is the normal path. Mobigent treats `list`, `get`, `read`, `fetch`, `search`, and `load` as reads. Other plain functions are confirmed writes by default. Add `write()` only when you want validation or custom approval copy.
 
 Wrap the app once:
 

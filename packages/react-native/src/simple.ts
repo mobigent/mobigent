@@ -101,7 +101,8 @@ export type MobigentSimpleCapabilityDefinition =
       options?: MobigentSimpleComponentOptions;
     };
 
-export type MobigentSimpleCapabilityMap = Record<string, MobigentSimpleCapabilityDefinition>;
+export type MobigentSimpleFunction = MobigentActionHandler | MobigentSimpleCapabilityDefinition;
+export type MobigentSimpleCapabilityMap = Record<string, MobigentSimpleFunction>;
 export type MobigentSimpleFeatureMap = Record<string, MobigentSimpleCapabilityMap>;
 export type MobigentSimpleFunctionMap = MobigentSimpleFeatureMap;
 
@@ -286,6 +287,11 @@ export const createFeature = feature;
 
 function addCapabilities(api: MobigentSimpleFeature, capabilities: MobigentSimpleCapabilityMap) {
   for (const [name, capability] of Object.entries(capabilities)) {
+    if (typeof capability === "function") {
+      addPlainFunction(api, name, capability);
+      continue;
+    }
+
     switch (capability.kind) {
       case "action":
         api.action(name, capability.handler, capability.options);
@@ -298,6 +304,19 @@ function addCapabilities(api: MobigentSimpleFeature, capabilities: MobigentSimpl
         break;
     }
   }
+}
+
+function addPlainFunction(api: MobigentSimpleFeature, name: string, handler: MobigentActionHandler) {
+  if (isReadFunctionName(name)) {
+    api.resource(name, async () => handler({}));
+    return;
+  }
+
+  api.action(name, handler, { confirm: true });
+}
+
+function isReadFunctionName(name: string) {
+  return /^(list|get|read|fetch|search|load)([A-Z_.-]|$)/.test(name);
 }
 
 export function registerFeatures(

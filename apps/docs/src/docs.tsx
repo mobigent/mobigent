@@ -55,25 +55,29 @@ npm run dev
 npm run doctor
 npm run agent:local`;
 
-const moduleCode = `import { createApp, read, write } from "@mobigent/app";
+const moduleCode = `import { createApp } from "@mobigent/app";
 
 export const mobigent = createApp({
   appId: "com.acme.expenses",
   functions: {
     expense: {
-      list: read(async () => ({
+      list: async () => ({
         items: await listExpenses()
-      })),
-      create: write(async (input) => createExpense(input), {
-        input: {
-          merchant: "string",
-          amount: "number"
-        },
-        confirm: true
-      })
+      }),
+      create: async (input) => createExpense(input)
     }
   }
 });`;
+
+const optionalMetadataCode = `import { write } from "@mobigent/app";
+
+create: write(createExpense, {
+  input: {
+    merchant: "string",
+    amount: "number"
+  },
+  confirm: "Create expense?"
+})`;
 
 const appCode = `import { mobigent } from "./mobigent";
 import App from "./App";
@@ -478,6 +482,7 @@ function Docs() {
         <div className="codeGrid docsCodeGrid">
           <Code title="1. Install packages" code={quickstart} />
           <Code title="2. Define app capability" code={moduleCode} />
+          <Code title="Optional validation and approval copy" code={optionalMetadataCode} />
           <Code title="3. Wrap the app" code={appCode} />
           <Code title="4. Physical phone or hosted backend" code={deviceConnectionCode} />
         </div>

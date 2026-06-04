@@ -22,21 +22,14 @@ Use the same `appId` in the app and backend. For a first throwaway run, the app 
 ## 2. Expose App Functions
 
 ```ts
-import { createApp, read, write } from "@mobigent/app";
+import { createApp } from "@mobigent/app";
 
 export const mobigent = createApp({
   appId: "com.acme.expenses",
   functions: {
     expense: {
-      list: read(async () => ({ items: await listExpenses() })),
-      create: write(async (input) => createExpense(input), {
-        input: {
-          merchant: "string",
-          amount: "number",
-          notes: "string"
-        },
-        confirm: true
-      })
+      list: async () => ({ items: await listExpenses() }),
+      create: async (input) => createExpense(input)
     }
   }
 });
@@ -69,18 +62,16 @@ No app-side init command is required. Starter generation is only for demos.
 For multiple app areas in one file, use the same plain object shape:
 
 ```ts
-import { createApp, read, write } from "@mobigent/app";
+import { createApp } from "@mobigent/app";
 
 export const mobigent = createApp({
   functions: {
     expense: {
-      list: read(async () => ({ items: await listExpenses() })),
-      create: write(createExpense, {
-        input: { merchant: "string", amount: "number" }
-      })
+      list: async () => ({ items: await listExpenses() }),
+      create: async (input) => createExpense(input)
     },
     task: {
-      list: read(async () => ({ items: await listTasks() }))
+      list: async () => ({ items: await listTasks() })
     }
   }
 });

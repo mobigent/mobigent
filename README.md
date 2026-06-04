@@ -10,8 +10,8 @@ Mobigent is an open-source SDK that lets AI agents use mobile app functions the 
 
 Your app exposes normal functions agents are allowed to use:
 
-- `read()` functions for app state
-- `write()` functions for app changes
+- plain functions such as `expense.list()` and `expense.create()`
+- optional `read()` and `write()` wrappers when you want schemas, descriptions, or approval text
 - `screen()` functions for focusing important UI
 - `mobigent.emit()` for app activity
 - confirmation callbacks for sensitive writes
@@ -41,10 +41,8 @@ const mobigent = createApp({
   appId: "com.acme.expenses",
   functions: {
     expense: {
-      list: read(listExpenses),
-      create: write(createExpense, {
-        input: { merchant: "string", amount: "number" }
-      })
+      list: async () => listExpenses(),
+      create: async (input) => createExpense(input)
     }
   }
 })
@@ -131,20 +129,28 @@ npm install @mobigent/app
 Then create one Mobigent file and wire it once:
 
 ```ts
-import { createApp, read, write } from "@mobigent/app";
+import { createApp } from "@mobigent/app";
 
 export const mobigent = createApp({
   appId: "com.acme.expenses",
   functions: {
     expense: {
-      list: read(async () => ({ items: await listExpenses() })),
-      create: write(async (input) => createExpense(input), {
-        input: { merchant: "string", amount: "number" },
-        confirm: true
-      })
+      list: async () => ({ items: await listExpenses() }),
+      create: async (input) => createExpense(input)
     }
   }
 });
+```
+
+Mobigent treats `list`/`get`/`read`/`fetch`/`search`/`load` functions as reads. Other plain functions are writes and require confirmation by default. When you want validation or custom approval copy, wrap that one function:
+
+```ts
+import { write } from "@mobigent/app";
+
+create: write(createExpense, {
+  input: { merchant: "string", amount: "number" },
+  confirm: "Create expense?"
+})
 ```
 
 ```tsx
@@ -244,20 +250,14 @@ Use one stable app id and reuse it in the backend. For quick local experiments, 
 Create one Mobigent file and one app SDK object:
 
 ```ts
-import { createApp, read, write } from "@mobigent/app";
+import { createApp } from "@mobigent/app";
 
 export const mobigent = createApp({
   appId: "com.acme.expenses",
   functions: {
     expense: {
-      list: read(async () => ({ items: await listExpenses() })),
-      create: write(async (input) => createExpense(input), {
-        input: {
-          merchant: "string",
-          amount: "number"
-        },
-        confirm: true
-      })
+      list: async () => ({ items: await listExpenses() }),
+      create: async (input) => createExpense(input)
     }
   }
 });

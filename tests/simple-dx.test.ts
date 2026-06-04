@@ -85,14 +85,30 @@ test("plain object feature API exposes normal app functions with less ceremony",
   assert.equal(expenses.actions[1].confirmation?.title, "Archive expense?");
 });
 
+test("plain object feature API accepts real functions without wrappers", async () => {
+  const expenses = feature("expense", {
+    list: async () => ({ items: [{ id: "EXP-1" }] }),
+    create: async (input) => ({ id: "EXP-2", ...input })
+  });
+
+  assert.equal(expenses.resources[0].name, "expense_list");
+  assert.equal(expenses.actions[0].name, "expense_create");
+  assert.equal(expenses.actions[0].confirmation?.required, true);
+  assert.deepEqual(await expenses.resources[0].read(), { items: [{ id: "EXP-1" }] });
+  assert.deepEqual(await expenses.actions[0].handler({ merchant: "Coffee" }), {
+    id: "EXP-2",
+    merchant: "Coffee"
+  });
+});
+
 test("defineMobigent maps product areas to features for one-line app wrapping", () => {
   const features = defineMobigent({
     expense: {
-      list: read(async () => ({ items: [] })),
-      create: write(async () => ({ ok: true }))
+      list: async () => ({ items: [] }),
+      create: async () => ({ ok: true })
     },
     task: {
-      list: read(async () => ({ items: [] }))
+      list: async () => ({ items: [] })
     }
   });
 
@@ -105,8 +121,8 @@ test("defineMobigent maps product areas to features for one-line app wrapping", 
 test("createApp accepts app functions directly for the lowest ceremony path", () => {
   const appFunctions = {
     expense: {
-      list: read(async () => ({ items: [] })),
-      create: write(async () => ({ ok: true }))
+      list: async () => ({ items: [] }),
+      create: async () => ({ ok: true })
     }
   };
 

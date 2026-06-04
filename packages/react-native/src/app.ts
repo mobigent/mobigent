@@ -49,6 +49,7 @@ export {
   type MobigentSimpleFeature,
   type MobigentSimpleFeatureMap,
   type MobigentSimpleField,
+  type MobigentSimpleFunction,
   type MobigentSimpleFunctionMap,
   type MobigentSimpleObjectSchema,
   type MobigentSimpleResourceOptions,

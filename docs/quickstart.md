@@ -59,25 +59,20 @@ npm install \
 Create a Mobigent file yourself. There is no app-side init command in the normal path:
 
 ```ts
-import { createApp, read, write } from "@mobigent/app";
+import { createApp } from "@mobigent/app";
 
 export const mobigent = createApp({
   appId: "com.acme.expenses",
   functions: {
     expense: {
-      list: read(async () => ({ items: await listExpenses() })),
-      create: write(async (input) => createExpense(input), {
-        input: {
-          merchant: "string",
-          amount: "number",
-          notes: "string"
-        },
-        confirm: true
-      })
+      list: async () => ({ items: await listExpenses() }),
+      create: async (input) => createExpense(input)
     }
   }
 });
 ```
+
+That is enough for a first integration. Mobigent treats `list`, `get`, `read`, `fetch`, `search`, and `load` as reads. Other plain functions are confirmed writes by default. Add `write()` later only when you want input validation or custom approval text.
 
 Create one Mobigent app object and wrap your existing app once:
 
@@ -177,8 +172,8 @@ export const mobigent = createApp({
   connection: { host: "192.168.1.20" },
   functions: {
     expense: {
-      list: read(async () => ({ items: [] })),
-      create: write(async (input) => ({ id: "EXP-1", ...input }))
+      list: async () => ({ items: [] }),
+      create: async (input) => ({ id: "EXP-1", ...input })
     }
   }
 });

@@ -92,10 +92,11 @@ try {
 
   const capabilities = await readFile(join(target, "src", "capabilities.ts"), "utf8");
   assert.match(capabilities, /export const expenseFunctions = \{/);
-  assert.match(capabilities, /list: read\(/);
+  assert.match(capabilities, /list: async \(\) => \(\{ expenses \}\)/);
   assert.match(capabilities, /create: write\(/);
   assert.match(capabilities, /amount: "number"/);
   assert.match(capabilities, /createExpense/);
+  assert.doesNotMatch(capabilities, /list: read\(/);
   assert.doesNotMatch(capabilities, /defineFeature/);
 
   const doctor = await readFile(join(target, "src", "doctor.ts"), "utf8");

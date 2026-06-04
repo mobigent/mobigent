@@ -7,22 +7,19 @@ Use this workflow when you are turning a proof of concept into an SDK integratio
 Expose one read function and one confirmed write function from a real feature. Write this directly in your app code:
 
 ```ts
-import { createApp, read, write } from "@mobigent/app";
+import { createApp } from "@mobigent/app";
 
 export const mobigent = createApp({
   functions: {
     expense: {
-      list: read(async () => ({ items: await listExpenses() })),
-      create: write(async (input) => createExpense(input), {
-        input: { merchant: "string", amount: "number" },
-        confirm: true
-      })
+      list: async () => ({ items: await listExpenses() }),
+      create: async (input) => createExpense(input)
     }
   }
 });
 ```
 
-Then wrap the app once with `mobigent.with(App)`. Use generators only when you want sample files.
+Then wrap the app once with `mobigent.with(App)`. Use `write(createExpense, { input, confirm })` when you want validation and custom approval copy. Use generators only when you want sample files.
 
 ## 2. Inspect The Gateway
 
