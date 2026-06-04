@@ -48,6 +48,17 @@ assert.doesNotMatch(
   /AgentBridge|BridgeGateway|createMobigentGatewayUrl|createAgentModule|defineAgentAction|MobigentProvider/,
   "@mobigent/app root should not expose bridge/gateway/provider internals in the normal import path"
 );
+assert.doesNotMatch(
+  appPackageRoot,
+  /export \{[^}]*\b(connectMobigent|defineFeature|defineFunctions|defineMobigent|defineMobigentConfig|feature|functions|setupMobigent|simpleSchema)\b[^}]*\} from "@mobigent\/react-native\/app"/,
+  "@mobigent/app root should keep lower-level builders on @mobigent/app/app"
+);
+assert.doesNotMatch(
+  appPackageRoot,
+  /export \{[^}]*\b(mobigent|setupMobigent)\b[^}]*\} from "@mobigent\/react-native"/,
+  "@mobigent/app root should not expose the lower-level singleton"
+);
+assert.doesNotMatch(appPackageRoot, /export const setup\b/, "@mobigent/app root should not expose setup aliases");
 assert.match(appPackageRoot, /createApp/);
 assert.match(appPackageRoot, /export function withMobigent/);
 assert.match(appPackageRoot, /read/);

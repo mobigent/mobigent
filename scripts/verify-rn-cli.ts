@@ -112,7 +112,7 @@ try {
   await mkdir(backendFirstDir);
   await writeFile(
     join(backendFirstDir, "mobigent-config.ts"),
-    `import { defineMobigentConfig } from "@mobigent/app";
+    `import { defineMobigentConfig } from "@mobigent/app/app";
 
 export const mobigentConfig = defineMobigentConfig({
   appId: "com.mobigent.backendfirst",

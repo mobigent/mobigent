@@ -56,36 +56,28 @@ Use this shape for clients that support stdio MCP servers:
 }
 ```
 
-Then configure your mobile app SDK with:
+Then expose app functions with the same app id:
 
 ```ts
-import { mobigent } from "@mobigent/app";
+import { createApp } from "@mobigent/app";
 
-mobigent.configure({
-  appId: "com.example.expenses",
-  appName: "Example Expenses",
-  gatewayUrl: "ws://localhost:8787",
-  authToken: "dev-secret"
+export const mobigent = createApp("com.example.expenses", {
+  expense: {
+    list: async () => ({ expenses: await listExpenses() }),
+    create: async (input) => createExpense(input)
+  }
 });
 ```
 
 ## Tool Mapping
 
-An app action:
+An app write function:
 
 ```ts
-mobigent.registerAction({
-  name: "expense_create",
-  description: "Create a new expense report.",
-  inputSchema: {
-    type: "object",
-    properties: {
-      amount: { type: "number" },
-      merchant: { type: "string" }
-    },
-    required: ["amount", "merchant"]
-  },
-  handler: async (input) => createExpense(input)
+createApp("com.example.expenses", {
+  expense: {
+    create: async (input) => createExpense(input)
+  }
 });
 ```
 

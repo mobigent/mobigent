@@ -412,7 +412,7 @@ function createAppConfigFile(options: MobigentBackendInitOptions) {
 }
 
 function createAppConfigModuleFile(options: MobigentBackendInitOptions) {
-  return `import { defineMobigentConfig } from "@mobigent/app";
+  return `import { defineMobigentConfig } from "@mobigent/app/app";
 
 export const mobigentConfig = defineMobigentConfig(${createAppConfigFile(options).trim()});
 `;

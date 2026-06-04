@@ -71,4 +71,4 @@ For non-React hosts and local demos, call `await mobigent.connect(backend)` inst
 
 No app-side init command is required. Write the functions directly in your app code. Optional generators are for examples, not real integration.
 
-The root `@mobigent/app` import is intentionally small: app functions, schema helpers, confirmation/status UI, and connection helpers. Advanced React Native APIs remain available from explicit subpaths such as `@mobigent/app/ui`, `@mobigent/app/schema-adapters`, `@mobigent/app/platform-actions`, and `@mobigent/app/expo`.
+The root `@mobigent/app` import is intentionally small: app functions, schema helpers, confirmation/status UI, and connection helpers. Advanced React Native APIs remain available from explicit subpaths such as `@mobigent/app/app`, `@mobigent/app/ui`, `@mobigent/app/schema-adapters`, `@mobigent/app/platform-actions`, and `@mobigent/app/expo`.

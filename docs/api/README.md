@@ -112,7 +112,7 @@ Advanced and compatibility fields are still available, but they should not be ne
 - `write(handler, options)`: exposes confirmed app behavior.
 - `screen(handler, options)`: lets an agent focus a screen or UI surface.
 
-Advanced app helpers are still available when you need explicit internal objects or manual lifecycle control:
+Advanced app helpers are still available from `@mobigent/app/app` when you need explicit internal objects or manual lifecycle control:
 
 - `defineFunctions({ namespace: { name: read(fn) } })`
 - `defineFeature(namespace, { name: read(fn), name: write(fn) })`

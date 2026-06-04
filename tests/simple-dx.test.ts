@@ -13,22 +13,23 @@ import {
 import { createMobigentBackendFiles, runMobigentBackendCli } from "@mobigent/backend/cli";
 import {
   action,
-  connectMobigent,
   createApp,
+  emitMobigentEvent,
+  read,
+  withMobigent,
+  write
+} from "@mobigent/app";
+import {
+  connectMobigent,
   defineFunctions,
   defineMobigent,
   defineMobigentConfig,
-  emitMobigentEvent,
   feature,
-  mobigent,
-  read,
   setupMobigent,
-  simpleSchema,
-  withMobigent,
-  write,
-  type MobigentSocketFactory
-} from "@mobigent/app";
-import { createApp as createReactNativeApp } from "@mobigent/react-native";
+  simpleSchema
+} from "@mobigent/app/app";
+import type { MobigentSocketFactory } from "@mobigent/react-native";
+import { createApp as createReactNativeApp, mobigent } from "@mobigent/react-native";
 
 const createNodeSocket: MobigentSocketFactory = (url) => new WebSocket(url);
 
@@ -1011,7 +1012,7 @@ test("app config helpers create typed copy-paste app config", () => {
   });
 
   assert.equal(config.appId, "com.example.app");
-  assert.equal(formatMobigentAppConfigModule(config), `import { defineMobigentConfig } from "@mobigent/app";
+  assert.equal(formatMobigentAppConfigModule(config), `import { defineMobigentConfig } from "@mobigent/app/app";
 
 export const mobigentConfig = defineMobigentConfig({
   "appId": "com.example.app",

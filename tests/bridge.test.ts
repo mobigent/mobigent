@@ -2377,7 +2377,7 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   const backendFirstDir = await mkdtemp(join(tmpdir(), "mobigent-rn-backend-first-"));
   await writeFile(
     join(backendFirstDir, "mobigent-config.ts"),
-    `import { defineMobigentConfig } from "@mobigent/app";
+    `import { defineMobigentConfig } from "@mobigent/app/app";
 
 export const mobigentConfig = defineMobigentConfig({
   appId: "com.mobigent.backendfirst",

@@ -921,13 +921,13 @@ function createRelativeImportPath(fromDir: string, toPathWithoutExtension: strin
 
 function createMobigentConfigFile(options: ReactNativeInitCliOptions) {
   if (options.appConfig) {
-    return `import { defineMobigentConfig } from "@mobigent/app";
+    return `import { defineMobigentConfig } from "@mobigent/app/app";
 
 export const mobigentConfig = defineMobigentConfig(${JSON.stringify(options.appConfig, null, 2)});
 `;
   }
 
-  return `import { defineMobigentConfig } from "@mobigent/app";
+  return `import { defineMobigentConfig } from "@mobigent/app/app";
 
 export const mobigentConfig = defineMobigentConfig({
   appId: ${JSON.stringify(options.appId)},

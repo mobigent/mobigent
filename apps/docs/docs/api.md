@@ -68,7 +68,7 @@ connection.disconnect();
 - `write(handler, options)`: exposes confirmed app behavior.
 - `screen(handler, options)`: lets an agent focus a screen or UI surface.
 
-Advanced app helpers are still available when you need manual lifecycle control:
+Advanced app helpers are still available from `@mobigent/app/app` when you need manual lifecycle control:
 
 - `defineFunctions({ namespace: { name: fn } })`: converts a function map to explicit internal objects.
 - `defineFeature(namespace, { name: fn })`: creates a named internal object for lower-level integrations.

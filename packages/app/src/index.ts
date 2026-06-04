@@ -17,20 +17,9 @@ import {
 } from "@mobigent/react-native/app";
 export {
   action,
-  connectMobigent,
-  createFeature,
-  defineFeature,
-  defineFunctions,
-  defineMobigent,
-  defineMobigentConfig,
   emitMobigentEvent,
-  feature,
-  functions,
   read,
-  resolveMobigentConnectionUrl,
   screen,
-  simpleSchema,
-  toSchema,
   write,
   type MobigentSimpleActionOptions,
   type MobigentSimpleAppConfig,
@@ -81,8 +70,6 @@ export {
   type MobigentStatusBadgeProps
 } from "@mobigent/react-native/ui";
 export {
-  mobigent,
-  setupMobigent,
   useMobigentConfirmation,
   useMobigentConnected,
   useMobigentConnectionState,
@@ -159,7 +146,6 @@ export function createApp(
 export const app = createApp;
 export const connect = connectMobigent;
 export const emit = emitMobigentEvent;
-export const setup = setupMobigent;
 
 export function withMobigent<P extends object>(
   App: ComponentType<P>,
