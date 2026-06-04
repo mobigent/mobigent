@@ -46,7 +46,8 @@ try {
   assert.equal(dryRun.code, 0, dryRun.stderr);
   const dryRunFiles = JSON.parse(dryRun.stdout).files as Array<{ path: string; contents: string }>;
   assert.ok(dryRunFiles.some((file) => file.path === "src/server.ts"));
-  assert.ok(dryRunFiles.some((file) => file.path === "src/capabilities.ts"));
+  assert.ok(dryRunFiles.some((file) => file.path === "src/app-functions.ts"));
+  assert.equal(dryRunFiles.some((file) => file.path === "src/capabilities.ts"), false);
   assert.match(dryRun.stdout, /com_mobigent_expense.expense_create/);
 
   const init = run([
@@ -95,7 +96,8 @@ try {
   assert.match(server, /Run agent request/);
   assert.match(server, /How this demo works/);
   assert.match(server, /You edit one file/);
-  assert.match(server, /src\/capabilities\.ts/);
+  assert.match(server, /src\/app-functions\.ts/);
+  assert.doesNotMatch(server, /src\/capabilities\.ts/);
   assert.match(server, /startMobigent/);
   assert.match(server, /startMobigent\("com\.mobigent\.expense", "Expense Demo"\)/);
   assert.doesNotMatch(server, /appId: "com\.mobigent\.expense"/);
@@ -109,7 +111,7 @@ try {
   assert.doesNotMatch(server, /connectionUrl: backend\.urls\.websocket/);
   assert.match(server, /MOBIGENT_DEMO_OPEN/);
 
-  const capabilities = await readFile(join(target, "src", "capabilities.ts"), "utf8");
+  const capabilities = await readFile(join(target, "src", "app-functions.ts"), "utf8");
   assert.match(capabilities, /export const expenseFunctions = \{/);
   assert.match(capabilities, /list: async \(\) => \(\{ expenses \}\)/);
   assert.match(capabilities, /create: write\(/);

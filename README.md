@@ -91,7 +91,7 @@ npm run dev
 
 That opens a visible app beside an agent playground. Click **Run agent request** and Mobigent calls the app's `expense.create` function, asks for approval in the app host, and adds a new row to the app state. In another terminal, run `npm run doctor` to confirm everything is healthy, then `npm run agent:local`, `npm run agent:openapi`, or `npm run agent:chatgpt` for copy-paste agent setup.
 
-When you are ready to adapt it, start with `src/capabilities.ts`. That is the small file that owns the sample app functions.
+When you are ready to adapt it, start with `src/app-functions.ts`. That is the small file that owns the sample app functions.
 
 Working from this repo? Create the same starter locally:
 

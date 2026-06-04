@@ -128,7 +128,7 @@ const starterCapabilities = createMobigentAppFiles({
   dryRun: true,
   packageSource: "npm",
   packageVersion: "1.2.3"
-}).find((file) => file.path === "src/capabilities.ts")?.contents ?? "";
+}).find((file) => file.path === "src/app-functions.ts")?.contents ?? "";
 const starterServer = createMobigentAppFiles({
   targetDir: "demo",
   appId: "com.example.app",
@@ -180,6 +180,8 @@ assert.match(starterCapabilities, /create: write\(/);
 assert.doesNotMatch(starterCapabilities, /list: read\(/);
 assert.doesNotMatch(starterCapabilities, /defineFeature|defineMobigent|import \{ defineFeature, mobigent \}/);
 assert.match(starterServer, /createApp\("com\.example\.app", expenseFunctions/);
+assert.match(starterServer, /from "\.\/app-functions\.js"/);
+assert.doesNotMatch(starterServer, /capabilities\.js|src\/capabilities\.ts/);
 assert.doesNotMatch(starterServer, /functions: expenseFunctions/);
 assert.doesNotMatch(starterServer, /connectMobigent/);
 assert.doesNotMatch(starterServer, /const gatewayPort|const httpPort|wsPort: 8787|httpPort: 8788/);

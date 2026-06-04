@@ -49,7 +49,7 @@ export function createMobigentAppFiles(options: CreateMobigentAppOptions): Gener
       contents: createServerFile(options)
     },
     {
-      path: join("src", "capabilities.ts"),
+      path: join("src", "app-functions.ts"),
       contents: createCapabilitiesFile()
     },
     {
@@ -268,11 +268,11 @@ These print copy-paste setup for local agents, generic HTTP agents, and ChatGPT 
 
 ## What To Edit
 
-- \`src/capabilities.ts\`: app state plus the app functions you expose to agents
+- \`src/app-functions.ts\`: app state plus the app functions you expose to agents
 - \`src/server.ts\`: demo UI, Mobigent backend, and local agent playground
 - \`src/nodeSocket.ts\`: Node WebSocket transport for the local demo
 
-When you move this into a real mobile app, start by copying the shape from \`src/capabilities.ts\` and replacing the in-memory functions with your app's real functions.
+When you move this into a real mobile app, start by copying the shape from \`src/app-functions.ts\` and replacing the in-memory functions with your app's real functions.
 `;
 }
 
@@ -289,7 +289,7 @@ function createServerFile(options: CreateMobigentAppOptions) {
 import express from "express";
 import { startMobigent } from "@mobigent/backend";
 import { createApp } from "@mobigent/app";
-import { expenseFunctions, expenses, parsePrompt } from "./capabilities.js";
+import { expenseFunctions, expenses, parsePrompt } from "./app-functions.js";
 import { createNodeSocket } from "./nodeSocket.js";
 
 let lastAgentRun: unknown;
@@ -467,7 +467,7 @@ function renderPage() {
       <div class="panel step">
         <span>3</span>
         <h3>App owns the action</h3>
-        <p><code>src/capabilities.ts</code> runs your app function and updates state.</p>
+        <p><code>src/app-functions.ts</code> runs your app function and updates state.</p>
       </div>
       <div class="panel step">
         <span>4</span>

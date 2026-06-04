@@ -22,7 +22,7 @@ npm run dev
 
 The starter opens a browser page where one click calls a Mobigent app function and updates app state.
 
-Edit `src/capabilities.ts` first. That file contains the sample app state and the app functions exposed to agents:
+Edit `src/app-functions.ts` first. That file contains the sample app state and the app functions exposed to agents:
 
 ```ts
 export const expenseFunctions = {
