@@ -369,10 +369,10 @@ ${appDirLine}${appConfigModuleLine}${appLine}  appToken: process.env.MOBIGENT_AU
 });
 
 export const waitForApp = mobigent.waitForApp;
-export const callApp = mobigent.callApp;
+export const call = mobigent.call;
 export const listFunctions = mobigent.listFunctions;
 export const functions = mobigent.functions;
-export const appFunction = mobigent.function;
+export const fn = mobigent.fn;
 export const feature = mobigent.feature;
 
 console.log("Mobigent inspector:", mobigent.inspectorUrl);
@@ -430,7 +430,7 @@ Then in your app:
 
     export const mobigent = createApp({
       appId: ${JSON.stringify(options.appId)},
-      functions: { expense: { list: read(listExpenses) } }
+      functions: { expense: { list: async () => listExpenses() } }
     });
     export default mobigent.with(App);
 ${options.appDir ? `\nOptional app config files were also written to ${join(options.appDir, options.configFile)} and ${join(options.appDir, appConfigModuleFile ?? join("src", "mobigent-config.ts"))}.\n` : "\nNo app config file is required for the normal app/backend path.\n"}

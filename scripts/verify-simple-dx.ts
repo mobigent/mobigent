@@ -64,14 +64,14 @@ assert.doesNotMatch(backendFile, /app: \{/);
 assert.doesNotMatch(backendFile, /defaultApp/);
 assert.doesNotMatch(backendFile, /export const mobigentConfig/);
 assert.match(backendFile, /export const waitForApp = mobigent\.waitForApp/);
-assert.match(backendFile, /export const callApp = mobigent\.callApp/);
+assert.match(backendFile, /export const call = mobigent\.call/);
 assert.match(backendFile, /export const listFunctions = mobigent\.listFunctions/);
 assert.match(backendFile, /export const functions = mobigent\.functions/);
-assert.match(backendFile, /export const appFunction = mobigent\.function/);
+assert.match(backendFile, /export const fn = mobigent\.fn/);
 assert.match(backendFile, /export const feature = mobigent\.feature/);
 assert.match(backendFile, /mobigent\.inspectorUrl/);
 assert.match(backendFile, /mobigent\.openApiUrl/);
-assert.doesNotMatch(backendFile, /appFunctions|mobigent\.appFunction|mobigent\.urls|BridgeGateway|createHttpApp|mobigent\.appConfigModule\(|copyAppConfig|Copy this/);
+assert.doesNotMatch(backendFile, /callApp|appFunction|appFunctions|mobigent\.appFunction|mobigent\.urls|BridgeGateway|createHttpApp|mobigent\.appConfigModule\(|copyAppConfig|Copy this/);
 
 const backendWithAppDir = createMobigentBackendFiles({
   appId: "com.example.app",

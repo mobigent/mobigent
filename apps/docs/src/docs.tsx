@@ -347,8 +347,8 @@ const backendApis = [
   ["startMobigent()", "Starts the backend service with a stable app id and local defaults."],
   ["waitForApp()", "Optional health gate when startup should wait for a connected app."],
   ["feature()", "Creates a tiny object of normal backend functions for one app feature."],
-  ["callApp()", "Makes a quick one-off app function call by name."],
-  ["function()", "Creates a reusable backend function wrapper for repeated calls."],
+  ["call()", "Makes a quick one-off app function call by name."],
+  ["fn()", "Creates a reusable backend function wrapper for repeated calls."],
   ["agent()", "Prints setup for ChatGPT, Claude, OpenAPI, and supported providers after the app loop works."]
 ];
 

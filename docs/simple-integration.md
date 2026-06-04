@@ -106,7 +106,7 @@ That is the backend integration.
 
 Prefer generated sample files? Use the starter. Backend/app init commands are helpers, not required integration.
 
-If you prefer a named helper, `const expense = mobigent.feature("expense")` is still available. For one quick explicit call, use `mobigent.callApp("expense.create", input)`.
+If you prefer a named helper, `const expense = mobigent.feature("expense")` is still available. For one quick explicit call, use `mobigent.call("expense.create", input)`.
 
 ## 3. What The SDK Handles
 

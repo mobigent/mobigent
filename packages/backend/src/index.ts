@@ -173,23 +173,23 @@ export type MobigentBackend = {
   resolveFunctionName(name: string): string;
   /** @deprecated Use resolveFunctionName(). Kept for compatibility. */
   resolveToolName(name: string): string;
+  call(name: string, input?: unknown, options?: MobigentBackendCallOptions): ReturnType<BridgeGateway["callTool"]>;
+  fn(name: string): MobigentBackendFunction;
+  /** @deprecated Use call(). Kept for compatibility. */
   callApp(name: string, input?: unknown, options?: MobigentBackendCallOptions): ReturnType<BridgeGateway["callTool"]>;
-  /** @deprecated Use callApp() or function(). Kept for compatibility. */
-  call(toolName: string, input?: unknown, options?: MobigentBackendCallOptions): ReturnType<BridgeGateway["callTool"]>;
-  /** @deprecated Use callApp() or function(). Kept for compatibility. */
+  /** @deprecated Use call(). Kept for compatibility. */
   invoke(name: string, input?: unknown, options?: MobigentBackendCallOptions): ReturnType<BridgeGateway["callTool"]>;
+  /** @deprecated Use fn(). Kept for compatibility. */
   function(name: string): MobigentBackendFunction;
-  /** @deprecated Use function(). Kept for compatibility. */
+  /** @deprecated Use fn(). Kept for compatibility. */
   appFunction(name: string): MobigentBackendFunction;
   /** @deprecated Use feature(). Kept for compatibility. */
   appFeature(namespace: string): MobigentBackendFeatureFunctions;
   feature(namespace: string): MobigentBackendFeatureFunctions;
-  /** @deprecated Use feature() or function(). Kept for compatibility. */
+  /** @deprecated Use feature() or fn(). Kept for compatibility. */
   appFunctions(namespace: string): MobigentBackendFeatureFunctions;
-  /** @deprecated Use function() for explicit aliases in user code. Kept for compatibility. */
+  /** @deprecated Use fn() for explicit aliases in user code. Kept for compatibility. */
   appFunctions<const T extends Record<string, string>>(functions: T): MobigentBackendFunctionMap<T>;
-  /** @deprecated Use function(). Kept for compatibility. */
-  fn(name: string): MobigentBackendFunction;
 };
 
 export type MobigentBackendFunction = (input?: unknown, options?: MobigentBackendCallOptions) => ReturnType<BridgeGateway["callTool"]>;

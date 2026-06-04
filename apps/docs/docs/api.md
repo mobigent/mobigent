@@ -86,8 +86,8 @@ The backend object exposes:
 - `waitForApp()` to wait until an app is connected and callable
 - `functions.expense.create(input)` to call app functions from the backend SDK object
 - `feature("expense")` to create a tiny object of normal backend functions for one app feature
-- `callApp("expense.create", input)` or `callApp("expense.list")`
-- `function("expense.create")` to create a reusable backend function
+- `call("expense.create", input)` or `call("expense.list")`
+- `fn("expense.create")` to create a reusable backend function
 - `resolveFunctionName("expense.create")`
 - `advanced` for lower-level gateway, server, URL, and generated-config details
 - `stop()`

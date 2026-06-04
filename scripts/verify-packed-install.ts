@@ -60,6 +60,8 @@ assert.equal(mobigent.defaultApp.connectionUrl, "ws://localhost:19081");
 assert.equal(mobigent.resolveFunctionName("expense.create"), "expense.create");
 assert.equal(Array.isArray(mobigent.listFunctions()), true);
 assert.equal(Array.isArray(mobigent.functions()), true);
+assert.equal(typeof mobigent.fn("expense.create"), "function");
+assert.equal(typeof mobigent.call, "function");
 assert.equal(typeof mobigent.function("expense.create"), "function");
 assert.equal(typeof mobigent.functions.expense.create, "function");
 assert.equal(typeof mobigent.feature("expense").create, "function");

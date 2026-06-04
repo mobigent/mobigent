@@ -342,7 +342,7 @@ Use `waitForApp()` only when you want an explicit startup health gate:
 await mobigent.waitForApp();
 ```
 
-For quick one-off calls, `mobigent.callApp("expense.create", input)` is still available.
+For quick one-off calls, use `mobigent.call("expense.create", input)`. For reusable single-function aliases, use `mobigent.fn("expense.create")`.
 
 It also gives you agent setup from the same backend object:
 

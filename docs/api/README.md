@@ -83,14 +83,14 @@ The returned object includes:
 - `apps()`
 - `waitForApp()` when you want an explicit startup health gate
 - `feature("expense")` to create a tiny object of normal backend functions for one app feature; calls wait for the app function by default
-- `callApp("expense.create", input)` or `callApp("expense.list")`; pass `{ waitForApp: false }` only when you want an immediate failure if the app is not connected
-- `function("expense.create")` to create a reusable backend function
+- `call("expense.create", input)` or `call("expense.list")`; pass `{ waitForApp: false }` only when you want an immediate failure if the app is not connected
+- `fn("expense.create")` to create a reusable backend function
+- `callApp("expense.create", input)` for backward compatibility
+- `function("expense.create")` for backward compatibility
 - `appFunction("expense.create")` for backward compatibility
 - `appFunctions("expense")` for backward compatibility
 - `appFunctions({ createExpense: "expense.create" })` for backward compatibility
 - `invoke("expense.create", input)` for compatibility
-- `fn("expense.create")` for compatibility
-- `call("expense.create", input)` for backward compatibility
 - `resolveFunctionName("expense.create")`
 - `resolveToolName("expense.create")` for backward compatibility
 - `stop()`
