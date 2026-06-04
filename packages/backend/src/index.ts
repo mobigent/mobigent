@@ -136,25 +136,11 @@ export type MobigentBackendAdvanced = {
 };
 
 export type MobigentBackend = {
-  /** @deprecated Low-level bridge object. Prefer the backend methods on this object. */
-  gateway: BridgeGateway;
-  /** @deprecated Use advanced.httpServer. Kept for compatibility. */
-  httpServer: Server;
-  /** @deprecated Use inspectorUrl, apiUrl, openApiUrl, or advanced.urls. Kept for compatibility. */
-  urls: {
-    websocket: string;
-    http: string;
-    inspector: string;
-    openapi: string;
-  };
   inspectorUrl: string;
   apiUrl: string;
   openApiUrl: string;
+  connection: MobigentBackendClient;
   advanced: MobigentBackendAdvanced;
-  /** @deprecated Use advanced.appConfigPath. Kept for compatibility. */
-  appConfigPath?: string;
-  /** @deprecated Use advanced.appConfigModulePath. Kept for compatibility. */
-  appConfigModulePath?: string;
   client(): MobigentBackendClient;
   client(appId: string, appName?: string, options?: Omit<MobigentBackendAppConfigOptions, "appId" | "appName">): MobigentBackendClient;
   client(options: MobigentBackendAppConfigOptions): MobigentBackendClient;
@@ -163,41 +149,15 @@ export type MobigentBackend = {
   appConfigModule(options: MobigentBackendAppConfigModuleOptions): string;
   agent(kind?: MobigentAgentKind, options?: MobigentAgentOptions): ProviderBundle;
   agents(options?: MobigentAgentOptions): ProviderBundle[];
-  /** @deprecated Used internally for local pairing helpers. Prefer passing appId explicitly. */
-  defaultApp?: MobigentBackendAppConfig;
-  /** @deprecated Use advanced.appConfigCode. Kept for compatibility. */
-  appConfigCode?: string;
-  /** @deprecated Use advanced.copyAppConfig(). Kept for compatibility. */
-  copyAppConfig(): string;
   stop(): Promise<void>;
   ready(options?: MobigentBackendReadyOptions): Promise<ReturnType<BridgeGateway["getStatus"]>>;
   waitForApp(options?: MobigentBackendReadyOptions): Promise<ReturnType<BridgeGateway["getStatus"]>>;
   listFunctions(): ReturnType<BridgeGateway["listTools"]>;
   use: MobigentBackendUse;
-  functions: MobigentBackendFunctions;
-  /** @deprecated Use listFunctions(). Kept for compatibility with provider/tool internals. */
-  tools(): ReturnType<BridgeGateway["listTools"]>;
   apps(): GatewayAppSession[];
   resolveFunctionName(name: string): string;
-  /** @deprecated Use resolveFunctionName(). Kept for compatibility. */
-  resolveToolName(name: string): string;
   call(name: string, input?: unknown, options?: MobigentBackendCallOptions): ReturnType<BridgeGateway["callTool"]>;
   fn(name: string): MobigentBackendFunction;
-  /** @deprecated Use call(). Kept for compatibility. */
-  callApp(name: string, input?: unknown, options?: MobigentBackendCallOptions): ReturnType<BridgeGateway["callTool"]>;
-  /** @deprecated Use call(). Kept for compatibility. */
-  invoke(name: string, input?: unknown, options?: MobigentBackendCallOptions): ReturnType<BridgeGateway["callTool"]>;
-  /** @deprecated Use fn(). Kept for compatibility. */
-  function(name: string): MobigentBackendFunction;
-  /** @deprecated Use fn(). Kept for compatibility. */
-  appFunction(name: string): MobigentBackendFunction;
-  /** @deprecated Use feature(). Kept for compatibility. */
-  appFeature(namespace: string): MobigentBackendFeatureFunctions;
-  feature(namespace: string): MobigentBackendFeatureFunctions;
-  /** @deprecated Use feature() or fn(). Kept for compatibility. */
-  appFunctions(namespace: string): MobigentBackendFeatureFunctions;
-  /** @deprecated Use fn() for explicit aliases in user code. Kept for compatibility. */
-  appFunctions<const T extends Record<string, string>>(functions: T): MobigentBackendFunctionMap<T>;
 };
 
 export type MobigentBackendFunction = (input?: unknown, options?: MobigentBackendCallOptions) => ReturnType<BridgeGateway["callTool"]>;
@@ -227,8 +187,7 @@ export type MobigentBackendNamedFunctionMap<T extends readonly string[]> = {
 };
 
 export type MobigentBackendWithApp = MobigentBackend & {
-  defaultApp: MobigentBackendAppConfig;
-  appConfigCode: string;
+  connection: MobigentBackendClient;
 };
 
 export type MobigentBackendOptionsWithApp = MobigentBackendOptions & {
@@ -382,13 +341,14 @@ export async function startMobigentBackend(
     copyAppConfig: () => appConfigCode
   };
 
-  return {
+  const backend = {
     gateway,
     httpServer,
     urls,
     inspectorUrl: urls.inspector,
     apiUrl: urls.http,
     openApiUrl: urls.openapi,
+    connection: defaultApp,
     advanced,
     appConfigPath: appConfigFiles.jsonPath,
     appConfigModulePath: appConfigFiles.modulePath,
@@ -396,7 +356,7 @@ export async function startMobigentBackend(
     app: appAccessor,
     appConfig,
     appConfigModule,
-    agent: (kind = "chatgpt-actions", agentOptions = {}) => {
+    agent: (kind: MobigentAgentKind = "chatgpt-actions", agentOptions: MobigentAgentOptions = {}) => {
       const id = normalizeAgentKind(kind);
       const [provider] = filterProviderCatalog(createAgentCatalog(agentOptions), { ids: [id] });
       if (!provider) {
@@ -408,20 +368,20 @@ export async function startMobigentBackend(
       }
       return bundle;
     },
-    agents: (agentOptions = {}) => createAgentCatalog(agentOptions).map((provider) => createProviderBundle(provider)),
+    agents: (agentOptions: MobigentAgentOptions = {}) => createAgentCatalog(agentOptions).map((provider) => createProviderBundle(provider)),
     defaultApp,
     appConfigCode,
     copyAppConfig: advanced.copyAppConfig,
     stop: () => stopBackend(httpServer, gateway),
-    ready: (readyOptions) => waitForBackendReady(gateway, readyOptions),
-    waitForApp: (readyOptions) => waitForBackendReady(gateway, readyOptions),
+    ready: (readyOptions?: MobigentBackendReadyOptions) => waitForBackendReady(gateway, readyOptions),
+    waitForApp: (readyOptions?: MobigentBackendReadyOptions) => waitForBackendReady(gateway, readyOptions),
     listFunctions: () => gateway.listTools(),
     use: appFunctions,
     functions,
     tools: () => gateway.listTools(),
     apps: () => gateway.listApps(),
-    resolveFunctionName: (name) => resolveBackendToolName(gateway.listTools(), name, defaultApp),
-    resolveToolName: (name) => resolveBackendToolName(gateway.listTools(), name, defaultApp),
+    resolveFunctionName: (name: string) => resolveBackendToolName(gateway.listTools(), name, defaultApp),
+    resolveToolName: (name: string) => resolveBackendToolName(gateway.listTools(), name, defaultApp),
     callApp: invoke,
     call: invoke,
     invoke,
@@ -432,6 +392,8 @@ export async function startMobigentBackend(
     appFunctions,
     fn: appFunction
   };
+
+  return backend as MobigentBackendWithApp;
 }
 
 function createBackendFunctionBindings<const T extends Record<string, string> | readonly string[]>(

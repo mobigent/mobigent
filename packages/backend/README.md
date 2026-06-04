@@ -33,6 +33,16 @@ The app and backend pair by `appId`. Mobigent handles waiting for the app connec
 
 If you want the shortest possible local demo, `startMobigent()` also works with inferred starter values. For production, pass a stable app id.
 
+For tests or non-React demos, pass the backend object straight into the app SDK:
+
+```ts
+const backend = await startMobigent("com.acme.expenses");
+
+await mobigent.connect(backend);
+```
+
+The public `backend.connection` object contains the pairing details. You usually do not need to read or copy it yourself.
+
 ## What It Handles
 
 - app connection setup

@@ -305,17 +305,17 @@ test("backend helper starts HTTP, OpenAPI, and inspector endpoints from one func
   });
 
   try {
-    const health = await fetch(`${backend.urls.http}/health`).then((response) => response.json() as Promise<{ ok: boolean }>);
+    const health = await fetch(`${backend.apiUrl}/health`).then((response) => response.json() as Promise<{ ok: boolean }>);
     assert.equal(health.ok, true);
-    assert.equal(backend.urls.websocket, "ws://localhost:18987");
-    assert.equal(backend.urls.openapi, "http://localhost:18988/openapi.json");
+    assert.equal(backend.connection.connectionUrl, "ws://localhost:18987");
+    assert.equal(backend.openApiUrl, "http://localhost:18988/openapi.json");
     assert.equal(backend.apiUrl, "http://localhost:18988");
     assert.equal(backend.inspectorUrl, "http://localhost:18988/inspect");
     assert.equal(backend.openApiUrl, "http://localhost:18988/openapi.json");
-    assert.equal(backend.advanced.urls, backend.urls);
-    assert.equal(backend.advanced.gateway, backend.gateway);
-    assert.equal(backend.advanced.copyAppConfig(), backend.copyAppConfig());
-    assert.deepEqual(backend.client(), backend.defaultApp);
+    assert.equal(backend.advanced.urls.websocket, "ws://localhost:18987");
+    assert.equal(backend.advanced.urls.http, backend.apiUrl);
+    assert.match(backend.advanced.copyAppConfig(), new RegExp(backend.connection.appId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    assert.deepEqual(backend.client(), backend.connection);
     assert.deepEqual(backend.client("com.example.client", "Client App"), {
       appId: "com.example.client",
       appName: "Client App",
@@ -382,7 +382,7 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
     try {
       await backend.waitForApp({ minFunctions: 1 });
       assert.equal(backend.listFunctions()[0]?.name, "com_example_functions.expense_create");
-      assert.equal(backend.functions()[0]?.name, "com_example_functions.expense_create");
+      assert.equal(backend.listFunctions()[0]?.name, "com_example_functions.expense_create");
       assert.equal(backend.resolveFunctionName("expense.create"), "com_example_functions.expense_create");
       assert.deepEqual(await backend.call("expense.create", { merchant: "Cafe" }), {
         id: "EXP-1",
@@ -485,6 +485,9 @@ test("app package connects to a backend object without connection URL ceremony",
   });
 
   try {
+    assert.equal(backend.connection.appId, "com.example.backendtarget");
+    assert.equal(backend.connection.connectionUrl, "ws://localhost:19011");
+
     const connection = await app.connect(backend);
 
     try {
@@ -620,15 +623,15 @@ test("backend SDK can start with one app identity and normal backend options", a
   });
 
   try {
-    assert.deepEqual(backend.defaultApp, {
+    assert.deepEqual(backend.connection, {
       appId: "com.example.simple",
       appName: "Simple App",
       connectionUrl: "ws://localhost:18991",
       authToken: "dev-token",
       version: undefined
     });
-    assert.match(backend.copyAppConfig(), /com.example.simple/);
-    assert.match(backend.appConfigCode ?? "", /defineMobigentConfig/);
+    assert.match(backend.advanced.copyAppConfig(), /com.example.simple/);
+    assert.match(backend.advanced.appConfigCode ?? "", /defineMobigentConfig/);
   } finally {
     await backend.stop();
   }
@@ -642,7 +645,7 @@ test("backend SDK can pair with an app using only a top-level app id", async () 
   });
 
   try {
-    assert.deepEqual(backend.defaultApp, {
+    assert.deepEqual(backend.connection, {
       appId: "com.example.minimal",
       appName: "Minimal",
       connectionUrl: "ws://localhost:19009",
@@ -663,8 +666,8 @@ test("backend SDK can start from just an app id string", async () => {
   const backend = await startMobigent("com.example.stringapp", "String App");
 
   try {
-    assert.equal(backend.defaultApp.appId, "com.example.stringapp");
-    assert.equal(backend.defaultApp.appName, "String App");
+    assert.equal(backend.connection.appId, "com.example.stringapp");
+    assert.equal(backend.connection.appName, "String App");
     assert.equal(backend.inspectorUrl, "http://localhost:19014/inspect");
   } finally {
     await backend.stop();
@@ -702,14 +705,14 @@ test("backend SDK infers app identity when no app config is passed", async () =>
     });
 
     try {
-      assert.deepEqual(backend.defaultApp, {
+      assert.deepEqual(backend.connection, {
         appId: "app.acme.travel.wallet",
         appName: "Travel Wallet",
         connectionUrl: "ws://localhost:18995",
         authToken: undefined,
         version: undefined
       });
-      assert.match(backend.copyAppConfig(), /Travel Wallet/);
+      assert.match(backend.advanced.copyAppConfig(), /Travel Wallet/);
     } finally {
       await backend.stop();
     }
@@ -737,8 +740,8 @@ test("backend SDK writes app config when appDir is provided", async () => {
     });
 
     try {
-      assert.equal(backend.appConfigPath, join(appDir, "mobigent.app.json"));
-      assert.equal(backend.appConfigModulePath, undefined);
+      assert.equal(backend.advanced.appConfigPath, join(appDir, "mobigent.app.json"));
+      assert.equal(backend.advanced.appConfigModulePath, undefined);
       const config = JSON.parse(await readFile(join(appDir, "mobigent.app.json"), "utf8"));
       assert.deepEqual(config, {
         appId: "com.example.mobile",
@@ -770,7 +773,7 @@ test("backend SDK infers default app identity from appDir", async () => {
     });
 
     try {
-      assert.deepEqual(backend.defaultApp, {
+      assert.deepEqual(backend.connection, {
         appId: "app.acme.travel.wallet.mobile",
         appName: "Travel Wallet Mobile",
         connectionUrl: "ws://localhost:19003",
@@ -806,8 +809,8 @@ test("backend SDK writes React Native app config module when requested", async (
     });
 
     try {
-      assert.equal(backend.appConfigPath, join(appDir, "mobigent.app.json"));
-      assert.equal(backend.appConfigModulePath, join(appDir, "src", "mobigent-config.ts"));
+      assert.equal(backend.advanced.appConfigPath, join(appDir, "mobigent.app.json"));
+      assert.equal(backend.advanced.appConfigModulePath, join(appDir, "src", "mobigent-config.ts"));
       const configModule = await readFile(join(appDir, "src", "mobigent-config.ts"), "utf8");
       assert.match(configModule, /defineMobigentConfig/);
       assert.match(configModule, /com\.example\.mobile/);
@@ -1185,7 +1188,7 @@ test("existing app DX can connect without passing the singleton client manually"
       confirm: async () => true
     });
 
-    await waitFor(() => backend.functions().some((fn) => fn.name === "com_example_onecall.expense_create"));
+    await waitFor(() => backend.listFunctions().some((fn) => fn.name === "com_example_onecall.expense_create"));
 
     assert.deepEqual(await backend.call("expense.create", {
       merchant: "Airport Taxi",
@@ -1227,12 +1230,12 @@ test("existing app DX can connect with only features for local demos", async () 
 
   try {
     mobigentConnection = await connectMobigent(expenses, {
-      connectionUrl: backend.defaultApp.connectionUrl,
+      connectionUrl: backend.connection.connectionUrl,
       createSocket: createNodeSocket,
       confirm: async () => true
     });
 
-    await waitFor(() => backend.functions().some((fn) => fn.name === "app_mobigent_local.expense_create"));
+    await waitFor(() => backend.listFunctions().some((fn) => fn.name === "app_mobigent_local.expense_create"));
 
     assert.deepEqual(await backend.call("expense.create", {
       merchant: "Airport Taxi",

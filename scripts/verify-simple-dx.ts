@@ -20,6 +20,8 @@ const starterPackage = JSON.parse(
   }).find((file) => file.path === "package.json")?.contents ?? "{}"
 );
 const appPackageRoot = readFileSync("packages/app/src/index.ts", "utf8");
+const backendPackageRoot = readFileSync("packages/backend/src/index.ts", "utf8");
+const backendPublicType = backendPackageRoot.match(/export type MobigentBackend = \{[\s\S]*?^};/m)?.[0] ?? "";
 const packageJsons = new Map(
   [
     "packages/app/package.json",
@@ -64,6 +66,13 @@ assert.match(appPackageRoot, /export function withMobigent/);
 assert.match(appPackageRoot, /read/);
 assert.match(appPackageRoot, /write/);
 assert.match(appPackageRoot, /fromZod/);
+assert.match(backendPackageRoot, /connection: MobigentBackendClient/, "@mobigent/backend should expose a clean backend.connection pairing object");
+assert.match(backendPublicType, /connection: MobigentBackendClient/, "@mobigent/backend public type should expose backend.connection");
+assert.doesNotMatch(
+  backendPublicType,
+  /^\s*(gateway|httpServer|urls|defaultApp|appConfigCode|copyAppConfig|tools|resolveToolName|callApp|invoke|function|appFunction|appFeature|appFunctions|functions)\b/m,
+  "@mobigent/backend root type should keep bridge/tool compatibility fields out of top-level autocomplete"
+);
 for (const [path, packageJson] of packageJsons) {
   assert.match(packageJson.description ?? "", /app functions|backend SDK|starter|CLI/i, `${path} should describe the simple SDK model`);
   if (path !== "packages/cli/package.json") {
