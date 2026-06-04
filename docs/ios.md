@@ -1,6 +1,6 @@
 # Mobigent iOS SDK
 
-Mobigent's iOS SDK lets a native Swift app expose normal app capabilities to AI agents. Use it with `@mobigent/backend`: the backend runs the agent-facing service, and the iOS app connects with the same app id.
+Mobigent's iOS SDK lets a native Swift app expose normal app functions to AI agents. Use it with `@mobigent/backend`: the backend runs the agent-facing service, and the iOS app connects with the same app id.
 
 ## Install
 

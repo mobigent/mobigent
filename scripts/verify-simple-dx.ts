@@ -348,6 +348,30 @@ for (const path of [
   );
 }
 
+for (const path of ["docs/api/README.md", "apps/docs/docs/api.md"]) {
+  const contents = readFileSync(path, "utf8");
+  assert.doesNotMatch(contents, /## Capability Types/, `${path} should frame beginner docs as app functions`);
+  assert.doesNotMatch(contents, /defineFeature\("cart"/, `${path} should not teach defineFeature in the first API examples`);
+}
+
+{
+  const docsPage = readFileSync("apps/docs/src/docs.tsx", "utf8");
+  assert.doesNotMatch(
+    docsPage,
+    /Define app capability|Register capabilities|typed agent capabilities|App capabilities|same capability contract|mobile capabilities|declared capability/,
+    "website docs should use app-function language in beginner-facing copy"
+  );
+}
+
+{
+  const homePage = readFileSync("apps/docs/src/main.tsx", "utf8");
+  assert.doesNotMatch(
+    homePage,
+    /real app capability|app capabilities|capability layer/,
+    "homepage should lead with app functions instead of abstract capability language"
+  );
+}
+
 const cliReadme = readFileSync("packages/cli/README.md", "utf8");
 assert.match(cliReadme, /startMobigent\(appId, appName\)/);
 assert.doesNotMatch(cliReadme, /startMobigent\(appId\)/);

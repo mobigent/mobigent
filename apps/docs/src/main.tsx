@@ -19,7 +19,7 @@ function App() {
             <Radio size={15} />
             Open-source agent infrastructure for mobile apps
           </div>
-          <h1>The bridge between AI agents and real app capability.</h1>
+          <h1>The bridge between AI agents and real app functions.</h1>
           <p>
             Install the app package, install the backend package, expose real app functions with
             createApp(appId, functions), then startMobigent(appId, appName) and call
@@ -66,7 +66,7 @@ function App() {
       <section id="why" className="section compactSection">
         <div className="sectionHeader">
           <span className="eyebrow"><PlugZap size={15} /> Why Mobigent</span>
-          <h2>Agents should call app capabilities, not guess through UI.</h2>
+          <h2>Agents should call app functions, not guess through UI.</h2>
         </div>
         <div className="problemGrid">
           <Feature icon={<Smartphone />} title="Native app context">
@@ -84,7 +84,7 @@ function App() {
       <section className="section security">
         <div>
           <span className="eyebrow"><Lock size={15} /> The big idea</span>
-          <h2>Mobigent is the capability layer for agentic mobile apps.</h2>
+          <h2>Mobigent is the app-function layer for agentic mobile apps.</h2>
           <p>
             Define what agents may do. Keep the app in charge. Move fast without turning user trust
             into an experiment.

@@ -92,4 +92,4 @@ Backend code can use those same short names.
 
 ## Advanced
 
-The lower-level provider, hooks, manual registration, `createAgentModule()`, and `schema.*` APIs are still available. Use them for screen-scoped capabilities, custom confirmation UI, advanced environment switching, and manifest signing.
+The lower-level provider, hooks, manual registration, `createAgentModule()`, and `schema.*` APIs are still available. Use them for screen-scoped app functions, custom confirmation UI, advanced environment switching, and manifest signing.

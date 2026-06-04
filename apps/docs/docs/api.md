@@ -48,14 +48,17 @@ connection.disconnect();
 - `mobigent.with(App)`: wraps an existing React Native app.
 - `mobigent.connect(backend)`: connects a non-React host or demo using the same functions.
 - `mobigent.emit(name, payload)`: emits app activity.
-- `defineFunctions({ namespace: { name: fn } })`: converts a functions object to explicit features.
-- `defineFeature(namespace, { name: fn })`: creates a named feature when you prefer an explicit feature object.
 - `createApp(appId, functions, { connection: { host: "192.168.1.20" } })`: connects a physical phone to your local backend.
 - `createApp(appId, functions, { connection: "wss://your-backend.example.com" })`: connects an app to a hosted backend.
-- `defineMobigentConfig(config)`: gives app config a stable SDK type.
 - `read(handler, options)`: exposes app state.
 - `write(handler, options)`: exposes confirmed app behavior.
 - `screen(handler, options)`: lets an agent focus a screen or UI surface.
+
+Advanced app helpers are still available when you need manual lifecycle control:
+
+- `defineFunctions({ namespace: { name: fn } })`: converts a function map to explicit internal objects.
+- `defineFeature(namespace, { name: fn })`: creates a named internal object for lower-level integrations.
+- `defineMobigentConfig(config)`: gives manual app config a stable SDK type.
 - `connectMobigent(feature, options)`: lower-level connect helper.
 - `registerFeatures(client, features)`: lower-level attach helper.
 
@@ -79,12 +82,12 @@ The backend object exposes:
 - `listFunctions()`
 - `waitForApp()` to wait until an app is connected and callable
 - `app.expense.create(input)` or `app.expense.list()` to call app functions with the clean package API
-- `feature("expense")` when you prefer binding one feature object first
+- `feature("expense")` when you need the older grouped API shape
 - `functions.expense.create(input)` for backward compatibility with the older object-style backend SDK shape
 - `call("expense.create", input)` or `call("expense.list")`
 - `fn("expense.create")` to create a reusable backend function
 - `resolveFunctionName("expense.create")`
-- `advanced` for lower-level gateway, server, URL, and generated-config details
+- `advanced` for lower-level server, transport, URL, and compatibility details
 - `stop()`
 
 ## Providers

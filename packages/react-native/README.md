@@ -175,4 +175,4 @@ The direct `@mobigent/react-native` package includes lower-level APIs for mature
 - `schema.*`
 - diagnostics and status hooks
 
-Use these when you need screen-scoped capabilities, custom provider placement, custom confirmation UI, manifest signing, or advanced environment switching. New apps should start with `createApp(appId, functions)`.
+Use these when you need screen-scoped app functions, custom provider placement, custom confirmation UI, manifest signing, or advanced environment switching. New apps should start with `createApp(appId, functions)`.

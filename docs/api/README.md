@@ -89,7 +89,7 @@ Advanced and compatibility fields are still available, but they should not be ne
 - `createApp(appId, functions)`: normal app setup.
 - `createApp({ namespace: { name: fn } })`: quick local demo setup.
 - `mobigent.with(App)`: wraps an existing React Native app.
-- `mobigent.connect(backend)`: connects a non-React host or demo using the same features.
+- `mobigent.connect(backend)`: connects a non-React host or demo using the same app functions.
 - `mobigent.emit(name, payload)`: emits app activity.
 - `createApp(appId, functions, { connection: { host: "192.168.1.20" } })`: connects a physical phone to your local backend.
 - `createApp(appId, functions, { connection: "wss://your-backend.example.com" })`: connects an app to a hosted backend.
@@ -97,7 +97,7 @@ Advanced and compatibility fields are still available, but they should not be ne
 - `write(handler, options)`: exposes confirmed app behavior.
 - `screen(handler, options)`: lets an agent focus a screen or UI surface.
 
-Advanced app helpers are still available when you need explicit feature objects or manual lifecycle control:
+Advanced app helpers are still available when you need explicit internal objects or manual lifecycle control:
 
 - `defineFunctions({ namespace: { name: read(fn) } })`
 - `defineFeature(namespace, { name: read(fn), name: write(fn) })`
@@ -109,15 +109,17 @@ Advanced app helpers are still available when you need explicit feature objects 
 - `connectMobigent(feature, options)`: lower-level connect helper.
 - `registerFeatures(client, features)`: lower-level attach helper when you need manual lifecycle control.
 
-## Capability Types
+## App Function Types
 
 ### Read
 
 Expose app state without changing anything:
 
 ```ts
-defineFeature("cart", {
-  current: read(async () => getCart())
+createApp("com.acme.store", {
+  cart: {
+    current: read(async () => getCart())
+  }
 });
 ```
 
@@ -126,11 +128,13 @@ defineFeature("cart", {
 Expose app behavior that changes state:
 
 ```ts
-defineFeature("cart", {
-  checkout: write(async (input) => checkout(input), {
-    input: { paymentMethodId: "string" },
-    confirm: "Place order?"
-  })
+createApp("com.acme.store", {
+  cart: {
+    checkout: write(async (input) => checkout(input), {
+      input: { paymentMethodId: "string" },
+      confirm: "Place order?"
+    })
+  }
 });
 ```
 
@@ -139,13 +143,15 @@ defineFeature("cart", {
 Expose a focusable app surface:
 
 ```ts
-defineFeature("expense", {
-  detail: screen(async (props) => {
-    navigation.navigate("ExpenseDetail", { id: props.id });
-    return { focused: true };
-  }, {
-    props: { id: "string" }
-  })
+createApp("com.acme.expenses", {
+  expense: {
+    detail: screen(async (props) => {
+      navigation.navigate("ExpenseDetail", { id: props.id });
+      return { focused: true };
+    }, {
+      props: { id: "string" }
+    })
+  }
 });
 ```
 

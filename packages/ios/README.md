@@ -1,6 +1,6 @@
 # Mobigent iOS
 
-Swift Package for exposing native iOS app capabilities to AI agents through `@mobigent/backend`.
+Swift Package for exposing native iOS app functions to AI agents through `@mobigent/backend`.
 
 ```swift
 let client = MobigentClient(

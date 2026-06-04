@@ -1,6 +1,6 @@
 # Mobigent Android
 
-Kotlin/Android SDK for exposing native app capabilities to AI agents through `@mobigent/backend`.
+Kotlin/Android SDK for exposing native app functions to AI agents through `@mobigent/backend`.
 
 ```kotlin
 val client = MobigentClient.Builder(context)

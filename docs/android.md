@@ -1,6 +1,6 @@
 # Mobigent Android SDK
 
-Mobigent's Android SDK lets a native Kotlin app expose normal app capabilities to AI agents. Use it with `@mobigent/backend`: the backend runs the agent-facing service, and the Android app connects with the same app id.
+Mobigent's Android SDK lets a native Kotlin app expose normal app functions to AI agents. Use it with `@mobigent/backend`: the backend runs the agent-facing service, and the Android app connects with the same app id.
 
 ## Install
 

@@ -269,7 +269,7 @@ client.connect()`;
 
 const nativeLifecycle = [
   ["1. Create a client", "Give Mobigent the app id and app name. Local simulator/emulator URLs are the SDK defaults."],
-  ["2. Register capabilities", "Add actions for writes, resources for reads, and components for screen context."],
+  ["2. Register app functions", "Add actions for writes, resources for reads, and components for screen context."],
   ["3. Add confirmations", "Mark risky actions and let the native app render the approval UI."],
   ["4. Connect", "The SDK connects to the backend and exposes the registered functions."],
   ["5. Emit events", "Send app events such as expense.created or sync.failed back to the agent."]
@@ -284,7 +284,7 @@ const nativeUrls = [
 
 const firstRunChecks = [
   ["Install", "Add the app package to React Native and the backend package to your server."],
-  ["Expose", "`createApp(appId, functions)` turns real app functions into typed agent capabilities."],
+  ["Expose", "`createApp(appId, functions)` turns real app functions into typed agent-callable APIs."],
   ["Connect", "Use the same app id on both sides; pass `connection` only for a physical phone or hosted backend."],
   ["Call", "`mobigent.app.expense.create()` calls the app-owned function from backend code."],
   ["Approve", "Risky actions pause inside the app before handlers run."],
@@ -298,7 +298,7 @@ const model = [
   ["User", "Approves risky actions inside the app before handlers run."]
 ];
 
-const capabilities = [
+const functionKinds = [
   ["Actions", "Write or command operations", "create expense, submit order, update profile"],
   ["Resources", "Read-only app data", "list expenses, get active workspace, read cart"],
   ["Surfaces", "Screen-aware context", "current route, focused record, visible component"],
@@ -307,7 +307,7 @@ const capabilities = [
 ];
 
 const packages = [
-  ["mobigent", "Friendly CLI", "One command for starters, app feature setup, backend setup, and agent setup."],
+  ["mobigent", "Friendly CLI", "One command for starters, app function setup, backend setup, and agent setup."],
   ["create-mobigent-app", "Starter generator", "Creates a runnable app with backend, inspector, visible state, and an agent playground."],
   ["@mobigent/app", "App-side SDK", "Expo/React Native roots, modules, hooks, UI helpers, confirmation flow."],
   ["@mobigent/backend", "Backend SDK", "One function starts the backend, exposes agent setup, waits for app readiness, and routes calls."],
@@ -327,16 +327,12 @@ const reactNativeApis = [
   ["mobigent.connect()", "Connects a non-React host or local demo to a backend object."],
   ["mobigent.emit()", "Queues or sends app events without touching the lower-level client."],
   ["connection", "Accepts `{ host }` for physical phones or a hosted `wss://` backend URL."],
-  ["defineFeature()", "Optional lower-level helper when you prefer explicit feature objects."],
-  ["defineMobigentConfig()", "Keeps copied app config typed and portable."],
-  ["registerFeatures()", "Attaches features manually when you need custom lifecycle control."],
-  ["useAgentScreen()", "Makes screen-owned capabilities available only while the screen is mounted."],
   ["useMobigentStatus()", "Reads connection state for badges, diagnostics, and debugging."],
   ["MobigentStatusBadge", "Optional UI component for local development visibility."]
 ];
 
 const nativeApis = [
-  ["iOS MobigentClient", "Swift client for registering capabilities, connecting, emitting events, and reading diagnostics."],
+  ["iOS MobigentClient", "Swift client for registering app functions, connecting, emitting events, and reading diagnostics."],
   ["Android MobigentClient.Builder", "Kotlin builder for app identity, local defaults, reconnect, heartbeat, and transport setup."],
   ["MobigentSchema", "Shared native schema builders for string, number, boolean, object, array, and enum."],
   ["confirmation handler", "Native callback hook so the host app renders its own approval UI."]
@@ -355,7 +351,7 @@ const gatewayEndpoints = [
   ["GET /health", "Liveness, session counts, tool counts, and operational status."],
   ["GET /ready", "Readiness check for deployments and agent startup."],
   ["GET /tools", "Provider-facing discovery generated from your app functions."],
-  ["POST /tools/{name}/call", "Call a mobile capability with validated JSON input."],
+  ["POST /tools/{name}/call", "Call an app function with validated JSON input."],
   ["GET /openapi.json", "Importable OpenAPI schema for ChatGPT Actions and HTTP agents."],
   ["GET /providers", "Provider setup descriptors for supported agent platforms."],
   ["GET /audit", "Recent audit events for tool calls, approvals, and failures."],
@@ -481,7 +477,7 @@ function Docs() {
         <div className="codeGrid docsCodeGrid">
           <Code title="1. Install packages" code={existingAppInstallCode} />
           <Code title="Temporary public fallback" code={existingAppFallbackCode} />
-          <Code title="2. Define app capability" code={moduleCode} />
+          <Code title="2. Define app functions" code={moduleCode} />
           <Code title="Optional validation and approval copy" code={optionalMetadataCode} />
           <Code title="3. Wrap the app" code={appCode} />
           <Code title="4. Physical phone or hosted backend" code={deviceConnectionCode} />
@@ -527,7 +523,7 @@ function Docs() {
       <section className="section docsBlock">
         <div className="sectionHeader compact">
           <span className="eyebrow"><Smartphone size={15} /> Native SDKs</span>
-          <h2>iOS and Android use the same capability contract.</h2>
+          <h2>iOS and Android use the same app function contract.</h2>
           <p>Native apps do not need React Native. They register the same actions, resources, components, confirmations, events, and schemas directly from Swift or Kotlin.</p>
         </div>
         <div className="apiList">
@@ -572,11 +568,11 @@ function Docs() {
 
       <section className="section docsBlock">
         <div className="sectionHeader compact">
-          <span className="eyebrow"><Smartphone size={15} /> App capabilities</span>
+          <span className="eyebrow"><Smartphone size={15} /> App function types</span>
           <h2>Build a stable interface over real app behavior.</h2>
         </div>
         <div className="tableGrid threeCol">
-          {capabilities.map(([name, purpose, example]) => (
+          {functionKinds.map(([name, purpose, example]) => (
             <div className="tableRow" key={name}>
               <strong>{name}</strong>
               <span>{purpose}</span>
@@ -648,7 +644,7 @@ function Docs() {
       <section id="providers" className="section docsBlock">
         <div className="sectionHeader">
           <span className="eyebrow"><KeyRound size={15} /> Provider setup</span>
-          <h2>Use the same mobile capabilities from many agent runtimes.</h2>
+          <h2>Use the same app functions from many agent runtimes.</h2>
           <p>Provider helpers generate configuration and runtime adapters. Public hosted providers need a public gateway URL; local agents can use localhost or MCP.</p>
         </div>
         <div className="codeGrid two">
@@ -664,7 +660,7 @@ function Docs() {
       <section id="security" className="section security">
         <div>
           <span className="eyebrow"><Lock size={15} /> Security model</span>
-          <h2>The app stays in charge. Agents only get declared capability.</h2>
+          <h2>The app stays in charge. Agents only get declared app functions.</h2>
           <p>
             Start read-only, add one approved write action, then expand by feature module. Keep high-risk work behind confirmation and agent-specific policies.
           </p>
@@ -685,7 +681,7 @@ function Docs() {
       <section className="section finalCta">
         <div className="launchCard">
           <strong>Recommended first build</strong>
-          <p>Expose one read resource and one confirmed write action from a real screen. Then connect ChatGPT Actions or an MCP client and test the full loop.</p>
+          <p>Expose one read function and one confirmed write function from real app logic. Then connect ChatGPT Actions or an MCP client and test the full loop.</p>
           <a className="primaryButton" href="https://github.com/mobigent/mobigent">
             Open the repo
             <ArrowRight size={17} />
