@@ -20,6 +20,15 @@ const starterPackage = JSON.parse(
   }).find((file) => file.path === "package.json")?.contents ?? "{}"
 );
 const appPackageRoot = readFileSync("packages/app/src/index.ts", "utf8");
+const packageJsons = new Map(
+  [
+    "packages/app/package.json",
+    "packages/backend/package.json",
+    "packages/react-native/package.json",
+    "packages/create-app/package.json",
+    "packages/cli/package.json"
+  ].map((path) => [path, JSON.parse(readFileSync(path, "utf8")) as { description?: string }])
+);
 
 assert.deepEqual(
   Object.keys(starterPackage.dependencies).filter((name) => name.startsWith("@mobigent/")).sort(),
@@ -43,6 +52,16 @@ assert.match(appPackageRoot, /createApp/);
 assert.match(appPackageRoot, /read/);
 assert.match(appPackageRoot, /write/);
 assert.match(appPackageRoot, /fromZod/);
+for (const [path, packageJson] of packageJsons) {
+  assert.match(packageJson.description ?? "", /app functions|backend SDK|starter|CLI/i, `${path} should describe the simple SDK model`);
+  if (path !== "packages/cli/package.json") {
+    assert.doesNotMatch(
+      packageJson.description ?? "",
+      /gateway|manifest|capabilities|protocol|MCP|OpenAPI/i,
+      `${path} should not lead npm users with protocol internals`
+    );
+  }
+}
 
 const backendFile = createMobigentBackendFiles({
   appId: "com.example.app",

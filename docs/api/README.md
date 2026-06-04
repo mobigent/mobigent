@@ -59,55 +59,50 @@ For local development, `startMobigent()` can infer a starter app identity from y
 const mobigent = await startMobigent();
 ```
 
-The returned object includes:
+The common backend object includes:
 
 - `inspectorUrl`
 - `apiUrl`
 - `openApiUrl`
-- `advanced` for lower-level gateway, server, URL, and generated-config details
-- `urls.websocket`, `urls.http`, `urls.inspector`, and `urls.openapi` for backward compatibility
-- `appConfigPath`
-- `appConfigModulePath`
 - `app.expense.create(input)` or `app.expense.list()` to call app functions with the clean package API
-- `app({ appId, appName })` for advanced manual app config generation
-- `appConfig({ appId, appName })`
-- `copyAppConfig()` for advanced manual config generation
-- `listFunctions()`
-- `feature("expense")` when you prefer binding one feature object first
-- `functions()` to list discovered app functions
-- `tools()` for provider internals
-- `apps()`
-- `waitForApp()` when you want an explicit startup health gate
-- `functions.expense.create(input)` for backward compatibility with the older object-style backend SDK shape
+- `functions({ createExpense: "expense.create" })` to bind backend-friendly helper names
 - `call("expense.create", input)` or `call("expense.list")`; pass `{ waitForApp: false }` only when you want an immediate failure if the app is not connected
 - `fn("expense.create")` to create a reusable backend function
-- `callApp("expense.create", input)` for backward compatibility
-- `function("expense.create")` for backward compatibility
-- `appFunction("expense.create")` for backward compatibility
-- `appFunctions("expense")` for backward compatibility
-- `appFunctions({ createExpense: "expense.create" })` for backward compatibility
-- `invoke("expense.create", input)` for compatibility
+- `listFunctions()` to inspect discovered app functions
+- `apps()` to inspect connected app sessions
+- `waitForApp()` when you want an explicit startup health gate
 - `resolveFunctionName("expense.create")`
-- `resolveToolName("expense.create")` for backward compatibility
 - `stop()`
+
+Advanced and compatibility fields are still available, but they should not be needed for the normal package path:
+
+- `advanced` for lower-level server and transport details
+- `urls.websocket`, `urls.http`, `urls.inspector`, and `urls.openapi` for backward compatibility
+- `appConfigPath` and `appConfigModulePath` for optional generated local files
+- `client()` when a non-React test host needs app connection settings
+- `app({ appId, appName })`, `appConfig({ appId, appName })`, and `copyAppConfig()` for manual app pairing artifacts
+- `feature("expense")` and `functions.expense.create(input)` for older backend SDK styles
+- `tools()`, `resolveToolName()`, `callApp()`, `function()`, `appFunction()`, `appFunctions()`, and `invoke()` for provider internals or backward compatibility
 
 ## Simple App Helpers
 
-- `createApp(appId, { namespace: { name: read(fn), name: write(fn) } })`: creates the app-side SDK object.
+- `createApp(appId, functions)`: normal app setup.
+- `createApp({ namespace: { name: fn } })`: quick local demo setup.
 - `mobigent.with(App)`: wraps an existing React Native app.
 - `mobigent.connect(backend)`: connects a non-React host or demo using the same features.
 - `mobigent.emit(name, payload)`: emits app activity.
-- `defineFunctions({ namespace: { name: read(fn) } })`: converts a functions object to explicit features.
-- `defineFeature(namespace, { name: read(fn), name: write(fn) })`: creates a named feature when you prefer an explicit feature object.
-- `createApp(appId, functions)`: normal app setup. Use `createApp({ features })` only when you already built explicit feature objects.
-- `defineMobigent({ namespace: { name: read(fn) } })`: older alias for `defineFunctions`.
-- `defineMobigentConfig(config)`: gives app config a stable SDK type.
 - `createApp(appId, functions, { connection: { host: "192.168.1.20" } })`: connects a physical phone to your local backend.
 - `createApp(appId, functions, { connection: "wss://your-backend.example.com" })`: connects an app to a hosted backend.
-- Advanced configs can still pass `connectionUrl` or `gatewayUrl` for compatibility.
 - `read(handler, options)`: exposes app state.
 - `write(handler, options)`: exposes confirmed app behavior.
 - `screen(handler, options)`: lets an agent focus a screen or UI surface.
+
+Advanced app helpers are still available when you need explicit feature objects or manual lifecycle control:
+
+- `defineFunctions({ namespace: { name: read(fn) } })`
+- `defineFeature(namespace, { name: read(fn), name: write(fn) })`
+- `defineMobigent({ namespace: { name: read(fn) } })`: older alias for `defineFunctions`
+- `defineMobigentConfig(config)`: typed compatibility helper
 - `withMobigent(App, feature)`: older wrapper helper kept for compatibility.
 - `setupMobigent(feature)`: wraps a React Native app once.
 - `setupMobigent({ config, features })`: production form when you need exact app config.

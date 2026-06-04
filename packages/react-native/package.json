@@ -1,7 +1,7 @@
 {
   "name": "@mobigent/react-native",
   "version": "0.1.15",
-  "description": "React Native SDK for exposing app capabilities to AI agents through Mobigent.",
+  "description": "React Native SDK for exposing app functions to AI agents through Mobigent.",
   "type": "module",
   "license": "MIT",
   "repository": {

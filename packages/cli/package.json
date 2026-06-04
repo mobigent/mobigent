@@ -1,7 +1,7 @@
 {
   "name": "mobigent",
   "version": "0.1.15",
-  "description": "One friendly Mobigent CLI for creating apps, adding app features, starting backend setup, and printing agent setup.",
+  "description": "One friendly Mobigent CLI for starters, app functions, backend setup, and agent setup.",
   "type": "module",
   "license": "MIT",
   "repository": {

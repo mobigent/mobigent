@@ -1,7 +1,7 @@
 {
   "name": "@mobigent/backend",
   "version": "0.1.15",
-  "description": "Simple backend helper for running Mobigent gateway, HTTP, OpenAPI, and MCP-ready agent endpoints.",
+  "description": "Backend SDK for calling mobile app functions through Mobigent.",
   "type": "module",
   "license": "MIT",
   "repository": {

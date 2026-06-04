@@ -411,7 +411,7 @@ Advanced internals:
 
 ## Examples
 
-- `examples/expense-app`: sample mobile app capabilities
+- `examples/expense-app`: sample mobile app functions
 - `examples/ios-expense`: native Swift example
 - `examples/android-expense`: native Kotlin/Android example
 - `examples/agent-server`: OpenAI, Anthropic, Gemini, Bedrock, Vercel AI SDK, and mock agent examples

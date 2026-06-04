@@ -63,4 +63,4 @@ npm exec --yes \
 
 Skip `--install` when you want to review files before installing dependencies.
 
-Mobigent makes mobile apps agent-ready through safe, typed capabilities instead of brittle screen tapping.
+Mobigent makes mobile apps agent-ready through safe, typed app functions instead of brittle screen tapping.
