@@ -1,6 +1,6 @@
 # Mobigent iOS SDK
 
-Mobigent's iOS SDK lets a native Swift app expose typed capabilities to AI agents through the Mobigent gateway.
+Mobigent's iOS SDK lets a native Swift app expose normal app capabilities to AI agents. Use it with `@mobigent/backend`: the backend runs the agent-facing service, and the iOS app connects with the same app id.
 
 ## Install
 
@@ -29,14 +29,19 @@ After tagged releases begin, Swift Package Manager will be able to consume the p
 ```swift
 let client = MobigentClient(
     appId: "com.example.expenses",
-    appName: "Expenses",
-    gatewayURL: URL(string: "ws://localhost:8787")!,
-    reconnect: .init(enabled: true),
-    heartbeat: .init(enabled: true)
+    appName: "Expenses"
 )
 ```
 
-Use `ws://localhost:8787` in the simulator. Use your Mac's LAN IP for a physical device.
+That default connects the iOS simulator to the local Mobigent backend. For a physical device or hosted backend, pass `gatewayURL` explicitly:
+
+```swift
+let client = MobigentClient(
+    appId: "com.example.expenses",
+    appName: "Expenses",
+    gatewayURL: URL(string: "ws://YOUR_MAC_LAN_IP:8787")!
+)
+```
 
 ## Register Capabilities
 
@@ -84,13 +89,31 @@ The client sends the same `hello`, `manifest`, `event`, `action_result`, `resour
 
 ## Test The Full Loop
 
-Start the gateway:
+Start the backend package:
+
+```bash
+npm install @mobigent/backend
+```
+
+```ts
+import { startMobigent } from "@mobigent/backend";
+
+const mobigent = await startMobigent("com.example.expenses", "Expenses");
+```
+
+Then run the iOS app and connect the client:
+
+```swift
+try await client.connect()
+```
+
+For local testing from this repo you can run:
 
 ```bash
 npm run dev:http
 ```
 
-Use these gateway URLs:
+Use these connection URLs when you override the default:
 
 - iOS simulator: `ws://localhost:8787`
 - physical device: `ws://YOUR_MAC_LAN_IP:8787`
@@ -102,7 +125,7 @@ Open the local inspector:
 open http://localhost:8788/inspect
 ```
 
-You should see the app, manifest tools, recent audit events, and metrics. The same tools are also available at `http://localhost:8788/tools` and `http://localhost:8788/openapi.json`.
+You should see the app functions, recent audit events, and metrics. The same functions are also available to the backend through `mobigent.app.expense.create(...)` and to agents through the backend service.
 
 ## App Intents Bridge Plan
 

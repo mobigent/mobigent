@@ -1,12 +1,11 @@
 # Mobigent Android
 
-Kotlin/Android SDK for exposing native app capabilities to AI agents through the Mobigent gateway.
+Kotlin/Android SDK for exposing native app capabilities to AI agents through `@mobigent/backend`.
 
 ```kotlin
 val client = MobigentClient.Builder(context)
     .appId("com.example.expenses")
     .appName("Expenses")
-    .gatewayUrl("ws://10.0.2.2:8787")
     .build()
 
 client.registerAction(
@@ -25,5 +24,7 @@ client.registerAction(
 
 client.connect()
 ```
+
+The default URL is the local Android emulator backend. Pass `gatewayUrl(...)` only for a physical device or hosted backend.
 
 Use `confirmationHandler { request -> Boolean }` to render your own native approval UI before sensitive handlers run.

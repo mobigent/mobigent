@@ -1,6 +1,6 @@
 # Mobigent Android SDK
 
-Mobigent's Android SDK lets a native Kotlin app expose typed capabilities to AI agents through the Mobigent gateway.
+Mobigent's Android SDK lets a native Kotlin app expose normal app capabilities to AI agents. Use it with `@mobigent/backend`: the backend runs the agent-facing service, and the Android app connects with the same app id.
 
 ## Install
 
@@ -37,11 +37,18 @@ Targets:
 val client = MobigentClient.Builder(context)
     .appId("com.example.expenses")
     .appName("Expenses")
-    .gatewayUrl("ws://10.0.2.2:8787")
     .build()
 ```
 
-Use `ws://10.0.2.2:8787` for the Android emulator. Use your Mac's LAN IP for a physical device.
+That default connects the Android emulator to the local Mobigent backend. For a physical device or hosted backend, pass `gatewayUrl(...)` explicitly:
+
+```kotlin
+val client = MobigentClient.Builder(context)
+    .appId("com.example.expenses")
+    .appName("Expenses")
+    .gatewayUrl("ws://YOUR_MAC_LAN_IP:8787")
+    .build()
+```
 
 ## Register Capabilities
 
@@ -99,7 +106,25 @@ The client sends the same `hello`, `manifest`, `event`, `action_result`, `resour
 
 ## Test The Full Loop
 
-Start the gateway:
+Start the backend package:
+
+```bash
+npm install @mobigent/backend
+```
+
+```ts
+import { startMobigent } from "@mobigent/backend";
+
+const mobigent = await startMobigent("com.example.expenses", "Expenses");
+```
+
+Then run the Android app and connect the client:
+
+```kotlin
+client.connect()
+```
+
+For local testing from this repo you can run:
 
 ```bash
 npm run dev:http
@@ -117,7 +142,7 @@ Open the local inspector:
 open http://localhost:8788/inspect
 ```
 
-You should see the app, manifest tools, recent audit events, and metrics. The same tools are also available at `http://localhost:8788/tools` and `http://localhost:8788/openapi.json`.
+You should see the app functions, recent audit events, and metrics. The same functions are also available to the backend through `mobigent.app.expense.create(...)` and to agents through the backend service.
 
 ## App Actions Bridge Plan
 

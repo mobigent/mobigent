@@ -374,7 +374,7 @@ public final class MobigentClient {
     public init(
         appId: String,
         appName: String,
-        gatewayURL: URL,
+        gatewayURL: URL = URL(string: "ws://localhost:8787")!,
         version: String = "0.1.15",
         authToken: String? = nil,
         reconnect: MobigentReconnectOptions = .init(),

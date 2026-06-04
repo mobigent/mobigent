@@ -170,7 +170,6 @@ const iosUsageCode = `import Mobigent
 let client = MobigentClient(
   appId: "com.example.expense",
   appName: "Expense App",
-  gatewayURL: URL(string: "ws://localhost:8787")!,
   version: "1.0.0"
 )
 
@@ -230,7 +229,6 @@ import io.mobigent.MobigentSchema
 val client = MobigentClient.Builder(context)
   .appId("com.example.expense")
   .appName("Expense App")
-  .gatewayUrl("ws://10.0.2.2:8787")
   .version("1.0.0")
   .build()
 
@@ -276,7 +274,7 @@ client.confirmationHandler { request ->
 client.connect()`;
 
 const nativeLifecycle = [
-  ["1. Create a client", "Give Mobigent the app id, app name, version, and backend connection URL."],
+  ["1. Create a client", "Give Mobigent the app id and app name. Local simulator/emulator URLs are the SDK defaults."],
   ["2. Register capabilities", "Add actions for writes, resources for reads, and components for screen context."],
   ["3. Add confirmations", "Mark risky actions and let the native app render the approval UI."],
   ["4. Connect", "The SDK connects to the backend and exposes the registered functions."],
@@ -284,10 +282,10 @@ const nativeLifecycle = [
 ];
 
 const nativeUrls = [
-  ["iOS simulator", "ws://localhost:8787"],
-  ["Android emulator", "ws://10.0.2.2:8787"],
-  ["Physical device", "ws://YOUR_MAC_LAN_IP:8787"],
-  ["Hosted gateway", "wss://your-gateway.example.com"]
+  ["iOS simulator default", "ws://localhost:8787"],
+  ["Android emulator default", "ws://10.0.2.2:8787"],
+  ["Physical device override", "ws://YOUR_MAC_LAN_IP:8787"],
+  ["Hosted backend override", "wss://your-gateway.example.com"]
 ];
 
 const firstRunChecks = [
@@ -345,7 +343,7 @@ const reactNativeApis = [
 
 const nativeApis = [
   ["iOS MobigentClient", "Swift client for registering capabilities, connecting, emitting events, and reading diagnostics."],
-  ["Android MobigentClient.Builder", "Kotlin builder for app identity, connection URL, reconnect, heartbeat, and transport setup."],
+  ["Android MobigentClient.Builder", "Kotlin builder for app identity, local defaults, reconnect, heartbeat, and transport setup."],
   ["MobigentSchema", "Shared native schema builders for string, number, boolean, object, array, and enum."],
   ["confirmation handler", "Native callback hook so the host app renders its own approval UI."]
 ];

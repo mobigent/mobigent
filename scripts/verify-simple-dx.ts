@@ -255,6 +255,32 @@ const cliReadme = readFileSync("packages/cli/README.md", "utf8");
 assert.match(cliReadme, /startMobigent\(appId, appName\)/);
 assert.doesNotMatch(cliReadme, /startMobigent\(appId\)/);
 
+for (const path of ["docs/ios.md", "docs/android.md", "packages/ios/README.md", "packages/android/README.md"]) {
+  const contents = readFileSync(path, "utf8");
+  assert.match(contents, /@mobigent\/backend/, `${path} should anchor native SDKs to the backend package`);
+  assert.doesNotMatch(
+    contents,
+    /through the Mobigent gateway/,
+    `${path} should not introduce native SDKs as gateway-first`
+  );
+}
+
+const iosGuide = readFileSync("docs/ios.md", "utf8");
+assert.match(iosGuide, /MobigentClient\(\s*[\s\S]{0,120}?appId: "com\.example\.expenses"[\s\S]{0,120}?appName: "Expenses"[\s\S]{0,80}?\)/);
+assert.doesNotMatch(
+  iosGuide.slice(iosGuide.indexOf("## Create A Client"), iosGuide.indexOf("That default connects")),
+  /gatewayURL:/,
+  "docs/ios.md should not require gatewayURL in the first client snippet"
+);
+
+const androidGuide = readFileSync("docs/android.md", "utf8");
+assert.match(androidGuide, /MobigentClient\.Builder\(context\)[\s\S]{0,160}?\.appId\("com\.example\.expenses"\)[\s\S]{0,80}?\.appName\("Expenses"\)[\s\S]{0,80}?\.build\(\)/);
+assert.doesNotMatch(
+  androidGuide.slice(androidGuide.indexOf("## Create A Client"), androidGuide.indexOf("That default connects")),
+  /\.gatewayUrl\(/,
+  "docs/android.md should not require gatewayUrl in the first client snippet"
+);
+
 const quickstart = readFileSync("docs/quickstart.md", "utf8");
 assert.match(quickstart, /connection: \{ host: "192\.168\.1\.20" \}/);
 assert.match(quickstart, /connection: "wss:\/\/your-backend\.example\.com"/);

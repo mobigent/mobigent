@@ -25,7 +25,7 @@ final class MockSocket: MobigentWebSocket {
 
 final class MobigentTests: XCTestCase {
     func testManifestUsesIOSSDKAndProtocolShape() {
-        let client = MobigentClient(appId: "com.example.app", appName: "Example", gatewayURL: URL(string: "ws://localhost:8787")!)
+        let client = MobigentClient(appId: "com.example.app", appName: "Example")
         client.registerAction(MobigentAction(
             name: "create",
             description: "Create an expense.",
