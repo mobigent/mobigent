@@ -75,6 +75,7 @@ export type MobigentBackendAppConfig = {
   version?: string;
   authToken?: string;
 };
+export type MobigentBackendPairing = MobigentBackendAppConfig;
 export type MobigentBackendClient = MobigentBackendAppConfig;
 
 export type MobigentBackendReadyOptions = {
@@ -278,6 +279,7 @@ export type MobigentBackendOptionsWithApp = MobigentBackendOptions & {
 
 export type Backend = MobigentBackend;
 export type BackendOptions = MobigentBackendOptions;
+export type BackendPairing = MobigentBackendPairing;
 export type BackendConnection = MobigentBackendClient;
 export type BackendStatus = MobigentBackendStatus;
 export type AppFunction = MobigentBackendFunction;

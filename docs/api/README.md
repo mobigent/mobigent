@@ -123,6 +123,13 @@ Advanced and compatibility fields are still available, but they should not be ne
 - `write(handler, options)`: exposes confirmed app behavior.
 - `screen(handler, options)`: lets an agent focus a screen or UI surface.
 
+Friendly public types:
+
+- `AppFunctions` and `AppFunctionMap` for app-owned functions.
+- `AppPairing`, `BackendPairing`, and `Pairing` for app/backend handoff values.
+- `Backend`, `BackendOptions`, and `BackendPairing` from `@mobigent/backend`.
+- `AppConnection`, `AppConnectionSettings`, and `BackendConnection` remain available for compatibility.
+
 Advanced app helpers are still available from `@mobigent/app/app` when you need explicit internal objects or manual lifecycle control:
 
 - `defineFunctions({ namespace: { name: read(fn) } })`

@@ -79,7 +79,8 @@ The public TypeScript surface uses backend names:
 
 - `Backend` for the object returned by `startMobigent(...)`
 - `BackendOptions` for startup options
-- `BackendConnection` for `backend.connection`, `backend.pairing()`, and `backend.appClient()`
+- `BackendPairing` for `backend.pairing()`
+- `BackendConnection` for `backend.connection` and compatibility code
 - `AppFunction` for a callable app function on the backend
 - `MobigentFunctionInfo` for `listFunctions()`
 - `MobigentBackendStatus` for `ready()` and `waitForApp()`
