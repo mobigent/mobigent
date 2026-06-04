@@ -84,8 +84,8 @@ The backend object exposes:
 - `agents()`
 - `listFunctions()`
 - `waitForApp()` to wait until an app is connected and callable
-- `functions.expense.create(input)` to call app functions from the backend SDK object
 - `feature("expense")` to create a tiny object of normal backend functions for one app feature
+- `functions.expense.create(input)` when you prefer the object-style backend SDK shape
 - `call("expense.create", input)` or `call("expense.list")`
 - `fn("expense.create")` to create a reusable backend function
 - `resolveFunctionName("expense.create")`

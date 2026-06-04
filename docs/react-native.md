@@ -37,8 +37,8 @@ export const mobigent = createApp({
 
 This exposes:
 
-- backend call `mobigent.functions.expense.list`
-- backend call `mobigent.functions.expense.create`
+- backend call `mobigent.feature("expense").list`
+- backend call `mobigent.feature("expense").create`
 
 Backend code can use those same short names.
 

@@ -83,8 +83,10 @@ const mobigent = await startMobigent({
   appName: "Acme Expenses"
 });
 
-await mobigent.functions.expense.create({ merchant: "Coffee", amount: 8 });
-await mobigent.functions.expense.list();
+const expenses = mobigent.feature("expense");
+
+await expenses.create({ merchant: "Coffee", amount: 8 });
+await expenses.list();
 ```
 
 Mobigent pairs the app and backend by `appId`, waits for the app connection when a function is called, and routes the call to the app-owned function.

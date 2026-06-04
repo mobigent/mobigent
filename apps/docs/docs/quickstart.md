@@ -124,6 +124,8 @@ Prefer generated sample files? Use the starter. Backend/app init commands are he
 Call app functions from the backend SDK object. Mobigent waits for the app connection when a function is called:
 
 ```ts
-await mobigent.functions.expense.create({ merchant: "Coffee", amount: 8 });
-await mobigent.functions.expense.list();
+const expenses = mobigent.feature("expense");
+
+await expenses.create({ merchant: "Coffee", amount: 8 });
+await expenses.list();
 ```

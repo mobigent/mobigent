@@ -60,7 +60,9 @@ const backend = await startMobigent({
   appName: "Acme Expenses"
 });
 
-await backend.functions.expense.create({ merchant: "Coffee", amount: 8 });
+const expenses = backend.feature("expense");
+
+await expenses.create({ merchant: "Coffee", amount: 8 });
 ```
 
 For local development, Mobigent can infer starter values when you leave the app id out, but real apps should pass the same stable `appId` in the app and backend.
@@ -176,7 +178,9 @@ const mobigent = await startMobigent({
   appName: "Acme Expenses"
 });
 
-await mobigent.functions.expense.create({ merchant: "Coffee", amount: 8 });
+const expenses = mobigent.feature("expense");
+
+await expenses.create({ merchant: "Coffee", amount: 8 });
 ```
 
 See [docs/simple-integration.md](./docs/simple-integration.md) for the clean path before reading advanced docs.
@@ -332,8 +336,10 @@ That one function starts Mobigent, routes app function calls, infers a local app
 Call app-owned functions through a normal backend object. Mobigent waits for the app connection when the function is called:
 
 ```ts
-await mobigent.functions.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
-await mobigent.functions.expense.list();
+const expenses = mobigent.feature("expense");
+
+await expenses.create({ merchant: "Airport Taxi", amount: 42.25 });
+await expenses.list();
 ```
 
 Use `waitForApp()` only when you want an explicit startup health gate:
@@ -386,7 +392,7 @@ npm run dev:mcp
 Most apps start with two packages:
 
 - `@mobigent/app`: app SDK for `createApp()`, app functions, app events, and React Native wrapping
-- `@mobigent/backend`: backend SDK for `startMobigent()`, `mobigent.functions.expense.create(...)`, inspector, agent HTTP, and app connections
+- `@mobigent/backend`: backend SDK for `startMobigent()`, `mobigent.feature("expense").create(...)`, inspector, agent HTTP, and app connections
 
 Useful extras:
 

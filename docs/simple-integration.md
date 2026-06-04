@@ -98,15 +98,17 @@ const mobigent = await startMobigent({
   appName: "Acme Expenses"
 });
 
-await mobigent.functions.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
-await mobigent.functions.expense.list();
+const expenses = mobigent.feature("expense");
+
+await expenses.create({ merchant: "Airport Taxi", amount: 42.25 });
+await expenses.list();
 ```
 
 That is the backend integration.
 
 Prefer generated sample files? Use the starter. Backend/app init commands are helpers, not required integration.
 
-If you prefer a named helper, `const expense = mobigent.feature("expense")` is still available. For one quick explicit call, use `mobigent.call("expense.create", input)`.
+For one quick explicit call, use `mobigent.call("expense.create", input)`. If you prefer the object shape, `mobigent.functions.expense.create(input)` is still available.
 
 ## 3. What The SDK Handles
 

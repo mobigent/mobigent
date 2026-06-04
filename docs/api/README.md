@@ -77,12 +77,12 @@ The returned object includes:
 - `appConfig({ appId, appName })`
 - `copyAppConfig()` for advanced manual config generation
 - `listFunctions()`
-- `functions.expense.create(input)` to call app functions from the backend SDK object
+- `feature("expense")` to create a tiny object of normal backend functions for one app feature; calls wait for the app function by default
 - `functions()` to list discovered app functions
 - `tools()` for provider internals
 - `apps()`
 - `waitForApp()` when you want an explicit startup health gate
-- `feature("expense")` to create a tiny object of normal backend functions for one app feature; calls wait for the app function by default
+- `functions.expense.create(input)` when you prefer the object-style backend SDK shape
 - `call("expense.create", input)` or `call("expense.list")`; pass `{ waitForApp: false }` only when you want an immediate failure if the app is not connected
 - `fn("expense.create")` to create a reusable backend function
 - `callApp("expense.create", input)` for backward compatibility
