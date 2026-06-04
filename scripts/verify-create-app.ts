@@ -147,7 +147,9 @@ try {
   const installHelp = runInstall(["--help"]);
   assert.equal(installHelp.code, 0, installHelp.stderr);
   assert.match(installHelp.stdout, /mobigent-install/);
-  assert.match(installHelp.stdout, /React Native app SDK packages/);
+  assert.match(installHelp.stdout, /App SDK for React Native and Expo apps/);
+  assert.match(installHelp.stdout, /Backend SDK for servers and agent setup/);
+  assert.doesNotMatch(installHelp.stdout, /gateway packages/);
 
   const appInstall = runInstall(["app", "--dry-run"]);
   assert.equal(appInstall.code, 0, appInstall.stderr);

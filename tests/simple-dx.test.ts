@@ -308,10 +308,17 @@ test("backend helper starts HTTP, OpenAPI, and inspector endpoints from one func
     const health = await fetch(`${backend.apiUrl}/health`).then((response) => response.json() as Promise<{ ok: boolean }>);
     assert.equal(health.ok, true);
     assert.equal(backend.connection.connectionUrl, "ws://localhost:18987");
+    assert.equal(backend.appConnectionUrl, "ws://localhost:18987");
+    assert.equal(backend.agentUrl, "http://localhost:18988");
     assert.equal(backend.openApiUrl, "http://localhost:18988/openapi.json");
     assert.equal(backend.apiUrl, "http://localhost:18988");
     assert.equal(backend.inspectorUrl, "http://localhost:18988/inspect");
     assert.equal(backend.openApiUrl, "http://localhost:18988/openapi.json");
+    assert.deepEqual(
+      Object.keys(backend).filter((key) => ["gateway", "urls", "defaultApp", "functions", "tools"].includes(key)),
+      []
+    );
+    assert.equal(typeof (backend as unknown as { functions: unknown }).functions, "function");
     assert.equal(backend.advanced.urls.websocket, "ws://localhost:18987");
     assert.equal(backend.advanced.urls.http, backend.apiUrl);
     assert.match(backend.advanced.copyAppConfig(), new RegExp(backend.connection.appId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
@@ -462,6 +469,31 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
   }
 });
 
+test("backend startup logs use app and agent product language", async () => {
+  const logs: string[] = [];
+  const originalLog = console.log;
+  let backend: Awaited<ReturnType<typeof startMobigentBackend>> | undefined;
+  console.log = (...args: unknown[]) => {
+    logs.push(args.map(String).join(" "));
+  };
+
+  try {
+    backend = await startMobigentBackend({
+      wsPort: 19017,
+      httpPort: 19018
+    });
+
+    assert.ok(logs.some((line) => line.includes("Mobigent backend ready")));
+    assert.ok(logs.some((line) => line.includes("App connection: ws://localhost:19017")));
+    assert.ok(logs.some((line) => line.includes("Agent API: http://localhost:19018")));
+    assert.ok(logs.some((line) => line.includes("Inspector: http://localhost:19018/inspect")));
+    assert.equal(logs.some((line) => /App WebSocket|Agent HTTP/.test(line)), false);
+  } finally {
+    console.log = originalLog;
+    await backend?.stop();
+  }
+});
+
 test("app package connects to a backend object without connection URL ceremony", async () => {
   const backend = await startMobigent("com.example.backendtarget", "Backend Target App", {
     wsPort: 19011,
@@ -499,6 +531,38 @@ test("app package connects to a backend object without connection URL ceremony",
       assert.deepEqual(await backend.functions.expense.create({ merchant: "Coffee" }), {
         id: "EXP-BACKEND",
         merchant: "Coffee"
+      });
+    } finally {
+      connection.disconnect();
+    }
+  } finally {
+    await backend.stop();
+  }
+});
+
+test("app package accepts backend appConnectionUrl as a friendly connection target", async () => {
+  const backend = await startMobigent("com.example.connectionalias", "Connection Alias App", {
+    wsPort: 19019,
+    httpPort: 19020,
+    silent: true
+  });
+  const app = createApp({
+    appId: "com.example.connectionalias",
+    functions: {
+      expense: {
+        list: async () => ({ items: [{ id: "EXP-ALIAS" }] })
+      }
+    },
+    createSocket: createNodeSocket
+  });
+
+  try {
+    const connection = await app.connect({ appConnectionUrl: backend.appConnectionUrl });
+
+    try {
+      await backend.waitForApp({ minFunctions: 1 });
+      assert.deepEqual(await backend.app.expense.list(), {
+        items: [{ id: "EXP-ALIAS" }]
       });
     } finally {
       connection.disconnect();

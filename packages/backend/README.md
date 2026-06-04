@@ -42,6 +42,7 @@ await mobigent.connect(backend);
 ```
 
 The public `backend.connection` object contains the pairing details. You usually do not need to read or copy it yourself.
+For debugging, `backend.appConnectionUrl` shows where apps connect and `backend.agentUrl` shows the agent-facing API.
 
 ## What It Handles
 

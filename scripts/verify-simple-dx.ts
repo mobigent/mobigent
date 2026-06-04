@@ -68,6 +68,8 @@ assert.match(appPackageRoot, /read/);
 assert.match(appPackageRoot, /write/);
 assert.match(appPackageRoot, /fromZod/);
 assert.match(backendPackageRoot, /connection: MobigentBackendClient/, "@mobigent/backend should expose a clean backend.connection pairing object");
+assert.match(backendPackageRoot, /agentUrl: string/, "@mobigent/backend should expose a friendly agentUrl alias");
+assert.match(backendPackageRoot, /appConnectionUrl: string/, "@mobigent/backend should expose a friendly appConnectionUrl alias");
 assert.match(appBackendTargetType, /connection\?: MobigentSimpleConnectionSettings/, "@mobigent/app should accept backend.connection as the clean pairing surface");
 assert.doesNotMatch(
   appBackendTargetType,
@@ -84,6 +86,11 @@ assert.doesNotMatch(
   backendPublicType,
   /BridgeGateway|ToolCallOptions|GatewayAppSession|ReturnType<|listTools|callTool|getStatus/,
   "@mobigent/backend public type should use product-facing backend names instead of lower-level gateway types"
+);
+assert.doesNotMatch(
+  backendPackageRoot,
+  /App WebSocket|Agent HTTP/,
+  "@mobigent/backend startup logs should use app/backend product language instead of transport-first labels"
 );
 assert.match(backendPackageRoot, /export type MobigentFunctionInfo/);
 assert.match(backendPackageRoot, /export type MobigentBackendStatus/);
@@ -470,6 +477,10 @@ for (const path of ["docs/api/README.md", "apps/docs/docs/api.md"]) {
 const cliReadme = readFileSync("packages/cli/README.md", "utf8");
 assert.match(cliReadme, /startMobigent\(appId\)/);
 assert.doesNotMatch(cliReadme, /startMobigent\(appId, appName\)/);
+
+const previewInstaller = readFileSync("packages/create-app/src/install.ts", "utf8");
+assert.match(previewInstaller, /Backend SDK for servers and agent setup/);
+assert.doesNotMatch(previewInstaller, /agent gateway packages|package set/);
 
 for (const path of ["docs/ios.md", "docs/android.md", "packages/ios/README.md", "packages/android/README.md"]) {
   const contents = readFileSync(path, "utf8");

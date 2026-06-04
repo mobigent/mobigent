@@ -65,6 +65,7 @@ await mobigent.app.expense.create({ merchant: "Coffee", amount: 8 });
 
 console.log(mobigent.inspectorUrl);
 console.log(mobigent.openApiUrl);
+console.log(mobigent.agentUrl);
 ```
 
 For local development, `startMobigent()` can infer a starter app identity from your project name:
@@ -77,7 +78,9 @@ The common backend object includes:
 
 - `inspectorUrl`
 - `apiUrl`
+- `agentUrl`
 - `openApiUrl`
+- `appConnectionUrl`
 - `app.expense.create(input)` or `app.expense.list()` to call app functions with the clean package API
 - `use("expense", { createExpense: "create" })` to bind backend-friendly helper names
 - `use("expense").create(input)` or `use("expense", ["create", "list"])` to bind app function groups

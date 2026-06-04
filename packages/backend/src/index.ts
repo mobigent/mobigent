@@ -214,7 +214,9 @@ export type MobigentBackendAdvanced = {
 export type MobigentBackend = {
   inspectorUrl: string;
   apiUrl: string;
+  agentUrl: string;
   openApiUrl: string;
+  appConnectionUrl: string;
   connection: MobigentBackendClient;
   advanced: MobigentBackendAdvanced;
   client(): MobigentBackendClient;
@@ -315,8 +317,8 @@ export async function startMobigentBackend(
 
   if (!options.silent) {
     console.log(`Mobigent backend ready`);
-    console.log(`App WebSocket: ${urls.websocket}`);
-    console.log(`Agent HTTP: ${urls.http}`);
+    console.log(`App connection: ${urls.websocket}`);
+    console.log(`Agent API: ${urls.http}`);
     console.log(`Inspector: ${urls.inspector}`);
     console.log(`OpenAPI: ${urls.openapi}`);
   }
@@ -418,20 +420,15 @@ export async function startMobigentBackend(
   };
 
   const backend = {
-    gateway,
-    httpServer,
-    urls,
     inspectorUrl: urls.inspector,
     apiUrl: urls.http,
+    agentUrl: urls.http,
     openApiUrl: urls.openapi,
+    appConnectionUrl: urls.websocket,
     connection: defaultApp,
     advanced,
-    appConfigPath: appConfigFiles.jsonPath,
-    appConfigModulePath: appConfigFiles.modulePath,
     client,
     app: appAccessor,
-    appConfig,
-    appConfigModule,
     agent: (kind: MobigentAgentKind = "chatgpt-actions", agentOptions: MobigentAgentOptions = {}) => {
       const id = normalizeAgentKind(kind);
       const [provider] = filterProviderCatalog(createAgentCatalog(agentOptions), { ids: [id] });
@@ -453,23 +450,52 @@ export async function startMobigentBackend(
     waitForApp: async (readyOptions?: MobigentBackendReadyOptions) => toBackendStatus(await waitForBackendReady(gateway, readyOptions)),
     listFunctions: () => gateway.listTools().map(toBackendFunctionInfo),
     use: appFunctions,
-    functions,
-    tools: () => gateway.listTools(),
     apps: () => gateway.listApps().map(toBackendAppSession),
     resolveFunctionName: (name: string) => resolveBackendToolName(gateway.listTools(), name, defaultApp),
+    call: invoke,
+    fn: appFunction
+  };
+
+  defineLegacyBackendFields(backend, {
+    gateway,
+    httpServer,
+    urls,
+    appConfigPath: appConfigFiles.jsonPath,
+    appConfigModulePath: appConfigFiles.modulePath,
+    defaultApp,
+    appConfigCode,
+    appConfig,
+    appConfigModule,
+    copyAppConfig: advanced.copyAppConfig,
+    functions,
+    tools: () => gateway.listTools(),
     resolveToolName: (name: string) => resolveBackendToolName(gateway.listTools(), name, defaultApp),
     callApp: invoke,
-    call: invoke,
     invoke,
     function: appFunction,
     appFunction,
     appFeature,
     feature: appFeature,
-    appFunctions,
-    fn: appFunction
-  };
+    appFunctions
+  });
 
   return backend as MobigentBackendWithApp;
+}
+
+function defineLegacyBackendFields(target: object, fields: Record<string, unknown>) {
+  Object.defineProperties(
+    target,
+    Object.fromEntries(
+      Object.entries(fields).map(([name, value]) => [
+        name,
+        {
+          configurable: true,
+          enumerable: false,
+          value
+        }
+      ])
+    )
+  );
 }
 
 function createBackendFunctionBindings<const T extends Record<string, string> | readonly string[]>(

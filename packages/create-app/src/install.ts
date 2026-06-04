@@ -13,6 +13,12 @@ type ParsedOptions = {
   help?: boolean;
 };
 
+const installTargetLabels: Record<InstallTarget, string> = {
+  app: "app SDK",
+  backend: "backend SDK",
+  both: "app and backend SDKs"
+};
+
 const installTargets: Record<InstallTarget, string[]> = {
   app: ["mobigent-core", "mobigent-react-native", "mobigent-app"],
   backend: ["mobigent-core", "mobigent-providers", "mobigent-gateway", "mobigent-backend"],
@@ -39,7 +45,7 @@ export function runMobigentInstallCli(
       return 0;
     }
 
-    output.write(`Installing Mobigent ${options.target} package set...\n`);
+    output.write(`Installing Mobigent ${installTargetLabels[options.target]}...\n`);
     const result = spawnSync(command[0], command.slice(1), {
       encoding: "utf8",
       stdio: "pipe"
@@ -129,9 +135,9 @@ Usage:
   mobigent-install both
 
 Targets:
-  app      React Native app SDK packages
-  backend  Node backend and agent gateway packages
-  both     App and backend packages. Default.
+  app      App SDK for React Native and Expo apps
+  backend  Backend SDK for servers and agent setup
+  both     App and backend SDKs. Default.
 
 Options:
   --version <version>  Mobigent release version. Default: ${defaultMobigentVersion}

@@ -97,7 +97,9 @@ The backend object exposes:
 
 - `inspectorUrl`
 - `apiUrl`
+- `agentUrl`
 - `openApiUrl`
+- `appConnectionUrl`
 - `agent("chatgpt" | "claude" | "openai")`
 - `agents()`
 - `listFunctions()`

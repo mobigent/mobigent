@@ -93,6 +93,7 @@ export type MobigentAppPackageIdentityOptions = Omit<MobigentSimpleAppOptions, "
 export type MobigentAppPackageInput = MobigentAppPackageOptions | MobigentSimpleFunctionMap | string;
 export type MobigentBackendConnectionTarget = {
   connection?: MobigentSimpleConnectionSettings;
+  appConnectionUrl?: string;
 };
 type MobigentLegacyBackendConnectionTarget = MobigentBackendConnectionTarget & {
   connection?: MobigentSimpleConnectionSettings;
@@ -302,7 +303,7 @@ function resolveBackendConnectionSettings(target: MobigentLegacyBackendConnectio
     appId: config.appId,
     appName: config.appName,
     connection: config.connection,
-    connectionUrl: config.connectionUrl ?? config.gatewayUrl ?? target.urls?.websocket,
+    connectionUrl: config.connectionUrl ?? config.gatewayUrl ?? target.appConnectionUrl ?? target.urls?.websocket,
     version: config.version,
     authToken: config.authToken
   };
@@ -313,6 +314,7 @@ function isBackendConnectionTarget(value: MobigentAppConnectSettings): value is 
     value &&
       typeof value === "object" &&
       (("connection" in value && typeof value.connection === "object") ||
+        ("appConnectionUrl" in value && typeof value.appConnectionUrl === "string") ||
         ("urls" in value && typeof value.urls === "object") ||
         ("defaultApp" in value && typeof value.defaultApp === "object"))
   );
