@@ -63,10 +63,11 @@ For a non-React host or local demo, use the same app SDK object:
 
 ```ts
 const backend = await startMobigent("com.acme.expenses");
+const mobigent = createApp("com.acme.expenses", expenseFunctions, {
+  pairing: backend.pairing()
+});
 
-await mobigent.connect(backend);
-// Or pass the app pairing explicitly:
-await mobigent.connect(backend.pairing());
+await mobigent.connect();
 ```
 
 Everything else, connection URLs, sockets, tokens, registration loops, provider mapping, confirmations, retries, audit events, agent setup, and inspector wiring, is SDK plumbing.
@@ -330,11 +331,15 @@ If you are wiring a Node demo, test host, or another non-React runtime, use the 
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { mobigent } from "./mobigent";
+import { createApp } from "@mobigent/app";
+import { expenseFunctions } from "./app-functions";
 
 const backend = await startMobigent("com.acme.expenses");
+const mobigent = createApp("com.acme.expenses", expenseFunctions, {
+  pairing: backend.pairing()
+});
 
-await mobigent.connect(backend);
+await mobigent.connect();
 ```
 
 ## Add It To A Backend

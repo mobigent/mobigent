@@ -87,15 +87,19 @@ export default withMobigent(App, "com.acme.expenses", {
 });
 ```
 
-For a non-React demo or test host, use the same app SDK object:
+For a non-React demo or test host, pass the backend pairing once and connect with no extra setup:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { mobigent } from "./mobigent";
+import { createApp } from "@mobigent/app";
+import { expenseFunctions } from "./app-functions";
 
 const backend = await startMobigent("com.acme.expenses");
+const mobigent = createApp("com.acme.expenses", expenseFunctions, {
+  pairing: backend.pairing()
+});
 
-await mobigent.connect(backend);
+await mobigent.connect();
 ```
 
 ## Backend

@@ -83,15 +83,19 @@ That is the app integration. For throwaway local demos, Mobigent can use a safe 
 
 No app-side init command is required. The SDK handles the app connection. Optional generators are only useful when you want example files.
 
-For a non-React demo or test host, connect the same feature in one call:
+For a non-React demo or test host, pass the backend pairing once and connect with no extra setup:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { mobigent } from "./mobigent";
+import { createApp } from "@mobigent/app";
+import { expenseFunctions } from "./app-functions";
 
 const backend = await startMobigent("com.acme.expenses");
+const mobigent = createApp("com.acme.expenses", expenseFunctions, {
+  pairing: backend.pairing()
+});
 
-await mobigent.connect(backend);
+await mobigent.connect();
 ```
 
 ## 2. Run The Backend

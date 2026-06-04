@@ -86,11 +86,15 @@ If you are running a local demo, test host, or another runtime:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { mobigent } from "./mobigent";
+import { createApp } from "@mobigent/app";
+import { expenseFunctions } from "./app-functions";
 
 const backend = await startMobigent("com.acme.expenses");
+const mobigent = createApp("com.acme.expenses", expenseFunctions, {
+  pairing: backend.pairing()
+});
 
-const connection = await mobigent.connect(backend);
+const connection = await mobigent.connect();
 ```
 
 That one call registers the feature, connects to the backend, and returns a `disconnect()` helper.

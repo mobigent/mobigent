@@ -331,6 +331,7 @@ const appServer = app.listen(appPort, () => {
 
 const mobigent = createApp(${JSON.stringify(options.appId)}, expenseFunctions, {
   appName: ${JSON.stringify(options.appName)},
+  pairing: backend.pairing(),
   createSocket: createNodeSocket,
   confirm: async ({ input }) => {
     console.log("\\n[approval] App approval required");
@@ -339,7 +340,7 @@ const mobigent = createApp(${JSON.stringify(options.appId)}, expenseFunctions, {
     return true;
   }
 });
-const mobigentConnection = await mobigent.connect(backend);
+const mobigentConnection = await mobigent.connect();
 
 function openBrowser(url: string) {
   if (${options.openBrowser ? "false" : "true"} || process.env.MOBIGENT_DEMO_OPEN === "0") {

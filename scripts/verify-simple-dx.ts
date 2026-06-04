@@ -312,7 +312,9 @@ assert.doesNotMatch(starterServer, /const gatewayPort|const httpPort|wsPort: 878
 assert.match(starterServer, /startMobigent\("com\.example\.app", "Example App"\)/);
 assert.doesNotMatch(starterServer, /appId: "com\.example\.app"/);
 assert.doesNotMatch(starterServer, /app: \{/);
-assert.match(starterServer, /mobigent\.connect\(backend\)/);
+assert.match(starterServer, /pairing: backend\.pairing\(\)/);
+assert.match(starterServer, /mobigent\.connect\(\)/);
+assert.doesNotMatch(starterServer, /mobigent\.connect\(backend\)/);
 assert.doesNotMatch(starterServer, /connectionUrl: backend\.urls\.websocket/);
 assert.doesNotMatch(starterServer, /backend\.defaultApp/);
 assert.doesNotMatch(starterServer, /const expense = backend\.feature\("expense"\)/);
@@ -475,6 +477,19 @@ for (const path of ["docs/api/README.md", "apps/docs/docs/api.md"]) {
   assert.match(contents, /mobigent\.connect\(backend\.pairing\(\)\)/, `${path} should teach explicit backend pairing handoff`);
   assert.match(contents, /createApp\(appId, functions, \{ pairing \}\)/, `${path} should teach app setup with pairing`);
   assert.match(contents, /AppPairing.*BackendPairing.*Pairing/, `${path} should teach pairing type names`);
+}
+
+for (const path of [
+  "README.md",
+  "docs/quickstart.md",
+  "docs/react-native.md",
+  "apps/docs/docs/quickstart.md",
+  "apps/docs/docs/react-native.md"
+]) {
+  const contents = readFileSync(path, "utf8");
+  assert.match(contents, /pairing: backend\.pairing\(\)/, `${path} should teach app setup with backend pairing`);
+  assert.match(contents, /mobigent\.connect\(\)/, `${path} should teach no-argument connect after pairing setup`);
+  assert.doesNotMatch(contents, /mobigent\.connect\(backend\)/, `${path} should not teach backend-object connect as the beginner path`);
 }
 
 for (const path of [
