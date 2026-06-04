@@ -429,9 +429,8 @@ Then in your app:
   npm install @mobigent/app
   Add a mobigent.ts file, use the same app id, expose normal app functions, then wrap your app once:
 
-    export const mobigent = createApp({
-      appId: ${JSON.stringify(options.appId)},
-      functions: { expense: { list: async () => listExpenses() } }
+    export const mobigent = createApp(${JSON.stringify(options.appId)}, {
+      expense: { list: async () => listExpenses() }
     });
     export default mobigent.with(App);
 ${options.appDir ? `\nOptional app config files were also written to ${join(options.appDir, options.configFile)} and ${join(options.appDir, appConfigModuleFile ?? join("src", "mobigent-config.ts"))}.\n` : "\nNo app config file is required for the normal app/backend path.\n"}

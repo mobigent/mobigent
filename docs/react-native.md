@@ -24,13 +24,10 @@ Use the same `appId` in the app and backend. For a first throwaway run, the app 
 ```ts
 import { createApp } from "@mobigent/app";
 
-export const mobigent = createApp({
-  appId: "com.acme.expenses",
-  functions: {
-    expense: {
-      list: async () => ({ items: await listExpenses() }),
-      create: async (input) => createExpense(input)
-    }
+export const mobigent = createApp("com.acme.expenses", {
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
   }
 });
 ```
@@ -64,15 +61,13 @@ For multiple app areas in one file, use the same plain object shape:
 ```ts
 import { createApp } from "@mobigent/app";
 
-export const mobigent = createApp({
-  functions: {
-    expense: {
-      list: async () => ({ items: await listExpenses() }),
-      create: async (input) => createExpense(input)
-    },
-    task: {
-      list: async () => ({ items: await listTasks() })
-    }
+export const mobigent = createApp("com.acme.expenses", {
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
+  },
+  task: {
+    list: async () => ({ items: await listTasks() })
   }
 });
 ```
@@ -139,4 +134,4 @@ Use full JSON Schema or the lower-level `schema.*` helpers only when plain field
 
 ## Advanced
 
-The lower-level provider, hooks, `createAgentModule()`, explicit `defineFeature()`, and manual registration APIs are still available for screen-scoped capabilities, custom confirmation UI, custom environment switching, and manifest signing. Start with `createApp({ functions })` first.
+The lower-level provider, hooks, `createAgentModule()`, explicit `defineFeature()`, and manual registration APIs are still available for screen-scoped capabilities, custom confirmation UI, custom environment switching, and manifest signing. Start with `createApp(appId, functions)` first.

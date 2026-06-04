@@ -14,13 +14,10 @@ Most integrations use two packages:
 ```ts
 import { createApp } from "@mobigent/app";
 
-export const mobigent = createApp({
-  appId: "com.acme.expenses",
-  functions: {
-    expense: {
-      list: async () => ({ items: await listExpenses() }),
-      create: async (input) => createExpense(input)
-    }
+export const mobigent = createApp("com.acme.expenses", {
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
   }
 });
 ```
@@ -49,14 +46,14 @@ connection.disconnect();
 
 ## Simple App Helpers
 
-- `createApp({ functions: { namespace: { name: fn } } })`: creates the app-side SDK object.
+- `createApp(appId, { namespace: { name: fn } })`: creates the app-side SDK object.
 - `mobigent.with(App)`: wraps an existing React Native app.
 - `mobigent.connect(backend)`: connects a non-React host or demo using the same functions.
 - `mobigent.emit(name, payload)`: emits app activity.
 - `defineFunctions({ namespace: { name: fn } })`: converts a functions object to explicit features.
 - `defineFeature(namespace, { name: fn })`: creates a named feature when you prefer an explicit feature object.
-- `createApp({ connection: { host: "192.168.1.20" } })`: connects a physical phone to your local backend.
-- `createApp({ connection: "wss://your-backend.example.com" })`: connects an app to a hosted backend.
+- `createApp(appId, functions, { connection: { host: "192.168.1.20" } })`: connects a physical phone to your local backend.
+- `createApp(appId, functions, { connection: "wss://your-backend.example.com" })`: connects an app to a hosted backend.
 - `defineMobigentConfig(config)`: gives app config a stable SDK type.
 - `read(handler, options)`: exposes app state.
 - `write(handler, options)`: exposes confirmed app behavior.

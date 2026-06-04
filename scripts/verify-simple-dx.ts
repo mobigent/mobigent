@@ -171,8 +171,8 @@ assert.match(starterCapabilities, /list: async \(\) => \(\{ expenses \}\)/);
 assert.match(starterCapabilities, /create: write\(/);
 assert.doesNotMatch(starterCapabilities, /list: read\(/);
 assert.doesNotMatch(starterCapabilities, /defineFeature|defineMobigent|import \{ defineFeature, mobigent \}/);
-assert.match(starterServer, /createApp\(\{/);
-assert.match(starterServer, /functions: expenseFunctions/);
+assert.match(starterServer, /createApp\("com\.example\.app", expenseFunctions/);
+assert.doesNotMatch(starterServer, /functions: expenseFunctions/);
 assert.doesNotMatch(starterServer, /connectMobigent/);
 assert.doesNotMatch(starterServer, /const gatewayPort|const httpPort|wsPort: 8787|httpPort: 8788/);
 assert.match(starterServer, /startMobigent\(\{/);
@@ -195,6 +195,7 @@ assert.doesNotMatch(starterDoctor, /const gatewayUrl|function toolName|app manif
 for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.md"]) {
   const contents = readFileSync(path, "utf8");
   assert.match(contents, /createApp/, `${path} should teach the app package createApp path`);
+  assert.match(contents, /createApp\("com\.acme\.expenses"|createApp\(appId, functions/, `${path} should teach the short app identity path`);
   assert.match(contents, /mobigent\.app\.expense\.create|backend\.app\.expense\.create/, `${path} should teach the clean backend app function path`);
   assert.match(contents, /startMobigent\("com\.acme\.expenses", "Acme Expenses"\)/, `${path} should teach the short backend start path`);
   assert.doesNotMatch(
@@ -224,6 +225,7 @@ for (const path of [
 ]) {
   const contents = readFileSync(path, "utf8");
   assert.match(contents, /createApp/, `${path} should teach createApp as the app-side entrypoint`);
+  assert.match(contents, /createApp\("com\.acme\.expenses"|createApp\(appId, functions/, `${path} should teach the short app identity path`);
   assert.match(contents, /startMobigent/, `${path} should teach startMobigent as the backend entrypoint`);
   assert.match(contents, /mobigent\.app\.expense\.create|backend\.app\.expense\.create/, `${path} should teach the clean backend app function path`);
   assert.doesNotMatch(
@@ -244,7 +246,7 @@ assert.match(quickstart, /connection: "wss:\/\/your-backend\.example\.com"/);
 assert.doesNotMatch(
   quickstart,
   /set the app connection URL in `mobigent\.app\.json`/,
-  "device setup should use createApp({ connection }) instead of generated config"
+  "device setup should use createApp(appId, functions, { connection }) instead of generated config"
 );
 
 console.log("Mobigent simple DX guardrails passed.");

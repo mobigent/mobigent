@@ -5,16 +5,13 @@ Make a React Native app callable by AI agents with normal app functions.
 Mobigent's React Native package should feel like this:
 
 ```ts
-const mobigent = createApp({
-  appId: "com.acme.expenses",
-  functions: {
-    expense: {
-      list: read(listExpenses),
-      create: write(createExpense, {
-        input: { merchant: "string", amount: "number" },
-        confirm: true
-      })
-    }
+const mobigent = createApp("com.acme.expenses", {
+  expense: {
+    list: read(listExpenses),
+    create: write(createExpense, {
+      input: { merchant: "string", amount: "number" },
+      confirm: true
+    })
   }
 });
 ```
@@ -51,22 +48,19 @@ Create `src/mobigent/expenses.ts`:
 ```ts
 import { createApp, read, write } from "@mobigent/react-native";
 
-export const mobigent = createApp({
-  appId: "com.acme.expenses",
-  functions: {
-    expense: {
-      list: read(async () => ({
-        items: await listExpenses()
-      })),
-      create: write(async (input) => createExpense(input), {
-        input: {
-          merchant: "string",
-          amount: "number",
-          notes: "string"
-        },
-        confirm: true
-      })
-    }
+export const mobigent = createApp("com.acme.expenses", {
+  expense: {
+    list: read(async () => ({
+      items: await listExpenses()
+    })),
+    create: write(async (input) => createExpense(input), {
+      input: {
+        merchant: "string",
+        amount: "number",
+        notes: "string"
+      },
+      confirm: true
+    })
   }
 });
 ```

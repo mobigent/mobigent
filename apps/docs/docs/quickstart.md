@@ -50,13 +50,10 @@ Create one Mobigent file:
 ```ts
 import { createApp } from "@mobigent/app";
 
-export const mobigent = createApp({
-  appId: "com.acme.expenses",
-  functions: {
-    expense: {
-      list: async () => ({ items: await listExpenses() }),
-      create: async (input) => createExpense(input)
-    }
+export const mobigent = createApp("com.acme.expenses", {
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
   }
 });
 ```
@@ -125,7 +122,7 @@ Call app functions from the backend SDK object. Mobigent waits for the app conne
 
 ```ts
 await mobigent.app.expense.create({ merchant: "Coffee", amount: 8 });
-await expenses.list();
+await mobigent.app.expense.list();
 ```
 
 Shortest explicit backend start:

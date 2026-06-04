@@ -28,13 +28,10 @@ No setup command is required on the app side. Create one Mobigent file, expose t
 ```ts
 import { createApp } from "@mobigent/app";
 
-export const mobigent = createApp({
-  appId: "com.acme.expenses",
-  functions: {
-    expense: {
-      list: async () => ({ items: await listExpenses() }),
-      create: async (input) => createExpense(input)
-    }
+export const mobigent = createApp("com.acme.expenses", {
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
   }
 });
 ```
@@ -51,9 +48,13 @@ export default mobigent.with(App);
 For a physical phone or hosted backend, pass `connection` in `createApp()`:
 
 ```ts
-connection: { host: "192.168.1.20" }
-// or
-connection: "wss://your-backend.example.com"
+createApp("com.acme.expenses", functions, {
+  connection: { host: "192.168.1.20" }
+});
+
+createApp("com.acme.expenses", functions, {
+  connection: "wss://your-backend.example.com"
+});
 ```
 
 ## Run The Backend

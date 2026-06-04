@@ -26,6 +26,9 @@ export type MobigentSimpleAppOptions = Omit<AgentAppFactoryOptions, "capabilitie
 };
 
 export type MobigentSimpleAppInput = MobigentSimpleAppOptions | MobigentSimpleFeature | MobigentSimpleFeature[];
+export type MobigentSimpleAppIdentityOptions = Omit<MobigentSimpleAppOptions, "appId" | "functions"> & {
+  appName?: string;
+};
 
 export type MobigentWithAppOptions = MobigentSimpleAppOptions & {
   rootProps?: Omit<AgentAppRootProps, "children">;
@@ -37,8 +40,19 @@ export type MobigentCreatedApp = ReturnType<typeof createAgentApp> & {
   emit: typeof emitMobigentEvent;
 };
 
-export function mobigentApp(input: MobigentSimpleAppInput): MobigentCreatedApp {
-  const options = isMobigentFeatureInput(input) ? { features: input } : input;
+export function mobigentApp(
+  appId: string,
+  functions: MobigentSimpleFunctionMap,
+  options?: MobigentSimpleAppIdentityOptions
+): MobigentCreatedApp;
+export function mobigentApp(input: MobigentSimpleAppInput): MobigentCreatedApp;
+export function mobigentApp(
+  input: MobigentSimpleAppInput | string,
+  functions?: MobigentSimpleFunctionMap,
+  identityOptions: MobigentSimpleAppIdentityOptions = {}
+): MobigentCreatedApp {
+  const normalizedInput = normalizeMobigentAppInput(input, functions, identityOptions);
+  const options = isMobigentFeatureInput(normalizedInput) ? { features: normalizedInput } : normalizedInput;
   const features = [...toArray(options.features), ...resolveFunctionFeatures(options.functions)];
   const { config, functions: _functions, confirm, ...appOptions } = options;
   const appConnectionUrl =
@@ -159,6 +173,26 @@ function isMobigentFeatureInput(value: MobigentSimpleAppInput): value is Mobigen
   }
 
   return isMobigentFeature(value);
+}
+
+function normalizeMobigentAppInput(
+  input: MobigentSimpleAppInput | string,
+  functions: MobigentSimpleFunctionMap | undefined,
+  options: MobigentSimpleAppIdentityOptions
+): MobigentSimpleAppInput {
+  if (typeof input !== "string") {
+    return input;
+  }
+
+  if (!functions) {
+    throw new Error("createApp(appId, functions) requires an app functions object.");
+  }
+
+  return {
+    ...options,
+    appId: input,
+    functions
+  };
 }
 
 function isMobigentFeature(value: MobigentSimpleAppInput | MobigentSimpleFeature): value is MobigentSimpleFeature {

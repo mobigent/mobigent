@@ -329,10 +329,8 @@ const appServer = app.listen(appPort, () => {
   openBrowser(\`http://localhost:\${appPort}\`);
 });
 
-const mobigent = createApp({
-  appId: ${JSON.stringify(options.appId)},
+const mobigent = createApp(${JSON.stringify(options.appId)}, expenseFunctions, {
   appName: ${JSON.stringify(options.appName)},
-  functions: expenseFunctions,
   createSocket: createNodeSocket,
   confirm: async ({ input }) => {
     console.log("\\n[approval] App approval required");

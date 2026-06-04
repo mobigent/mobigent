@@ -66,7 +66,7 @@ Commands:
 
 Examples:
   npm install @mobigent/app
-  # Add app functions in code, then createApp({ functions }).with(App).
+  # Add app functions in code, then createApp(appId, functions).with(App).
 
   npm install @mobigent/backend
   # Start Mobigent in server code with startMobigent({ appId: "com.acme.expenses" }).

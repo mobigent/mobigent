@@ -1271,7 +1271,7 @@ function formatCreatedFilesMessage(options: ReactNativeInitCliOptions) {
   if (options.featureOnly) {
     return (
       `Created Mobigent React Native app functions ${options.feature} in ${join(options.outDir, "mobigent-functions")}.\n` +
-      `Use it as an explicit feature object, or prefer createApp({ functions }) for new app code.\n`
+      `Use it as an explicit feature object, or prefer createApp(appId, functions) for new app code.\n`
     );
   }
 
@@ -1594,7 +1594,7 @@ function helpText() {
 
 Normal app integration does not need this command:
   npm install @mobigent/app
-  # createApp({ functions }).with(App)
+  # createApp(appId, functions).with(App)
 
 Use these helpers only when you want generated sample files,
 doctor checks, manifests, platform action plans, or env templates.

@@ -37,13 +37,10 @@ npm install @mobigent/backend
 The app developer writes ordinary app functions and creates one app SDK object:
 
 ```txt
-const mobigent = createApp({
-  appId: "com.acme.expenses",
-  functions: {
-    expense: {
-      list: async () => listExpenses(),
-      create: async (input) => createExpense(input)
-    }
+const mobigent = createApp("com.acme.expenses", {
+  expense: {
+    list: async () => listExpenses(),
+    create: async (input) => createExpense(input)
   }
 })
 
@@ -137,13 +134,10 @@ Then create one Mobigent file and wire it once:
 ```ts
 import { createApp } from "@mobigent/app";
 
-export const mobigent = createApp({
-  appId: "com.acme.expenses",
-  functions: {
-    expense: {
-      list: async () => ({ items: await listExpenses() }),
-      create: async (input) => createExpense(input)
-    }
+export const mobigent = createApp("com.acme.expenses", {
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
   }
 });
 ```
@@ -258,13 +252,10 @@ Create one Mobigent file and one app SDK object:
 ```ts
 import { createApp } from "@mobigent/app";
 
-export const mobigent = createApp({
-  appId: "com.acme.expenses",
-  functions: {
-    expense: {
-      list: async () => ({ items: await listExpenses() }),
-      create: async (input) => createExpense(input)
-    }
+export const mobigent = createApp("com.acme.expenses", {
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
   }
 });
 ```

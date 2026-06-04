@@ -101,6 +101,10 @@ export type {
 } from "@mobigent/react-native";
 
 export type MobigentAppPackageOptions = MobigentSimpleAppInput | MobigentWithAppOptions;
+export type MobigentAppPackageIdentityOptions = Omit<MobigentSimpleAppOptions, "appId" | "functions"> & {
+  appName?: string;
+};
+export type MobigentAppPackageInput = MobigentAppPackageOptions | string;
 export type MobigentBackendConnectionTarget = {
   urls?: {
     websocket?: string;
@@ -123,18 +127,29 @@ export type MobigentAppPackage = ReturnType<typeof setupMobigent> & {
   emit: typeof emitMobigentEvent;
 };
 
-export function createApp(input: MobigentAppPackageOptions): MobigentAppPackage {
-  const appRoot = setupMobigent(input as MobigentSimpleAppInput);
-  const features = resolvePackageFeatures(input);
+export function createApp(
+  appId: string,
+  functions: MobigentSimpleFunctionMap,
+  options?: MobigentAppPackageIdentityOptions
+): MobigentAppPackage;
+export function createApp(input: MobigentAppPackageOptions): MobigentAppPackage;
+export function createApp(
+  input: MobigentAppPackageInput,
+  functions?: MobigentSimpleFunctionMap,
+  options: MobigentAppPackageIdentityOptions = {}
+): MobigentAppPackage {
+  const appInput = normalizeCreateAppInput(input, functions, options);
+  const appRoot = setupMobigent(appInput as MobigentSimpleAppInput);
+  const features = resolvePackageFeatures(appInput);
 
   return {
     ...appRoot,
     with<P extends object>(App: ComponentType<P>, rootProps?: Omit<AgentAppRootProps, "children">) {
-      return withMobigent(App, input as MobigentSimpleAppInput, rootProps);
+      return withMobigent(App, appInput as MobigentSimpleAppInput, rootProps);
     },
     connect(settings: MobigentAppConnectSettings = {}) {
       return connectMobigent(features, {
-        ...resolvePackageConnectSettings(input, settings)
+        ...resolvePackageConnectSettings(appInput, settings)
       });
     },
     emit: emitMobigentEvent
@@ -145,6 +160,26 @@ export const app = createApp;
 export const connect = connectMobigent;
 export const emit = emitMobigentEvent;
 export const setup = setupMobigent;
+
+function normalizeCreateAppInput(
+  input: MobigentAppPackageInput,
+  functions: MobigentSimpleFunctionMap | undefined,
+  options: MobigentAppPackageIdentityOptions
+): MobigentAppPackageOptions {
+  if (typeof input !== "string") {
+    return input;
+  }
+
+  if (!functions) {
+    throw new Error("createApp(appId, functions) requires an app functions object.");
+  }
+
+  return {
+    ...options,
+    appId: input,
+    functions
+  };
+}
 
 function resolvePackageFeatures(input: MobigentAppPackageOptions): MobigentSimpleFeature | MobigentSimpleFeature[] {
   if (isFeatureInput(input)) {

@@ -30,14 +30,16 @@ npm install \\
   https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-gateway-0.1.15.tgz \\
   https://github.com/mobigent/mobigent/releases/download/v0.1.15/mobigent-backend-0.1.15.tgz`;
 
-const deviceConnectionCode = `export const mobigent = createApp({
-  appId: "com.acme.expenses",
-  connection: { host: "192.168.1.20" },
-  functions: { expense: { list, create } }
+const deviceConnectionCode = `export const mobigent = createApp("com.acme.expenses", {
+  expense: { list, create }
+}, {
+  connection: { host: "192.168.1.20" }
 });
 
 // hosted backend:
-connection: "wss://your-backend.example.com"`;
+createApp("com.acme.expenses", functions, {
+  connection: "wss://your-backend.example.com"
+});`;
 
 const demoCode = `npm exec --yes \\
   --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \\
@@ -64,15 +66,12 @@ npm run agent:local`;
 
 const moduleCode = `import { createApp } from "@mobigent/app";
 
-export const mobigent = createApp({
-  appId: "com.acme.expenses",
-  functions: {
-    expense: {
-      list: async () => ({
-        items: await listExpenses()
-      }),
-      create: async (input) => createExpense(input)
-    }
+export const mobigent = createApp("com.acme.expenses", {
+  expense: {
+    list: async () => ({
+      items: await listExpenses()
+    }),
+    create: async (input) => createExpense(input)
   }
 });`;
 
@@ -296,7 +295,7 @@ const nativeUrls = [
 
 const firstRunChecks = [
   ["Install", "Add the app package to React Native and the backend package to your server."],
-  ["Expose", "`createApp({ functions })` turns real app functions into typed agent capabilities."],
+  ["Expose", "`createApp(appId, functions)` turns real app functions into typed agent capabilities."],
   ["Connect", "Use the same app id on both sides; pass `connection` only for a physical phone or hosted backend."],
   ["Call", "`mobigent.app.expense.create()` calls the app-owned function from backend code."],
   ["Approve", "Risky actions pause inside the app before handlers run."],

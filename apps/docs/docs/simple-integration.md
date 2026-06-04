@@ -29,13 +29,10 @@ npm install \
 ```ts
 import { createApp } from "@mobigent/app";
 
-export const mobigent = createApp({
-  appId: "com.acme.expenses",
-  functions: {
-    expense: {
-      list: async () => ({ items: await listExpenses() }),
-      create: async (input) => createExpense(input)
-    }
+export const mobigent = createApp("com.acme.expenses", {
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
   }
 });
 ```
@@ -54,9 +51,13 @@ That is the app-side path. No app-side init command is required.
 On a physical phone or hosted backend, pass the backend location directly:
 
 ```ts
-connection: { host: "192.168.1.20" }
-// or
-connection: "wss://your-backend.example.com"
+createApp("com.acme.expenses", functions, {
+  connection: { host: "192.168.1.20" }
+});
+
+createApp("com.acme.expenses", functions, {
+  connection: "wss://your-backend.example.com"
+});
 ```
 
 ## Backend
@@ -84,7 +85,7 @@ const mobigent = await startMobigent({
 });
 
 await mobigent.app.expense.create({ merchant: "Coffee", amount: 8 });
-await expenses.list();
+await mobigent.app.expense.list();
 ```
 
 Mobigent pairs the app and backend by `appId`, waits for the app connection when a function is called, and routes the call to the app-owned function.

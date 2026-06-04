@@ -28,6 +28,7 @@ import {
   write,
   type MobigentSocketFactory
 } from "@mobigent/app";
+import { createApp as createReactNativeApp } from "@mobigent/react-native";
 
 const createNodeSocket: MobigentSocketFactory = (url) => new WebSocket(url);
 
@@ -131,6 +132,33 @@ test("createApp accepts app functions directly for the lowest ceremony path", ()
 
   assert.equal(features[0].namespace, "expense");
   assert.equal(features[0].actions[0].name, "expense_create");
+  assert.equal(app.options.capabilities[0]?.namespace, "expense");
+  assert.equal(app.options.capabilities[0]?.actions[0]?.name, "expense_create");
+});
+
+test("createApp accepts an app id and functions as the shortest app path", () => {
+  const app = createApp("com.example.shortapp", {
+    expense: {
+      list: async () => ({ items: [] }),
+      create: async (input) => ({ id: "EXP-SHORT", ...input })
+    }
+  });
+
+  assert.equal(app.options.appId, "com.example.shortapp");
+  assert.equal(app.options.capabilities[0]?.namespace, "expense");
+  assert.equal(app.options.capabilities[0]?.resources[0]?.name, "expense_list");
+  assert.equal(app.options.capabilities[0]?.actions[0]?.name, "expense_create");
+});
+
+test("React Native package createApp also accepts the short app id path", () => {
+  const app = createReactNativeApp("com.example.rnshort", {
+    expense: {
+      list: async () => ({ items: [] }),
+      create: async (input) => ({ id: "EXP-RN", ...input })
+    }
+  });
+
+  assert.equal(app.options.appId, "com.example.rnshort");
   assert.equal(app.options.capabilities[0]?.namespace, "expense");
   assert.equal(app.options.capabilities[0]?.actions[0]?.name, "expense_create");
 });
@@ -378,6 +406,57 @@ test("app package connects to a backend object without connection URL ceremony",
     }
   } finally {
     await backend.stop();
+  }
+});
+
+test("app and backend SDKs can pair with matching string app identity", async () => {
+  const previousWsPort = process.env.MOBIGENT_WS_PORT;
+  const previousHttpPort = process.env.MOBIGENT_HTTP_PORT;
+  process.env.MOBIGENT_WS_PORT = "19015";
+  process.env.MOBIGENT_HTTP_PORT = "19016";
+
+  const backend = await startMobigent("com.example.stringpair", "String Pair App");
+  const app = createApp(
+    "com.example.stringpair",
+    {
+      expense: {
+        create: write(async (input) => ({ id: "EXP-STRING", ...input }), {
+          input: {
+            merchant: "string"
+          },
+          confirm: true
+        })
+      }
+    },
+    {
+      createSocket: createNodeSocket,
+      confirm: async () => true
+    }
+  );
+
+  try {
+    const connection = await app.connect(backend);
+
+    try {
+      assert.deepEqual(await backend.app.expense.create({ merchant: "Noodles" }), {
+        id: "EXP-STRING",
+        merchant: "Noodles"
+      });
+    } finally {
+      connection.disconnect();
+    }
+  } finally {
+    await backend.stop();
+    if (previousWsPort === undefined) {
+      delete process.env.MOBIGENT_WS_PORT;
+    } else {
+      process.env.MOBIGENT_WS_PORT = previousWsPort;
+    }
+    if (previousHttpPort === undefined) {
+      delete process.env.MOBIGENT_HTTP_PORT;
+    } else {
+      process.env.MOBIGENT_HTTP_PORT = previousHttpPort;
+    }
   }
 });
 
@@ -773,8 +852,9 @@ test("backend init CLI infers app identity and prints the short app init command
     assert.equal(writeCode, 0, stderr);
     assert.match(stdout, /npm install @mobigent\/app/);
     assert.match(stdout, /use the same app id, expose normal app functions, then wrap your app once/);
-    assert.match(stdout, /appId: "com\.example\.expense"/);
-    assert.match(stdout, /functions: \{ expense: \{ list: async \(\) => listExpenses\(\) \} \}/);
+    assert.match(stdout, /createApp\("com\.example\.expense", \{/);
+    assert.match(stdout, /expense: \{ list: async \(\) => listExpenses\(\) \}/);
+    assert.doesNotMatch(stdout, /functions: \{ expense/);
     assert.doesNotMatch(stdout, /read\(listExpenses\)/);
     assert.match(stdout, /No app config file is required for the normal app\/backend path/);
     assert.match(stdout, /Need sample files instead of hand-writing them\?/);

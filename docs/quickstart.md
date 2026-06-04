@@ -61,13 +61,10 @@ Create a Mobigent file yourself. There is no app-side init command in the normal
 ```ts
 import { createApp } from "@mobigent/app";
 
-export const mobigent = createApp({
-  appId: "com.acme.expenses",
-  functions: {
-    expense: {
-      list: async () => ({ items: await listExpenses() }),
-      create: async (input) => createExpense(input)
-    }
+export const mobigent = createApp("com.acme.expenses", {
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
   }
 });
 ```
@@ -141,7 +138,7 @@ Call app functions from the backend SDK object. Mobigent waits for the app conne
 
 ```ts
 await mobigent.app.expense.create({ merchant: "Coffee", amount: 8 });
-await expenses.list();
+await mobigent.app.expense.list();
 ```
 
 With no options, Mobigent infers a starter app id and app name from your project. Real apps should pass `appId` explicitly.
@@ -173,22 +170,22 @@ open http://localhost:8788/inspect
 For local simulators, the SDK usually picks the right local connection. If you are on a physical device or hosted backend, pass the backend location directly in your app:
 
 ```ts
-export const mobigent = createApp({
-  appId: "com.acme.expenses",
-  connection: { host: "192.168.1.20" },
-  functions: {
-    expense: {
-      list: async () => ({ items: [] }),
-      create: async (input) => ({ id: "EXP-1", ...input })
-    }
+export const mobigent = createApp("com.acme.expenses", {
+  expense: {
+    list: async () => ({ items: [] }),
+    create: async (input) => ({ id: "EXP-1", ...input })
   }
+}, {
+  connection: { host: "192.168.1.20" }
 });
 ```
 
 Use your computer's LAN IP for a physical phone. For a hosted backend, use the hosted WebSocket URL:
 
 ```ts
-connection: "wss://your-backend.example.com"
+createApp("com.acme.expenses", functions, {
+  connection: "wss://your-backend.example.com"
+});
 ```
 
 No generated app config file is needed.

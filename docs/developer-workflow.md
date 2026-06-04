@@ -9,12 +9,10 @@ Expose one read function and one confirmed write function from a real feature. W
 ```ts
 import { createApp } from "@mobigent/app";
 
-export const mobigent = createApp({
-  functions: {
-    expense: {
-      list: async () => ({ items: await listExpenses() }),
-      create: async (input) => createExpense(input)
-    }
+export const mobigent = createApp("com.acme.expenses", {
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
   }
 });
 ```

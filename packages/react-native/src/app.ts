@@ -7,6 +7,7 @@ export {
   setupMobigent,
   withMobigent,
   wrapMobigent,
+  type MobigentSimpleAppIdentityOptions,
   type MobigentSimpleAppInput,
   type MobigentSimpleAppOptions,
   type MobigentWithAppOptions
