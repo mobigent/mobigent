@@ -88,6 +88,7 @@ The common backend object includes:
 - `appSettings()` to produce app-side setup values
 - `pairing()` to produce app-side pairing settings
 - `appClient()` as an older explicit name for `pairing()`
+- `chatgpt()`, `claude()`, and `openai()` for common agent setup
 - `app.expense.create(input)` or `app.expense.list()` to call app functions with the clean package API
 - `use("expense", { createExpense: "create" })` to bind backend-friendly helper names
 - `use("expense").create(input)` or `use("expense", ["create", "list"])` to bind app function groups

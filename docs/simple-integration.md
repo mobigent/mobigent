@@ -142,7 +142,7 @@ For one quick explicit call, use `mobigent.call("expense.create", input)`.
 
 - app connection
 - local development defaults
-- app/backend pairing by app id
+- app/backend matching by app id
 - function naming
 - automatic readiness waiting
 - input/output shapes

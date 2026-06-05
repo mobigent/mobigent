@@ -69,7 +69,7 @@ export default withMobigent(App, "com.acme.expenses", {
 });
 ```
 
-For non-React hosts and local demos, give the app object the backend pairing once, then connect with no arguments:
+For non-React hosts and local demos, give the app object the backend app settings once, then connect with no arguments:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";

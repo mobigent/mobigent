@@ -234,6 +234,9 @@ export type MobigentBackend = {
   pairing(options: MobigentBackendAppConfigOptions): MobigentBackendClient;
   app: MobigentBackendAppAccessor;
   agent(kind?: MobigentAgentKind, options?: MobigentAgentOptions): ProviderBundle;
+  chatgpt(options?: MobigentAgentOptions): ProviderBundle;
+  claude(options?: MobigentAgentOptions): ProviderBundle;
+  openai(options?: MobigentAgentOptions): ProviderBundle;
   agents(options?: MobigentAgentOptions): ProviderBundle[];
   stop(): Promise<void>;
   ready(options?: MobigentBackendReadyOptions): Promise<MobigentBackendStatus>;
@@ -440,6 +443,19 @@ export async function startMobigentBackend(
     copyAppConfig: () => appConfigCode
   };
 
+  const agent = (kind: MobigentAgentKind = "chatgpt-actions", agentOptions: MobigentAgentOptions = {}) => {
+    const id = normalizeAgentKind(kind);
+    const [provider] = filterProviderCatalog(createAgentCatalog(agentOptions), { ids: [id] });
+    if (!provider) {
+      throw new Error(`Mobigent agent provider is not available: ${kind}`);
+    }
+    const bundle = createProviderBundle(provider);
+    if (agentOptions.agentId && bundle.runtimeEnv) {
+      bundle.runtimeEnv.MOBIGENT_AGENT_ID = agentOptions.agentId;
+    }
+    return bundle;
+  };
+
   const backend = {
     inspectorUrl: urls.inspector,
     apiUrl: urls.http,
@@ -453,18 +469,10 @@ export async function startMobigentBackend(
     appSettings: client,
     pairing: client,
     app: appAccessor,
-    agent: (kind: MobigentAgentKind = "chatgpt-actions", agentOptions: MobigentAgentOptions = {}) => {
-      const id = normalizeAgentKind(kind);
-      const [provider] = filterProviderCatalog(createAgentCatalog(agentOptions), { ids: [id] });
-      if (!provider) {
-        throw new Error(`Mobigent agent provider is not available: ${kind}`);
-      }
-      const bundle = createProviderBundle(provider);
-      if (agentOptions.agentId && bundle.runtimeEnv) {
-        bundle.runtimeEnv.MOBIGENT_AGENT_ID = agentOptions.agentId;
-      }
-      return bundle;
-    },
+    agent,
+    chatgpt: (agentOptions?: MobigentAgentOptions) => agent("chatgpt", agentOptions),
+    claude: (agentOptions?: MobigentAgentOptions) => agent("claude", agentOptions),
+    openai: (agentOptions?: MobigentAgentOptions) => agent("openai", agentOptions),
     agents: (agentOptions: MobigentAgentOptions = {}) => createAgentCatalog(agentOptions).map((provider) => createProviderBundle(provider)),
     defaultApp,
     appConfigCode,

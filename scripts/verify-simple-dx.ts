@@ -91,6 +91,9 @@ assert.match(backendPackageRoot, /appConnectionUrl: string/, "@mobigent/backend 
 assert.match(backendPackageRoot, /appSettings\(\): MobigentBackendClient/, "@mobigent/backend should expose backend.appSettings() as the friendly app settings handoff");
 assert.match(backendPackageRoot, /appClient\(\): MobigentBackendClient/, "@mobigent/backend should keep backend.appClient() compatibility");
 assert.match(backendPackageRoot, /pairing\(\): MobigentBackendClient/, "@mobigent/backend should keep backend.pairing() compatibility");
+assert.match(backendPackageRoot, /chatgpt\(options\?: MobigentAgentOptions\): ProviderBundle/, "@mobigent/backend should expose backend.chatgpt() for common ChatGPT setup");
+assert.match(backendPackageRoot, /claude\(options\?: MobigentAgentOptions\): ProviderBundle/, "@mobigent/backend should expose backend.claude() for common Claude setup");
+assert.match(backendPackageRoot, /openai\(options\?: MobigentAgentOptions\): ProviderBundle/, "@mobigent/backend should expose backend.openai() for common OpenAI setup");
 for (const typeName of [
   "Backend",
   "BackendOptions",
@@ -430,6 +433,7 @@ for (const path of ["packages/app/README.md", "packages/react-native/README.md"]
   assert.match(backendReadme, /type Backend/, "packages/backend/README.md should teach the friendly Backend type");
   assert.match(backendReadme, /BackendOptions/, "packages/backend/README.md should list the friendly BackendOptions type");
   assert.match(backendReadme, /backend\.appSettings\(\)/, "packages/backend/README.md should teach backend.appSettings()");
+  assert.match(backendReadme, /backend\.chatgpt\(\).*backend\.claude\(\).*backend\.openai\(\)/, "packages/backend/README.md should teach friendly common agent setup shortcuts");
   assert.match(backendReadme, /BackendPairing.*backend\.pairing\(\)/, "packages/backend/README.md should teach BackendPairing for backend.pairing()");
   assert.match(backendReadme, /startMobigent\("com\.acme\.expenses"\)/);
   assert.match(backendReadme, /mobigent\.app\.expense\.create/);
@@ -575,8 +579,8 @@ for (const path of ["docs/api/README.md", "apps/docs/docs/api.md"]) {
   );
   assert.match(
     docsPage,
-    /const chatgpt = mobigent\.agent\("chatgpt"/,
-    "website docs should route provider setup through the backend package helper"
+    /const chatgpt = mobigent\.chatgpt\(/,
+    "website docs should route common agent setup through backend package shortcuts"
   );
 }
 

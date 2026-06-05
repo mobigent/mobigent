@@ -33,7 +33,7 @@ The app and backend pair by `appId`. Mobigent handles waiting for the app connec
 
 If you want the shortest possible local demo, `startMobigent()` also works with inferred starter values. For production, pass a stable app id.
 
-For tests or non-React demos, pass the backend pairing once when you create the app SDK object:
+For tests or non-React demos, pass the backend app settings once when you create the app SDK object:
 
 ```ts
 import { createApp } from "@mobigent/app";
@@ -52,7 +52,7 @@ For debugging, `backend.appConnectionUrl` shows where apps connect and `backend.
 ## What It Handles
 
 - app connection setup
-- app/backend pairing by app id
+- app/backend matching by app id
 - app function routing
 - validation
 - confirmations
@@ -79,6 +79,7 @@ The public TypeScript surface uses backend names:
 - `Backend` for the object returned by `startMobigent(...)`
 - `BackendOptions` for startup options
 - `backend.appSettings()` for app-side setup values
+- `backend.chatgpt()`, `backend.claude()`, and `backend.openai()` for common agent setup
 - `BackendPairing` for `backend.pairing()`
 - `BackendConnection` for `backend.connection` and compatibility code
 - `AppFunction` for a callable app function on the backend

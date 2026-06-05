@@ -83,7 +83,7 @@ That is the app integration. For throwaway local demos, Mobigent can use a safe 
 
 No app-side init command is required. The SDK handles the app connection. Optional generators are only useful when you want example files.
 
-For a non-React demo or test host, pass the backend pairing once and connect with no extra setup:
+For a non-React demo or test host, pass the backend app settings once and connect with no extra setup:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
@@ -160,8 +160,8 @@ Use `mobigent.waitForApp()` only when you want an explicit startup health gate. 
 Need agent setup? Use the same backend object:
 
 ```ts
-console.log(mobigent.agent("chatgpt").endpoints.openApi);
-console.log(mobigent.agent("claude").guide);
+console.log(mobigent.chatgpt().endpoints.openApi);
+console.log(mobigent.claude().guide);
 ```
 
 For local checks:

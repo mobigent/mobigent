@@ -401,8 +401,8 @@ For quick one-off calls, use `mobigent.call("expense.create", input)`.
 It also gives you agent setup from the same backend object:
 
 ```ts
-console.log(mobigent.agent("chatgpt").endpoints.openApi);
-console.log(mobigent.agent("claude").guide);
+console.log(mobigent.chatgpt().endpoints.openApi);
+console.log(mobigent.claude().guide);
 ```
 
 ## Connect An Agent
@@ -427,7 +427,7 @@ npm run demo:app
 
 That single page includes the app UI, an agent request box, the function result, and a link to the inspector.
 
-Use `mobigent.agent("chatgpt")` for ChatGPT Actions setup, `mobigent.agent("claude")` for Claude Desktop setup, or `mobigent.agent("openai")` for server-side OpenAI Responses setup.
+Use `mobigent.chatgpt()` for ChatGPT Actions setup, `mobigent.claude()` for Claude Desktop setup, or `mobigent.openai()` for server-side OpenAI Responses setup.
 
 Advanced local agent clients can still use the MCP server:
 

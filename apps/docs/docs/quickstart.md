@@ -87,7 +87,7 @@ export default withMobigent(App, "com.acme.expenses", {
 });
 ```
 
-For a non-React demo or test host, pass the backend pairing once and connect with no extra setup:
+For a non-React demo or test host, pass the backend app settings once and connect with no extra setup:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
@@ -110,7 +110,7 @@ import { startMobigent } from "@mobigent/backend";
 const mobigent = await startMobigent("com.acme.expenses");
 
 console.log(mobigent.inspectorUrl);
-console.log(mobigent.agent("chatgpt").endpoints.openApi);
+console.log(mobigent.chatgpt().endpoints.openApi);
 ```
 
 Mobigent pairs the backend and app by `appId`, handles the connection, routes app function calls, exposes the inspector, and waits for readiness when needed.
