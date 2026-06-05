@@ -96,7 +96,7 @@ import { expenseFunctions } from "./app-functions";
 
 const backend = await startMobigent("com.acme.expenses");
 const mobigent = createApp("com.acme.expenses", expenseFunctions, {
-  pairing: backend.pairing()
+  backend: backend.appSettings()
 });
 
 await mobigent.connect();

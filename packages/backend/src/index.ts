@@ -226,6 +226,9 @@ export type MobigentBackend = {
   appClient(): MobigentBackendClient;
   appClient(appId: string, appName?: string, options?: Omit<MobigentBackendAppConfigOptions, "appId" | "appName">): MobigentBackendClient;
   appClient(options: MobigentBackendAppConfigOptions): MobigentBackendClient;
+  appSettings(): MobigentBackendClient;
+  appSettings(appId: string, appName?: string, options?: Omit<MobigentBackendAppConfigOptions, "appId" | "appName">): MobigentBackendClient;
+  appSettings(options: MobigentBackendAppConfigOptions): MobigentBackendClient;
   pairing(): MobigentBackendClient;
   pairing(appId: string, appName?: string, options?: Omit<MobigentBackendAppConfigOptions, "appId" | "appName">): MobigentBackendClient;
   pairing(options: MobigentBackendAppConfigOptions): MobigentBackendClient;
@@ -447,6 +450,7 @@ export async function startMobigentBackend(
     advanced,
     client,
     appClient: client,
+    appSettings: client,
     pairing: client,
     app: appAccessor,
     agent: (kind: MobigentAgentKind = "chatgpt-actions", agentOptions: MobigentAgentOptions = {}) => {

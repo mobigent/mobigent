@@ -50,7 +50,7 @@ import { expenseFunctions } from "./app-functions";
 
 const backend = await startMobigent("com.acme.expenses");
 const mobigent = createApp("com.acme.expenses", expenseFunctions, {
-  pairing: backend.pairing()
+  backend: backend.appSettings()
 });
 
 const connection = await mobigent.connect();
@@ -85,6 +85,7 @@ The common backend object includes:
 - `agentUrl`
 - `openApiUrl`
 - `appConnectionUrl`
+- `appSettings()` to produce app-side setup values
 - `pairing()` to produce app-side pairing settings
 - `appClient()` as an older explicit name for `pairing()`
 - `app.expense.create(input)` or `app.expense.list()` to call app functions with the clean package API
@@ -114,7 +115,7 @@ Advanced and compatibility fields are still available, but they should not be ne
 - `createApp(appId, functions)`: normal app setup.
 - `createApp({ namespace: { name: fn } })`: quick local demo setup.
 - `mobigent.with(App)`: wraps an existing React Native app.
-- `createApp(appId, functions, { pairing })`: bakes backend pairing into app setup when you do not want to pass it later.
+- `createApp(appId, functions, { backend })`: bakes backend app settings into setup when you do not want to pass them later.
 - `mobigent.connect()`: connects a non-React host or demo after setup.
 - `mobigent.emit(name, payload)`: emits app activity.
 - `createApp(appId, functions, { connection: { host: "192.168.1.20" } })`: connects a physical phone to your local backend.
@@ -126,7 +127,8 @@ Advanced and compatibility fields are still available, but they should not be ne
 Friendly public types:
 
 - `AppFunctions` and `AppFunctionMap` for app-owned functions.
-- `AppPairing`, `BackendPairing`, and `Pairing` for app/backend handoff values.
+- `MobigentAppBackendSource` for app/backend handoff values.
+- `AppPairing`, `BackendPairing`, and `Pairing` remain available for compatibility.
 - `Backend`, `BackendOptions`, and `BackendPairing` from `@mobigent/backend`.
 - `AppConnection`, `AppConnectionSettings`, and `BackendConnection` remain available for compatibility.
 

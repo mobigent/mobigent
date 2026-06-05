@@ -77,7 +77,7 @@ import { createApp } from "@mobigent/app";
 
 const backend = await startMobigent("com.acme.expenses");
 const mobigent = createApp("com.acme.expenses", appFunctions, {
-  pairing: backend.pairing()
+  backend: backend.appSettings()
 });
 
 await mobigent.connect();
@@ -89,4 +89,4 @@ No app-side init command is required. Write the functions directly in your app c
 
 The root `@mobigent/app` import is intentionally small: app functions, schema helpers, confirmation/status UI, and connection helpers. Advanced React Native APIs remain available from explicit subpaths such as `@mobigent/app/app`, `@mobigent/app/ui`, `@mobigent/app/schema-adapters`, `@mobigent/app/platform-actions`, and `@mobigent/app/expo`.
 
-Friendly public types are available from the root import when you want annotations: `AppFunctions`, `AppFunctionMap`, `MobigentApp`, `AppPairing`, `BackendPairing`, and `Pairing`. `AppConnection`, `AppConnectionSettings`, and `BackendConnection` remain available for compatibility.
+Friendly public types are available from the root import when you want annotations: `AppFunctions`, `AppFunctionMap`, `MobigentApp`, and `MobigentAppBackendSource`. `AppPairing`, `BackendPairing`, `Pairing`, `AppConnection`, `AppConnectionSettings`, and `BackendConnection` remain available for compatibility.

@@ -40,7 +40,7 @@ import { createApp } from "@mobigent/app";
 
 const backend = await startMobigent("com.acme.expenses");
 const app = createApp("com.acme.expenses", appFunctions, {
-  pairing: backend.pairing()
+  backend: backend.appSettings()
 });
 
 await app.connect();
@@ -78,6 +78,7 @@ The public TypeScript surface uses backend names:
 
 - `Backend` for the object returned by `startMobigent(...)`
 - `BackendOptions` for startup options
+- `backend.appSettings()` for app-side setup values
 - `BackendPairing` for `backend.pairing()`
 - `BackendConnection` for `backend.connection` and compatibility code
 - `AppFunction` for a callable app function on the backend

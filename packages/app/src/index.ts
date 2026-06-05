@@ -90,6 +90,7 @@ export type {
 export type MobigentAppPackageOptions = MobigentSimpleAppInput | MobigentWithAppOptions;
 export type MobigentAppPackageIdentityOptions = Omit<MobigentSimpleAppOptions, "appId" | "functions"> & {
   appName?: string;
+  backend?: MobigentAppBackendSource;
 };
 export type MobigentAppPackageInput = MobigentAppPackageOptions | MobigentSimpleFunctionMap | string;
 export type MobigentAppPairingSource = MobigentSimpleAppConfig | (() => MobigentSimpleAppConfig);
@@ -113,6 +114,7 @@ type MobigentLegacyBackendConnectionTarget = MobigentBackendConnectionTarget & {
     authToken?: string;
   };
 };
+export type MobigentAppBackendSource = MobigentAppPairingSource | MobigentBackendConnectionTarget;
 export type MobigentAppConnectSettings = MobigentSimpleConnectionSettings | MobigentBackendConnectionTarget;
 export type MobigentAppPairing = MobigentSimpleAppConfig;
 
@@ -285,10 +287,14 @@ function resolvePackageConnectionSettings(input: MobigentAppPackageOptions): Mob
     capabilities: _capabilities,
     modules: _modules,
     rootProps: _rootProps,
+    backend,
     ...settings
-  } = input as MobigentWithAppOptions & { functions?: MobigentSimpleFunctionMap };
+  } = input as MobigentWithAppOptions & { functions?: MobigentSimpleFunctionMap; backend?: MobigentAppBackendSource };
 
-  return settings;
+  return {
+    ...resolveAppBackendSettings(backend),
+    ...settings
+  };
 }
 
 function resolvePackageConnectSettings(
@@ -326,7 +332,21 @@ function resolveBackendConnectionSettings(target: MobigentLegacyBackendConnectio
   };
 }
 
-function isBackendConnectionTarget(value: MobigentAppConnectSettings): value is MobigentLegacyBackendConnectionTarget {
+function resolveAppBackendSettings(backend: MobigentAppBackendSource | undefined): MobigentSimpleConnectionSettings {
+  if (!backend) {
+    return {};
+  }
+
+  if (isBackendConnectionTarget(backend)) {
+    return resolveBackendConnectionSettings(backend);
+  }
+
+  return {
+    pairing: resolveAppPairing(backend as MobigentAppPairingSource)
+  };
+}
+
+function isBackendConnectionTarget(value: unknown): value is MobigentLegacyBackendConnectionTarget {
   return Boolean(
     value &&
       typeof value === "object" &&

@@ -331,7 +331,7 @@ const appServer = app.listen(appPort, () => {
 
 const mobigent = createApp(${JSON.stringify(options.appId)}, expenseFunctions, {
   appName: ${JSON.stringify(options.appName)},
-  pairing: backend.pairing(),
+  backend: backend.appSettings(),
   createSocket: createNodeSocket,
   confirm: async ({ input }) => {
     console.log("\\n[approval] App approval required");

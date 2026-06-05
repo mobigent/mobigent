@@ -39,6 +39,7 @@ import type {
   AppOptions,
   AppPairing,
   BackendConnection as AppBackendConnection,
+  MobigentAppBackendSource,
   BackendPairing as AppBackendPairing,
   MobigentApp
 } from "@mobigent/app";
@@ -61,6 +62,7 @@ type PublicAppTypeAliasesCompile = [
   AppOptions,
   AppPairing,
   AppBackendPairing,
+  MobigentAppBackendSource,
   AppConnection,
   AppConnectionSettings,
   AppBackendConnection,
@@ -711,6 +713,47 @@ test("app package accepts backend pairing as a named setup option", async () => 
       await backend.waitForApp({ minFunctions: 1 });
       assert.deepEqual(await backend.app.expense.list(), {
         items: [{ id: "EXP-NAMED-PAIRING" }]
+      });
+    } finally {
+      connection.disconnect();
+    }
+  } finally {
+    await backend.stop();
+  }
+});
+
+test("app and backend packages expose a plain app settings handoff", async () => {
+  const backend = await startMobigent("com.example.appsettings", "App Settings App", {
+    wsPort: 19027,
+    httpPort: 19028,
+    silent: true
+  });
+  const appSettings: MobigentAppBackendSource = backend.appSettings();
+  const app = createApp("com.example.appsettings", {
+    expense: {
+      list: async () => ({ items: [{ id: "EXP-SETTINGS" }] })
+    }
+  }, {
+    backend: appSettings,
+    createSocket: createNodeSocket
+  });
+
+  try {
+    assert.deepEqual(backend.appSettings(), backend.connection);
+    assert.deepEqual(backend.appSettings("com.example.other", "Other App"), {
+      appId: "com.example.other",
+      appName: "Other App",
+      connectionUrl: "ws://localhost:19027",
+      authToken: undefined,
+      version: undefined
+    });
+
+    const connection = await app.connect();
+
+    try {
+      await backend.waitForApp({ minFunctions: 1 });
+      assert.deepEqual(await backend.app.expense.list(), {
+        items: [{ id: "EXP-SETTINGS" }]
       });
     } finally {
       connection.disconnect();

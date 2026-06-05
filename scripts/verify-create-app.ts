@@ -105,7 +105,8 @@ try {
   assert.match(server, /backend\.app\.expense\.create\(input\)/);
   assert.doesNotMatch(server, /backend\.functions\.expense\.create\(input\)/);
   assert.match(server, /createApp\("com\.mobigent\.expense", expenseFunctions/);
-  assert.match(server, /pairing: backend\.pairing\(\)/);
+  assert.match(server, /backend: backend\.appSettings\(\)/);
+  assert.doesNotMatch(server, /pairing: backend\.pairing\(\)/);
   assert.doesNotMatch(server, /functions: expenseFunctions/);
   assert.match(server, /mobigent\.connect\(\)/);
   assert.doesNotMatch(server, /mobigent\.connect\(backend\)/);
