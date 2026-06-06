@@ -662,6 +662,44 @@ test("app package connects with the backend object directly", async () => {
   }
 });
 
+test("app package infers identity and connection from a backend object", async () => {
+  const backend = await startMobigent("com.example.inferbackend", "Infer Backend App", {
+    wsPort: 19033,
+    httpPort: 19034,
+    silent: true
+  });
+  const app = createApp(
+    {
+      expense: {
+        list: async () => ({ items: [{ id: "EXP-INFER-BACKEND" }] })
+      }
+    },
+    {
+      backend,
+      createSocket: createNodeSocket
+    }
+  );
+
+  try {
+    assert.equal(app.options.appId, "com.example.inferbackend");
+    assert.equal(app.options.appName, "Infer Backend App");
+    assert.equal(app.options.gatewayUrl, "ws://localhost:19033");
+
+    const connection = await app.connect();
+
+    try {
+      await backend.waitForApp({ minFunctions: 1 });
+      assert.deepEqual(await backend.functions.expense.list(), {
+        items: [{ id: "EXP-INFER-BACKEND" }]
+      });
+    } finally {
+      connection.disconnect();
+    }
+  } finally {
+    await backend.stop();
+  }
+});
+
 test("app package connect accepts the backend object directly", async () => {
   const backend = await startMobigent("com.example.connectbackend", "Connect Backend App", {
     wsPort: 19031,

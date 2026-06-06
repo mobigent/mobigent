@@ -37,7 +37,7 @@ const mobigent = await startMobigent("com.acme.expenses");
 
 await mobigent.functions.expense.create(input);`;
 
-const deviceConnectionCode = `export const mobigent = createApp("com.acme.expenses", {
+const deviceConnectionCode = `export const mobigent = createApp({
   expense: { list, create }
 }, {
   backend

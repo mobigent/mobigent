@@ -104,7 +104,9 @@ try {
   assert.doesNotMatch(server, /const expense = backend\.feature\("expense"\)/);
   assert.match(server, /backend\.functions\.expense\.create\(input\)/);
   assert.doesNotMatch(server, /backend\.app\.expense\.create\(input\)/);
-  assert.match(server, /createApp\("com\.mobigent\.expense", expenseFunctions/);
+  assert.match(server, /createApp\(expenseFunctions, \{/);
+  assert.doesNotMatch(server, /createApp\("com\.mobigent\.expense", expenseFunctions/);
+  assert.doesNotMatch(server, /appName: "Expense Demo"/);
   assert.match(server, /backend,\n/);
   assert.doesNotMatch(server, /backend: backend\.appSettings\(\)/);
   assert.doesNotMatch(server, /pairing: backend\.pairing\(\)/);

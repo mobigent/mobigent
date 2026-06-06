@@ -76,7 +76,7 @@ import { startMobigent } from "@mobigent/backend";
 import { createApp } from "@mobigent/app";
 
 const backend = await startMobigent("com.acme.expenses");
-const mobigent = createApp("com.acme.expenses", appFunctions, {
+const mobigent = createApp(appFunctions, {
   backend
 });
 

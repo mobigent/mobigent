@@ -209,24 +209,45 @@ function normalizeCreateAppInput(
 ): MobigentAppPackageOptions {
   if (typeof input !== "string") {
     if (isFunctionMapInput(input)) {
-      return {
+      return normalizeBackendBackedAppInput({
         ...(functionsOrOptions as MobigentAppPackageIdentityOptions | undefined),
         functions: input
-      };
+      });
     }
 
-    return input;
+    return normalizeBackendBackedAppInput(input);
   }
 
   if (!functionsOrOptions || isIdentityOptions(functionsOrOptions)) {
     throw new Error("createApp(appId, functions) requires an app functions object.");
   }
 
-  return {
+  return normalizeBackendBackedAppInput({
     ...options,
     appId: input,
     functions: functionsOrOptions
-  };
+  });
+}
+
+function normalizeBackendBackedAppInput(input: MobigentAppPackageOptions): MobigentAppPackageOptions {
+  if (isFeatureInput(input)) {
+    return input;
+  }
+
+  const options = input as MobigentWithAppOptions & { functions?: MobigentSimpleFunctionMap; backend?: MobigentAppBackendSource };
+  const backendSettings = resolveAppBackendSettings(options.backend);
+
+  return omitUndefinedValues({
+    ...backendSettings,
+    ...options,
+    appId: options.appId ?? backendSettings.appId,
+    appName: options.appName ?? backendSettings.appName,
+    connection: options.connection ?? backendSettings.connection,
+    connectionUrl: options.connectionUrl ?? backendSettings.connectionUrl,
+    gatewayUrl: options.gatewayUrl ?? backendSettings.gatewayUrl,
+    version: options.version ?? backendSettings.version,
+    authToken: options.authToken ?? backendSettings.authToken
+  });
 }
 
 function isFunctionMapInput(value: MobigentAppPackageInput): value is MobigentSimpleFunctionMap {
@@ -392,4 +413,8 @@ function toArray<T>(value: T | T[] | undefined): T[] {
   }
 
   return Array.isArray(value) ? value : [value];
+}
+
+function omitUndefinedValues<T extends Record<string, unknown>>(value: T): T {
+  return Object.fromEntries(Object.entries(value).filter(([, entryValue]) => entryValue !== undefined)) as T;
 }

@@ -329,8 +329,7 @@ const appServer = app.listen(appPort, () => {
   openBrowser(\`http://localhost:\${appPort}\`);
 });
 
-const mobigent = createApp(${JSON.stringify(options.appId)}, expenseFunctions, {
-  appName: ${JSON.stringify(options.appName)},
+const mobigent = createApp(expenseFunctions, {
   backend,
   createSocket: createNodeSocket,
   confirm: async ({ input }) => {

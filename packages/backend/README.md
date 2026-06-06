@@ -39,7 +39,7 @@ For tests or non-React demos, pass the backend object when you create the app SD
 import { createApp } from "@mobigent/app";
 
 const backend = await startMobigent("com.acme.expenses");
-const app = createApp("com.acme.expenses", appFunctions, {
+const app = createApp(appFunctions, {
   backend
 });
 
