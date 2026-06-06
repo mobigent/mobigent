@@ -70,6 +70,10 @@ export type MobigentSimpleCapabilities = {
   components: MobigentComponentRegistration[];
 };
 
+export type MobigentSimpleActionHandler = (input: any) => Promise<unknown> | unknown;
+export type MobigentSimpleResourceReader = () => Promise<unknown> | unknown;
+export type MobigentSimpleComponentFocusHandler = (props?: any) => Promise<unknown> | unknown;
+
 export type MobigentSimpleFeature = MobigentSimpleCapabilities & {
   readonly namespace: string;
   action(name: string, handler: MobigentActionHandler, options?: MobigentSimpleActionOptions): MobigentSimpleFeature;
@@ -84,24 +88,28 @@ export type MobigentSimpleFeature = MobigentSimpleCapabilities & {
   capabilities(): MobigentSimpleCapabilities;
 };
 
-export type MobigentSimpleCapabilityDefinition =
-  | {
-      kind: "action";
-      handler: MobigentActionHandler;
-      options?: MobigentSimpleActionOptions;
-    }
-  | {
-      kind: "resource";
-      read: MobigentResourceReader;
-      options?: MobigentSimpleResourceOptions;
-    }
-  | {
-      kind: "component";
-      focus: MobigentComponentFocusHandler;
-      options?: MobigentSimpleComponentOptions;
-    };
+export type MobigentSimpleActionDefinition<Handler extends MobigentSimpleActionHandler = MobigentSimpleActionHandler> = {
+  kind: "action";
+  handler: Handler;
+  options?: MobigentSimpleActionOptions;
+};
+export type MobigentSimpleResourceDefinition<Reader extends MobigentSimpleResourceReader = MobigentSimpleResourceReader> = {
+  kind: "resource";
+  read: Reader;
+  options?: MobigentSimpleResourceOptions;
+};
+export type MobigentSimpleComponentDefinition<Focus extends MobigentSimpleComponentFocusHandler = MobigentSimpleComponentFocusHandler> = {
+  kind: "component";
+  focus: Focus;
+  options?: MobigentSimpleComponentOptions;
+};
 
-export type MobigentSimpleFunction = MobigentActionHandler | MobigentSimpleCapabilityDefinition;
+export type MobigentSimpleCapabilityDefinition =
+  | MobigentSimpleActionDefinition
+  | MobigentSimpleResourceDefinition
+  | MobigentSimpleComponentDefinition;
+
+export type MobigentSimpleFunction = MobigentSimpleActionHandler | MobigentSimpleCapabilityDefinition;
 export type MobigentSimpleCapabilityMap = Record<string, MobigentSimpleFunction>;
 export type MobigentSimpleFeatureMap = Record<string, MobigentSimpleCapabilityMap>;
 export type MobigentSimpleFunctionMap = MobigentSimpleFeatureMap;
@@ -201,7 +209,10 @@ export function emitMobigentEvent(name: string, payload: JsonObject = {}) {
   return mobigent.emit(name, payload);
 }
 
-export function read(read: MobigentResourceReader, options?: MobigentSimpleResourceOptions): MobigentSimpleCapabilityDefinition {
+export function read<const Reader extends MobigentSimpleResourceReader>(
+  read: Reader,
+  options?: MobigentSimpleResourceOptions
+): MobigentSimpleResourceDefinition<Reader> {
   return {
     kind: "resource",
     read,
@@ -209,10 +220,10 @@ export function read(read: MobigentResourceReader, options?: MobigentSimpleResou
   };
 }
 
-export function action(
-  handler: MobigentActionHandler,
+export function action<const Handler extends MobigentSimpleActionHandler>(
+  handler: Handler,
   options?: MobigentSimpleActionOptions
-): MobigentSimpleCapabilityDefinition {
+): MobigentSimpleActionDefinition<Handler> {
   return {
     kind: "action",
     handler,
@@ -220,17 +231,17 @@ export function action(
   };
 }
 
-export function write(
-  handler: MobigentActionHandler,
+export function write<const Handler extends MobigentSimpleActionHandler>(
+  handler: Handler,
   options?: MobigentSimpleActionOptions
-): MobigentSimpleCapabilityDefinition {
+): MobigentSimpleActionDefinition<Handler> {
   return action(handler, { confirm: true, ...options });
 }
 
-export function screen(
-  focus: MobigentComponentFocusHandler,
+export function screen<const Focus extends MobigentSimpleComponentFocusHandler>(
+  focus: Focus,
   options?: MobigentSimpleComponentOptions
-): MobigentSimpleCapabilityDefinition {
+): MobigentSimpleComponentDefinition<Focus> {
   return {
     kind: "component",
     focus,

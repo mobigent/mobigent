@@ -294,7 +294,7 @@ function createServerFile(options: CreateMobigentAppOptions) {
 import express from "express";
 import { startMobigent } from "@mobigent/backend";
 import { createApp } from "@mobigent/app";
-import { expenseFunctions, expenses, parsePrompt } from "./app-functions.js";
+import { expenseFunctions, expenses, parsePrompt, type MyAppFunctions } from "./app-functions.js";
 import { createNodeSocket } from "./nodeSocket.js";
 
 let lastAgentRun: unknown;
@@ -303,6 +303,7 @@ const appPort = ${options.appPort};
 const functionName = "expense.create";
 
 const backend = await ${backendStart};
+const appApi = backend.use<MyAppFunctions>();
 
 const app = express();
 app.use(express.json());
@@ -319,7 +320,7 @@ app.post("/agent/run", async (req, res) => {
   };
 
   try {
-    const response = await backend.functions.expense.create(input);
+    const response = await appApi.expense.create(input);
     lastAgentRun = { ...run, response };
     res.json(lastAgentRun);
   } catch (error) {
@@ -565,7 +566,7 @@ export const expenseFunctions = {
   expense: {
     list: async () => ({ expenses }),
     create: write(
-      async (input) => {
+      async (input: { amount: number; merchant: string; category: string; notes?: string }) => {
         const expense = await createExpense({
           amount: Number(input.amount),
           merchant: String(input.merchant),
@@ -598,6 +599,8 @@ export const expenseFunctions = {
     )
   }
 };
+
+export type MyAppFunctions = typeof expenseFunctions;
 
 export async function createExpense(input: {
   amount: number;

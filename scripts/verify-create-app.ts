@@ -96,7 +96,9 @@ try {
   assert.doesNotMatch(server, /startMobigent\("com\.mobigent\.demo"/);
   assert.doesNotMatch(server, /appId: "com\.mobigent\.expense"/);
   assert.doesNotMatch(server, /const expense = backend\.feature\("expense"\)/);
-  assert.match(server, /backend\.functions\.expense\.create\(input\)/);
+  assert.match(server, /backend\.use<MyAppFunctions>\(\)/);
+  assert.match(server, /appApi\.expense\.create\(input\)/);
+  assert.doesNotMatch(server, /backend\.functions\.expense\.create\(input\)/);
   assert.doesNotMatch(server, /backend\.app\.expense\.create\(input\)/);
   assert.match(server, /createApp\(expenseFunctions, \{/);
   assert.doesNotMatch(server, /createApp\("com\.mobigent\.expense", expenseFunctions/);
@@ -113,6 +115,8 @@ try {
 
   const capabilities = await readFile(join(target, "src", "app-functions.ts"), "utf8");
   assert.match(capabilities, /export const expenseFunctions = \{/);
+  assert.match(capabilities, /export type MyAppFunctions = typeof expenseFunctions/);
+  assert.match(capabilities, /async \(input: \{ amount: number; merchant: string; category: string; notes\?: string \}\)/);
   assert.match(capabilities, /list: async \(\) => \(\{ expenses \}\)/);
   assert.match(capabilities, /create: write\(/);
   assert.match(capabilities, /amount: "number"/);
