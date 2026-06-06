@@ -28,21 +28,14 @@ const appFunctions: AppFunctions = {
   }
 };
 
-export const mobigent = createApp("com.acme.expenses", appFunctions);
+export const mobigent = createApp(appFunctions);
 ```
 
-For quick local demos, pass the function map directly:
+For production, add a stable app id that your backend also uses:
 
 ```ts
-export const mobigent = createApp({
-  expense: {
-    list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
-});
+export const mobigent = createApp("com.acme.expenses", appFunctions);
 ```
-
-Use `createApp(appId, functions)` before connecting real apps and agents.
 
 Mobigent treats `list`, `get`, `read`, `fetch`, `search`, and `load` as reads. Other plain functions are confirmed writes by default. Use `read()`, `write()`, or `action()` only when you want schemas, descriptions, or custom approval text.
 
@@ -61,7 +54,7 @@ For the fastest existing-app trial, wrap directly:
 import { withMobigent } from "@mobigent/app";
 import App from "./App";
 
-export default withMobigent(App, "com.acme.expenses", {
+export default withMobigent(App, {
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
@@ -75,7 +68,7 @@ For non-React hosts and local demos, give the app object the backend once, then 
 import { startMobigent } from "@mobigent/backend";
 import { createApp } from "@mobigent/app";
 
-const backend = await startMobigent("com.acme.expenses");
+const backend = await startMobigent();
 const mobigent = createApp(appFunctions, {
   backend
 });

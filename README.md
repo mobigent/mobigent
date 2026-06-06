@@ -27,8 +27,6 @@ Mobigent has two normal packages:
 
 The app side does not need a setup command. Install the package and expose the functions your app already owns. The old app init binary is only an optional sample-file generator for demos, not something real app teams should need before they can adopt Mobigent.
 
-Use the same app id on both sides, like a normal mobile/backend integration:
-
 ```bash
 npm install @mobigent/app
 npm install @mobigent/backend
@@ -37,7 +35,7 @@ npm install @mobigent/backend
 The app developer writes ordinary app functions and creates one app SDK object:
 
 ```txt
-const mobigent = createApp("com.acme.expenses", {
+const mobigent = createApp({
   expense: {
     list: async () => listExpenses(),
     create: async (input) => createExpense(input)
@@ -52,17 +50,17 @@ The backend developer starts Mobigent like backend plumbing and calls app functi
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const backend = await startMobigent("com.acme.expenses");
+const backend = await startMobigent();
 
 await backend.functions.expense.create({ merchant: "Coffee", amount: 8 });
 ```
 
-For local development, Mobigent can infer starter values when you leave the app id out, but real apps should pass the same stable `appId` in the app and backend.
+That is the local path: no app-side setup command, no copied config, no generated file required. For production, give both packages the same stable app id, for example `createApp("com.acme.expenses", functions)` and `startMobigent("com.acme.expenses")`.
 
 For a non-React host or local demo, use the same app SDK object:
 
 ```ts
-const backend = await startMobigent("com.acme.expenses");
+const backend = await startMobigent();
 const mobigent = createApp(expenseFunctions, {
   backend
 });
@@ -137,17 +135,6 @@ Then create one Mobigent file and wire it once:
 ```ts
 import { createApp } from "@mobigent/app";
 
-export const mobigent = createApp("com.acme.expenses", {
-  expense: {
-    list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
-});
-```
-
-For a quick local demo, you can pass the function map directly:
-
-```ts
 export const mobigent = createApp({
   expense: {
     list: async () => ({ items: await listExpenses() }),
@@ -156,7 +143,16 @@ export const mobigent = createApp({
 });
 ```
 
-Use `createApp(appId, functions)` before connecting real apps and agents.
+For production, add a stable app id:
+
+```ts
+export const mobigent = createApp("com.acme.expenses", {
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
+  }
+});
+```
 
 Mobigent treats `list`/`get`/`read`/`fetch`/`search`/`load` functions as reads. Other plain functions are writes and require confirmation by default. When you want validation or custom approval copy, wrap that one function:
 
@@ -182,7 +178,7 @@ Or wrap directly in one file while you are trying the SDK:
 import { withMobigent } from "@mobigent/app";
 import App from "./App";
 
-export default withMobigent(App, "com.acme.expenses", {
+export default withMobigent(App, {
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
@@ -201,7 +197,7 @@ Then backend code can call app functions like ordinary functions:
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent("com.acme.expenses");
+const mobigent = await startMobigent();
 
 await mobigent.functions.expense.create({ merchant: "Coffee", amount: 8 });
 ```
@@ -271,24 +267,13 @@ Install the app package:
 npm install @mobigent/app
 ```
 
-Use one stable app id and reuse it in the backend. For quick local experiments, the app SDK can use safe local defaults.
+For quick local experiments, the app SDK can use safe local defaults. For production, use one stable app id and reuse it in the backend.
 
 Create one Mobigent file and one app SDK object:
 
 ```ts
 import { createApp } from "@mobigent/app";
 
-export const mobigent = createApp("com.acme.expenses", {
-  expense: {
-    list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
-});
-```
-
-For quick local experiments, this also works:
-
-```ts
 export const mobigent = createApp({
   expense: {
     list: async () => ({ items: await listExpenses() }),
@@ -297,7 +282,16 @@ export const mobigent = createApp({
 });
 ```
 
-Use `createApp(appId, functions)` before connecting real apps and agents.
+For production, add a stable app id:
+
+```ts
+export const mobigent = createApp("com.acme.expenses", {
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
+  }
+});
+```
 
 Wrap the app once:
 
@@ -314,7 +308,7 @@ Or wrap directly in one file while you are trying the SDK:
 import { withMobigent } from "@mobigent/app";
 import App from "./App";
 
-export default withMobigent(App, "com.acme.expenses", {
+export default withMobigent(App, {
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
@@ -337,7 +331,7 @@ import { startMobigent } from "@mobigent/backend";
 import { createApp } from "@mobigent/app";
 import { expenseFunctions } from "./app-functions";
 
-const backend = await startMobigent("com.acme.expenses");
+const backend = await startMobigent();
 const mobigent = createApp(expenseFunctions, {
   backend
 });
@@ -358,7 +352,7 @@ Start Mobigent from your server code:
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent("com.acme.expenses");
+const mobigent = await startMobigent();
 
 console.log(mobigent.inspectorUrl);
 console.log(mobigent.openApiUrl);

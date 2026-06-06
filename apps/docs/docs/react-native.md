@@ -29,12 +29,18 @@ No setup command is required on the app side. Create one Mobigent file, expose t
 ```ts
 import { createApp } from "@mobigent/app";
 
-export const mobigent = createApp("com.acme.expenses", {
+export const mobigent = createApp({
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
   }
 });
+```
+
+For production, add the same stable app id on the app and backend:
+
+```ts
+export const mobigent = createApp("com.acme.expenses", functions);
 ```
 
 ## Wrap The App
@@ -52,7 +58,7 @@ Or wrap directly in one file while you are trying the SDK:
 import { withMobigent } from "@mobigent/app";
 import App from "./App";
 
-export default withMobigent(App, "com.acme.expenses", {
+export default withMobigent(App, {
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
@@ -77,10 +83,10 @@ createApp("com.acme.expenses", functions, {
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent("com.acme.expenses");
+const mobigent = await startMobigent();
 ```
 
-The app and backend pair by `appId`. Backend calls wait for the app connection automatically.
+Backend calls wait for the app connection automatically. For production, use `startMobigent("com.acme.expenses")` with the same app id as the app.
 
 ## Non-React Host Or Demo
 
@@ -91,7 +97,7 @@ import { startMobigent } from "@mobigent/backend";
 import { createApp } from "@mobigent/app";
 import { expenseFunctions } from "./app-functions";
 
-const backend = await startMobigent("com.acme.expenses");
+const backend = await startMobigent();
 const mobigent = createApp(expenseFunctions, {
   backend
 });

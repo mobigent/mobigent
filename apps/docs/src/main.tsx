@@ -5,11 +5,11 @@ import "./styles.css";
 const quickstart = `npm install @mobigent/app
 npm install @mobigent/backend
 
-export default withMobigent(App, "com.acme.expenses", {
+export default withMobigent(App, {
   expense: { list, create }
 });
 
-const mobigent = await startMobigent("com.acme.expenses");
+const mobigent = await startMobigent();
 
 await mobigent.functions.expense.create(input);`;
 
@@ -26,8 +26,8 @@ function App() {
           <h1>Make real app functions available to AI agents.</h1>
           <p>
             Install the app package, install the backend package, expose real app functions with
-            withMobigent(App, appId, functions) or createApp(appId, functions), then
-            startMobigent(appId) and call mobigent.functions.expense.create(input).
+            withMobigent(App, functions) or createApp(functions), then startMobigent() and call
+            mobigent.functions.expense.create(input).
             Mobigent handles the app connection, approvals, retries, discovery, and agent setup.
           </p>
           <div className="heroActions">

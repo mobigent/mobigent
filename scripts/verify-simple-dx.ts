@@ -153,8 +153,8 @@ assert.match(
 );
 assert.match(
   mobigentCliSource,
-  /startMobigent\("com\.acme\.expenses"\)/,
-  "root CLI help should teach the short backend start shape"
+  /startMobigent\(\)/,
+  "root CLI help should teach the no-config backend start shape"
 );
 assert.doesNotMatch(
   mobigentCliSource.slice(mobigentCliSource.indexOf("function helpText")),
@@ -367,7 +367,7 @@ assert.doesNotMatch(starterDoctor, /const gatewayUrl|function toolName|app manif
 for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.md", "docs/react-native.md"]) {
   const contents = readFileSync(path, "utf8");
   assert.match(contents, /createApp/, `${path} should teach the app package createApp path`);
-  assert.match(contents, /createApp\("com\.acme\.expenses"|createApp\(appId, functions/, `${path} should teach the short app identity path`);
+  assert.match(contents, /createApp\(\{|createApp\(functions|createApp\(appFunctions/, `${path} should teach the no-config app path`);
   assert.match(
     contents,
     /createApp\(\{\s+expense:/,
@@ -376,15 +376,15 @@ for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.
   assert.match(contents, /mobigent\.functions\.expense\.create|backend\.functions\.expense\.create/, `${path} should teach the clean backend function path`);
   assert.match(
     contents,
-    /withMobigent\(App, "com\.acme\.expenses"/,
-    `${path} should teach the direct existing-app wrapper path`
+    /withMobigent\(App, \{/,
+    `${path} should teach the no-config existing-app wrapper path`
   );
   assert.match(
     contents,
     /mobigent\.use\("expense", \{\s+createExpense: "create"/,
     `${path} should teach namespace-first backend function aliases through the simple use() API`
   );
-  assert.match(contents, /startMobigent\("com\.acme\.expenses"\)/, `${path} should teach the short backend start path`);
+  assert.match(contents, /startMobigent\(\)/, `${path} should teach the no-config backend start path`);
   assert.doesNotMatch(
     contents,
     /npm install @mobigent\/app[\s\S]{0,600}?npx mobigent-init/,
@@ -438,9 +438,9 @@ for (const path of ["docs/existing-react-native-app.md", "apps/docs/docs/existin
   assert.match(contents, /You do not need `npx mobigent-init`/, `${path} should answer the old init-command confusion directly`);
   assert.match(contents, /only creates sample files for demos/, `${path} should frame mobigent-init as sample generation only`);
   assert.match(contents, /npm install @mobigent\/app[\s\S]{0,120}?npm install @mobigent\/backend/, `${path} should lead with normal package installs`);
-  assert.match(contents, /createApp\("com\.acme\.expenses"/, `${path} should teach createApp(appId, functions)`);
-  assert.match(contents, /withMobigent\(App, "com\.acme\.expenses"/, `${path} should teach the one-file existing-app wrapper`);
-  assert.match(contents, /startMobigent\("com\.acme\.expenses"\)/, `${path} should teach the short backend start path`);
+  assert.match(contents, /createApp\(\{/, `${path} should teach createApp(functions)`);
+  assert.match(contents, /withMobigent\(App, \{/, `${path} should teach the one-file existing-app wrapper`);
+  assert.match(contents, /startMobigent\(\)/, `${path} should teach the no-config backend start path`);
   assert.match(contents, /mobigent\.functions\.expense\.create/, `${path} should teach backend calls through app-owned functions`);
   assert.match(contents, /Most apps do not need that on day one/, `${path} should keep backend-friendly aliases optional`);
   assert.match(contents, /What Developers Should Care About/, `${path} should separate developer-owned concerns from SDK-owned plumbing`);
@@ -450,7 +450,7 @@ for (const path of ["docs/existing-react-native-app.md", "apps/docs/docs/existin
 
 for (const path of ["packages/app/README.md", "packages/react-native/README.md"]) {
   const contents = readFileSync(path, "utf8");
-  assert.match(contents, /createApp\("com\.acme\.expenses"/, `${path} should teach createApp(appId, functions) first`);
+  assert.match(contents, /createApp\(appFunctions\)|createApp\(\{/, `${path} should teach createApp(functions) first`);
   assert.match(
     contents,
     /No app-side init command is required|normal path does not require generated files/,
@@ -483,7 +483,7 @@ for (const path of ["packages/app/README.md", "packages/react-native/README.md"]
   assert.match(backendReadme, /backend\.chatgpt\(\).*backend\.claude\(\).*backend\.openai\(\)/, "packages/backend/README.md should teach friendly common agent setup shortcuts");
   assert.match(backendReadme, /backend\.connection.*backend\.appSettings\(\)/, "packages/backend/README.md should keep explicit app setup values as compatibility detail");
   assert.match(backendReadme, /BackendPairing.*backend\.pairing\(\)/, "packages/backend/README.md should keep BackendPairing for backend.pairing() compatibility");
-  assert.match(backendReadme, /startMobigent\("com\.acme\.expenses"\)/);
+  assert.match(backendReadme, /startMobigent\(\)/);
   assert.match(backendReadme, /mobigent\.app\.expense\.create/);
   assert.match(backendReadme, /mobigent\.use\("expense", \{\s+createExpense: "create"/);
   assert.doesNotMatch(
@@ -503,12 +503,12 @@ for (const path of [
 ]) {
   const contents = readFileSync(path, "utf8");
   assert.match(contents, /createApp/, `${path} should teach createApp as the app-side entrypoint`);
-  assert.match(contents, /createApp\("com\.acme\.expenses"|createApp\(appId, functions/, `${path} should teach the short app identity path`);
+  assert.match(contents, /createApp\(\{|createApp\(functions|createApp\(appFunctions/, `${path} should teach the no-config app path`);
   assert.match(contents, /startMobigent/, `${path} should teach startMobigent as the backend entrypoint`);
   assert.match(
     contents,
-    /startMobigent\("com\.acme\.expenses"\)|startMobigent\(appId\)/,
-    `${path} should teach startMobigent(appId) as the short backend path`
+    /startMobigent\(\)/,
+    `${path} should teach startMobigent() as the local backend path`
   );
   assert.doesNotMatch(contents, /startMobigent\(appId, appName\)/, `${path} should not require an app name in the beginner path`);
   assert.doesNotMatch(
@@ -531,7 +531,7 @@ for (const path of [
 
 for (const path of ["docs/api/README.md", "apps/docs/docs/api.md"]) {
   const contents = readFileSync(path, "utf8");
-  assert.match(contents, /createApp\(appId, functions, \{ backend \}\)/, `${path} should teach app setup with backend settings`);
+  assert.match(contents, /createApp\(functions, \{ backend \}\)|createApp\(expenseFunctions, \{[\s\S]{0,80}?backend/, `${path} should teach app setup with backend settings`);
   assert.match(contents, /\.\s*connect\(\)/, `${path} should teach no-argument connect after setup`);
   assert.match(contents, /MobigentAppBackendSource/, `${path} should teach the friendly backend handoff type`);
   assert.doesNotMatch(contents, /mobigent\.connect\(backend\)/, `${path} should not teach backend-object connect as the beginner path`);
@@ -599,8 +599,8 @@ for (const path of [
   assert.match(contents, /mobigent\.functions\.expense/, `${path} should teach the direct backend functions surface`);
   assert.match(
     contents,
-    /withMobigent\(App, "com\.acme\.expenses"/,
-    `${path} should teach the direct existing-app wrapper path`
+    /withMobigent\(App, \{/,
+    `${path} should teach the no-config existing-app wrapper path`
   );
 }
 
@@ -659,13 +659,13 @@ for (const path of ["docs/api/README.md", "apps/docs/docs/api.md"]) {
   );
   assert.match(
     homeQuickstart,
-    /withMobigent\(App, "com\.acme\.expenses"/,
+    /withMobigent\(App, \{/,
     "homepage hero quickstart should show direct existing-app wrapping"
   );
   assert.match(
     homeQuickstart,
-    /startMobigent\("com\.acme\.expenses"\)/,
-    "homepage hero quickstart should show the short backend start path"
+    /startMobigent\(\)/,
+    "homepage hero quickstart should show the no-config backend start path"
   );
   assert.doesNotMatch(
     homeQuickstart,
@@ -675,7 +675,7 @@ for (const path of ["docs/api/README.md", "apps/docs/docs/api.md"]) {
 }
 
 const cliReadme = readFileSync("packages/cli/README.md", "utf8");
-assert.match(cliReadme, /startMobigent\(appId\)/);
+assert.match(cliReadme, /startMobigent\(\)/);
 assert.doesNotMatch(cliReadme, /startMobigent\(appId, appName\)/);
 
 const previewInstaller = readFileSync("packages/create-app/src/install.ts", "utf8");

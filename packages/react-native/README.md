@@ -13,7 +13,7 @@ npm install @mobigent/app
 If you install this package directly, the simple path is the same:
 
 ```ts
-const mobigent = createApp("com.acme.expenses", {
+const mobigent = createApp({
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
@@ -53,12 +53,18 @@ Create `src/mobigent.ts`:
 ```ts
 import { createApp } from "@mobigent/app";
 
-export const mobigent = createApp("com.acme.expenses", {
+export const mobigent = createApp({
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
   }
 });
+```
+
+For production, add the same stable app id on the app and backend:
+
+```ts
+export const mobigent = createApp("com.acme.expenses", appFunctions);
 ```
 
 Plain `list`, `get`, `read`, `fetch`, `search`, and `load` functions are treated as reads. Other plain functions are confirmed writes by default.
@@ -98,7 +104,7 @@ Or wrap directly in one file while you are trying the SDK:
 import { withMobigent } from "@mobigent/app";
 import App from "./App";
 
-export default withMobigent(App, "com.acme.expenses", {
+export default withMobigent(App, {
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
@@ -117,7 +123,7 @@ import { startMobigent } from "@mobigent/backend";
 import { createApp } from "@mobigent/app";
 import { expenseFunctions } from "./app-functions";
 
-const backend = await startMobigent("com.acme.expenses");
+const backend = await startMobigent();
 const mobigent = createApp(expenseFunctions, {
   backend
 });

@@ -299,6 +299,11 @@ export type AppSession = MobigentAppSession;
 export type CallOptions = MobigentBackendCallOptions;
 export type CallResult = MobigentCallResult;
 
+const defaultMobigentBackendApp = {
+  appId: "app.mobigent.local",
+  appName: "Mobigent App"
+};
+
 export async function startMobigentBackend(
   appId: string,
   appName?: string,
@@ -692,6 +697,10 @@ function resolveDefaultAppOptions(options: MobigentBackendOptions): MobigentBack
       name: options.appName,
       version: options.version
     });
+  }
+
+  if (!options.appDir) {
+    return defaultMobigentBackendApp;
   }
 
   return inferMobigentAppIdentity(options.appDir ?? process.cwd());

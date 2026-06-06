@@ -14,7 +14,7 @@ Most integrations use two packages:
 ```ts
 import { createApp } from "@mobigent/app";
 
-export const mobigent = createApp("com.acme.expenses", {
+export const mobigent = createApp({
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
@@ -35,7 +35,7 @@ Direct one-file wrapper:
 import { withMobigent } from "@mobigent/app";
 import App from "./App";
 
-export default withMobigent(App, "com.acme.expenses", {
+export default withMobigent(App, {
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
@@ -50,7 +50,7 @@ import { startMobigent } from "@mobigent/backend";
 import { createApp } from "@mobigent/app";
 import { expenseFunctions } from "./app-functions";
 
-const backend = await startMobigent("com.acme.expenses");
+const backend = await startMobigent();
 const mobigent = createApp(expenseFunctions, {
   backend
 });
@@ -62,9 +62,10 @@ connection.disconnect();
 
 ## Simple App Helpers
 
-- `createApp(appId, { namespace: { name: fn } })`: creates the app-side SDK object.
+- `createApp({ namespace: { name: fn } })`: creates the local app-side SDK object.
+- `createApp(appId, functions)`: creates a production app SDK object with a stable app id.
 - `mobigent.with(App)`: wraps an existing React Native app.
-- `createApp(appId, functions, { backend })`: lets the app SDK read connection details from the backend object.
+- `createApp(functions, { backend })`: lets the app SDK read identity and connection details from the backend object.
 - `mobigent.connect()`: connects a non-React host or demo after setup.
 - `mobigent.emit(name, payload)`: emits app activity.
 - `createApp(appId, functions, { connection: { host: "192.168.1.20" } })`: connects a physical phone to your local backend.
@@ -94,7 +95,7 @@ Advanced app helpers are still available from `@mobigent/app/app` when you need 
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent("com.acme.expenses");
+const mobigent = await startMobigent();
 
 await mobigent.functions.expense.create({ merchant: "Coffee", amount: 8 });
 

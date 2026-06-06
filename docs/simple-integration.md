@@ -35,7 +35,7 @@ Create one app SDK object and expose the functions agents may call:
 ```ts
 import { createApp } from "@mobigent/app";
 
-export const mobigent = createApp("com.acme.expenses", {
+export const mobigent = createApp({
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
@@ -87,7 +87,7 @@ Or wrap directly in one file while you are trying the SDK:
 import { withMobigent } from "@mobigent/app";
 import App from "./App";
 
-export default withMobigent(App, "com.acme.expenses", {
+export default withMobigent(App, {
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
@@ -116,7 +116,7 @@ npm exec --yes \
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent("com.acme.expenses");
+const mobigent = await startMobigent();
 
 await mobigent.functions.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
 await mobigent.functions.expense.list();

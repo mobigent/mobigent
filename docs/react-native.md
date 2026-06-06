@@ -18,14 +18,14 @@ npm exec --yes \
   -- mobigent-install app
 ```
 
-Use the same `appId` in the app and backend. For a first throwaway run, the app SDK can use safe local defaults.
+For a first local run, you do not need an app id. Production apps should use the same stable app id in the app and backend.
 
 ## 2. Expose App Functions
 
 ```ts
 import { createApp } from "@mobigent/app";
 
-export const mobigent = createApp("com.acme.expenses", {
+export const mobigent = createApp({
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
@@ -40,18 +40,16 @@ This exposes:
 
 Backend code can use those same short names.
 
-For a quick throwaway local demo, you can pass the function map directly:
+For production, add a stable app id:
 
 ```ts
-export const mobigent = createApp({
+export const mobigent = createApp("com.acme.expenses", {
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
   }
 });
 ```
-
-Use `createApp(appId, functions)` before connecting real apps and agents.
 
 ## 3. Wrap The App
 
@@ -68,7 +66,7 @@ Or wrap directly in one file while you are trying the SDK:
 import { withMobigent } from "@mobigent/app";
 import App from "./App";
 
-export default withMobigent(App, "com.acme.expenses", {
+export default withMobigent(App, {
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
@@ -117,10 +115,10 @@ npm exec --yes \
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent("com.acme.expenses");
+const mobigent = await startMobigent();
 ```
 
-Mobigent pairs the backend and app by `appId`. Backend function calls wait for the app connection automatically.
+Backend function calls wait for the app connection automatically. For production, use `startMobigent("com.acme.expenses")` with the same app id as the app.
 
 Your backend can call app namespaces directly:
 
@@ -148,7 +146,7 @@ import { startMobigent } from "@mobigent/backend";
 import { createApp } from "@mobigent/app";
 import { expenseFunctions } from "./app-functions";
 
-const backend = await startMobigent("com.acme.expenses");
+const backend = await startMobigent();
 const mobigent = createApp(expenseFunctions, {
   backend
 });
@@ -188,4 +186,4 @@ Use full JSON Schema or the lower-level `schema.*` helpers only when plain field
 
 ## Advanced
 
-The lower-level provider, hooks, `createAgentModule()`, explicit `defineFeature()`, and manual registration APIs are still available for screen-scoped app functions, custom confirmation UI, custom environment switching, and advanced signing. Start with `createApp(appId, functions)` first.
+The lower-level provider, hooks, `createAgentModule()`, explicit `defineFeature()`, and manual registration APIs are still available for screen-scoped app functions, custom confirmation UI, custom environment switching, and advanced signing. Start with `createApp(functions)` first.

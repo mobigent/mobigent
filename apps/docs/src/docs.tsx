@@ -28,12 +28,12 @@ npm exec --yes \\
   -- mobigent-install backend`;
 
 const existingAppRecipeCode = `// App
-export default withMobigent(App, "com.acme.expenses", {
+export default withMobigent(App, {
   expense: { list, create }
 });
 
 // Backend
-const mobigent = await startMobigent("com.acme.expenses");
+const mobigent = await startMobigent();
 
 await mobigent.functions.expense.create(input);`;
 
@@ -73,7 +73,7 @@ npm run agent:local`;
 
 const moduleCode = `import { createApp } from "@mobigent/app";
 
-export const mobigent = createApp("com.acme.expenses", {
+export const mobigent = createApp({
   expense: {
     list: async () => ({
       items: await listExpenses()
@@ -100,7 +100,7 @@ export default mobigent.with(App);`;
 const directWrapCode = `import { withMobigent } from "@mobigent/app";
 import App from "./App";
 
-export default withMobigent(App, "com.acme.expenses", {
+export default withMobigent(App, {
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
@@ -109,14 +109,14 @@ export default withMobigent(App, "com.acme.expenses", {
 
 const backendCode = `import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent("com.acme.expenses");
+const mobigent = await startMobigent();
 
 await mobigent.functions.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
 await mobigent.functions.expense.list();
 
 console.log(mobigent.inspectorUrl);`;
 
-const backendShortCode = `const mobigent = await startMobigent("com.acme.expenses");`;
+const backendShortCode = `const mobigent = await startMobigent();`;
 
 const backendUseCode = `const expenses = mobigent.functions.expense;
 

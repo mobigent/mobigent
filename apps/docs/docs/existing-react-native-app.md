@@ -34,7 +34,7 @@ Create one small Mobigent file:
 ```ts
 import { createApp } from "@mobigent/app";
 
-export const mobigent = createApp("com.acme.expenses", {
+export const mobigent = createApp({
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
@@ -57,7 +57,7 @@ Or try it in one file first:
 import { withMobigent } from "@mobigent/app";
 import App from "./App";
 
-export default withMobigent(App, "com.acme.expenses", {
+export default withMobigent(App, {
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
@@ -85,13 +85,15 @@ create: write(createExpense, {
 
 ## Backend Code
 
-Start Mobigent with the same app id:
+Start Mobigent:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent("com.acme.expenses");
+const mobigent = await startMobigent();
 ```
+
+For production, use the same stable app id in both places, for example `createApp("com.acme.expenses", functions)` and `startMobigent("com.acme.expenses")`.
 
 Call app-owned functions from backend code:
 

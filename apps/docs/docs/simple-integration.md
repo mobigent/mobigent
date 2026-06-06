@@ -30,17 +30,6 @@ npm exec --yes \
 ```ts
 import { createApp } from "@mobigent/app";
 
-export const mobigent = createApp("com.acme.expenses", {
-  expense: {
-    list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
-});
-```
-
-For quick local demos, pass the function map directly:
-
-```ts
 export const mobigent = createApp({
   expense: {
     list: async () => ({ items: await listExpenses() }),
@@ -49,7 +38,16 @@ export const mobigent = createApp({
 });
 ```
 
-Use `createApp(appId, functions)` before connecting real apps and agents.
+For production, add a stable app id:
+
+```ts
+export const mobigent = createApp("com.acme.expenses", {
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
+  }
+});
+```
 
 Mobigent treats `list`, `get`, `read`, `fetch`, `search`, and `load` as reads. Other plain functions are confirmed writes by default. Use `write()` only when you want input validation, descriptions, or custom approval text.
 
@@ -66,7 +64,7 @@ Or wrap directly in one file while you are trying the SDK:
 import { withMobigent } from "@mobigent/app";
 import App from "./App";
 
-export default withMobigent(App, "com.acme.expenses", {
+export default withMobigent(App, {
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
@@ -105,13 +103,13 @@ npm exec --yes \
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent("com.acme.expenses");
+const mobigent = await startMobigent();
 
 await mobigent.functions.expense.create({ merchant: "Coffee", amount: 8 });
 await mobigent.functions.expense.list();
 ```
 
-Mobigent pairs the app and backend by `appId`, waits for the app connection when a function is called, and routes the call to the app-owned function.
+Mobigent waits for the app connection when a function is called and routes the call to the app-owned function. For production, use the same stable app id in `createApp(...)` and `startMobigent(...)`.
 
 Starter generation is a demo shortcut. The normal path is install plus code.
 

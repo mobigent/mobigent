@@ -21,7 +21,7 @@ npm exec --yes \
 ```ts
 import { startMobigent, type Backend } from "@mobigent/backend";
 
-const mobigent: Backend = await startMobigent("com.acme.expenses");
+const mobigent: Backend = await startMobigent();
 
 await mobigent.functions.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
 await mobigent.functions.expense.list();
@@ -29,16 +29,16 @@ await mobigent.functions.expense.list();
 
 That is the main backend API.
 
-The app and backend pair by `appId`. Mobigent handles waiting for the app connection and routing calls to the matching app functions.
+Mobigent handles waiting for the app connection and routing calls to the matching app functions.
 
-If you want the shortest possible local demo, `startMobigent()` also works with inferred starter values. For production, pass a stable app id.
+For production, pass the same stable app id that your app SDK uses: `startMobigent("com.acme.expenses")`.
 
 For tests or non-React demos, pass the backend object when you create the app SDK object:
 
 ```ts
 import { createApp } from "@mobigent/app";
 
-const backend = await startMobigent("com.acme.expenses");
+const backend = await startMobigent();
 const app = createApp(appFunctions, {
   backend
 });

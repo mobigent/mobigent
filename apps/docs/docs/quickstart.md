@@ -41,17 +41,6 @@ Create one Mobigent file:
 ```ts
 import { createApp } from "@mobigent/app";
 
-export const mobigent = createApp("com.acme.expenses", {
-  expense: {
-    list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
-});
-```
-
-For quick local demos, pass the function map directly:
-
-```ts
 export const mobigent = createApp({
   expense: {
     list: async () => ({ items: await listExpenses() }),
@@ -60,7 +49,16 @@ export const mobigent = createApp({
 });
 ```
 
-Use `createApp(appId, functions)` before connecting real apps and agents.
+For production, add a stable app id:
+
+```ts
+export const mobigent = createApp("com.acme.expenses", {
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
+  }
+});
+```
 
 That is the normal path. Mobigent treats `list`, `get`, `read`, `fetch`, `search`, and `load` as reads. Other plain functions are confirmed writes by default. Add `write()` only when you want validation or custom approval copy.
 
@@ -79,7 +77,7 @@ Or wrap directly in one file while you are trying the SDK:
 import { withMobigent } from "@mobigent/app";
 import App from "./App";
 
-export default withMobigent(App, "com.acme.expenses", {
+export default withMobigent(App, {
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
@@ -94,7 +92,7 @@ import { startMobigent } from "@mobigent/backend";
 import { createApp } from "@mobigent/app";
 import { expenseFunctions } from "./app-functions";
 
-const backend = await startMobigent("com.acme.expenses");
+const backend = await startMobigent();
 const mobigent = createApp(expenseFunctions, {
   backend
 });
@@ -107,13 +105,13 @@ await mobigent.connect();
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent("com.acme.expenses");
+const mobigent = await startMobigent();
 
 console.log(mobigent.inspectorUrl);
 console.log(mobigent.chatgpt().endpoints.openApi);
 ```
 
-Mobigent pairs the backend and app by `appId`, handles the connection, routes app function calls, exposes the inspector, and waits for readiness when needed.
+Mobigent handles the connection, routes app function calls, exposes the inspector, and waits for readiness when needed. For production, start the backend with the same stable app id used by the app.
 
 Prefer generated sample files? Use the starter. Starter generation is a demo shortcut, not required integration.
 

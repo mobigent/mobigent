@@ -12,7 +12,7 @@ Lower-level packages exist inside the repo, but most developers should not need 
 ```ts
 import { createApp } from "@mobigent/app";
 
-export const mobigent = createApp("com.acme.expenses", {
+export const mobigent = createApp({
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
@@ -33,7 +33,7 @@ Direct one-file wrapper:
 import { withMobigent } from "@mobigent/app";
 import App from "./App";
 
-export default withMobigent(App, "com.acme.expenses", {
+export default withMobigent(App, {
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
@@ -48,7 +48,7 @@ import { startMobigent } from "@mobigent/backend";
 import { createApp } from "@mobigent/app";
 import { expenseFunctions } from "./app-functions";
 
-const backend = await startMobigent("com.acme.expenses");
+const backend = await startMobigent();
 const mobigent = createApp(expenseFunctions, {
   backend
 });
@@ -63,7 +63,7 @@ connection.disconnect();
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent("com.acme.expenses");
+const mobigent = await startMobigent();
 
 await mobigent.functions.expense.create({ merchant: "Coffee", amount: 8 });
 
@@ -72,10 +72,10 @@ console.log(mobigent.openApiUrl);
 console.log(mobigent.agentUrl);
 ```
 
-For local development, `startMobigent()` can infer a starter app identity from your project name:
+For production, pass the same stable app id that your app SDK uses:
 
 ```ts
-const mobigent = await startMobigent();
+const mobigent = await startMobigent("com.acme.expenses");
 ```
 
 The common backend object includes:
@@ -113,10 +113,10 @@ Advanced and compatibility fields are still available, but they should not be ne
 
 ## Simple App Helpers
 
-- `createApp(appId, functions)`: normal app setup.
-- `createApp({ namespace: { name: fn } })`: quick local demo setup.
+- `createApp(functions)`: normal local app setup.
+- `createApp(appId, functions)`: production app setup with a stable app id.
 - `mobigent.with(App)`: wraps an existing React Native app.
-- `createApp(appId, functions, { backend })`: lets the app SDK read connection details from the backend object.
+- `createApp(functions, { backend })`: lets the app SDK read identity and connection details from the backend object.
 - `mobigent.connect()`: connects a non-React host or demo after setup.
 - `mobigent.emit(name, payload)`: emits app activity.
 - `createApp(appId, functions, { connection: { host: "192.168.1.20" } })`: connects a physical phone to your local backend.

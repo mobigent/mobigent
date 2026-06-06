@@ -65,10 +65,10 @@ Commands:
 
 Examples:
   npm install @mobigent/app
-  # Add app functions in code, then createApp(appId, functions).with(App).
+  # Add app functions in code, then createApp(functions).with(App).
 
   npm install @mobigent/backend
-  # Start Mobigent in server code with startMobigent("com.acme.expenses").
+  # Start Mobigent in server code with startMobigent().
   # Optional scaffold: npx mobigent backend --app com.acme.expenses --app-name "Acme Expenses"
 
   npx mobigent new my-demo --install

@@ -9,8 +9,7 @@ Mobigent is two normal packages:
 - `@mobigent/app` goes in the app and exposes real app functions.
 - `@mobigent/backend` goes in the backend and calls those functions.
 
-The SDK handles the app/backend connection, local defaults, validation, confirmations, agent setup, and audit events.
-Use the same `appId` in the app and backend. That is the normal pairing mechanism.
+The SDK handles the app/backend connection, local defaults, validation, confirmations, agent setup, and audit events. Local demos can start with no app id; production apps should give both packages the same stable app id.
 
 ## 1. Add App Functions To An Existing App
 
@@ -33,17 +32,6 @@ Create a Mobigent file yourself. There is no app-side init command in the normal
 ```ts
 import { createApp } from "@mobigent/app";
 
-export const mobigent = createApp("com.acme.expenses", {
-  expense: {
-    list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
-});
-```
-
-For local demos, the package also accepts the plain function map directly:
-
-```ts
 export const mobigent = createApp({
   expense: {
     list: async () => ({ items: await listExpenses() }),
@@ -52,7 +40,16 @@ export const mobigent = createApp({
 });
 ```
 
-Use `createApp(appId, functions)` for real apps so the backend can pair with the correct app.
+For production, add a stable app id:
+
+```ts
+export const mobigent = createApp("com.acme.expenses", {
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: async (input) => createExpense(input)
+  }
+});
+```
 
 That is enough for a first integration. Mobigent treats `list`, `get`, `read`, `fetch`, `search`, and `load` as reads. Other plain functions are confirmed writes by default. Add `write()` later only when you want input validation or custom approval text.
 
@@ -71,7 +68,7 @@ Or wrap directly in one file while you are trying the SDK:
 import { withMobigent } from "@mobigent/app";
 import App from "./App";
 
-export default withMobigent(App, "com.acme.expenses", {
+export default withMobigent(App, {
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
@@ -79,7 +76,7 @@ export default withMobigent(App, "com.acme.expenses", {
 });
 ```
 
-That is the app integration. For throwaway local demos, Mobigent can use a safe starter app identity, but real apps should pass a stable `appId`.
+That is the app integration. For real production apps, use `withMobigent(App, "com.acme.expenses", functions)` so the app and backend pair by a stable identity.
 
 No app-side init command is required. The SDK handles the app connection. Optional generators are only useful when you want example files.
 
@@ -90,7 +87,7 @@ import { startMobigent } from "@mobigent/backend";
 import { createApp } from "@mobigent/app";
 import { expenseFunctions } from "./app-functions";
 
-const backend = await startMobigent("com.acme.expenses");
+const backend = await startMobigent();
 const mobigent = createApp(expenseFunctions, {
   backend
 });
@@ -119,12 +116,12 @@ In your server:
 ```ts
 import { startMobigent } from "@mobigent/backend";
 
-const mobigent = await startMobigent("com.acme.expenses");
+const mobigent = await startMobigent();
 
 console.log(mobigent.inspectorUrl);
 ```
 
-The backend and app pair by `appId`. The backend handles the connection, function routing, inspector, agent endpoints, and readiness waiting.
+The backend handles the connection, function routing, inspector, agent endpoints, and readiness waiting. For production, start it with the same stable app id used by the app.
 
 Prefer generated sample files? Use the starter. Starter generation is a demo shortcut, not required integration.
 

@@ -1044,7 +1044,7 @@ test("backend SDK can start from just an app id string", async () => {
   }
 });
 
-test("backend SDK infers app identity when no app config is passed", async () => {
+test("backend SDK uses the app package local identity when no app config is passed", async () => {
   const dir = await mkdtemp(join(tmpdir(), "mobigent-infer-sdk-"));
   const previousCwd = process.cwd();
 
@@ -1066,13 +1066,13 @@ test("backend SDK infers app identity when no app config is passed", async () =>
 
     try {
       assert.deepEqual(backend.connection, {
-        appId: "app.acme.travel.wallet",
-        appName: "Travel Wallet",
+        appId: "app.mobigent.local",
+        appName: "Mobigent App",
         connectionUrl: "ws://localhost:18995",
         authToken: undefined,
         version: undefined
       });
-      assert.match(backend.advanced.copyAppConfig(), /Travel Wallet/);
+      assert.match(backend.advanced.copyAppConfig(), /Mobigent App/);
     } finally {
       await backend.stop();
     }
