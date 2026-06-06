@@ -2157,7 +2157,7 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
 
   const envTemplate = createReactNativeEnvTemplate({ gatewayUrl: "ws://localhost:9000" });
   assert.match(envTemplate, /EXPO_PUBLIC_MOBIGENT_MODE=local/);
-  assert.match(envTemplate, /EXPO_PUBLIC_MOBIGENT_GATEWAY_URL=ws:\/\/localhost:9000/);
+  assert.match(envTemplate, /EXPO_PUBLIC_MOBIGENT_URL=ws:\/\/localhost:9000/);
   assert.match(envTemplate, /EXPO_PUBLIC_MOBIGENT_DEVICE_HOST/);
 
   const configFiles = createReactNativeStarterFiles({
@@ -2187,7 +2187,7 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   assert.match(configRootFile.contents, /authToken: "dev-token"/);
   assert.doesNotMatch(configRootFile.contents, /config: mobigentConfig/);
   assert.doesNotMatch(configRootFile.contents, /gatewayUrl: process\.env/);
-  assert.match(envTemplate, /EXPO_PUBLIC_MOBIGENT_AUTH_TOKEN/);
+  assert.match(envTemplate, /EXPO_PUBLIC_MOBIGENT_TOKEN/);
 
   const customConfirmationFiles = createReactNativeStarterFiles({
     appId: "com.mobigent.demo",
@@ -2337,7 +2337,7 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   );
   assert.equal(envTemplateCode, 0);
   assert.equal(stderr, "");
-  assert.match(stdout, /EXPO_PUBLIC_MOBIGENT_GATEWAY_URL=ws:\/\/localhost:9000/);
+  assert.match(stdout, /EXPO_PUBLIC_MOBIGENT_URL=ws:\/\/localhost:9000/);
 
   stdout = "";
   stderr = "";
@@ -2359,7 +2359,7 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
     { write: () => undefined } as NodeJS.WritableStream
   );
   assert.equal(writeEnvCode, 0);
-  assert.match(await readFile(envPath, "utf8"), /EXPO_PUBLIC_MOBIGENT_GATEWAY_URL=wss:\/\/gateway.example.com/);
+  assert.match(await readFile(envPath, "utf8"), /EXPO_PUBLIC_MOBIGENT_URL=wss:\/\/gateway.example.com/);
 
   const writeCode = runReactNativeInitCli(
     ["--app-id", "com.mobigent.demo", "--app-name", "Demo App", "--feature", "task", "--out-dir", dir],

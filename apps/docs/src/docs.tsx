@@ -44,9 +44,9 @@ const deviceConnectionCode = `export const mobigent = createApp({
 });
 
 // production env/config:
-MOBIGENT_APP_ID=com.acme.expenses
-EXPO_PUBLIC_MOBIGENT_APP_ID=com.acme.expenses
-EXPO_PUBLIC_MOBIGENT_CONNECTION_URL=wss://your-backend.example.com`;
+MOBIGENT_APP=com.acme.expenses
+EXPO_PUBLIC_MOBIGENT_APP=com.acme.expenses
+EXPO_PUBLIC_MOBIGENT_URL=wss://your-backend.example.com`;
 
 const demoCode = `npm exec --yes \\
   --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \\

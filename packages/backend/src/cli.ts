@@ -427,8 +427,8 @@ Then in your app:
     export default mobigent.with(App);
 
   For production identity, set:
-    MOBIGENT_APP_ID=${options.appId}
-    EXPO_PUBLIC_MOBIGENT_APP_ID=${options.appId}
+    MOBIGENT_APP=${options.appId}
+    EXPO_PUBLIC_MOBIGENT_APP=${options.appId}
 ${options.appDir ? `\nOptional app config files were also written to ${join(options.appDir, options.configFile)} and ${join(options.appDir, appConfigModuleFile ?? join("src", "mobigent-config.ts"))}.\n` : "\nNo app config file is required for the normal app/backend path.\n"}
 
 Need sample files instead of hand-writing them?

@@ -545,19 +545,24 @@ function resolveConnectionOptions(
 }
 
 export function resolveMobigentEnvironmentConfig(env: MobigentEnvironment = readMobigentRuntimeEnv()): Partial<MobigentSimpleAppConfig> {
+  const appId = firstEnv(env, "EXPO_PUBLIC_MOBIGENT_APP_ID", "EXPO_PUBLIC_MOBIGENT_APP", "MOBIGENT_APP_ID", "MOBIGENT_APP");
+  const appName = firstEnv(env, "EXPO_PUBLIC_MOBIGENT_APP_NAME", "MOBIGENT_APP_NAME") ?? (appId ? inferSimpleAppNameFromId(appId) : undefined);
+
   return omitUndefinedValues({
-    appId: firstEnv(env, "EXPO_PUBLIC_MOBIGENT_APP_ID", "MOBIGENT_APP_ID"),
-    appName: firstEnv(env, "EXPO_PUBLIC_MOBIGENT_APP_NAME", "MOBIGENT_APP_NAME"),
+    appId,
+    appName,
     connectionUrl: firstEnv(
       env,
       "EXPO_PUBLIC_MOBIGENT_CONNECTION_URL",
       "EXPO_PUBLIC_MOBIGENT_GATEWAY_URL",
+      "EXPO_PUBLIC_MOBIGENT_URL",
       "MOBIGENT_CONNECTION_URL",
-      "MOBIGENT_GATEWAY_URL"
+      "MOBIGENT_GATEWAY_URL",
+      "MOBIGENT_URL"
     ),
-    gatewayUrl: firstEnv(env, "EXPO_PUBLIC_MOBIGENT_GATEWAY_URL", "MOBIGENT_GATEWAY_URL"),
+    gatewayUrl: firstEnv(env, "EXPO_PUBLIC_MOBIGENT_GATEWAY_URL", "EXPO_PUBLIC_MOBIGENT_URL", "MOBIGENT_GATEWAY_URL", "MOBIGENT_URL"),
     version: firstEnv(env, "EXPO_PUBLIC_MOBIGENT_APP_VERSION", "MOBIGENT_APP_VERSION"),
-    authToken: firstEnv(env, "EXPO_PUBLIC_MOBIGENT_AUTH_TOKEN", "MOBIGENT_AUTH_TOKEN")
+    authToken: firstEnv(env, "EXPO_PUBLIC_MOBIGENT_AUTH_TOKEN", "EXPO_PUBLIC_MOBIGENT_TOKEN", "MOBIGENT_AUTH_TOKEN", "MOBIGENT_TOKEN")
   });
 }
 
@@ -575,6 +580,11 @@ function firstEnv(env: MobigentEnvironment, ...names: string[]) {
   }
 
   return undefined;
+}
+
+function inferSimpleAppNameFromId(appId: string) {
+  const name = appId.split(".").filter(Boolean).at(-1) ?? appId;
+  return humanize(name);
 }
 
 export function resolveMobigentConnectionUrl(connection?: MobigentSimpleBackendConnection): string | undefined {

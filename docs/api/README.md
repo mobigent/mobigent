@@ -83,8 +83,7 @@ console.log(mobigent.agentUrl);
 For production, keep the same code and set backend app identity:
 
 ```bash
-MOBIGENT_APP_ID=com.acme.expenses
-MOBIGENT_APP_NAME=Acme Expenses
+MOBIGENT_APP=com.acme.expenses
 ```
 
 The common backend object includes:

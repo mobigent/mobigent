@@ -17,7 +17,7 @@ export const mobigent = createApp({
 });
 ```
 
-Then wrap the app once with `mobigent.with(App)`. Use `write(createExpense, { input, confirm })` when you want validation and custom approval copy. Set `EXPO_PUBLIC_MOBIGENT_APP_ID` and `MOBIGENT_APP_ID` before production. Use generators only when you want sample files.
+Then wrap the app once with `mobigent.with(App)`. Use `write(createExpense, { input, confirm })` when you want validation and custom approval copy. Set `EXPO_PUBLIC_MOBIGENT_APP` and `MOBIGENT_APP` before production. Use generators only when you want sample files.
 
 ## 2. Inspect The Gateway
 

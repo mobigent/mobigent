@@ -228,6 +228,28 @@ test("app package createApp reads production identity from public environment co
   }
 });
 
+test("app package createApp accepts short production env aliases and infers app name", () => {
+  const originalEnv = snapshotMobigentEnv();
+  process.env.EXPO_PUBLIC_MOBIGENT_APP = "com.example.travel.wallet";
+  process.env.EXPO_PUBLIC_MOBIGENT_URL = "wss://mobigent.example.com";
+  process.env.EXPO_PUBLIC_MOBIGENT_TOKEN = "short-token";
+
+  try {
+    const app = createApp({
+      expense: {
+        list: async () => ({ items: [] })
+      }
+    });
+
+    assert.equal(app.options.appId, "com.example.travel.wallet");
+    assert.equal(app.options.appName, "Wallet");
+    assert.equal(app.options.gatewayUrl, "wss://mobigent.example.com");
+    assert.equal(app.options.authToken, "short-token");
+  } finally {
+    restoreMobigentEnv(originalEnv);
+  }
+});
+
 test("app package createApp accepts a plain function map with identity options", () => {
   const app = createApp(
     {
@@ -1165,6 +1187,31 @@ test("backend SDK uses the app package local identity when no app config is pass
   }
 });
 
+test("backend SDK accepts short app env alias and infers app name", async () => {
+  const originalEnv = snapshotMobigentEnv();
+  process.env.MOBIGENT_APP = "com.example.travel.wallet";
+  process.env.MOBIGENT_APP_VERSION = "2.0.0";
+
+  const backend = await startMobigent({
+    wsPort: 19043,
+    httpPort: 19044,
+    silent: true
+  });
+
+  try {
+    assert.deepEqual(backend.connection, {
+      appId: "com.example.travel.wallet",
+      appName: "Wallet",
+      connectionUrl: "ws://localhost:19043",
+      authToken: undefined,
+      version: "2.0.0"
+    });
+  } finally {
+    await backend.stop();
+    restoreMobigentEnv(originalEnv);
+  }
+});
+
 test("backend SDK writes app config when appDir is provided", async () => {
   const dir = await mkdtemp(join(tmpdir(), "mobigent-backend-appdir-"));
   const appDir = join(dir, "mobile-app");
@@ -1395,8 +1442,8 @@ test("backend init CLI infers app identity and prints the short app init command
     assert.match(stdout, /expose normal app functions, then wrap your app once/);
     assert.match(stdout, /createApp\(\{/);
     assert.doesNotMatch(stdout, /createApp\("com\.example\.expense", \{/);
-    assert.match(stdout, /MOBIGENT_APP_ID=com\.example\.expense/);
-    assert.match(stdout, /EXPO_PUBLIC_MOBIGENT_APP_ID=com\.example\.expense/);
+    assert.match(stdout, /MOBIGENT_APP=com\.example\.expense/);
+    assert.match(stdout, /EXPO_PUBLIC_MOBIGENT_APP=com\.example\.expense/);
     assert.match(stdout, /expense: \{ list: async \(\) => listExpenses\(\) \}/);
     assert.doesNotMatch(stdout, /functions: \{ expense/);
     assert.doesNotMatch(stdout, /read\(listExpenses\)/);
@@ -1755,11 +1802,17 @@ test("app and backend can pair from environment config while code stays no-argum
 
 function snapshotMobigentEnv() {
   return {
+    MOBIGENT_APP: process.env.MOBIGENT_APP,
     MOBIGENT_APP_ID: process.env.MOBIGENT_APP_ID,
     MOBIGENT_APP_NAME: process.env.MOBIGENT_APP_NAME,
     MOBIGENT_APP_VERSION: process.env.MOBIGENT_APP_VERSION,
+    MOBIGENT_URL: process.env.MOBIGENT_URL,
+    MOBIGENT_TOKEN: process.env.MOBIGENT_TOKEN,
+    EXPO_PUBLIC_MOBIGENT_APP: process.env.EXPO_PUBLIC_MOBIGENT_APP,
     EXPO_PUBLIC_MOBIGENT_APP_ID: process.env.EXPO_PUBLIC_MOBIGENT_APP_ID,
     EXPO_PUBLIC_MOBIGENT_APP_NAME: process.env.EXPO_PUBLIC_MOBIGENT_APP_NAME,
+    EXPO_PUBLIC_MOBIGENT_URL: process.env.EXPO_PUBLIC_MOBIGENT_URL,
+    EXPO_PUBLIC_MOBIGENT_TOKEN: process.env.EXPO_PUBLIC_MOBIGENT_TOKEN,
     EXPO_PUBLIC_MOBIGENT_CONNECTION_URL: process.env.EXPO_PUBLIC_MOBIGENT_CONNECTION_URL,
     EXPO_PUBLIC_MOBIGENT_GATEWAY_URL: process.env.EXPO_PUBLIC_MOBIGENT_GATEWAY_URL,
     EXPO_PUBLIC_MOBIGENT_AUTH_TOKEN: process.env.EXPO_PUBLIC_MOBIGENT_AUTH_TOKEN

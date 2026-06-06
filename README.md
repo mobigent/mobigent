@@ -61,13 +61,11 @@ For production, keep the same code and set one app identity in environment/confi
 
 ```bash
 # backend
-MOBIGENT_APP_ID=com.acme.expenses
-MOBIGENT_APP_NAME=Acme Expenses
+MOBIGENT_APP=com.acme.expenses
 
 # Expo / React Native public app config
-EXPO_PUBLIC_MOBIGENT_APP_ID=com.acme.expenses
-EXPO_PUBLIC_MOBIGENT_APP_NAME=Acme Expenses
-EXPO_PUBLIC_MOBIGENT_CONNECTION_URL=wss://your-backend.example.com
+EXPO_PUBLIC_MOBIGENT_APP=com.acme.expenses
+EXPO_PUBLIC_MOBIGENT_URL=wss://your-backend.example.com
 ```
 
 For a non-React host or local demo, use the same app SDK object:
@@ -159,9 +157,8 @@ export const mobigent = createApp({
 For production, prefer environment config so the app code stays the same:
 
 ```bash
-EXPO_PUBLIC_MOBIGENT_APP_ID=com.acme.expenses
-EXPO_PUBLIC_MOBIGENT_APP_NAME=Acme Expenses
-EXPO_PUBLIC_MOBIGENT_CONNECTION_URL=wss://your-backend.example.com
+EXPO_PUBLIC_MOBIGENT_APP=com.acme.expenses
+EXPO_PUBLIC_MOBIGENT_URL=wss://your-backend.example.com
 ```
 
 Mobigent treats `list`/`get`/`read`/`fetch`/`search`/`load` functions as reads. Other plain functions are writes and require confirmation by default. When you want validation or custom approval copy, wrap that one function:
@@ -295,9 +292,8 @@ export const mobigent = createApp({
 For production, set public app config:
 
 ```bash
-EXPO_PUBLIC_MOBIGENT_APP_ID=com.acme.expenses
-EXPO_PUBLIC_MOBIGENT_APP_NAME=Acme Expenses
-EXPO_PUBLIC_MOBIGENT_CONNECTION_URL=wss://your-backend.example.com
+EXPO_PUBLIC_MOBIGENT_APP=com.acme.expenses
+EXPO_PUBLIC_MOBIGENT_URL=wss://your-backend.example.com
 ```
 
 Wrap the app once:
@@ -329,7 +325,7 @@ Need another app area later? Add another namespace inside `functions`.
 
 No app-side init command is required. Starter generation is only for demos.
 
-For production, the backend reads `MOBIGENT_APP_ID` and the app reads `EXPO_PUBLIC_MOBIGENT_APP_ID`, so code does not need to pass the same string in two places.
+For production, the backend reads `MOBIGENT_APP` and the app reads `EXPO_PUBLIC_MOBIGENT_APP`, so code does not need to pass the same string in two places. App names are inferred from that id unless you set the optional name variables.
 
 If you are wiring a Node demo, test host, or another non-React runtime, use the same app SDK object:
 
@@ -365,7 +361,7 @@ console.log(mobigent.inspectorUrl);
 console.log(mobigent.openApiUrl);
 ```
 
-The app and backend pair by app identity. Local experiments use safe defaults; production can set `MOBIGENT_APP_ID` on the backend and `EXPO_PUBLIC_MOBIGENT_APP_ID` in the app without changing the code.
+The app and backend pair by app identity. Local experiments use safe defaults; production can set `MOBIGENT_APP` on the backend and `EXPO_PUBLIC_MOBIGENT_APP` in the app without changing the code.
 
 For the fastest first run, this also works:
 

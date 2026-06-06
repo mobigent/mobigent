@@ -114,13 +114,11 @@ For production, keep the same code and set app identity/config outside the call 
 
 ```bash
 # backend
-MOBIGENT_APP_ID=com.acme.expenses
-MOBIGENT_APP_NAME=Acme Expenses
+MOBIGENT_APP=com.acme.expenses
 
 # Expo / React Native app
-EXPO_PUBLIC_MOBIGENT_APP_ID=com.acme.expenses
-EXPO_PUBLIC_MOBIGENT_APP_NAME=Acme Expenses
-EXPO_PUBLIC_MOBIGENT_CONNECTION_URL=wss://your-backend.example.com
+EXPO_PUBLIC_MOBIGENT_APP=com.acme.expenses
+EXPO_PUBLIC_MOBIGENT_URL=wss://your-backend.example.com
 ```
 
 Prefer generated sample files? Use the starter. Starter generation is a demo shortcut, not required integration.

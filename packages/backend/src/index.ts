@@ -734,7 +734,7 @@ function resolveDefaultAppOptions(options: MobigentBackendOptions): MobigentBack
   if (envApp.appId || envApp.appName || envApp.version) {
     return normalizeDefaultApp({
       id: envApp.appId ?? defaultMobigentBackendApp.appId,
-      name: envApp.appName ?? defaultMobigentBackendApp.appName,
+      name: envApp.appName,
       version: envApp.version
     });
   }
@@ -748,7 +748,7 @@ function resolveDefaultAppOptions(options: MobigentBackendOptions): MobigentBack
 
 function readMobigentBackendEnvironmentApp(): Partial<Pick<MobigentBackendAppConfigOptions, "appId" | "appName" | "version">> {
   return omitUndefinedValues({
-    appId: process.env.MOBIGENT_APP_ID,
+    appId: process.env.MOBIGENT_APP_ID ?? process.env.MOBIGENT_APP,
     appName: process.env.MOBIGENT_APP_NAME,
     version: process.env.MOBIGENT_APP_VERSION
   });
@@ -1039,7 +1039,7 @@ function waitForBackendReady(gateway: BridgeGateway, options: MobigentBackendRea
           new Error(
               `Mobigent backend is waiting for ${minApps} connected app(s) and ${minFunctions} exposed function(s). ` +
               `Current state: ${status.appsWithManifests} app(s), ${status.tools} function(s). ` +
-              "Start the app, wire it with createApp(functions).with(App), and set MOBIGENT_APP_ID / EXPO_PUBLIC_MOBIGENT_APP_ID for production identity."
+              "Start the app, wire it with createApp(functions).with(App), and set MOBIGENT_APP / EXPO_PUBLIC_MOBIGENT_APP for production identity."
           )
         );
         return;
@@ -1089,7 +1089,7 @@ function waitForBackendFunction(
           new Error(
             `Mobigent backend is waiting for app function ${name}. ` +
               `Current state: ${status.appsWithManifests} app(s), ${status.tools} function(s). ` +
-              "Start the app, wire it with createApp(functions).with(App), and set MOBIGENT_APP_ID / EXPO_PUBLIC_MOBIGENT_APP_ID for production identity."
+              "Start the app, wire it with createApp(functions).with(App), and set MOBIGENT_APP / EXPO_PUBLIC_MOBIGENT_APP for production identity."
           )
         );
         return;

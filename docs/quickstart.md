@@ -43,9 +43,8 @@ export const mobigent = createApp({
 For production, keep the same app code and set public app config:
 
 ```bash
-EXPO_PUBLIC_MOBIGENT_APP_ID=com.acme.expenses
-EXPO_PUBLIC_MOBIGENT_APP_NAME=Acme Expenses
-EXPO_PUBLIC_MOBIGENT_CONNECTION_URL=wss://your-backend.example.com
+EXPO_PUBLIC_MOBIGENT_APP=com.acme.expenses
+EXPO_PUBLIC_MOBIGENT_URL=wss://your-backend.example.com
 ```
 
 That is enough for a first integration. Mobigent treats `list`, `get`, `read`, `fetch`, `search`, and `load` as reads. Other plain functions are confirmed writes by default. Add `write()` later only when you want input validation or custom approval text.
@@ -73,7 +72,7 @@ export default withMobigent(App, {
 });
 ```
 
-That is the app integration. For real production apps, set `EXPO_PUBLIC_MOBIGENT_APP_ID` so the app and backend pair by a stable identity without passing the same string through code.
+That is the app integration. For real production apps, set `EXPO_PUBLIC_MOBIGENT_APP` so the app and backend pair by a stable identity without passing the same string through code. Mobigent infers the app name from that id unless you override it.
 
 No app-side init command is required. The SDK handles the app connection. Optional generators are only useful when you want example files.
 
@@ -118,7 +117,7 @@ const mobigent = await startMobigent();
 console.log(mobigent.inspectorUrl);
 ```
 
-The backend handles the connection, function routing, inspector, agent endpoints, and readiness waiting. For production, set `MOBIGENT_APP_ID` to the same value as the app's public config.
+The backend handles the connection, function routing, inspector, agent endpoints, and readiness waiting. For production, set `MOBIGENT_APP` to the same value as the app's public config.
 
 Prefer generated sample files? Use the starter. Starter generation is a demo shortcut, not required integration.
 
@@ -141,7 +140,7 @@ await expenses.createExpense({ merchant: "Coffee", amount: 8 });
 await expenses.listExpenses();
 ```
 
-With no options, Mobigent uses local defaults. Real deployments should set `MOBIGENT_APP_ID`, `MOBIGENT_APP_NAME`, and the app's `EXPO_PUBLIC_MOBIGENT_*` values in environment/config.
+With no options, Mobigent uses local defaults. Real deployments should set `MOBIGENT_APP`, the app's `EXPO_PUBLIC_MOBIGENT_APP`, and the hosted app URL in environment/config.
 
 Use `mobigent.waitForApp()` only when you want an explicit startup health gate. If the app is not running yet, function calls and readiness checks tell you exactly what is missing.
 
@@ -164,13 +163,13 @@ open http://localhost:8788/inspect
 For local simulators, the SDK usually picks the right local connection. If you are on a physical device or hosted backend, set the backend location in public app config:
 
 ```bash
-EXPO_PUBLIC_MOBIGENT_CONNECTION_URL=ws://192.168.1.20:8787
+EXPO_PUBLIC_MOBIGENT_URL=ws://192.168.1.20:8787
 ```
 
 Use your computer's LAN IP for a physical phone. For a hosted backend, use the hosted app connection URL:
 
 ```bash
-EXPO_PUBLIC_MOBIGENT_CONNECTION_URL=wss://your-backend.example.com
+EXPO_PUBLIC_MOBIGENT_URL=wss://your-backend.example.com
 ```
 
 No generated app config file is needed.

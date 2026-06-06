@@ -34,8 +34,7 @@ Mobigent handles waiting for the app connection and routing calls to the matchin
 For production, keep `startMobigent()` and set backend config:
 
 ```bash
-MOBIGENT_APP_ID=com.acme.expenses
-MOBIGENT_APP_NAME=Acme Expenses
+MOBIGENT_APP=com.acme.expenses
 ```
 
 Explicit `startMobigent("com.acme.expenses")` still works when you want identity in code.

@@ -933,6 +933,7 @@ export const mobigentConfig = defineMobigentConfig({
   appId: ${JSON.stringify(options.appId)},
   appName: ${JSON.stringify(options.appName)},
   connectionUrl:
+    process.env.EXPO_PUBLIC_MOBIGENT_URL ??
     process.env.EXPO_PUBLIC_MOBIGENT_CONNECTION_URL ??
     process.env.EXPO_PUBLIC_MOBIGENT_GATEWAY_URL ??
     ${JSON.stringify(options.gatewayUrl ?? "ws://localhost:8787")}${options.appVersion ? `,\n  version: ${JSON.stringify(options.appVersion)}` : ""}
@@ -1077,8 +1078,7 @@ export function createReactNativeEnvTemplate(options: Pick<ReactNativeInitCliOpt
 # Mobigent reads MOBIGENT_*, EXPO_PUBLIC_MOBIGENT_*, and REACT_NATIVE_MOBIGENT_*.
 # MODE can be local, device, hosted, or disabled.
 EXPO_PUBLIC_MOBIGENT_MODE=local
-EXPO_PUBLIC_MOBIGENT_CONNECTION_URL=${gatewayUrl}
-EXPO_PUBLIC_MOBIGENT_GATEWAY_URL=${gatewayUrl}
+EXPO_PUBLIC_MOBIGENT_URL=${gatewayUrl}
 
 # Physical device example:
 # EXPO_PUBLIC_MOBIGENT_MODE=device
@@ -1089,7 +1089,7 @@ EXPO_PUBLIC_MOBIGENT_GATEWAY_URL=${gatewayUrl}
 # EXPO_PUBLIC_MOBIGENT_MODE=hosted
 # EXPO_PUBLIC_MOBIGENT_HOST=gateway.example.com
 # EXPO_PUBLIC_MOBIGENT_SECURE=true
-# EXPO_PUBLIC_MOBIGENT_AUTH_TOKEN=replace-me
+# EXPO_PUBLIC_MOBIGENT_TOKEN=replace-me
 
 # Disable bridge without removing code:
 # EXPO_PUBLIC_MOBIGENT_ENABLED=false

@@ -240,7 +240,7 @@ export const mobigentConfig = defineMobigentConfig({
   const envPath = join(dir, ".env.mobigent");
   const writeEnv = run(["--write-env", envPath, "--gateway-url", "ws://localhost:8787"]);
   assert.equal(writeEnv.code, 0, writeEnv.stderr);
-  assert.match(await readFile(envPath, "utf8"), /EXPO_PUBLIC_MOBIGENT_GATEWAY_URL=ws:\/\/localhost:8787/);
+  assert.match(await readFile(envPath, "utf8"), /EXPO_PUBLIC_MOBIGENT_URL=ws:\/\/localhost:8787/);
 
   const manifest = run([
     "--manifest",

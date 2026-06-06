@@ -64,9 +64,8 @@ export const mobigent = createApp({
 For production, keep this code and set public app config:
 
 ```bash
-EXPO_PUBLIC_MOBIGENT_APP_ID=com.acme.expenses
-EXPO_PUBLIC_MOBIGENT_APP_NAME=Acme Expenses
-EXPO_PUBLIC_MOBIGENT_CONNECTION_URL=wss://your-backend.example.com
+EXPO_PUBLIC_MOBIGENT_APP=com.acme.expenses
+EXPO_PUBLIC_MOBIGENT_URL=wss://your-backend.example.com
 ```
 
 Plain `list`, `get`, `read`, `fetch`, `search`, and `load` functions are treated as reads. Other plain functions are confirmed writes by default.
@@ -114,7 +113,7 @@ export default withMobigent(App, {
 });
 ```
 
-Run a Mobigent backend from your server with `@mobigent/backend`, then open the inspector URL it prints. Local defaults work for first runs; use `MOBIGENT_APP_ID` and `EXPO_PUBLIC_MOBIGENT_APP_ID` for production identity.
+Run a Mobigent backend from your server with `@mobigent/backend`, then open the inspector URL it prints. Local defaults work for first runs; use `MOBIGENT_APP` and `EXPO_PUBLIC_MOBIGENT_APP` for production identity.
 
 No app-side init command is required. Write the functions directly in your app code. Optional generators are for examples, not real integration.
 

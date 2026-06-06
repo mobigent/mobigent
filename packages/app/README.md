@@ -34,9 +34,8 @@ export const mobigent = createApp(appFunctions);
 For production, keep that code shape and set public app config:
 
 ```bash
-EXPO_PUBLIC_MOBIGENT_APP_ID=com.acme.expenses
-EXPO_PUBLIC_MOBIGENT_APP_NAME=Acme Expenses
-EXPO_PUBLIC_MOBIGENT_CONNECTION_URL=wss://your-backend.example.com
+EXPO_PUBLIC_MOBIGENT_APP=com.acme.expenses
+EXPO_PUBLIC_MOBIGENT_URL=wss://your-backend.example.com
 ```
 
 Explicit `createApp("com.acme.expenses", appFunctions)` still works when you want identity in code.
