@@ -207,6 +207,7 @@ await mobigent.app.expense.create({ merchant: "Coffee", amount: 8 });
 ```
 
 See [docs/simple-integration.md](./docs/simple-integration.md) for the clean path before reading advanced docs.
+If you are adding Mobigent to an app that already exists, use [docs/existing-react-native-app.md](./docs/existing-react-native-app.md). It is the generator-free path: install packages, expose functions, wrap once, start the backend.
 
 For an existing React Native app, the intended npm path is:
 
@@ -466,6 +467,7 @@ The rest of the monorepo supports those packages. Day-one app teams should not n
 - Docs: https://mobigent.github.io/mobigent/docs.html
 - Flagship demo: [docs/flagship-demo.md](./docs/flagship-demo.md)
 - First run: [docs/quickstart.md](./docs/quickstart.md)
+- Existing React Native app: [docs/existing-react-native-app.md](./docs/existing-react-native-app.md)
 - React Native guide: [docs/react-native.md](./docs/react-native.md)
 - iOS guide: [docs/ios.md](./docs/ios.md)
 - Android guide: [docs/android.md](./docs/android.md)

@@ -6,6 +6,8 @@ sidebar_position: 2
 
 Mobigent should feel like two normal SDK installs.
 
+Adding it to an app that already exists? Use [Existing React Native App](./existing-react-native-app.md). It is the same simple model without any generated app files.
+
 ```txt
 mobile app  ->  @mobigent/app      -> exposes real app functions
 backend     ->  @mobigent/backend  -> lets agents call those functions

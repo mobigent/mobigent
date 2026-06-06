@@ -6,6 +6,8 @@ sidebar_position: 3
 
 Use Mobigent like normal app code: expose a few real functions, wrap the app once, and let the SDK handle the connection.
 
+For the shortest existing-app recipe, see [Existing React Native App](./existing-react-native-app.md). No generator is required.
+
 ## Install
 
 ```bash

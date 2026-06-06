@@ -2,6 +2,8 @@
 
 Mobigent should feel like two normal SDK installs.
 
+Adding it to an app that already exists? Use [Existing React Native App](./existing-react-native-app.md). It is the same simple model without any generated app files.
+
 You do not start with connection plumbing. The SDK owns that until you need advanced production control.
 
 ## The Whole Model

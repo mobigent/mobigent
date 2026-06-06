@@ -238,4 +238,6 @@ The demo starts a Mobigent backend, connects a sample expense app, calls a confi
 
 ## Next Steps
 
+Adding Mobigent to an app that already exists? Read [Existing React Native App](./existing-react-native-app.md). It keeps the path to install packages, expose functions, wrap once, and start the backend.
+
 After the first loop works, add more features by product area. Keep each feature small. Start with reads, then add confirmed writes for anything that can change user data, spend money, send messages, or expose sensitive information.

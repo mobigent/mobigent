@@ -163,3 +163,5 @@ npm run doctor
 ```
 
 You should see app, backend, readiness, and function checks pass. The starter is only a demo shortcut; the real integration path is install plus code.
+
+Adding Mobigent to an app that already exists? Read [Existing React Native App](./existing-react-native-app.md). It keeps the path to install packages, expose functions, wrap once, and start the backend.

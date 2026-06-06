@@ -413,6 +413,21 @@ for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.
   );
 }
 
+for (const path of ["docs/existing-react-native-app.md", "apps/docs/docs/existing-react-native-app.md"]) {
+  const contents = readFileSync(path, "utf8");
+  assert.match(contents, /You do not need `npx mobigent-init`/, `${path} should answer the old init-command confusion directly`);
+  assert.match(contents, /only creates sample files for demos/, `${path} should frame mobigent-init as sample generation only`);
+  assert.match(contents, /npm install @mobigent\/app[\s\S]{0,120}?npm install @mobigent\/backend/, `${path} should lead with normal package installs`);
+  assert.match(contents, /createApp\("com\.acme\.expenses"/, `${path} should teach createApp(appId, functions)`);
+  assert.match(contents, /withMobigent\(App, "com\.acme\.expenses"/, `${path} should teach the one-file existing-app wrapper`);
+  assert.match(contents, /startMobigent\("com\.acme\.expenses"\)/, `${path} should teach the short backend start path`);
+  assert.match(contents, /mobigent\.app\.expense\.create/, `${path} should teach backend calls through app-owned functions`);
+  assert.match(contents, /mobigent\.use\("expense", \{/, `${path} should teach backend-friendly aliases`);
+  assert.match(contents, /What Developers Should Care About/, `${path} should separate developer-owned concerns from SDK-owned plumbing`);
+  assert.match(contents, /What Mobigent Handles/, `${path} should make SDK-owned work explicit`);
+  assert.doesNotMatch(contents, /defineMobigentConfig|mobigent\.app\.json|appDir\b|backend\.defaultApp|backend\.appSettings\(\)|backend\.pairing\(\)/, `${path} should not pull generated config or legacy backend handoff into existing-app adoption`);
+}
+
 for (const path of ["packages/app/README.md", "packages/react-native/README.md"]) {
   const contents = readFileSync(path, "utf8");
   assert.match(contents, /createApp\("com\.acme\.expenses"/, `${path} should teach createApp(appId, functions) first`);
@@ -580,6 +595,9 @@ for (const path of ["docs/api/README.md", "apps/docs/docs/api.md"]) {
 
 {
   const docsPage = readFileSync("apps/docs/src/docs.tsx", "utf8");
+  assert.match(docsPage, /Existing app path/, "website docs should include a dedicated existing-app adoption section");
+  assert.match(docsPage, /No generator\. No copied config/, "website docs should make generator-free adoption visible");
+  assert.match(docsPage, /sample generator is only for runnable demos/, "website docs should frame generators as demo helpers");
   assert.doesNotMatch(
     docsPage,
     /Define app capability|Register capabilities|typed agent capabilities|App capabilities|same capability contract|mobile capabilities|declared capability/,

@@ -27,6 +27,16 @@ npm exec --yes \\
   --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \\
   -- mobigent-install backend`;
 
+const existingAppRecipeCode = `// App
+export default withMobigent(App, "com.acme.expenses", {
+  expense: { list, create }
+});
+
+// Backend
+const mobigent = await startMobigent("com.acme.expenses");
+
+await mobigent.app.expense.create(input);`;
+
 const deviceConnectionCode = `export const mobigent = createApp("com.acme.expenses", {
   expense: { list, create }
 }, {
@@ -488,6 +498,24 @@ function Docs() {
           <Code title="3. Wrap the app" code={appCode} />
           <Code title="One-file wrap option" code={directWrapCode} />
           <Code title="4. Physical phone or hosted backend" code={deviceConnectionCode} />
+        </div>
+      </section>
+
+      <section className="section docsBlock">
+        <div className="sectionHeader compact">
+          <span className="eyebrow"><Smartphone size={15} /> Existing app path</span>
+          <h2>No generator. No copied config. Just app code and backend code.</h2>
+          <p>
+            In a real React Native app, write Mobigent beside the functions you already own. The sample generator is only for runnable demos.
+          </p>
+        </div>
+        <div className="codeGrid two">
+          <Code title="The whole adoption shape" code={existingAppRecipeCode} />
+          <div className="apiList endpointList">
+            <Row title="Developer chooses" text="The small set of app functions agents may call." />
+            <Row title="SDK handles" text="Connection, discovery, validation, approvals, retries, events, inspector, and agent setup." />
+            <Row title="Read more" text="Open docs/existing-react-native-app.md for the copy-paste existing-app recipe." />
+          </div>
         </div>
       </section>
 
