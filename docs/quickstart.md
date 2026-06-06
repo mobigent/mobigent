@@ -9,7 +9,7 @@ Mobigent is two normal packages:
 - `@mobigent/app` goes in the app and exposes real app functions.
 - `@mobigent/backend` goes in the backend and calls those functions.
 
-The SDK handles the app/backend connection, local defaults, validation, confirmations, agent setup, and audit events. Local demos can start with no app id; production apps should give both packages the same stable app id.
+The SDK handles the app/backend connection, local defaults, production env config, validation, confirmations, agent setup, and audit events. Local demos can start with no app id; production can keep the same code and set environment keys.
 
 ## 1. Add App Functions To An Existing App
 
@@ -40,15 +40,12 @@ export const mobigent = createApp({
 });
 ```
 
-For production, add a stable app id:
+For production, keep the same app code and set public app config:
 
-```ts
-export const mobigent = createApp("com.acme.expenses", {
-  expense: {
-    list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
-});
+```bash
+EXPO_PUBLIC_MOBIGENT_APP_ID=com.acme.expenses
+EXPO_PUBLIC_MOBIGENT_APP_NAME=Acme Expenses
+EXPO_PUBLIC_MOBIGENT_CONNECTION_URL=wss://your-backend.example.com
 ```
 
 That is enough for a first integration. Mobigent treats `list`, `get`, `read`, `fetch`, `search`, and `load` as reads. Other plain functions are confirmed writes by default. Add `write()` later only when you want input validation or custom approval text.
@@ -76,7 +73,7 @@ export default withMobigent(App, {
 });
 ```
 
-That is the app integration. For real production apps, use `withMobigent(App, "com.acme.expenses", functions)` so the app and backend pair by a stable identity.
+That is the app integration. For real production apps, set `EXPO_PUBLIC_MOBIGENT_APP_ID` so the app and backend pair by a stable identity without passing the same string through code.
 
 No app-side init command is required. The SDK handles the app connection. Optional generators are only useful when you want example files.
 
@@ -121,7 +118,7 @@ const mobigent = await startMobigent();
 console.log(mobigent.inspectorUrl);
 ```
 
-The backend handles the connection, function routing, inspector, agent endpoints, and readiness waiting. For production, start it with the same stable app id used by the app.
+The backend handles the connection, function routing, inspector, agent endpoints, and readiness waiting. For production, set `MOBIGENT_APP_ID` to the same value as the app's public config.
 
 Prefer generated sample files? Use the starter. Starter generation is a demo shortcut, not required integration.
 
@@ -144,13 +141,7 @@ await expenses.createExpense({ merchant: "Coffee", amount: 8 });
 await expenses.listExpenses();
 ```
 
-With no options, Mobigent infers a starter app id and app name from your project. Real apps should pass `appId` explicitly.
-
-Shortest explicit form:
-
-```ts
-const mobigent = await startMobigent("com.acme.expenses");
-```
+With no options, Mobigent uses local defaults. Real deployments should set `MOBIGENT_APP_ID`, `MOBIGENT_APP_NAME`, and the app's `EXPO_PUBLIC_MOBIGENT_*` values in environment/config.
 
 Use `mobigent.waitForApp()` only when you want an explicit startup health gate. If the app is not running yet, function calls and readiness checks tell you exactly what is missing.
 
@@ -170,25 +161,16 @@ open http://localhost:8788/inspect
 
 ## 3. Connect From A Device
 
-For local simulators, the SDK usually picks the right local connection. If you are on a physical device or hosted backend, pass the backend location directly in your app:
+For local simulators, the SDK usually picks the right local connection. If you are on a physical device or hosted backend, set the backend location in public app config:
 
-```ts
-export const mobigent = createApp("com.acme.expenses", {
-  expense: {
-    list: async () => ({ items: [] }),
-    create: async (input) => ({ id: "EXP-1", ...input })
-  }
-}, {
-  connection: { host: "192.168.1.20" }
-});
+```bash
+EXPO_PUBLIC_MOBIGENT_CONNECTION_URL=ws://192.168.1.20:8787
 ```
 
 Use your computer's LAN IP for a physical phone. For a hosted backend, use the hosted app connection URL:
 
-```ts
-createApp("com.acme.expenses", functions, {
-  connection: "wss://your-backend.example.com"
-});
+```bash
+EXPO_PUBLIC_MOBIGENT_CONNECTION_URL=wss://your-backend.example.com
 ```
 
 No generated app config file is needed.

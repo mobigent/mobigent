@@ -4,6 +4,7 @@ import {
   connectMobigent,
   defineMobigent,
   emitMobigentEvent,
+  resolveMobigentEnvironmentConfig,
   resolveMobigentConnectionUrl,
   type MobigentSimpleAppConfig,
   type MobigentSimpleBackendConnection,
@@ -56,6 +57,7 @@ export function mobigentApp(
   const options = isMobigentFeatureInput(normalizedInput) ? { features: normalizedInput } : normalizedInput;
   const features = [...toArray(options.features), ...resolveFunctionFeatures(options.functions)];
   const { config, pairing, functions: _functions, confirm, ...appOptions } = options;
+  const envConfig = resolveMobigentEnvironmentConfig();
   const appConnectionUrl =
     appOptions.gatewayUrl ??
     appOptions.connectionUrl ??
@@ -65,14 +67,16 @@ export function mobigentApp(
     resolveMobigentConnectionUrl(pairing?.connection) ??
     config?.gatewayUrl ??
     config?.connectionUrl ??
-    resolveMobigentConnectionUrl(config?.connection);
+    resolveMobigentConnectionUrl(config?.connection) ??
+    envConfig.gatewayUrl ??
+    envConfig.connectionUrl;
   const app = createAgentApp({
     ...appOptions,
-    appId: appOptions.appId ?? pairing?.appId ?? config?.appId,
-    appName: appOptions.appName ?? pairing?.appName ?? config?.appName,
+    appId: appOptions.appId ?? pairing?.appId ?? config?.appId ?? envConfig.appId,
+    appName: appOptions.appName ?? pairing?.appName ?? config?.appName ?? envConfig.appName,
     gatewayUrl: appConnectionUrl,
-    version: appOptions.version ?? pairing?.version ?? config?.version,
-    authToken: appOptions.authToken ?? pairing?.authToken ?? config?.authToken,
+    version: appOptions.version ?? pairing?.version ?? config?.version ?? envConfig.version,
+    authToken: appOptions.authToken ?? pairing?.authToken ?? config?.authToken ?? envConfig.authToken,
     capabilities: [...toArray(options.capabilities), ...features],
     modules: options.modules
   });
@@ -80,13 +84,13 @@ export function mobigentApp(
   const connectionSettings = {
     config,
     pairing,
-    appId: appOptions.appId ?? pairing?.appId ?? config?.appId,
-    appName: appOptions.appName ?? pairing?.appName ?? config?.appName,
+    appId: appOptions.appId ?? pairing?.appId ?? config?.appId ?? envConfig.appId,
+    appName: appOptions.appName ?? pairing?.appName ?? config?.appName ?? envConfig.appName,
     connection: appOptions.connection ?? config?.connection,
     connectionUrl: appOptions.connectionUrl ?? config?.connectionUrl,
-    gatewayUrl: appOptions.gatewayUrl ?? config?.gatewayUrl,
-    version: appOptions.version ?? config?.version,
-    authToken: appOptions.authToken ?? config?.authToken,
+    gatewayUrl: appOptions.gatewayUrl ?? config?.gatewayUrl ?? envConfig.gatewayUrl,
+    version: appOptions.version ?? config?.version ?? envConfig.version,
+    authToken: appOptions.authToken ?? config?.authToken ?? envConfig.authToken,
     confirm,
     signManifest: appOptions.signManifest,
     createSocket: appOptions.createSocket,

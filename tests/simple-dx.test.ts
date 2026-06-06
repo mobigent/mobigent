@@ -205,6 +205,29 @@ test("app package createApp accepts a plain function map with no wrapper key", (
   assert.equal(app.options.capabilities[0]?.actions[0]?.name, "expense_create");
 });
 
+test("app package createApp reads production identity from public environment config", () => {
+  const originalEnv = snapshotMobigentEnv();
+  process.env.EXPO_PUBLIC_MOBIGENT_APP_ID = "com.example.envapp";
+  process.env.EXPO_PUBLIC_MOBIGENT_APP_NAME = "Env App";
+  process.env.EXPO_PUBLIC_MOBIGENT_CONNECTION_URL = "wss://mobigent.example.com";
+  process.env.EXPO_PUBLIC_MOBIGENT_AUTH_TOKEN = "env-token";
+
+  try {
+    const app = createApp({
+      expense: {
+        list: async () => ({ items: [] })
+      }
+    });
+
+    assert.equal(app.options.appId, "com.example.envapp");
+    assert.equal(app.options.appName, "Env App");
+    assert.equal(app.options.gatewayUrl, "wss://mobigent.example.com");
+    assert.equal(app.options.authToken, "env-token");
+  } finally {
+    restoreMobigentEnv(originalEnv);
+  }
+});
+
 test("app package createApp accepts a plain function map with identity options", () => {
   const app = createApp(
     {
@@ -1309,8 +1332,11 @@ test("backend init CLI infers app identity and prints the short app init command
     );
     assert.equal(writeCode, 0, stderr);
     assert.match(stdout, /npm install @mobigent\/app/);
-    assert.match(stdout, /use the same app id, expose normal app functions, then wrap your app once/);
-    assert.match(stdout, /createApp\("com\.example\.expense", \{/);
+    assert.match(stdout, /expose normal app functions, then wrap your app once/);
+    assert.match(stdout, /createApp\(\{/);
+    assert.doesNotMatch(stdout, /createApp\("com\.example\.expense", \{/);
+    assert.match(stdout, /MOBIGENT_APP_ID=com\.example\.expense/);
+    assert.match(stdout, /EXPO_PUBLIC_MOBIGENT_APP_ID=com\.example\.expense/);
     assert.match(stdout, /expense: \{ list: async \(\) => listExpenses\(\) \}/);
     assert.doesNotMatch(stdout, /functions: \{ expense/);
     assert.doesNotMatch(stdout, /read\(listExpenses\)/);
@@ -1615,6 +1641,80 @@ test("existing app DX can connect with only features for local demos", async () 
     await backend.stop();
   }
 });
+
+test("app and backend can pair from environment config while code stays no-argument", async () => {
+  const originalEnv = snapshotMobigentEnv();
+  process.env.MOBIGENT_APP_ID = "com.example.envpair";
+  process.env.MOBIGENT_APP_NAME = "Env Pair";
+  process.env.EXPO_PUBLIC_MOBIGENT_APP_ID = "com.example.envpair";
+  process.env.EXPO_PUBLIC_MOBIGENT_APP_NAME = "Env Pair";
+  let backend: Awaited<ReturnType<typeof startMobigent>> | undefined;
+
+  try {
+    backend = await startMobigent({
+      wsPort: 19041,
+      httpPort: 19042,
+      silent: true
+    });
+    const app = createApp(
+      {
+        expense: {
+          create: write(async (input) => ({ id: "EXP-ENV", ...input }), {
+            input: {
+              merchant: "string"
+            },
+            confirm: true
+          })
+        }
+      },
+      {
+        createSocket: createNodeSocket,
+        confirm: async () => true
+      }
+    );
+
+    assert.equal(backend.connection.appId, "com.example.envpair");
+    assert.equal(app.options.appId, "com.example.envpair");
+
+    const connection = await app.connect({ appConnectionUrl: backend.appConnectionUrl });
+
+    try {
+      await waitFor(() => backend.listFunctions().some((fn) => fn.name === "com_example_envpair.expense_create"));
+      assert.deepEqual(await backend.functions.expense.create({ merchant: "Tea" }), {
+        id: "EXP-ENV",
+        merchant: "Tea"
+      });
+    } finally {
+      connection.disconnect();
+    }
+  } finally {
+    await backend?.stop();
+    restoreMobigentEnv(originalEnv);
+  }
+});
+
+function snapshotMobigentEnv() {
+  return {
+    MOBIGENT_APP_ID: process.env.MOBIGENT_APP_ID,
+    MOBIGENT_APP_NAME: process.env.MOBIGENT_APP_NAME,
+    MOBIGENT_APP_VERSION: process.env.MOBIGENT_APP_VERSION,
+    EXPO_PUBLIC_MOBIGENT_APP_ID: process.env.EXPO_PUBLIC_MOBIGENT_APP_ID,
+    EXPO_PUBLIC_MOBIGENT_APP_NAME: process.env.EXPO_PUBLIC_MOBIGENT_APP_NAME,
+    EXPO_PUBLIC_MOBIGENT_CONNECTION_URL: process.env.EXPO_PUBLIC_MOBIGENT_CONNECTION_URL,
+    EXPO_PUBLIC_MOBIGENT_GATEWAY_URL: process.env.EXPO_PUBLIC_MOBIGENT_GATEWAY_URL,
+    EXPO_PUBLIC_MOBIGENT_AUTH_TOKEN: process.env.EXPO_PUBLIC_MOBIGENT_AUTH_TOKEN
+  };
+}
+
+function restoreMobigentEnv(snapshot: ReturnType<typeof snapshotMobigentEnv>) {
+  for (const [name, value] of Object.entries(snapshot)) {
+    if (value === undefined) {
+      delete process.env[name];
+    } else {
+      process.env[name] = value;
+    }
+  }
+}
 
 async function waitFor(predicate: () => boolean, timeoutMs = 1_000) {
   const deadline = Date.now() + timeoutMs;

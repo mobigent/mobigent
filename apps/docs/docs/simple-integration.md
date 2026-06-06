@@ -8,12 +8,18 @@ Mobigent should feel like two normal SDK installs.
 
 Adding it to an app that already exists? Use [Existing React Native App](./existing-react-native-app.md). It is the same simple model without any generated app files.
 
+You do not start with connection plumbing. The SDK owns that until you need advanced production control.
+
+## The Whole Model
+
 ```txt
 mobile app  ->  @mobigent/app      -> exposes real app functions
 backend     ->  @mobigent/backend  -> lets agents call those functions
 ```
 
-## App
+The app owns the real behavior. The backend calls that behavior. Mobigent owns the connection, discovery, validation, confirmations, retries, and audit trail.
+
+## 1. Add It To The App
 
 ```bash
 npm install @mobigent/app
@@ -27,6 +33,8 @@ npm exec --yes \
   -- mobigent-install app
 ```
 
+Create one app SDK object and expose the functions agents may call:
+
 ```ts
 import { createApp } from "@mobigent/app";
 
@@ -38,18 +46,23 @@ export const mobigent = createApp({
 });
 ```
 
-For production, add a stable app id:
+Plain functions are the beginner path. Mobigent treats `list`, `get`, `read`, `fetch`, `search`, and `load` as reads. Other plain functions are confirmed writes by default.
+
+Add `write()` only when you want validation, descriptions, or custom approval text:
 
 ```ts
-export const mobigent = createApp("com.acme.expenses", {
-  expense: {
-    list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
-});
+import { write } from "@mobigent/app";
+
+create: write(createExpense, {
+  input: {
+    merchant: "string",
+    amount: "number"
+  },
+  confirm: "Create expense?"
+})
 ```
 
-Mobigent treats `list`, `get`, `read`, `fetch`, `search`, and `load` as reads. Other plain functions are confirmed writes by default. Use `write()` only when you want input validation, descriptions, or custom approval text.
+Wrap the app once:
 
 ```tsx
 import { mobigent } from "./mobigent";
@@ -72,21 +85,11 @@ export default withMobigent(App, {
 });
 ```
 
-That is the app-side path. No app-side init command is required.
+That is the frontend integration.
 
-On a physical phone or hosted backend, pass the backend location directly:
+No app-side init command is required. Write the functions directly in your app code. Optional generators are for examples, not real integration.
 
-```ts
-createApp("com.acme.expenses", functions, {
-  connection: { host: "192.168.1.20" }
-});
-
-createApp("com.acme.expenses", functions, {
-  connection: "wss://your-backend.example.com"
-});
-```
-
-## Backend
+## 2. Add It To The Backend
 
 ```bash
 npm install @mobigent/backend
@@ -105,13 +108,26 @@ import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent();
 
-await mobigent.functions.expense.create({ merchant: "Coffee", amount: 8 });
+await mobigent.functions.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
 await mobigent.functions.expense.list();
 ```
 
-Mobigent waits for the app connection when a function is called and routes the call to the app-owned function. For production, use the same stable app id in `createApp(...)` and `startMobigent(...)`.
+That is the backend integration.
 
-Starter generation is a demo shortcut. The normal path is install plus code.
+For production, keep the same code and set app identity/config outside the call site:
+
+```bash
+# backend
+MOBIGENT_APP_ID=com.acme.expenses
+MOBIGENT_APP_NAME=Acme Expenses
+
+# Expo / React Native app
+EXPO_PUBLIC_MOBIGENT_APP_ID=com.acme.expenses
+EXPO_PUBLIC_MOBIGENT_APP_NAME=Acme Expenses
+EXPO_PUBLIC_MOBIGENT_CONNECTION_URL=wss://your-backend.example.com
+```
+
+Prefer generated sample files? Use the starter. Starter generation is a demo shortcut, not required integration.
 
 If your backend wants its own helper names, bind aliases once:
 
@@ -121,20 +137,39 @@ const expenses = mobigent.use("expense", {
   listExpenses: "list"
 });
 
-await expenses.createExpense({ merchant: "Coffee", amount: 8 });
+await expenses.createExpense({ merchant: "Airport Taxi", amount: 42.25 });
 await expenses.listExpenses();
 ```
 
-## What Mobigent Handles
+For one quick explicit call, use `mobigent.call("expense.create", input)`.
 
-- local development config
+## 3. What The SDK Handles
+
 - app connection
-- function discovery
-- input and output validation
-- user confirmation for risky writes
+- local development defaults
+- app/backend matching by app id
+- function naming
+- automatic readiness waiting
+- input/output shapes
+- input validation
+- output validation
+- confirmation before risky writes
 - reconnects and heartbeat
 - queued app events
 - agent setup
 - inspector and audit events
 
-Read the advanced docs when you need hosted ChatGPT Actions, Claude Desktop MCP, custom auth, rate limits, signed manifests, or Docker hosting.
+## 4. What You Keep Control Of
+
+- which app functions agents can call
+- what input each function accepts
+- whether a write needs confirmation
+- how the app shows the approval UI
+- which backend routes or agent flows call Mobigent
+- production auth and hosting choices
+
+## 5. When To Read Advanced Docs
+
+Read the advanced docs only after the simple app/backend loop works.
+
+Use the advanced docs when you need hosted ChatGPT Actions, Claude Desktop MCP, provider-specific adapters, custom auth, rate limits, signed manifests, or Docker hosting.

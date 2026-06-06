@@ -31,11 +31,15 @@ const appFunctions: AppFunctions = {
 export const mobigent = createApp(appFunctions);
 ```
 
-For production, add a stable app id that your backend also uses:
+For production, keep that code shape and set public app config:
 
-```ts
-export const mobigent = createApp("com.acme.expenses", appFunctions);
+```bash
+EXPO_PUBLIC_MOBIGENT_APP_ID=com.acme.expenses
+EXPO_PUBLIC_MOBIGENT_APP_NAME=Acme Expenses
+EXPO_PUBLIC_MOBIGENT_CONNECTION_URL=wss://your-backend.example.com
 ```
+
+Explicit `createApp("com.acme.expenses", appFunctions)` still works when you want identity in code.
 
 Mobigent treats `list`, `get`, `read`, `fetch`, `search`, and `load` as reads. Other plain functions are confirmed writes by default. Use `read()`, `write()`, or `action()` only when you want schemas, descriptions, or custom approval text.
 

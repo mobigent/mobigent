@@ -31,7 +31,14 @@ That is the main backend API.
 
 Mobigent handles waiting for the app connection and routing calls to the matching app functions.
 
-For production, pass the same stable app id that your app SDK uses: `startMobigent("com.acme.expenses")`.
+For production, keep `startMobigent()` and set backend config:
+
+```bash
+MOBIGENT_APP_ID=com.acme.expenses
+MOBIGENT_APP_NAME=Acme Expenses
+```
+
+Explicit `startMobigent("com.acme.expenses")` still works when you want identity in code.
 
 For tests or non-React demos, pass the backend object when you create the app SDK object:
 

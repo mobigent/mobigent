@@ -55,7 +55,20 @@ const backend = await startMobigent();
 await backend.functions.expense.create({ merchant: "Coffee", amount: 8 });
 ```
 
-That is the local path: no app-side setup command, no copied config, no generated file required. For production, give both packages the same stable app id, for example `createApp("com.acme.expenses", functions)` and `startMobigent("com.acme.expenses")`.
+That is the local path: no app-side setup command, no copied config, no generated file required.
+
+For production, keep the same code and set one app identity in environment/config:
+
+```bash
+# backend
+MOBIGENT_APP_ID=com.acme.expenses
+MOBIGENT_APP_NAME=Acme Expenses
+
+# Expo / React Native public app config
+EXPO_PUBLIC_MOBIGENT_APP_ID=com.acme.expenses
+EXPO_PUBLIC_MOBIGENT_APP_NAME=Acme Expenses
+EXPO_PUBLIC_MOBIGENT_CONNECTION_URL=wss://your-backend.example.com
+```
 
 For a non-React host or local demo, use the same app SDK object:
 
@@ -143,15 +156,12 @@ export const mobigent = createApp({
 });
 ```
 
-For production, add a stable app id:
+For production, prefer environment config so the app code stays the same:
 
-```ts
-export const mobigent = createApp("com.acme.expenses", {
-  expense: {
-    list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
-});
+```bash
+EXPO_PUBLIC_MOBIGENT_APP_ID=com.acme.expenses
+EXPO_PUBLIC_MOBIGENT_APP_NAME=Acme Expenses
+EXPO_PUBLIC_MOBIGENT_CONNECTION_URL=wss://your-backend.example.com
 ```
 
 Mobigent treats `list`/`get`/`read`/`fetch`/`search`/`load` functions as reads. Other plain functions are writes and require confirmation by default. When you want validation or custom approval copy, wrap that one function:
@@ -267,7 +277,7 @@ Install the app package:
 npm install @mobigent/app
 ```
 
-For quick local experiments, the app SDK can use safe local defaults. For production, use one stable app id and reuse it in the backend.
+For quick local experiments, the app SDK uses safe local defaults. For production, set app identity in environment/config and keep the app code shape the same.
 
 Create one Mobigent file and one app SDK object:
 
@@ -282,15 +292,12 @@ export const mobigent = createApp({
 });
 ```
 
-For production, add a stable app id:
+For production, set public app config:
 
-```ts
-export const mobigent = createApp("com.acme.expenses", {
-  expense: {
-    list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
-});
+```bash
+EXPO_PUBLIC_MOBIGENT_APP_ID=com.acme.expenses
+EXPO_PUBLIC_MOBIGENT_APP_NAME=Acme Expenses
+EXPO_PUBLIC_MOBIGENT_CONNECTION_URL=wss://your-backend.example.com
 ```
 
 Wrap the app once:
@@ -322,7 +329,7 @@ Need another app area later? Add another namespace inside `functions`.
 
 No app-side init command is required. Starter generation is only for demos.
 
-For production, pass the same `appId` in the app and backend.
+For production, the backend reads `MOBIGENT_APP_ID` and the app reads `EXPO_PUBLIC_MOBIGENT_APP_ID`, so code does not need to pass the same string in two places.
 
 If you are wiring a Node demo, test host, or another non-React runtime, use the same app SDK object:
 
@@ -358,7 +365,7 @@ console.log(mobigent.inspectorUrl);
 console.log(mobigent.openApiUrl);
 ```
 
-The app and backend pair by `appId`. For local experiments, `startMobigent()` can infer a starter app id from the project name, but a real app should pass a stable id.
+The app and backend pair by app identity. Local experiments use safe defaults; production can set `MOBIGENT_APP_ID` on the backend and `EXPO_PUBLIC_MOBIGENT_APP_ID` in the app without changing the code.
 
 For the fastest first run, this also works:
 

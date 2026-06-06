@@ -14,7 +14,6 @@ backend     ->  @mobigent/backend  -> lets agents call those functions
 ```
 
 The app owns the real behavior. The backend calls that behavior. Mobigent owns the connection, discovery, validation, confirmations, retries, and audit trail.
-Use the same `appId` on both sides.
 
 ## 1. Add It To The App
 
@@ -42,19 +41,6 @@ export const mobigent = createApp({
   }
 });
 ```
-
-For a quick local demo, you can omit the identity and pass the function map directly:
-
-```ts
-export const mobigent = createApp({
-  expense: {
-    list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
-});
-```
-
-Use the stable `appId` form before sharing the backend with real agents.
 
 Plain functions are the beginner path. Mobigent treats `list`, `get`, `read`, `fetch`, `search`, and `load` as reads. Other plain functions are confirmed writes by default.
 
@@ -123,6 +109,19 @@ await mobigent.functions.expense.list();
 ```
 
 That is the backend integration.
+
+For production, keep the same code and set app identity/config outside the call site:
+
+```bash
+# backend
+MOBIGENT_APP_ID=com.acme.expenses
+MOBIGENT_APP_NAME=Acme Expenses
+
+# Expo / React Native app
+EXPO_PUBLIC_MOBIGENT_APP_ID=com.acme.expenses
+EXPO_PUBLIC_MOBIGENT_APP_NAME=Acme Expenses
+EXPO_PUBLIC_MOBIGENT_CONNECTION_URL=wss://your-backend.example.com
+```
 
 Prefer generated sample files? Use the starter. Starter generation is a demo shortcut, not required integration.
 

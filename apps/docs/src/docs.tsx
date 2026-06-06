@@ -43,10 +43,10 @@ const deviceConnectionCode = `export const mobigent = createApp({
   backend
 });
 
-// physical phone or hosted backend:
-createApp("com.acme.expenses", functions, {
-  connection: "wss://your-backend.example.com"
-});`;
+// production env/config:
+MOBIGENT_APP_ID=com.acme.expenses
+EXPO_PUBLIC_MOBIGENT_APP_ID=com.acme.expenses
+EXPO_PUBLIC_MOBIGENT_CONNECTION_URL=wss://your-backend.example.com`;
 
 const demoCode = `npm exec --yes \\
   --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \\
@@ -301,7 +301,7 @@ const nativeUrls = [
 const firstRunChecks = [
   ["Install", "Add the app package to React Native and the backend package to your server."],
   ["Expose", "`createApp(functions)` turns real app functions into typed agent-callable APIs."],
-  ["Connect", "Use local defaults first; pass the backend object in demos or use a hosted URL in production."],
+  ["Connect", "Use local defaults first; set env config for production instead of threading ids through code."],
   ["Call", "`mobigent.functions.expense.create()` calls the app-owned function from backend code."],
   ["Approve", "Risky actions pause inside the app before handlers run."],
   ["Audit", "Calls, approvals, denials, errors, and events appear in `/audit`."]

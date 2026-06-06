@@ -62,14 +62,14 @@ connection.disconnect();
 
 ## Simple App Helpers
 
-- `createApp({ namespace: { name: fn } })`: creates the local app-side SDK object.
-- `createApp(appId, functions)`: creates a production app SDK object with a stable app id.
+- `createApp({ namespace: { name: fn } })`: creates the app-side SDK object for local and env-configured production.
+- `createApp(appId, functions)`: optional explicit identity setup when you want identity in code.
 - `mobigent.with(App)`: wraps an existing React Native app.
 - `createApp(functions, { backend })`: lets the app SDK read identity and connection details from the backend object.
 - `mobigent.connect()`: connects a non-React host or demo after setup.
 - `mobigent.emit(name, payload)`: emits app activity.
-- `createApp(appId, functions, { connection: { host: "192.168.1.20" } })`: connects a physical phone to your local backend.
-- `createApp(appId, functions, { connection: "wss://your-backend.example.com" })`: connects an app to a hosted backend.
+- `createApp(functions, { connection: { host: "192.168.1.20" } })`: connects a physical phone to your local backend.
+- `createApp(functions, { connection: "wss://your-backend.example.com" })`: connects an app to a hosted backend.
 - `read(handler, options)`: exposes app state.
 - `write(handler, options)`: exposes confirmed app behavior.
 - `screen(handler, options)`: lets an agent focus a screen or UI surface.

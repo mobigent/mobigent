@@ -72,10 +72,11 @@ console.log(mobigent.openApiUrl);
 console.log(mobigent.agentUrl);
 ```
 
-For production, pass the same stable app id that your app SDK uses:
+For production, keep the same code and set backend app identity:
 
-```ts
-const mobigent = await startMobigent("com.acme.expenses");
+```bash
+MOBIGENT_APP_ID=com.acme.expenses
+MOBIGENT_APP_NAME=Acme Expenses
 ```
 
 The common backend object includes:
@@ -113,14 +114,14 @@ Advanced and compatibility fields are still available, but they should not be ne
 
 ## Simple App Helpers
 
-- `createApp(functions)`: normal local app setup.
-- `createApp(appId, functions)`: production app setup with a stable app id.
+- `createApp(functions)`: normal app setup for local and env-configured production.
+- `createApp(appId, functions)`: optional explicit identity setup when you want identity in code.
 - `mobigent.with(App)`: wraps an existing React Native app.
 - `createApp(functions, { backend })`: lets the app SDK read identity and connection details from the backend object.
 - `mobigent.connect()`: connects a non-React host or demo after setup.
 - `mobigent.emit(name, payload)`: emits app activity.
-- `createApp(appId, functions, { connection: { host: "192.168.1.20" } })`: connects a physical phone to your local backend.
-- `createApp(appId, functions, { connection: "wss://your-backend.example.com" })`: connects an app to a hosted backend.
+- `createApp(functions, { connection: { host: "192.168.1.20" } })`: connects a physical phone to your local backend.
+- `createApp(functions, { connection: "wss://your-backend.example.com" })`: connects an app to a hosted backend.
 - `read(handler, options)`: exposes app state.
 - `write(handler, options)`: exposes confirmed app behavior.
 - `screen(handler, options)`: lets an agent focus a screen or UI surface.
@@ -152,7 +153,7 @@ Advanced app helpers are still available from `@mobigent/app/app` when you need 
 Expose app state without changing anything:
 
 ```ts
-createApp("com.acme.store", {
+createApp({
   cart: {
     current: read(async () => getCart())
   }
@@ -164,7 +165,7 @@ createApp("com.acme.store", {
 Expose app behavior that changes state:
 
 ```ts
-createApp("com.acme.store", {
+createApp({
   cart: {
     checkout: write(async (input) => checkout(input), {
       input: { paymentMethodId: "string" },
@@ -179,7 +180,7 @@ createApp("com.acme.store", {
 Expose a focusable app surface:
 
 ```ts
-createApp("com.acme.expenses", {
+createApp({
   expense: {
     detail: screen(async (props) => {
       navigation.navigate("ExpenseDetail", { id: props.id });

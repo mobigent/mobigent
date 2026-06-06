@@ -153,6 +153,8 @@ export type MobigentSimpleAppConfig = Pick<
   appName: string;
 };
 
+export type MobigentEnvironment = Record<string, string | undefined>;
+
 export function defineMobigentConfig(config: MobigentSimpleAppConfig): MobigentSimpleAppConfig {
   return config;
 }
@@ -493,13 +495,15 @@ function isMobigentFeature(value: unknown): value is MobigentSimpleFeature {
 function resolveConnectionOptions(
   options: MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions
 ): MobigentResolvedConnectionOptions {
+  const envConfig = resolveMobigentEnvironmentConfig();
+
   if (!("config" in options)) {
     const pairing = options.pairing;
 
     return {
       ...options,
-      appId: options.appId ?? pairing?.appId ?? defaultMobigentSimpleAppIdentity.id,
-      appName: options.appName ?? pairing?.appName ?? defaultMobigentSimpleAppIdentity.name,
+      appId: options.appId ?? pairing?.appId ?? envConfig.appId ?? defaultMobigentSimpleAppIdentity.id,
+      appName: options.appName ?? pairing?.appName ?? envConfig.appName ?? defaultMobigentSimpleAppIdentity.name,
       gatewayUrl:
         options.gatewayUrl ??
         options.connectionUrl ??
@@ -507,14 +511,16 @@ function resolveConnectionOptions(
         pairing?.gatewayUrl ??
         pairing?.connectionUrl ??
         resolveMobigentConnectionUrl(pairing?.connection) ??
+        envConfig.gatewayUrl ??
+        envConfig.connectionUrl ??
         createMobigentGatewayUrl()
     };
   }
 
   const { config, ...rest } = options;
   const pairing = rest.pairing;
-  const appId = rest.appId ?? pairing?.appId ?? config.appId ?? defaultMobigentSimpleAppIdentity.id;
-  const appName = rest.appName ?? pairing?.appName ?? config.appName ?? defaultMobigentSimpleAppIdentity.name;
+  const appId = rest.appId ?? pairing?.appId ?? config.appId ?? envConfig.appId ?? defaultMobigentSimpleAppIdentity.id;
+  const appName = rest.appName ?? pairing?.appName ?? config.appName ?? envConfig.appName ?? defaultMobigentSimpleAppIdentity.name;
 
   return {
     ...rest,
@@ -530,10 +536,45 @@ function resolveConnectionOptions(
       config.gatewayUrl ??
       config.connectionUrl ??
       resolveMobigentConnectionUrl(config.connection) ??
+      envConfig.gatewayUrl ??
+      envConfig.connectionUrl ??
       createMobigentGatewayUrl(),
-    version: rest.version ?? pairing?.version ?? config.version,
-    authToken: rest.authToken ?? pairing?.authToken ?? config.authToken
+    version: rest.version ?? pairing?.version ?? config.version ?? envConfig.version,
+    authToken: rest.authToken ?? pairing?.authToken ?? config.authToken ?? envConfig.authToken
   };
+}
+
+export function resolveMobigentEnvironmentConfig(env: MobigentEnvironment = readMobigentRuntimeEnv()): Partial<MobigentSimpleAppConfig> {
+  return omitUndefinedValues({
+    appId: firstEnv(env, "EXPO_PUBLIC_MOBIGENT_APP_ID", "MOBIGENT_APP_ID"),
+    appName: firstEnv(env, "EXPO_PUBLIC_MOBIGENT_APP_NAME", "MOBIGENT_APP_NAME"),
+    connectionUrl: firstEnv(
+      env,
+      "EXPO_PUBLIC_MOBIGENT_CONNECTION_URL",
+      "EXPO_PUBLIC_MOBIGENT_GATEWAY_URL",
+      "MOBIGENT_CONNECTION_URL",
+      "MOBIGENT_GATEWAY_URL"
+    ),
+    gatewayUrl: firstEnv(env, "EXPO_PUBLIC_MOBIGENT_GATEWAY_URL", "MOBIGENT_GATEWAY_URL"),
+    version: firstEnv(env, "EXPO_PUBLIC_MOBIGENT_APP_VERSION", "MOBIGENT_APP_VERSION"),
+    authToken: firstEnv(env, "EXPO_PUBLIC_MOBIGENT_AUTH_TOKEN", "MOBIGENT_AUTH_TOKEN")
+  });
+}
+
+function readMobigentRuntimeEnv(): MobigentEnvironment {
+  const processLike = (globalThis as { process?: { env?: MobigentEnvironment } }).process;
+  return processLike?.env ?? {};
+}
+
+function firstEnv(env: MobigentEnvironment, ...names: string[]) {
+  for (const name of names) {
+    const value = env[name];
+    if (value) {
+      return value;
+    }
+  }
+
+  return undefined;
 }
 
 export function resolveMobigentConnectionUrl(connection?: MobigentSimpleBackendConnection): string | undefined {
@@ -688,4 +729,8 @@ function simpleCapabilityName(namespace: string, name: string) {
   const normalizedName = name.replace(/[^a-zA-Z0-9_]/g, "_").replace(/^_+|_+$/g, "");
 
   return `${normalizedNamespace}_${normalizedName}`.toLowerCase();
+}
+
+function omitUndefinedValues<T extends Record<string, unknown>>(value: T): T {
+  return Object.fromEntries(Object.entries(value).filter(([, entryValue]) => entryValue !== undefined)) as T;
 }

@@ -690,12 +690,22 @@ function resolveDefaultAppOptions(options: MobigentBackendOptions): MobigentBack
     return normalizeDefaultApp(options.app);
   }
 
+  const envApp = readMobigentBackendEnvironmentApp();
+
   if (options.appId || options.appName || options.version) {
     const inferred = inferMobigentAppIdentity(options.appDir ?? process.cwd());
     return normalizeDefaultApp({
-      id: options.appId ?? inferred.appId,
-      name: options.appName,
-      version: options.version
+      id: options.appId ?? envApp.appId ?? inferred.appId,
+      name: options.appName ?? envApp.appName,
+      version: options.version ?? envApp.version
+    });
+  }
+
+  if (envApp.appId || envApp.appName || envApp.version) {
+    return normalizeDefaultApp({
+      id: envApp.appId ?? defaultMobigentBackendApp.appId,
+      name: envApp.appName ?? defaultMobigentBackendApp.appName,
+      version: envApp.version
     });
   }
 
@@ -704,6 +714,14 @@ function resolveDefaultAppOptions(options: MobigentBackendOptions): MobigentBack
   }
 
   return inferMobigentAppIdentity(options.appDir ?? process.cwd());
+}
+
+function readMobigentBackendEnvironmentApp(): Partial<Pick<MobigentBackendAppConfigOptions, "appId" | "appName" | "version">> {
+  return omitUndefinedValues({
+    appId: process.env.MOBIGENT_APP_ID,
+    appName: process.env.MOBIGENT_APP_NAME,
+    version: process.env.MOBIGENT_APP_VERSION
+  });
 }
 
 export function formatMobigentAppConfigModule(
@@ -818,6 +836,10 @@ function normalizeDefaultApp(app: MobigentBackendDefaultAppOptions): MobigentBac
     appToken: app.appToken,
     authToken: app.authToken
   };
+}
+
+function omitUndefinedValues<T extends Record<string, unknown>>(value: T): T {
+  return Object.fromEntries(Object.entries(value).filter(([, entryValue]) => entryValue !== undefined)) as T;
 }
 
 function inferAppNameFromId(appId: string): string {
@@ -987,7 +1009,7 @@ function waitForBackendReady(gateway: BridgeGateway, options: MobigentBackendRea
           new Error(
               `Mobigent backend is waiting for ${minApps} connected app(s) and ${minFunctions} exposed function(s). ` +
               `Current state: ${status.appsWithManifests} app(s), ${status.tools} function(s). ` +
-              "Start the app, wire it with createApp(appId, functions).with(App), and make sure it uses the same app id as the backend."
+              "Start the app, wire it with createApp(functions).with(App), and set MOBIGENT_APP_ID / EXPO_PUBLIC_MOBIGENT_APP_ID for production identity."
           )
         );
         return;
@@ -1037,7 +1059,7 @@ function waitForBackendFunction(
           new Error(
             `Mobigent backend is waiting for app function ${name}. ` +
               `Current state: ${status.appsWithManifests} app(s), ${status.tools} function(s). ` +
-              "Start the app, wire it with createApp(appId, functions).with(App), and make sure it uses the same app id as the backend."
+              "Start the app, wire it with createApp(functions).with(App), and set MOBIGENT_APP_ID / EXPO_PUBLIC_MOBIGENT_APP_ID for production identity."
           )
         );
         return;

@@ -89,7 +89,18 @@ import { startMobigent } from "@mobigent/backend";
 const mobigent = await startMobigent();
 ```
 
-For production, use the same stable app id in both places, for example `createApp("com.acme.expenses", functions)` and `startMobigent("com.acme.expenses")`.
+For production, keep the code the same and set matching app identity/config:
+
+```bash
+# backend
+MOBIGENT_APP_ID=com.acme.expenses
+MOBIGENT_APP_NAME=Acme Expenses
+
+# Expo / React Native app
+EXPO_PUBLIC_MOBIGENT_APP_ID=com.acme.expenses
+EXPO_PUBLIC_MOBIGENT_APP_NAME=Acme Expenses
+EXPO_PUBLIC_MOBIGENT_CONNECTION_URL=wss://your-backend.example.com
+```
 
 Call app-owned functions from backend code:
 
@@ -109,7 +120,7 @@ If your backend wants custom helper names, bind them once with `mobigent.use(...
 ## What Developers Should Care About
 
 - choose the app functions agents may call
-- pick a stable app id before production
+- set a stable app id before production
 - add schemas only when plain fields are not enough
 - add confirmation copy for risky writes
 - open the inspector during development

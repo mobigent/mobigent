@@ -1306,7 +1306,7 @@ function formatCreatedFilesMessage(options: ReactNativeInitCliOptions) {
   if (options.featureOnly) {
     return (
       `Created Mobigent React Native app functions ${options.feature} in ${join(options.outDir, "mobigent-functions")}.\n` +
-      `Use it as an explicit feature object, or prefer createApp(appId, functions) for new app code.\n`
+      `Use it as an explicit feature object, or prefer createApp(functions) for new app code.\n`
     );
   }
 
@@ -1342,7 +1342,7 @@ function pushFileCheck(
     checks.push({
       name,
       status: "warn",
-      message: `${path} does not exist yet. Create it manually with createApp(appId, functions). For a complete demo, run mobigent new my-demo --install.`
+      message: `${path} does not exist yet. Create it manually with createApp(functions). For a complete demo, run mobigent new my-demo --install.`
     });
     return;
   }

@@ -434,6 +434,11 @@ for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.
     /startMobigent\(\{[\s\S]{0,160}?appId: "com\.acme\.expenses"/,
     `${path} should keep app ids out of object-options beginner examples`
   );
+  assert.match(
+    contents,
+    /MOBIGENT_APP_ID|EXPO_PUBLIC_MOBIGENT_APP_ID/,
+    `${path} should teach env config instead of threading app ids through code`
+  );
 }
 
 for (const path of ["docs/existing-react-native-app.md", "apps/docs/docs/existing-react-native-app.md"]) {
@@ -444,6 +449,7 @@ for (const path of ["docs/existing-react-native-app.md", "apps/docs/docs/existin
   assert.match(contents, /createApp\(\{/, `${path} should teach createApp(functions)`);
   assert.match(contents, /withMobigent\(App, \{/, `${path} should teach the one-file existing-app wrapper`);
   assert.match(contents, /startMobigent\(\)/, `${path} should teach the no-config backend start path`);
+  assert.match(contents, /EXPO_PUBLIC_MOBIGENT_APP_ID[\s\S]{0,240}?MOBIGENT_APP_ID|MOBIGENT_APP_ID[\s\S]{0,240}?EXPO_PUBLIC_MOBIGENT_APP_ID/, `${path} should teach matching env identity for production`);
   assert.match(contents, /mobigent\.functions\.expense\.create/, `${path} should teach backend calls through app-owned functions`);
   assert.match(contents, /Most apps do not need that on day one/, `${path} should keep backend-friendly aliases optional`);
   assert.match(contents, /What Developers Should Care About/, `${path} should separate developer-owned concerns from SDK-owned plumbing`);
@@ -460,6 +466,7 @@ for (const path of ["packages/app/README.md", "packages/react-native/README.md"]
     `${path} should make setup commands unnecessary`
   );
   assert.doesNotMatch(contents, /npx mobigent-init|mobigent\.app\.json|appDir\b/, `${path} should not teach app init or generated app config`);
+  assert.match(contents, /EXPO_PUBLIC_MOBIGENT_APP_ID|MOBIGENT_APP_ID/, `${path} should mention env-configured production identity`);
   assert.doesNotMatch(
     contents,
     /New apps should start with `defineFeature\(\)`|defineFeature\(\)[\s\S]{0,500}?withMobigent/,
@@ -733,12 +740,12 @@ assert.ok(
   quickstart.indexOf("## 1. Add App Functions To An Existing App") < quickstart.indexOf("## 5. Optional Starter"),
   "docs/quickstart.md should teach real existing-app integration before starter scaffolding"
 );
-assert.match(quickstart, /connection: \{ host: "192\.168\.1\.20" \}/);
-assert.match(quickstart, /connection: "wss:\/\/your-backend\.example\.com"/);
+assert.match(quickstart, /EXPO_PUBLIC_MOBIGENT_CONNECTION_URL=ws:\/\/192\.168\.1\.20:8787/);
+assert.match(quickstart, /EXPO_PUBLIC_MOBIGENT_CONNECTION_URL=wss:\/\/your-backend\.example\.com/);
 assert.doesNotMatch(
   quickstart,
   /set the app connection URL in `mobigent\.app\.json`/,
-  "device setup should use createApp(appId, functions, { connection }) instead of generated config"
+  "device setup should use public env config instead of generated config"
 );
 
 const rootReadme = readFileSync("README.md", "utf8");

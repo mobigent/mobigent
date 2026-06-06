@@ -18,7 +18,7 @@ npm exec --yes \
   -- mobigent-install app
 ```
 
-For a first local run, you do not need an app id. Production apps should use the same stable app id in the app and backend.
+For a first local run, you do not need an app id. Production apps can keep the same code and set `EXPO_PUBLIC_MOBIGENT_APP_ID` plus backend `MOBIGENT_APP_ID`.
 
 ## 2. Expose App Functions
 
@@ -40,15 +40,12 @@ This exposes:
 
 Backend code can use those same short names.
 
-For production, add a stable app id:
+For production, set public app config:
 
-```ts
-export const mobigent = createApp("com.acme.expenses", {
-  expense: {
-    list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
-});
+```bash
+EXPO_PUBLIC_MOBIGENT_APP_ID=com.acme.expenses
+EXPO_PUBLIC_MOBIGENT_APP_NAME=Acme Expenses
+EXPO_PUBLIC_MOBIGENT_CONNECTION_URL=wss://your-backend.example.com
 ```
 
 ## 3. Wrap The App
@@ -85,7 +82,7 @@ For multiple app areas in one file, use the same plain object shape:
 ```ts
 import { createApp } from "@mobigent/app";
 
-export const mobigent = createApp("com.acme.expenses", {
+export const mobigent = createApp({
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
@@ -118,7 +115,7 @@ import { startMobigent } from "@mobigent/backend";
 const mobigent = await startMobigent();
 ```
 
-Backend function calls wait for the app connection automatically. For production, use `startMobigent("com.acme.expenses")` with the same app id as the app.
+Backend function calls wait for the app connection automatically. For production, set `MOBIGENT_APP_ID=com.acme.expenses` on the backend.
 
 Your backend can call app namespaces directly:
 

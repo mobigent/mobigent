@@ -9,7 +9,7 @@ Expose one read function and one confirmed write function from a real feature. W
 ```ts
 import { createApp } from "@mobigent/app";
 
-export const mobigent = createApp("com.acme.expenses", {
+export const mobigent = createApp({
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
@@ -17,7 +17,7 @@ export const mobigent = createApp("com.acme.expenses", {
 });
 ```
 
-Then wrap the app once with `mobigent.with(App)`. Use `write(createExpense, { input, confirm })` when you want validation and custom approval copy. Use generators only when you want sample files.
+Then wrap the app once with `mobigent.with(App)`. Use `write(createExpense, { input, confirm })` when you want validation and custom approval copy. Set `EXPO_PUBLIC_MOBIGENT_APP_ID` and `MOBIGENT_APP_ID` before production. Use generators only when you want sample files.
 
 ## 2. Inspect The Gateway
 
