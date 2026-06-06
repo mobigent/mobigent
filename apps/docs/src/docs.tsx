@@ -186,7 +186,19 @@ let client = MobigentClient(
   version: "1.0.0"
 )
 
-client.registerResource(MobigentResource(
+client.write(
+  name: "expense.create",
+  description: "Create an expense after approval.",
+  inputSchema: .object([
+    "merchant": .string(),
+    "amount": .number()
+  ], required: ["merchant", "amount"]),
+  confirmation: .init(required: true, risk: .medium)
+) { input in
+  createExpense(input)
+}
+
+client.read(
   name: "expense.list",
   description: "Read saved expenses.",
   outputSchema: .object([
@@ -194,20 +206,10 @@ client.registerResource(MobigentResource(
       "merchant": .string(),
       "amount": .number()
     ]))
-  ]),
-  handler: { _ in ["items": listExpenses()] }
-))
-
-client.registerAction(MobigentAction(
-  name: "expense.create",
-  description: "Create an expense after approval.",
-  inputSchema: .object([
-    "merchant": .string(),
-    "amount": .number()
-  ], required: ["merchant", "amount"]),
-  confirmation: .required(risk: "medium"),
-  handler: { input in createExpense(input) }
-))
+  ])
+) {
+  ["items": listExpenses()]
+}
 
 client.onConfirmation { request in
   await showApprovalSheet(request)
@@ -232,10 +234,8 @@ dependencies {
   implementation(project(":mobigent-android"))
 }`;
 
-const androidUsageCode = `import io.mobigent.MobigentAction
-import io.mobigent.MobigentClient
+const androidUsageCode = `import io.mobigent.MobigentClient
 import io.mobigent.MobigentConfirmationPolicy
-import io.mobigent.MobigentResource
 import io.mobigent.MobigentRisk
 import io.mobigent.MobigentSchema
 
@@ -245,40 +245,40 @@ val client = MobigentClient.Builder(context)
   .version("1.0.0")
   .build()
 
-client.registerResource(
-  MobigentResource(
-    name = "expense.list",
-    description = "Read saved expenses.",
-    outputSchema = MobigentSchema.obj(
-      mapOf("items" to MobigentSchema.array(
-        MobigentSchema.obj(
-          mapOf(
-            "merchant" to MobigentSchema.string(),
-            "amount" to MobigentSchema.number()
-          )
-        )
-      ))
-    )
-  ) { mapOf("items" to listExpenses()) }
-)
-
-client.registerAction(
-  MobigentAction(
-    name = "expense.create",
-    description = "Create an expense after approval.",
-    inputSchema = MobigentSchema.obj(
-      mapOf(
-        "merchant" to MobigentSchema.string(),
-        "amount" to MobigentSchema.number()
-      ),
-      required = listOf("merchant", "amount")
+client.write(
+  name = "expense.create",
+  description = "Create an expense after approval.",
+  inputSchema = MobigentSchema.obj(
+    mapOf(
+      "merchant" to MobigentSchema.string(),
+      "amount" to MobigentSchema.number()
     ),
-    confirmation = MobigentConfirmationPolicy(
-      required = true,
-      risk = MobigentRisk.Medium
-    )
-  ) { input -> createExpense(input) }
-)
+    required = listOf("merchant", "amount")
+  ),
+  confirmation = MobigentConfirmationPolicy(
+    required = true,
+    risk = MobigentRisk.Medium
+  )
+) { input ->
+  createExpense(input)
+}
+
+client.read(
+  name = "expense.list",
+  description = "Read saved expenses.",
+  outputSchema = MobigentSchema.obj(
+    mapOf("items" to MobigentSchema.array(
+      MobigentSchema.obj(
+        mapOf(
+          "merchant" to MobigentSchema.string(),
+          "amount" to MobigentSchema.number()
+        )
+      )
+    ))
+  )
+) {
+  mapOf("items" to listExpenses())
+}
 
 client.confirmationHandler { request ->
   showApprovalDialog(request)
@@ -288,9 +288,9 @@ client.connect()`;
 
 const nativeLifecycle = [
   ["1. Create a client", "Give Mobigent the app id and app name. Local simulator/emulator URLs are the SDK defaults."],
-  ["2. Register app functions", "Add actions for writes, resources for reads, and components for screen context."],
+  ["2. Expose app functions", "Use write for confirmed changes, read for app data, and screen for important UI context."],
   ["3. Add confirmations", "Mark risky actions and let the native app render the approval UI."],
-  ["4. Connect", "The SDK connects to the backend and exposes the registered functions."],
+  ["4. Connect", "The SDK connects to the backend and exposes those functions."],
   ["5. Emit events", "Send app events such as expense.created or sync.failed back to the agent."]
 ];
 

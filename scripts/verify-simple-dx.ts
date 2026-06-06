@@ -598,6 +598,13 @@ for (const path of ["docs/api/README.md", "apps/docs/docs/api.md"]) {
   assert.match(docsPage, /Existing app path/, "website docs should include a dedicated existing-app adoption section");
   assert.match(docsPage, /No generator\. No copied config/, "website docs should make generator-free adoption visible");
   assert.match(docsPage, /sample generator is only for runnable demos/, "website docs should frame generators as demo helpers");
+  assert.match(docsPage, /client\.write\(/, "website native examples should teach client.write(...)");
+  assert.match(docsPage, /client\.read\(/, "website native examples should teach client.read(...)");
+  assert.doesNotMatch(
+    docsPage,
+    /registerAction|registerResource|MobigentAction|MobigentResource/,
+    "website native examples should not lead with lower-level registration types"
+  );
   assert.doesNotMatch(
     docsPage,
     /Define app capability|Register capabilities|typed agent capabilities|App capabilities|same capability contract|mobile capabilities|declared capability/,
