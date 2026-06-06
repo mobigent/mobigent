@@ -91,6 +91,7 @@ assert.match(backendPackageRoot, /agentUrl: string/, "@mobigent/backend should e
 assert.match(backendPackageRoot, /appConnectionUrl: string/, "@mobigent/backend should expose a friendly appConnectionUrl alias");
 assert.match(backendPackageRoot, /functions: MobigentBackendFunctions/, "@mobigent/backend should expose backend.functions as the plain function-calling surface");
 assert.match(backendPackageRoot, /setup: MobigentBackendSetupAccessor/, "@mobigent/backend should expose grouped backend.setup helpers for agent setup");
+assert.match(backendPackageRoot, /connect: MobigentBackendSetupAccessor/, "@mobigent/backend should expose backend.connect helpers for agent setup");
 assert.match(backendPackageRoot, /forApp\(\): MobigentBackendClient/, "@mobigent/backend should expose backend.forApp() as the clean app handoff");
 assert.match(backendPackageRoot, /appSettings\(\): MobigentBackendClient/, "@mobigent/backend should keep backend.appSettings() compatibility");
 assert.match(backendPackageRoot, /appClient\(\): MobigentBackendClient/, "@mobigent/backend should keep backend.appClient() compatibility");
@@ -495,6 +496,7 @@ for (const path of ["packages/app/README.md", "packages/react-native/README.md"]
   assert.match(backendReadme, /backend\.forApp\(\)/, "packages/backend/README.md should teach backend.forApp() as the clean explicit app handoff");
   assert.match(backendReadme, /createApp\(appFunctions, \{[\s\S]{0,120}?backend/, "packages/backend/README.md should teach passing backend settings without repeating the app id");
   assert.match(backendReadme, /backend\.setup\.chatgpt\(\).*backend\.setup\.claude\(\).*backend\.setup\.openai\(\)/, "packages/backend/README.md should teach grouped agent setup helpers");
+  assert.match(backendReadme, /backend\.connect\.chatgpt\(\).*backend\.connect\.claude\(\).*backend\.connect\.openai\(\)/, "packages/backend/README.md should teach friendly agent connect helpers");
   assert.match(backendReadme, /backend\.chatgpt\(\).*backend\.claude\(\).*backend\.openai\(\)/, "packages/backend/README.md should teach friendly common agent setup shortcuts");
   assert.match(backendReadme, /backend\.connection.*backend\.appSettings\(\)/, "packages/backend/README.md should keep explicit app setup values as compatibility detail");
   assert.match(backendReadme, /BackendPairing.*backend\.pairing\(\)/, "packages/backend/README.md should keep BackendPairing for backend.pairing() compatibility");
@@ -655,8 +657,8 @@ for (const path of ["docs/api/README.md", "apps/docs/docs/api.md"]) {
   );
   assert.match(
     docsPage,
-    /const chatgpt = mobigent\.setup\.chatgpt\(/,
-    "website docs should route common agent setup through grouped backend setup helpers"
+    /const chatgpt = mobigent\.connect\.chatgpt\(/,
+    "website docs should route common agent setup through friendly backend connect helpers"
   );
 }
 

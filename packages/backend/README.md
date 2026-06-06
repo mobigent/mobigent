@@ -91,6 +91,17 @@ await expenses.listExpenses();
 
 For quick one-off explicit calls, use `mobigent.call("expense.create", input)`. For shutdown, call `await mobigent.stop()`.
 
+When the app loop works, connect an agent from the same backend object:
+
+```ts
+const chatgpt = mobigent.connect.chatgpt({
+  publicUrl: "https://backend.example.com"
+});
+
+const claude = mobigent.connect.claude();
+const openai = mobigent.connect.openai();
+```
+
 The public TypeScript surface uses backend names:
 
 - `Backend` for the object returned by `startMobigent(...)`
@@ -99,7 +110,8 @@ The public TypeScript surface uses backend names:
 - `backend.functions` for calling app functions from backend code
 - `backend.forApp()` for explicit app setup values when you cannot pass the backend object directly
 - `backend.connection` and `backend.appSettings()` for compatibility when code needs explicit app setup values
-- `backend.setup.chatgpt()`, `backend.setup.claude()`, and `backend.setup.openai()` for common agent setup
+- `backend.connect.chatgpt()`, `backend.connect.claude()`, and `backend.connect.openai()` for common agent setup
+- `backend.setup.chatgpt()`, `backend.setup.claude()`, and `backend.setup.openai()` as compatibility aliases
 - `backend.chatgpt()`, `backend.claude()`, and `backend.openai()` as direct aliases
 - `BackendPairing` for `backend.pairing()`
 - `BackendConnection` for `backend.connection` and compatibility code

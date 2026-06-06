@@ -98,7 +98,8 @@ The common backend object includes:
 - `connection` and `appSettings()` for compatibility when code needs explicit app setup values
 - `pairing()` for older app-side pairing settings
 - `appClient()` as an older explicit name for `pairing()`
-- `setup.chatgpt()`, `setup.claude()`, and `setup.openai()` for common agent setup
+- `connect.chatgpt()`, `connect.claude()`, and `connect.openai()` for common agent setup
+- `setup.chatgpt()`, `setup.claude()`, and `setup.openai()` as compatibility aliases
 - `chatgpt()`, `claude()`, and `openai()` as direct aliases
 - `app.expense.create(input)` or `app.expense.list()` to call app functions with the clean package API
 - `use("expense", { createExpense: "create" })` to bind backend-friendly helper names

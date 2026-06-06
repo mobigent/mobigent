@@ -441,6 +441,11 @@ test("backend helper starts HTTP, OpenAPI, and inspector endpoints from one func
     assert.equal(backend.setup.claude().provider.id, "claude-desktop");
     assert.equal(backend.setup.openai({ agentId: "openai-prod" }).runtimeEnv?.MOBIGENT_AGENT_ID, "openai-prod");
     assert.ok(backend.setup.all().some((agent) => agent.provider.id === "openai-responses"));
+    assert.equal(backend.connect("chatgpt").provider.id, "chatgpt-actions");
+    assert.equal(backend.connect.chatgpt().endpoints.openApi, "http://localhost:18988/openapi.json");
+    assert.equal(backend.connect.claude().provider.id, "claude-desktop");
+    assert.equal(backend.connect.openai({ agentId: "openai-prod" }).runtimeEnv?.MOBIGENT_AGENT_ID, "openai-prod");
+    assert.ok(backend.connect.all().some((agent) => agent.provider.id === "openai-responses"));
     assert.equal(backend.chatgpt().provider.id, "chatgpt-actions");
     assert.equal(backend.chatgpt().endpoints.openApi, "http://localhost:18988/openapi.json");
     assert.equal(backend.claude().provider.id, "claude-desktop");

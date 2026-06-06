@@ -155,7 +155,7 @@ const platformActionsCode = `npx mobigent app \\
 npx mobigent app --platform-actions ios-swift ...
 npx mobigent app --platform-actions android-xml ...`;
 
-const providerCode = `const chatgpt = mobigent.setup.chatgpt({
+const providerCode = `const chatgpt = mobigent.connect.chatgpt({
   publicUrl: "https://backend.example.com",
   auth: "api-key"
 });
@@ -359,7 +359,7 @@ const backendApis = [
   ["use()", "Optional helper aliasing when backend code wants different function names."],
   ["call()", "Makes a quick one-off app function call by name."],
   ["fn()", "Creates a reusable backend function wrapper for repeated calls."],
-  ["agent()", "Prints setup for ChatGPT, Claude, and supported providers after the app loop works."]
+  ["connect.chatgpt()", "Connects ChatGPT, Claude, or OpenAI after the app loop works."]
 ];
 
 const backendRuntime = [
@@ -430,7 +430,7 @@ function Docs() {
           <a href="#native">Native</a>
           <a href="#sdk">SDK</a>
           <a href="#production">Production</a>
-          <a href="#providers">Providers</a>
+          <a href="#providers">Agents</a>
           <a href="#security">Security</a>
           <a className="ghostButton" href="https://github.com/mobigent/mobigent">
             <Github size={16} />
@@ -538,7 +538,7 @@ function Docs() {
         <div className="sectionHeader">
           <span className="eyebrow"><Code2 size={15} /> SDK surface</span>
           <h2>What Mobigent exposes.</h2>
-          <p>The day-one SDK surface is small on purpose: declare functions in the app, run one backend helper, then connect providers after the app loop works.</p>
+          <p>The day-one SDK surface is small on purpose: declare functions in the app, run one backend helper, then connect agents after the app loop works.</p>
         </div>
 
         <div className="docsGrid packageGrid">
@@ -677,9 +677,9 @@ function Docs() {
 
       <section id="providers" className="section docsBlock">
         <div className="sectionHeader">
-          <span className="eyebrow"><KeyRound size={15} /> Provider setup</span>
+          <span className="eyebrow"><KeyRound size={15} /> Agent setup</span>
           <h2>Use the same app functions from many agent runtimes.</h2>
-          <p>The backend package generates provider setup. Public hosted providers need a public backend URL; local agents can use localhost.</p>
+          <p>The backend package gives you connect helpers for ChatGPT, Claude, OpenAI, and other agent runtimes. Public hosted agents need a public backend URL; local agents can use localhost.</p>
         </div>
         <div className="codeGrid two">
           <Code title="ChatGPT Actions helper" code={providerCode} />
@@ -715,7 +715,7 @@ function Docs() {
       <section className="section finalCta">
         <div className="launchCard">
           <strong>Recommended first build</strong>
-          <p>Expose one read function and one confirmed write function from real app logic. Then connect one provider and test the full loop.</p>
+          <p>Expose one read function and one confirmed write function from real app logic. Then connect one agent and test the full loop.</p>
           <a className="primaryButton" href="https://github.com/mobigent/mobigent">
             Open the repo
             <ArrowRight size={17} />

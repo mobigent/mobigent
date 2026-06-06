@@ -240,6 +240,7 @@ export type MobigentBackend = {
   pairing(options: MobigentBackendAppConfigOptions): MobigentBackendClient;
   app: MobigentBackendAppAccessor;
   setup: MobigentBackendSetupAccessor;
+  connect: MobigentBackendSetupAccessor;
   agent(kind?: MobigentAgentKind, options?: MobigentAgentOptions): ProviderBundle;
   chatgpt(options?: MobigentAgentOptions): ProviderBundle;
   claude(options?: MobigentAgentOptions): ProviderBundle;
@@ -499,6 +500,7 @@ export async function startMobigentBackend(
     pairing: client,
     app: appAccessor,
     setup,
+    connect: setup,
     agent,
     chatgpt: setup.chatgpt,
     claude: setup.claude,

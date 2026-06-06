@@ -148,8 +148,8 @@ Use `mobigent.waitForApp()` only when you want an explicit startup health gate. 
 Need agent setup? Use the same backend object:
 
 ```ts
-console.log(mobigent.setup.chatgpt().endpoints.openApi);
-console.log(mobigent.setup.claude().guide);
+console.log(mobigent.connect.chatgpt().endpoints.openApi);
+console.log(mobigent.connect.claude().guide);
 ```
 
 For local checks:
