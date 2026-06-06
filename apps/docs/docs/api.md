@@ -117,7 +117,8 @@ The backend object exposes:
 - `connection` and `appSettings()` for compatibility when code needs explicit app setup values
 - `pairing()` for older app-side pairing settings
 - `appClient()` as an older explicit name for `pairing()`
-- `chatgpt()`, `claude()`, and `openai()` for common agent setup
+- `setup.chatgpt()`, `setup.claude()`, and `setup.openai()` for common agent setup
+- `chatgpt()`, `claude()`, and `openai()` as direct aliases
 - `agent("chatgpt" | "claude" | "openai")` for explicit provider selection
 - `agents()`
 - `listFunctions()`
@@ -134,7 +135,7 @@ The backend object exposes:
 
 ## Providers
 
-Most apps use `mobigent.chatgpt()`, `mobigent.claude()`, or `mobigent.openai()` from `@mobigent/backend`.
+Most apps use `mobigent.setup.chatgpt()`, `mobigent.setup.claude()`, or `mobigent.setup.openai()` from `@mobigent/backend`.
 
 The lower-level provider layer is behind that helper. Use it directly only when you are building setup screens, custom CLIs, or runtime adapters for ChatGPT Actions, OpenAI Responses, Anthropic, Gemini, Bedrock, Vercel AI SDK, LangChain, LlamaIndex, Cursor, Claude Desktop, and MCP-compatible clients.
 

@@ -155,7 +155,7 @@ const platformActionsCode = `npx mobigent app \\
 npx mobigent app --platform-actions ios-swift ...
 npx mobigent app --platform-actions android-xml ...`;
 
-const providerCode = `const chatgpt = mobigent.chatgpt({
+const providerCode = `const chatgpt = mobigent.setup.chatgpt({
   publicUrl: "https://backend.example.com",
   auth: "api-key"
 });

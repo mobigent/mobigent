@@ -236,6 +236,7 @@ export type MobigentBackend = {
   pairing(appId: string, appName?: string, options?: Omit<MobigentBackendAppConfigOptions, "appId" | "appName">): MobigentBackendClient;
   pairing(options: MobigentBackendAppConfigOptions): MobigentBackendClient;
   app: MobigentBackendAppAccessor;
+  setup: MobigentBackendSetupAccessor;
   agent(kind?: MobigentAgentKind, options?: MobigentAgentOptions): ProviderBundle;
   chatgpt(options?: MobigentAgentOptions): ProviderBundle;
   claude(options?: MobigentAgentOptions): ProviderBundle;
@@ -271,6 +272,13 @@ export type MobigentBackendFunctions = {
 export type MobigentBackendAppAccessor = {
   (options: MobigentBackendAppConfigOptions): MobigentBackendAppConfig;
   [namespace: string]: MobigentBackendFeatureFunctions;
+};
+export type MobigentBackendSetupAccessor = {
+  (kind?: MobigentAgentKind, options?: MobigentAgentOptions): ProviderBundle;
+  chatgpt(options?: MobigentAgentOptions): ProviderBundle;
+  claude(options?: MobigentAgentOptions): ProviderBundle;
+  openai(options?: MobigentAgentOptions): ProviderBundle;
+  all(options?: MobigentAgentOptions): ProviderBundle[];
 };
 export type MobigentBackendFunctionMap<T extends Record<string, string>> = {
   [K in keyof T]: MobigentBackendFunction;
@@ -469,6 +477,9 @@ export async function startMobigentBackend(
     }
     return bundle;
   };
+  const setup = createBackendSetupAccessor(agent, (agentOptions = {}) =>
+    createAgentCatalog(agentOptions).map((provider) => createProviderBundle(provider))
+  );
 
   const backend = {
     inspectorUrl: urls.inspector,
@@ -483,11 +494,12 @@ export async function startMobigentBackend(
     appSettings: client,
     pairing: client,
     app: appAccessor,
+    setup,
     agent,
-    chatgpt: (agentOptions?: MobigentAgentOptions) => agent("chatgpt", agentOptions),
-    claude: (agentOptions?: MobigentAgentOptions) => agent("claude", agentOptions),
-    openai: (agentOptions?: MobigentAgentOptions) => agent("openai", agentOptions),
-    agents: (agentOptions: MobigentAgentOptions = {}) => createAgentCatalog(agentOptions).map((provider) => createProviderBundle(provider)),
+    chatgpt: setup.chatgpt,
+    claude: setup.claude,
+    openai: setup.openai,
+    agents: setup.all,
     defaultApp,
     appConfigCode,
     copyAppConfig: advanced.copyAppConfig,
@@ -526,6 +538,18 @@ export async function startMobigentBackend(
   });
 
   return backend as MobigentBackendWithApp;
+}
+
+function createBackendSetupAccessor(
+  agent: (kind?: MobigentAgentKind, options?: MobigentAgentOptions) => ProviderBundle,
+  all: (options?: MobigentAgentOptions) => ProviderBundle[]
+): MobigentBackendSetupAccessor {
+  const setup = ((kind?: MobigentAgentKind, options?: MobigentAgentOptions) => agent(kind, options)) as MobigentBackendSetupAccessor;
+  setup.chatgpt = (options?: MobigentAgentOptions) => agent("chatgpt", options);
+  setup.claude = (options?: MobigentAgentOptions) => agent("claude", options);
+  setup.openai = (options?: MobigentAgentOptions) => agent("openai", options);
+  setup.all = all;
+  return setup;
 }
 
 function defineLegacyBackendFields(target: object, fields: Record<string, unknown>) {
