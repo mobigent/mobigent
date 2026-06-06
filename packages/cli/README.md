@@ -1,8 +1,8 @@
 # mobigent
 
-One friendly CLI for Mobigent.
+One friendly CLI and convenience SDK entrypoint for Mobigent.
 
-Use this package when you want a single command to remember:
+Use this package when you want one command to remember:
 
 ```bash
 npx mobigent new my-demo --install
@@ -14,7 +14,26 @@ The runtime SDKs are still the two normal packages:
 - `@mobigent/app` in the app
 - `@mobigent/backend` in the backend
 
-This CLI simply routes common commands so developers do not need to learn separate binary names on day one. App-side and backend scaffolding are optional; the normal SDK path is `npm install @mobigent/app`, `npm install @mobigent/backend`, `createApp(appId, functions).with(App)`, and `startMobigent(appId)`.
+This package also re-exports backend helpers and lightweight app-function builders for experiments or tiny demos:
+
+```ts
+import { startMobigent, write } from "mobigent";
+import { createApp } from "@mobigent/app";
+
+const backend = await startMobigent("com.acme.expenses");
+const app = createApp("com.acme.expenses", {
+  expense: {
+    list: async () => ({ items: await listExpenses() }),
+    create: write(createExpense, {
+      input: { merchant: "string", amount: "number" }
+    })
+  }
+}, {
+  backend
+});
+```
+
+For production apps, the split packages keep ownership clear: `@mobigent/app` in the app and `@mobigent/backend` in the backend. App-side and backend scaffolding are optional; the normal SDK path is `npm install @mobigent/app`, `npm install @mobigent/backend`, `createApp(appId, functions).with(App)`, and `startMobigent(appId)`.
 
 You do not need the app-side init command for a real integration. Write the functions directly in your app code. The generator exists only when you want sample files.
 

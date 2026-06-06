@@ -25,7 +25,7 @@ const publicPackages = [
   { name: "@mobigent/react-native", path: "packages/react-native/package.json", internalDependencies: ["@mobigent/core"] },
   { name: "@mobigent/app", path: "packages/app/package.json", internalDependencies: ["@mobigent/react-native"] },
   { name: "create-mobigent-app", path: "packages/create-app/package.json", internalDependencies: [] },
-  { name: "mobigent", path: "packages/cli/package.json", internalDependencies: ["@mobigent/backend", "@mobigent/react-native", "create-mobigent-app"] }
+  { name: "mobigent", path: "packages/cli/package.json", internalDependencies: ["@mobigent/app", "@mobigent/backend", "@mobigent/react-native", "create-mobigent-app"] }
 ];
 
 const rootPackage = await readJson<PackageJson>("package.json");

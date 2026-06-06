@@ -1,7 +1,7 @@
 {
   "name": "mobigent",
   "version": "0.1.15",
-  "description": "One friendly Mobigent CLI for starters, app functions, backend setup, and agent setup.",
+  "description": "One friendly Mobigent CLI and convenience SDK entrypoint.",
   "type": "module",
   "license": "MIT",
   "repository": {
@@ -46,6 +46,7 @@
     "prepublishOnly": "npm run build && npm run typecheck"
   },
   "dependencies": {
+    "@mobigent/app": "0.1.15",
     "@mobigent/backend": "0.1.15",
     "@mobigent/react-native": "0.1.15",
     "create-mobigent-app": "0.1.15"

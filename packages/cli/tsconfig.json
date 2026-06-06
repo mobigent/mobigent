@@ -7,6 +7,7 @@
   },
   "include": ["src/**/*.ts"],
   "references": [
+    { "path": "../app" },
     { "path": "../backend" },
     { "path": "../react-native" },
     { "path": "../create-app" }

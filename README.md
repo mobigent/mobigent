@@ -258,6 +258,8 @@ npm install @mobigent/backend
 npm install -D mobigent
 ```
 
+For tiny demos, `mobigent` also re-exports backend helpers and lightweight app-function builders, so `import { startMobigent, write } from "mobigent"` works. Real app/backend code should usually keep the split packages because ownership stays clearer.
+
 Maintainer note: npmjs publishing is tracked in [docs/npm-publishing.md](./docs/npm-publishing.md). The release workflow supports either `NPM_TOKEN` or npm Trusted Publishing through GitHub Actions OIDC.
 
 ## Add It To An Existing React Native App

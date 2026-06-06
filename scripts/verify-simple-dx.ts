@@ -21,6 +21,7 @@ const starterPackage = JSON.parse(
 );
 const appPackageRoot = readFileSync("packages/app/src/index.ts", "utf8");
 const backendPackageRoot = readFileSync("packages/backend/src/index.ts", "utf8");
+const mobigentPackageRoot = readFileSync("packages/cli/src/index.ts", "utf8");
 const mobigentCliSource = readFileSync("packages/cli/src/cli.ts", "utf8");
 const reactNativeCliSource = readFileSync("packages/react-native/src/cli.ts", "utf8");
 const mobigentCliReadme = readFileSync("packages/cli/README.md", "utf8");
@@ -127,6 +128,14 @@ assert.doesNotMatch(
   backendPublicType,
   /BridgeGateway|ToolCallOptions|GatewayAppSession|ReturnType<|listTools|callTool|getStatus/,
   "@mobigent/backend public type should use product-facing backend names instead of lower-level gateway types"
+);
+assert.match(mobigentPackageRoot, /startMobigent/, "mobigent package root should re-export backend SDK helpers for tiny demos");
+assert.match(mobigentPackageRoot, /write/, "mobigent package root should re-export common function metadata helpers");
+assert.doesNotMatch(mobigentPackageRoot, /createApp|withMobigent/, "mobigent package root should not pull React-facing app setup into backend-only imports");
+assert.doesNotMatch(
+  mobigentPackageRoot,
+  /BridgeGateway|createHttpApp|connectMobigent|defineMobigentConfig/,
+  "mobigent package root should stay a curated convenience surface, not a lower-level internals barrel"
 );
 assert.doesNotMatch(
   backendPackageRoot,

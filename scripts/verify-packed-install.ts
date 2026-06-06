@@ -47,13 +47,16 @@ try {
     `import assert from "node:assert/strict";
 import { startMobigent } from "@mobigent/backend";
 import { feature, simpleSchema } from "@mobigent/app/simple";
+import { startMobigent as startMobigentFromRoot, write } from "mobigent";
 
 const expenses = feature("expense").write("create", async (input) => ({ ok: true, ...input }), {
   input: { merchant: "string", amount: "number" }
 });
+const rootWrite = write(async (input) => ({ ok: true, ...input }));
 
 assert.equal(expenses.actions[0].name, "expense_create");
 assert.equal(simpleSchema({ amount: "number" }).properties.amount.type, "number");
+assert.equal(rootWrite.kind, "action");
 
 const mobigent = await startMobigent("app.mobigent.local", "Mobigent App", {
   wsPort: 19081,
@@ -75,6 +78,14 @@ assert.equal(typeof mobigent.functions.expense.create, "function");
 assert.equal(typeof mobigent.feature("expense").create, "function");
 assert.equal(typeof mobigent.appFunctions("expense").create, "function");
 await mobigent.stop();
+
+const rootBackend = await startMobigentFromRoot("app.mobigent.root", "Mobigent Root", {
+  wsPort: 19083,
+  httpPort: 19084,
+  silent: true
+});
+assert.equal(rootBackend.connection.appId, "app.mobigent.root");
+await rootBackend.stop();
 `,
     "utf8"
   );
