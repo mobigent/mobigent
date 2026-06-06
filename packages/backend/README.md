@@ -23,8 +23,8 @@ import { startMobigent, type Backend } from "@mobigent/backend";
 
 const mobigent: Backend = await startMobigent("com.acme.expenses");
 
-await mobigent.app.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
-await mobigent.app.expense.list();
+await mobigent.functions.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
+await mobigent.functions.expense.list();
 ```
 
 That is the main backend API.
@@ -60,6 +60,8 @@ For debugging, `backend.appConnectionUrl` shows where apps connect and `backend.
 - inspector and audit trail
 - agent setup helpers
 
+`mobigent.app.expense.create(...)` works too. It means the same thing and reads nicely when you want to emphasize that the function lives inside the app.
+
 Bind backend-friendly names once when you do not want backend code to mirror app namespaces:
 
 ```ts
@@ -79,6 +81,7 @@ The public TypeScript surface uses backend names:
 - `Backend` for the object returned by `startMobigent(...)`
 - `BackendOptions` for startup options
 - `BackendStartOptions` for `startMobigent(appId, options)`
+- `backend.functions` for calling app functions from backend code
 - `backend.connection` and `backend.appSettings()` for compatibility when code needs explicit app setup values
 - `backend.chatgpt()`, `backend.claude()`, and `backend.openai()` for common agent setup
 - `BackendPairing` for `backend.pairing()`

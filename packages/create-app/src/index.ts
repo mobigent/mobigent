@@ -314,7 +314,7 @@ app.post("/agent/run", async (req, res) => {
   };
 
   try {
-    const response = await backend.app.expense.create(input);
+    const response = await backend.functions.expense.create(input);
     lastAgentRun = { ...run, response };
     res.json(lastAgentRun);
   } catch (error) {

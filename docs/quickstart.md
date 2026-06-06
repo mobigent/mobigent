@@ -131,11 +131,11 @@ Prefer generated sample files? Use the starter. Starter generation is a demo sho
 Call app functions from the backend SDK object. Mobigent waits for the app connection when a function is called:
 
 ```ts
-await mobigent.app.expense.create({ merchant: "Coffee", amount: 8 });
-await mobigent.app.expense.list();
+await mobigent.functions.expense.create({ merchant: "Coffee", amount: 8 });
+await mobigent.functions.expense.list();
 ```
 
-Or bind backend-friendly names once and use them like normal helpers:
+If you want backend-specific helper names, bind aliases once:
 
 ```ts
 const expenses = mobigent.use("expense", {

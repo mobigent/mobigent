@@ -125,7 +125,7 @@ Open the local inspector:
 open http://localhost:8788/inspect
 ```
 
-You should see the app functions, recent audit events, and metrics. The same functions are also available to the backend through `mobigent.app.expense.create(...)` and to agents through the backend service.
+You should see the app functions, recent audit events, and metrics. The same functions are also available to the backend through `mobigent.functions.expense.create(...)` and to agents through the backend service.
 
 ## Optional App Intents Starter
 

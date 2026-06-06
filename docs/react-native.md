@@ -35,8 +35,8 @@ export const mobigent = createApp("com.acme.expenses", {
 
 This exposes:
 
-- backend call `mobigent.app.expense.list`
-- backend call `mobigent.app.expense.create`
+- backend call `mobigent.functions.expense.list`
+- backend call `mobigent.functions.expense.create`
 
 Backend code can use those same short names.
 
@@ -122,10 +122,10 @@ const mobigent = await startMobigent("com.acme.expenses");
 
 Mobigent pairs the backend and app by `appId`. Backend function calls wait for the app connection automatically.
 
-Your backend can either call app namespaces directly:
+Your backend can call app namespaces directly:
 
 ```ts
-await mobigent.app.expense.create({ merchant: "Coffee", amount: 8 });
+await mobigent.functions.expense.create({ merchant: "Coffee", amount: 8 });
 ```
 
 Or bind backend-friendly helper names once:

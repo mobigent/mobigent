@@ -92,25 +92,17 @@ const mobigent = await startMobigent("com.acme.expenses");
 Call app-owned functions from backend code:
 
 ```ts
-await mobigent.app.expense.create({
+await mobigent.functions.expense.create({
   merchant: "Coffee",
   amount: 8
 });
 
-await mobigent.app.expense.list();
+await mobigent.functions.expense.list();
 ```
 
-If your backend wants nicer helper names, bind them once:
+`mobigent.app.expense.create(...)` works too. It means the same thing.
 
-```ts
-const expenses = mobigent.use("expense", {
-  createExpense: "create",
-  listExpenses: "list"
-});
-
-await expenses.createExpense({ merchant: "Coffee", amount: 8 });
-await expenses.listExpenses();
-```
+If your backend wants custom helper names, bind them once with `mobigent.use(...)`. Most apps do not need that on day one.
 
 ## What Developers Should Care About
 

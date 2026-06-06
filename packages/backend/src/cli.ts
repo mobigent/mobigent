@@ -368,6 +368,7 @@ export const mobigent = await ${startExpression};
 
 export const waitForApp = mobigent.waitForApp;
 export const app = mobigent.app;
+export const functions = mobigent.functions;
 export const call = mobigent.call;
 export const listFunctions = mobigent.listFunctions;
 export const use = mobigent.use;

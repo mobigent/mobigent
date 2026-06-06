@@ -35,7 +35,7 @@ export default withMobigent(App, "com.acme.expenses", {
 // Backend
 const mobigent = await startMobigent("com.acme.expenses");
 
-await mobigent.app.expense.create(input);`;
+await mobigent.functions.expense.create(input);`;
 
 const deviceConnectionCode = `export const mobigent = createApp("com.acme.expenses", {
   expense: { list, create }
@@ -111,19 +111,16 @@ const backendCode = `import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent("com.acme.expenses");
 
-await mobigent.app.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
-await mobigent.app.expense.list();
+await mobigent.functions.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
+await mobigent.functions.expense.list();
 
 console.log(mobigent.inspectorUrl);`;
 
 const backendShortCode = `const mobigent = await startMobigent("com.acme.expenses");`;
 
-const backendUseCode = `const expenses = mobigent.use("expense", {
-  createExpense: "create",
-  listExpenses: "list"
-});
+const backendUseCode = `const expenses = mobigent.functions.expense;
 
-await expenses.createExpense({
+await expenses.create({
   merchant: "Airport Taxi",
   amount: 42.25
 });`;
@@ -305,7 +302,7 @@ const firstRunChecks = [
   ["Install", "Add the app package to React Native and the backend package to your server."],
   ["Expose", "`createApp(appId, functions)` turns real app functions into typed agent-callable APIs."],
   ["Connect", "Use the same app id on both sides; pass the backend object in demos or use a hosted URL in production."],
-  ["Call", "`mobigent.app.expense.create()` calls the app-owned function from backend code."],
+  ["Call", "`mobigent.functions.expense.create()` calls the app-owned function from backend code."],
   ["Approve", "Risky actions pause inside the app before handlers run."],
   ["Audit", "Calls, approvals, denials, errors, and events appear in `/audit`."]
 ];
@@ -358,7 +355,8 @@ const nativeApis = [
 const backendApis = [
   ["startMobigent()", "Starts the backend service with a stable app id and local defaults."],
   ["waitForApp()", "Optional health gate when startup should wait for a connected app."],
-  ["use()", "Binds app functions into backend helpers, either by group or by friendly aliases."],
+  ["functions", "Calls app functions from backend code with the same namespaces used in the app."],
+  ["use()", "Optional helper aliasing when backend code wants different function names."],
   ["call()", "Makes a quick one-off app function call by name."],
   ["fn()", "Creates a reusable backend function wrapper for repeated calls."],
   ["agent()", "Prints setup for ChatGPT, Claude, and supported providers after the app loop works."]
@@ -366,7 +364,7 @@ const backendApis = [
 
 const backendRuntime = [
   ["App connection", "Keeps mobile app sessions connected and reconnects when needed."],
-  ["Function routing", "Maps backend calls such as `mobigent.app.expense.create()` to the right app-owned handler."],
+  ["Function routing", "Maps backend calls such as `mobigent.functions.expense.create()` to the right app-owned handler."],
   ["Readiness", "Waits for connected apps before the backend or agent flow calls app functions."],
   ["Validation", "Checks input and output shapes before results leave the app boundary."],
   ["Approvals", "Pauses risky writes inside the app until the user confirms."],

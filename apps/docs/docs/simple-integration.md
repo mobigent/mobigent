@@ -107,15 +107,15 @@ import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent("com.acme.expenses");
 
-await mobigent.app.expense.create({ merchant: "Coffee", amount: 8 });
-await mobigent.app.expense.list();
+await mobigent.functions.expense.create({ merchant: "Coffee", amount: 8 });
+await mobigent.functions.expense.list();
 ```
 
 Mobigent pairs the app and backend by `appId`, waits for the app connection when a function is called, and routes the call to the app-owned function.
 
 Starter generation is a demo shortcut. The normal path is install plus code.
 
-If your backend wants its own helper names, bind them once:
+If your backend wants its own helper names, bind aliases once:
 
 ```ts
 const expenses = mobigent.use("expense", {

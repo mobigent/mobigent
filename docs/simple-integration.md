@@ -118,15 +118,15 @@ import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent("com.acme.expenses");
 
-await mobigent.app.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
-await mobigent.app.expense.list();
+await mobigent.functions.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
+await mobigent.functions.expense.list();
 ```
 
 That is the backend integration.
 
 Prefer generated sample files? Use the starter. Starter generation is a demo shortcut, not required integration.
 
-If your backend wants its own helper names, bind them once:
+If your backend wants its own helper names, bind aliases once:
 
 ```ts
 const expenses = mobigent.use("expense", {

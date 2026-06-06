@@ -11,7 +11,7 @@ export default withMobigent(App, "com.acme.expenses", {
 
 const mobigent = await startMobigent("com.acme.expenses");
 
-await mobigent.use("expense").create(input);`;
+await mobigent.functions.expense.create(input);`;
 
 function App() {
   return (
@@ -27,7 +27,7 @@ function App() {
           <p>
             Install the app package, install the backend package, expose real app functions with
             withMobigent(App, appId, functions) or createApp(appId, functions), then
-            startMobigent(appId) and call mobigent.app.expense.create(input).
+            startMobigent(appId) and call mobigent.functions.expense.create(input).
             Mobigent handles the app connection, approvals, retries, discovery, and agent setup.
           </p>
           <div className="heroActions">

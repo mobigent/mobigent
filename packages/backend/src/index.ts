@@ -245,6 +245,7 @@ export type MobigentBackend = {
   ready(options?: MobigentBackendReadyOptions): Promise<MobigentBackendStatus>;
   waitForApp(options?: MobigentBackendReadyOptions): Promise<MobigentBackendStatus>;
   listFunctions(): MobigentFunctionInfo[];
+  functions: MobigentBackendFunctions;
   use: MobigentBackendUse;
   apps(): MobigentAppSession[];
   resolveFunctionName(name: string): string;
@@ -489,6 +490,7 @@ export async function startMobigentBackend(
     ready: async (readyOptions?: MobigentBackendReadyOptions) => toBackendStatus(await waitForBackendReady(gateway, readyOptions)),
     waitForApp: async (readyOptions?: MobigentBackendReadyOptions) => toBackendStatus(await waitForBackendReady(gateway, readyOptions)),
     listFunctions: () => gateway.listTools().map(toBackendFunctionInfo),
+    functions,
     use: appFunctions,
     apps: () => gateway.listApps().map(toBackendAppSession),
     resolveFunctionName: (name: string) => resolveBackendToolName(gateway.listTools(), name, defaultApp),
@@ -507,7 +509,6 @@ export async function startMobigentBackend(
     appConfig,
     appConfigModule,
     copyAppConfig: advanced.copyAppConfig,
-    functions,
     tools: () => gateway.listTools(),
     resolveToolName: (name: string) => resolveBackendToolName(gateway.listTools(), name, defaultApp),
     callApp: invoke,

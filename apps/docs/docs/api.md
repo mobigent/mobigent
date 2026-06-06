@@ -96,7 +96,7 @@ import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent("com.acme.expenses");
 
-await mobigent.app.expense.create({ merchant: "Coffee", amount: 8 });
+await mobigent.functions.expense.create({ merchant: "Coffee", amount: 8 });
 
 const expenses = mobigent.use("expense", {
   createExpense: "create",

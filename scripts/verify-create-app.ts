@@ -102,8 +102,8 @@ try {
   assert.match(server, /startMobigent\("com\.mobigent\.expense", "Expense Demo"\)/);
   assert.doesNotMatch(server, /appId: "com\.mobigent\.expense"/);
   assert.doesNotMatch(server, /const expense = backend\.feature\("expense"\)/);
-  assert.match(server, /backend\.app\.expense\.create\(input\)/);
-  assert.doesNotMatch(server, /backend\.functions\.expense\.create\(input\)/);
+  assert.match(server, /backend\.functions\.expense\.create\(input\)/);
+  assert.doesNotMatch(server, /backend\.app\.expense\.create\(input\)/);
   assert.match(server, /createApp\("com\.mobigent\.expense", expenseFunctions/);
   assert.match(server, /backend,\n/);
   assert.doesNotMatch(server, /backend: backend\.appSettings\(\)/);

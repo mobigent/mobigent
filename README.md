@@ -54,7 +54,7 @@ import { startMobigent } from "@mobigent/backend";
 
 const backend = await startMobigent("com.acme.expenses");
 
-await backend.app.expense.create({ merchant: "Coffee", amount: 8 });
+await backend.functions.expense.create({ merchant: "Coffee", amount: 8 });
 ```
 
 For local development, Mobigent can infer starter values when you leave the app id out, but real apps should pass the same stable `appId` in the app and backend.
@@ -203,7 +203,7 @@ import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent("com.acme.expenses");
 
-await mobigent.app.expense.create({ merchant: "Coffee", amount: 8 });
+await mobigent.functions.expense.create({ merchant: "Coffee", amount: 8 });
 ```
 
 See [docs/simple-integration.md](./docs/simple-integration.md) for the clean path before reading advanced docs.
@@ -377,11 +377,11 @@ That one function starts Mobigent, routes app function calls, infers a local app
 Call app-owned functions through a normal backend object. Mobigent waits for the app connection when the function is called:
 
 ```ts
-await mobigent.app.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
-await mobigent.app.expense.list();
+await mobigent.functions.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
+await mobigent.functions.expense.list();
 ```
 
-Or bind backend-friendly names once:
+If you want backend-specific helper names, bind aliases once:
 
 ```ts
 const expenses = mobigent.use("expense", {
@@ -392,6 +392,8 @@ const expenses = mobigent.use("expense", {
 await expenses.createExpense({ merchant: "Airport Taxi", amount: 42.25 });
 await expenses.listExpenses();
 ```
+
+`mobigent.app.expense.create(...)` works too when you want the code to read as “call the function owned by the app.”
 
 Use `waitForApp()` only when you want an explicit startup health gate:
 

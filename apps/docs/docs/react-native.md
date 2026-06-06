@@ -105,8 +105,8 @@ That one call registers the feature, connects to the backend, and returns a `dis
 
 For `appId: "com.example.app"` and the `expense` function namespace:
 
-- backend code can call `mobigent.app.expense.list`
-- backend code can call `mobigent.app.expense.create`
+- backend code can call `mobigent.functions.expense.list`
+- backend code can call `mobigent.functions.expense.create`
 
 Backend code can use those same short names.
 
