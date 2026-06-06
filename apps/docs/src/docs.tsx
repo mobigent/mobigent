@@ -284,7 +284,7 @@ client.confirmationHandler { request ->
 client.connect()`;
 
 const nativeLifecycle = [
-  ["1. Create a client", "Give Mobigent the app id and app name. Local simulator/emulator URLs are the SDK defaults."],
+  ["1. Create a client", "Give Mobigent the app functions. Local simulator/emulator URLs are the SDK defaults."],
   ["2. Expose app functions", "Use write for confirmed changes, read for app data, and screen for important UI context."],
   ["3. Add confirmations", "Mark risky actions and let the native app render the approval UI."],
   ["4. Connect", "The SDK connects to the backend and exposes those functions."],
@@ -300,8 +300,8 @@ const nativeUrls = [
 
 const firstRunChecks = [
   ["Install", "Add the app package to React Native and the backend package to your server."],
-  ["Expose", "`createApp(appId, functions)` turns real app functions into typed agent-callable APIs."],
-  ["Connect", "Use the same app id on both sides; pass the backend object in demos or use a hosted URL in production."],
+  ["Expose", "`createApp(functions)` turns real app functions into typed agent-callable APIs."],
+  ["Connect", "Use local defaults first; pass the backend object in demos or use a hosted URL in production."],
   ["Call", "`mobigent.functions.expense.create()` calls the app-owned function from backend code."],
   ["Approve", "Risky actions pause inside the app before handlers run."],
   ["Audit", "Calls, approvals, denials, errors, and events appear in `/audit`."]
@@ -332,7 +332,7 @@ const packages = [
 ];
 
 const reactNativeApis = [
-  ["createApp()", "Creates one app SDK object from app functions, app id, and optional backend settings."],
+  ["createApp()", "Creates one app SDK object from app functions and optional backend settings."],
   ["read()", "Exposes read-only app data to agents."],
   ["write()", "Exposes a confirmed app action with plain input fields."],
   ["screen()", "Exposes screen-aware app behavior when agents need to focus UI."],
@@ -353,7 +353,7 @@ const nativeApis = [
 ];
 
 const backendApis = [
-  ["startMobigent()", "Starts the backend service with a stable app id and local defaults."],
+  ["startMobigent()", "Starts the backend service with local defaults."],
   ["waitForApp()", "Optional health gate when startup should wait for a connected app."],
   ["functions", "Calls app functions from backend code with the same namespaces used in the app."],
   ["use()", "Optional helper aliasing when backend code wants different function names."],
@@ -648,7 +648,7 @@ function Docs() {
         <div className="sectionHeader compact">
           <span className="eyebrow"><Network size={15} /> Backend</span>
           <h2>The backend package owns the hard parts.</h2>
-          <p>Use the backend SDK in Node. Most apps should start with `startMobigent(appId)` and let the SDK run the service.</p>
+          <p>Use the backend SDK in Node. Most apps should start with `startMobigent()` and let the SDK run the service.</p>
         </div>
         <div className="codeGrid three">
           <Code title="Backend SDK" code={backendCode} />

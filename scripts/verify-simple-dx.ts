@@ -341,7 +341,9 @@ assert.doesNotMatch(starterServer, /capabilities\.js|src\/capabilities\.ts/);
 assert.doesNotMatch(starterServer, /functions: expenseFunctions/);
 assert.doesNotMatch(starterServer, /connectMobigent/);
 assert.doesNotMatch(starterServer, /const gatewayPort|const httpPort|wsPort: 8787|httpPort: 8788/);
-assert.match(starterServer, /startMobigent\("com\.example\.app", "Example App"\)/);
+assert.match(starterServer, /startMobigent\(\)/);
+assert.doesNotMatch(starterServer, /startMobigent\("com\.example\.app"/);
+assert.doesNotMatch(starterServer, /startMobigent\([^)]*"Example App"/);
 assert.doesNotMatch(starterServer, /appId: "com\.example\.app"/);
 assert.doesNotMatch(starterServer, /createApp\("com\.example\.app", expenseFunctions/);
 assert.doesNotMatch(starterServer, /appName: "Example App"/);
@@ -361,6 +363,7 @@ assert.doesNotMatch(starterServer, /backend\.appFunctions\(\{/);
 assert.match(starterServer, /backend\.inspectorUrl/);
 assert.doesNotMatch(starterServer, /backend\.urls/);
 assert.match(starterDoctor, /ready\?minApps=1&minFunctions=1/);
+assert.match(starterDoctor, /app_mobigent_local\.expense_create/);
 assert.match(starterDoctor, /const backendUrl = "http:\/\/localhost:8788"/);
 assert.doesNotMatch(starterDoctor, /const gatewayUrl|function toolName|app manifest\(s\)|minTools/);
 
@@ -429,7 +432,7 @@ for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.
   assert.doesNotMatch(
     contents,
     /startMobigent\(\{[\s\S]{0,160}?appId: "com\.acme\.expenses"/,
-    `${path} should teach startMobigent(appId) before object options`
+    `${path} should keep app ids out of object-options beginner examples`
   );
 }
 

@@ -27,10 +27,6 @@ function runCli(args: string[]) {
 try {
   const init = runCli([
     target,
-    "--app-id",
-    "com.mobigent.runtime",
-    "--app-name",
-    "Runtime Demo",
     "--connection-port",
     String(gatewayPort),
     "--http-port",
@@ -71,13 +67,13 @@ try {
       return false;
     }
     const body = (await response.json()) as { tools?: Array<{ name: string }> };
-    return Boolean(body.tools?.some((tool) => tool.name === "com_mobigent_runtime.expense_create"));
+    return Boolean(body.tools?.some((tool) => tool.name === "app_mobigent_local.expense_create"));
   }, () => `starter did not expose tools in time.\n${serverOutput}`);
 
   const doctor = await run("npm", ["run", "doctor"], target);
   assert.match(doctor, /Mobigent starter doctor: PASS/);
   assert.match(doctor, /PASS Backend readiness: ready for agent startup/);
-  assert.match(doctor, /PASS Expense function: com_mobigent_runtime.expense_create/);
+  assert.match(doctor, /PASS Expense function: app_mobigent_local.expense_create/);
 
   const localAgent = await run("npm", ["run", "agent:local"], target);
   assert.match(localAgent, /Claude Desktop/);

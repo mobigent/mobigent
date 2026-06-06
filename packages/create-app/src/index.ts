@@ -17,6 +17,7 @@ export type CreateMobigentAppOptions = {
   packageSource?: "github-release" | "npm";
   packageVersion?: string;
   installDependencies?: boolean;
+  stableAppIdentity?: boolean;
 };
 
 export type GeneratedFile = {
@@ -282,8 +283,12 @@ function createServerFile(options: CreateMobigentAppOptions) {
     options.httpPort === 8788 ? "" : `  httpPort: ${options.httpPort},\n`
   ].join("");
   const backendStart = portLines
-    ? `startMobigent(${JSON.stringify(options.appId)}, ${JSON.stringify(options.appName)}, {\n${portLines}})`
-    : `startMobigent(${JSON.stringify(options.appId)}, ${JSON.stringify(options.appName)})`;
+    ? options.stableAppIdentity
+      ? `startMobigent(${JSON.stringify(options.appId)}, ${JSON.stringify(options.appName)}, {\n${portLines}})`
+      : `startMobigent({\n${portLines}})`
+    : options.stableAppIdentity
+      ? `startMobigent(${JSON.stringify(options.appId)}, ${JSON.stringify(options.appName)})`
+      : "startMobigent()";
 
   return `import { spawn } from "node:child_process";
 import express from "express";
@@ -634,7 +639,7 @@ function titleCase(value: string) {
 }
 
 function createDoctorFile(options: CreateMobigentAppOptions) {
-  const functionName = backendFunctionName(options.appId, "expense_create");
+  const functionName = backendFunctionName(options.stableAppIdentity ? options.appId : "app.mobigent.local", "expense_create");
   return `const appUrl = "http://localhost:${options.appPort}";
 const backendUrl = "http://localhost:${options.httpPort}";
 const expectedFunction = "${functionName}";

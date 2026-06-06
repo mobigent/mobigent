@@ -85,9 +85,11 @@ function parseArgs(argv: string[]): ParsedOptions {
     switch (arg) {
       case "--app-id":
         options.appId = next();
+        options.stableAppIdentity = true;
         break;
       case "--app-name":
         options.appName = next();
+        options.stableAppIdentity = true;
         break;
       case "--package-name":
         options.packageName = next();
@@ -172,8 +174,8 @@ Usage:
   npm exec --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz -- create-mobigent-app my-demo --install
 
 Options:
-  --app-id <id>          Stable app id shared by app and backend. Default: com.mobigent.demo
-  --app-name <name>     Visible app name. Default: Mobigent Demo
+  --app-id <id>          Optional production-style app id shared by app and backend.
+  --app-name <name>     Visible app name. Also enables production-style app identity.
   --package-name <name> package.json name. Default: target folder name
   --connection-port <port> App connection port. Default: 8787
   --gateway-port <port> Backward-compatible alias for --connection-port.

@@ -1629,7 +1629,7 @@ function helpText() {
 
 Normal app integration does not need this command:
   npm install @mobigent/app
-  # createApp(appId, functions).with(App)
+  # createApp(functions).with(App)
 
 Add Mobigent to real apps in code. Use this CLI only for checks
 and advanced integration artifacts.

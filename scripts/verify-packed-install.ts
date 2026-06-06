@@ -95,7 +95,7 @@ await rootBackend.stop();
   const binDir = join(appDir, "node_modules", ".bin");
   assert.match(await run(join(binDir, "mobigent-backend"), ["--help"], appDir), /mobigent-backend/);
   const appHelp = await run(join(binDir, "mobigent"), ["app", "--help"], appDir);
-  assert.match(appHelp, /createApp\(appId, functions\)\.with\(App\)/);
+  assert.match(appHelp, /createApp\(functions\)\.with\(App\)/);
   assert.doesNotMatch(appHelp, /mobigent init --feature/);
   assert.match(await run(join(binDir, "mobigent"), ["backend", "--help"], appDir), /mobigent-backend/);
   assert.match(await run(join(binDir, "mobigent"), ["new", "--help"], appDir), /create-mobigent-app/);

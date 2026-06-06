@@ -36,10 +36,6 @@ try {
 
   const dryRun = run([
     target,
-    "--app-id",
-    "com.mobigent.expense",
-    "--app-name",
-    "Expense Demo",
     "--no-open",
     "--dry-run"
   ]);
@@ -48,14 +44,10 @@ try {
   assert.ok(dryRunFiles.some((file) => file.path === "src/server.ts"));
   assert.ok(dryRunFiles.some((file) => file.path === "src/app-functions.ts"));
   assert.equal(dryRunFiles.some((file) => file.path === "src/capabilities.ts"), false);
-  assert.match(dryRun.stdout, /com_mobigent_expense.expense_create/);
+  assert.match(dryRun.stdout, /app_mobigent_local.expense_create/);
 
   const init = run([
     target,
-    "--app-id",
-    "com.mobigent.expense",
-    "--app-name",
-    "Expense Demo",
     "--no-open"
   ]);
   assert.equal(init.code, 0, init.stderr);
@@ -99,7 +91,9 @@ try {
   assert.match(server, /src\/app-functions\.ts/);
   assert.doesNotMatch(server, /src\/capabilities\.ts/);
   assert.match(server, /startMobigent/);
-  assert.match(server, /startMobigent\("com\.mobigent\.expense", "Expense Demo"\)/);
+  assert.match(server, /startMobigent\(\)/);
+  assert.doesNotMatch(server, /startMobigent\("com\.mobigent\.expense"/);
+  assert.doesNotMatch(server, /startMobigent\("com\.mobigent\.demo"/);
   assert.doesNotMatch(server, /appId: "com\.mobigent\.expense"/);
   assert.doesNotMatch(server, /const expense = backend\.feature\("expense"\)/);
   assert.match(server, /backend\.functions\.expense\.create\(input\)/);
@@ -128,7 +122,7 @@ try {
 
   const doctor = await readFile(join(target, "src", "doctor.ts"), "utf8");
   assert.match(doctor, /Mobigent starter doctor/);
-  assert.match(doctor, /com_mobigent_expense.expense_create/);
+  assert.match(doctor, /app_mobigent_local.expense_create/);
   assert.match(doctor, /ready\?minApps=1&minFunctions=1/);
   assert.match(doctor, /const backendUrl = "http:\/\/localhost:8788"/);
   assert.doesNotMatch(doctor, /const gatewayUrl|function toolName|app manifest\(s\)/);
@@ -146,7 +140,7 @@ try {
   assert.match(help.stdout, /--package-source/);
   assert.match(help.stdout, /Default: github-release until npmjs packages are live/);
   assert.match(help.stdout, /--connection-port/);
-  assert.match(help.stdout, /Stable app id shared by app and backend/);
+  assert.match(help.stdout, /Optional production-style app id shared by app and backend/);
   assert.doesNotMatch(help.stdout, /App id for the Mobigent manifest/);
   assert.doesNotMatch(help.stdout, /HTTP\/OpenAPI\/inspector backend port/);
 

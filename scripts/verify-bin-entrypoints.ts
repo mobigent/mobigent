@@ -20,7 +20,7 @@ try {
 
   const createApp = await run(join(binDir, "create-mobigent-app"), ["--help"]);
   assert.match(createApp, /create-mobigent-app/);
-  assert.match(createApp, /Stable app id shared by app and backend/);
+  assert.match(createApp, /Optional production-style app id shared by app and backend/);
   assert.doesNotMatch(createApp, /App id for the Mobigent manifest/);
 
   const installer = await run(join(binDir, "mobigent-install"), ["app", "--dry-run"]);
@@ -56,7 +56,7 @@ try {
 
   const mobigentApp = await run(join(binDir, "mobigent"), ["app", "--help"]);
   assert.match(mobigentApp, /Mobigent React Native developer tools/);
-  assert.match(mobigentApp, /createApp\(appId, functions\)\.with\(App\)/);
+  assert.match(mobigentApp, /createApp\(functions\)\.with\(App\)/);
   assert.doesNotMatch(mobigentApp, /mobigent init --feature/);
   assert.doesNotMatch(mobigentApp, /mobigent-rn-init --feature expense --out-dir src/);
   const mobigentBackendHelp = await run(join(binDir, "mobigent"), ["backend", "--help"]);

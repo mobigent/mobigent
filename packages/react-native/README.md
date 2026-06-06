@@ -112,7 +112,7 @@ export default withMobigent(App, {
 });
 ```
 
-Run a Mobigent backend from your server with `@mobigent/backend`, then open the inspector URL it prints. Use the same `appId` in the app and backend. Local defaults still work for quick demos.
+Run a Mobigent backend from your server with `@mobigent/backend`, then open the inspector URL it prints. Local defaults work for first runs; use the same stable `appId` in the app and backend for production.
 
 No app-side init command is required. Write the functions directly in your app code. Optional generators are for examples, not real integration.
 
@@ -199,4 +199,4 @@ The direct `@mobigent/react-native` package includes lower-level APIs for mature
 - `schema.*`
 - diagnostics and status hooks
 
-Use these when you need screen-scoped app functions, custom provider placement, custom confirmation UI, signed production setup, or advanced environment switching. New apps should start with `createApp(appId, functions)`.
+Use these when you need screen-scoped app functions, custom provider placement, custom confirmation UI, signed production setup, or advanced environment switching. New apps should start with `createApp(functions)`.
