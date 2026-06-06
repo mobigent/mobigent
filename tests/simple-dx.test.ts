@@ -936,7 +936,8 @@ test("backend app functions wait for the app connection automatically", async ()
 });
 
 test("backend SDK can start with one app identity and normal backend options", async () => {
-  const backend = await startMobigent("com.example.simple", "Simple App", {
+  const backend = await startMobigent("com.example.simple", {
+    appName: "Simple App",
     wsPort: 18991,
     httpPort: 18992,
     appToken: "dev-token",
@@ -1159,6 +1160,8 @@ test("backend init helper creates a simple server entrypoint", () => {
 
   assert.deepEqual(files.map((file) => file.path), ["src/mobigent.ts", ".env.mobigent"]);
   assert.match(files[0]?.contents ?? "", /startMobigent/);
+  assert.match(files[0]?.contents ?? "", /startMobigent\("com\.example\.app", \{/);
+  assert.doesNotMatch(files[0]?.contents ?? "", /startMobigent\("com\.example\.app", "Example App"/);
   assert.doesNotMatch(files[0]?.contents ?? "", /defaultApp/);
   assert.doesNotMatch(files[0]?.contents ?? "", /export const mobigentConfig/);
   assert.match(files[0]?.contents ?? "", /export const waitForApp = mobigent\.waitForApp/);
@@ -1227,7 +1230,11 @@ test("backend init CLI infers app identity and prints the short app init command
     assert.deepEqual(files.map((file) => file.path), ["src/mobigent.ts", ".env.mobigent"]);
     assert.match(
       files.find((file) => file.path === "src/mobigent.ts")?.contents ?? "",
-      /startMobigent\("app\.example\.expense\.hub", "Expense Hub", \{/
+      /startMobigent\("app\.example\.expense\.hub", \{/
+    );
+    assert.doesNotMatch(
+      files.find((file) => file.path === "src/mobigent.ts")?.contents ?? "",
+      /startMobigent\("app\.example\.expense\.hub", "Expense Hub"/
     );
     assert.equal(files.some((file) => file.path === "mobigent.app.json"), false);
 
@@ -1276,7 +1283,8 @@ test("backend init CLI infers app identity and prints the short app init command
     assert.doesNotMatch(stdout, /--config/);
     assert.doesNotMatch(stdout, /--env-file/);
     const generatedBackend = await readFile(join(dir, "src", "mobigent.ts"), "utf8");
-    assert.match(generatedBackend, /startMobigent\("com\.example\.expense", "Expense App", \{/);
+    assert.match(generatedBackend, /startMobigent\("com\.example\.expense", \{/);
+    assert.doesNotMatch(generatedBackend, /startMobigent\("com\.example\.expense", "Expense App"/);
     assert.doesNotMatch(generatedBackend, /appId: "com\.example\.expense"/);
     assert.doesNotMatch(generatedBackend, /appName: "Expense App"/);
     assert.doesNotMatch(generatedBackend, /app: \{/);

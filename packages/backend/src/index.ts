@@ -44,6 +44,9 @@ export type MobigentBackendOptions = {
 
 export type MobigentBackendInput = MobigentBackendOptions | string;
 export type MobigentBackendIdentityOptions = Omit<MobigentBackendOptions, "app" | "appId" | "appName">;
+export type MobigentBackendStartOptions = MobigentBackendIdentityOptions & {
+  appName?: string;
+};
 
 export type MobigentBackendDefaultAppOptions = {
   id?: string;
@@ -285,6 +288,7 @@ export type MobigentBackendOptionsWithApp = MobigentBackendOptions & {
 
 export type Backend = MobigentBackend;
 export type BackendOptions = MobigentBackendOptions;
+export type BackendStartOptions = MobigentBackendStartOptions;
 export type BackendPairing = MobigentBackendPairing;
 export type BackendConnection = MobigentBackendClient;
 export type BackendStatus = MobigentBackendStatus;
@@ -299,13 +303,17 @@ export async function startMobigentBackend(
   appName?: string,
   options?: MobigentBackendIdentityOptions
 ): Promise<MobigentBackendWithApp>;
+export async function startMobigentBackend(
+  appId: string,
+  options?: MobigentBackendStartOptions
+): Promise<MobigentBackendWithApp>;
 export async function startMobigentBackend(options?: MobigentBackendOptions): Promise<MobigentBackendWithApp>;
 export async function startMobigentBackend(
   input: MobigentBackendInput = {},
-  appName?: string,
+  appNameOrOptions?: string | MobigentBackendStartOptions,
   identityOptions: MobigentBackendIdentityOptions = {}
 ): Promise<MobigentBackendWithApp> {
-  const options = normalizeBackendOptions(input, appName, identityOptions);
+  const options = normalizeBackendOptions(input, appNameOrOptions, identityOptions);
   const wsPort = options.wsPort ?? Number(process.env.MOBIGENT_WS_PORT ?? 8787);
   const httpPort = options.httpPort ?? Number(process.env.MOBIGENT_HTTP_PORT ?? 8788);
   const host = options.host ?? "localhost";
@@ -550,10 +558,19 @@ function joinBackendFunctionName(namespace: string | undefined, functionName: st
 
 function normalizeBackendOptions(
   input: MobigentBackendInput,
-  appName?: string,
+  appNameOrOptions?: string | MobigentBackendStartOptions,
   identityOptions: MobigentBackendIdentityOptions = {}
 ): MobigentBackendOptions {
-  return typeof input === "string" ? { ...identityOptions, appId: input, appName } : input;
+  if (typeof input !== "string") {
+    return input;
+  }
+
+  if (typeof appNameOrOptions === "object" && appNameOrOptions) {
+    const { appName, ...options } = appNameOrOptions;
+    return { ...options, appId: input, appName };
+  }
+
+  return { ...identityOptions, appId: input, appName: appNameOrOptions };
 }
 
 function createBackendFunctionsAccessor(

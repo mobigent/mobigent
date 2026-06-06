@@ -360,7 +360,7 @@ function createBackendFile(options: MobigentBackendInitOptions) {
   const optionsBlock = optionLines.join(",\n");
   const startExpression = options.appDir
     ? `startMobigent({\n${optionsBlock}\n})`
-    : `startMobigent(${JSON.stringify(options.appId)}, ${JSON.stringify(options.appName)}, {\n${optionsBlock}\n})`;
+    : `startMobigent(${JSON.stringify(options.appId)}, {\n${optionsBlock}\n})`;
 
   return `import { startMobigent } from "@mobigent/backend";
 

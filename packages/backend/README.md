@@ -78,6 +78,7 @@ The public TypeScript surface uses backend names:
 
 - `Backend` for the object returned by `startMobigent(...)`
 - `BackendOptions` for startup options
+- `BackendStartOptions` for `startMobigent(appId, options)`
 - `backend.connection` and `backend.appSettings()` for compatibility when code needs explicit app setup values
 - `backend.chatgpt()`, `backend.claude()`, and `backend.openai()` for common agent setup
 - `BackendPairing` for `backend.pairing()`

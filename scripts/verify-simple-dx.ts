@@ -98,6 +98,7 @@ assert.match(backendPackageRoot, /openai\(options\?: MobigentAgentOptions\): Pro
 for (const typeName of [
   "Backend",
   "BackendOptions",
+  "BackendStartOptions",
   "BackendPairing",
   "BackendConnection",
   "BackendStatus",
@@ -147,6 +148,16 @@ assert.match(
   /mobigent app --help/,
   "root CLI help should point app users to the app command, not the legacy init alias"
 );
+assert.match(
+  mobigentCliSource,
+  /startMobigent\("com\.acme\.expenses"\)/,
+  "root CLI help should teach the short backend start shape"
+);
+assert.doesNotMatch(
+  mobigentCliSource.slice(mobigentCliSource.indexOf("function helpText")),
+  /startMobigent\("com\.acme\.expenses", "Acme Expenses"\)/,
+  "root CLI help should not require appName in the normal backend path"
+);
 assert.doesNotMatch(
   mobigentCliSource.slice(mobigentCliSource.indexOf("function helpText")),
   /mobigent init --help|init\s+Optional alias/,
@@ -195,7 +206,8 @@ const backendFile = createMobigentBackendFiles({
 }).find((file) => file.path === "src/mobigent.ts")?.contents ?? "";
 
 assert.match(backendFile, /startMobigent/);
-assert.match(backendFile, /startMobigent\("com\.example\.app", "Example App", \{/);
+assert.match(backendFile, /startMobigent\("com\.example\.app", \{/);
+assert.doesNotMatch(backendFile, /startMobigent\("com\.example\.app", "Example App"/);
 assert.doesNotMatch(backendFile, /appId: "com\.example\.app"/);
 assert.doesNotMatch(backendFile, /appName: "Example App"/);
 assert.doesNotMatch(backendFile, /app: \{/);
@@ -458,6 +470,7 @@ for (const path of ["packages/app/README.md", "packages/react-native/README.md"]
   const backendReadme = readFileSync("packages/backend/README.md", "utf8");
   assert.match(backendReadme, /type Backend/, "packages/backend/README.md should teach the friendly Backend type");
   assert.match(backendReadme, /BackendOptions/, "packages/backend/README.md should list the friendly BackendOptions type");
+  assert.match(backendReadme, /BackendStartOptions/, "packages/backend/README.md should list the friendly BackendStartOptions type");
   assert.match(backendReadme, /backend: backend|pass the backend object/, "packages/backend/README.md should teach passing the backend object directly");
   assert.match(backendReadme, /backend\.chatgpt\(\).*backend\.claude\(\).*backend\.openai\(\)/, "packages/backend/README.md should teach friendly common agent setup shortcuts");
   assert.match(backendReadme, /backend\.connection.*backend\.appSettings\(\)/, "packages/backend/README.md should keep explicit app setup values as compatibility detail");
