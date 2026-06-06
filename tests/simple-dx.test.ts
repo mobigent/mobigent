@@ -630,6 +630,68 @@ test("app package accepts backend appConnectionUrl as a friendly connection targ
   }
 });
 
+test("app package connects with the backend object directly", async () => {
+  const backend = await startMobigent("com.example.backendobject", "Backend Object App", {
+    wsPort: 19029,
+    httpPort: 19030,
+    silent: true
+  });
+  const backendSource: MobigentAppBackendSource = backend;
+  const app = createApp("com.example.backendobject", {
+    expense: {
+      list: async () => ({ items: [{ id: "EXP-BACKEND-OBJECT" }] })
+    }
+  }, {
+    backend: backendSource,
+    createSocket: createNodeSocket
+  });
+
+  try {
+    const connection = await app.connect();
+
+    try {
+      await backend.waitForApp({ minFunctions: 1 });
+      assert.deepEqual(await backend.app.expense.list(), {
+        items: [{ id: "EXP-BACKEND-OBJECT" }]
+      });
+    } finally {
+      connection.disconnect();
+    }
+  } finally {
+    await backend.stop();
+  }
+});
+
+test("app package connect accepts the backend object directly", async () => {
+  const backend = await startMobigent("com.example.connectbackend", "Connect Backend App", {
+    wsPort: 19031,
+    httpPort: 19032,
+    silent: true
+  });
+  const app = createApp("com.example.connectbackend", {
+    expense: {
+      list: async () => ({ items: [{ id: "EXP-CONNECT-BACKEND" }] })
+    }
+  }, {
+    createSocket: createNodeSocket
+  });
+
+  try {
+    const connection = await app.connect(backend);
+
+    try {
+      await backend.waitForApp({ minFunctions: 1 });
+      assert.deepEqual(await backend.app.expense.list(), {
+        items: [{ id: "EXP-CONNECT-BACKEND" }]
+      });
+    } finally {
+      connection.disconnect();
+    }
+  } finally {
+    await backend.stop();
+  }
+});
+
 test("app package connects with backend appClient settings", async () => {
   const backend = await startMobigent("com.example.appclient", "App Client App", {
     wsPort: 19021,

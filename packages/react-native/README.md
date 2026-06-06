@@ -119,7 +119,7 @@ import { expenseFunctions } from "./app-functions";
 
 const backend = await startMobigent("com.acme.expenses");
 const mobigent = createApp("com.acme.expenses", expenseFunctions, {
-  backend: backend.appSettings()
+  backend
 });
 
 const connection = await mobigent.connect();

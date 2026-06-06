@@ -87,7 +87,7 @@ export default withMobigent(App, "com.acme.expenses", {
 });
 ```
 
-For a non-React demo or test host, pass the backend app settings once and connect with no extra setup:
+For a non-React demo or test host, pass the backend once and connect with no extra setup:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
@@ -96,7 +96,7 @@ import { expenseFunctions } from "./app-functions";
 
 const backend = await startMobigent("com.acme.expenses");
 const mobigent = createApp("com.acme.expenses", expenseFunctions, {
-  backend: backend.appSettings()
+  backend
 });
 
 await mobigent.connect();

@@ -50,7 +50,7 @@ import { expenseFunctions } from "./app-functions";
 
 const backend = await startMobigent("com.acme.expenses");
 const mobigent = createApp("com.acme.expenses", expenseFunctions, {
-  backend: backend.appSettings()
+  backend
 });
 
 const connection = await mobigent.connect();
@@ -85,8 +85,8 @@ The common backend object includes:
 - `agentUrl`
 - `openApiUrl`
 - `appConnectionUrl`
-- `appSettings()` to produce app-side setup values
-- `pairing()` to produce app-side pairing settings
+- `connection` and `appSettings()` for compatibility when code needs explicit app setup values
+- `pairing()` for older app-side pairing settings
 - `appClient()` as an older explicit name for `pairing()`
 - `chatgpt()`, `claude()`, and `openai()` for common agent setup
 - `app.expense.create(input)` or `app.expense.list()` to call app functions with the clean package API
@@ -116,7 +116,7 @@ Advanced and compatibility fields are still available, but they should not be ne
 - `createApp(appId, functions)`: normal app setup.
 - `createApp({ namespace: { name: fn } })`: quick local demo setup.
 - `mobigent.with(App)`: wraps an existing React Native app.
-- `createApp(appId, functions, { backend })`: bakes backend app settings into setup when you do not want to pass them later.
+- `createApp(appId, functions, { backend })`: lets the app SDK read connection details from the backend object.
 - `mobigent.connect()`: connects a non-React host or demo after setup.
 - `mobigent.emit(name, payload)`: emits app activity.
 - `createApp(appId, functions, { connection: { host: "192.168.1.20" } })`: connects a physical phone to your local backend.

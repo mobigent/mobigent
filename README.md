@@ -64,7 +64,7 @@ For a non-React host or local demo, use the same app SDK object:
 ```ts
 const backend = await startMobigent("com.acme.expenses");
 const mobigent = createApp("com.acme.expenses", expenseFunctions, {
-  backend: backend.appSettings()
+  backend
 });
 
 await mobigent.connect();
@@ -336,7 +336,7 @@ import { expenseFunctions } from "./app-functions";
 
 const backend = await startMobigent("com.acme.expenses");
 const mobigent = createApp("com.acme.expenses", expenseFunctions, {
-  backend: backend.appSettings()
+  backend
 });
 
 await mobigent.connect();

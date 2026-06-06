@@ -88,7 +88,7 @@ for (const typeName of [
 assert.match(backendPackageRoot, /connection: MobigentBackendClient/, "@mobigent/backend should expose a clean backend.connection pairing object");
 assert.match(backendPackageRoot, /agentUrl: string/, "@mobigent/backend should expose a friendly agentUrl alias");
 assert.match(backendPackageRoot, /appConnectionUrl: string/, "@mobigent/backend should expose a friendly appConnectionUrl alias");
-assert.match(backendPackageRoot, /appSettings\(\): MobigentBackendClient/, "@mobigent/backend should expose backend.appSettings() as the friendly app settings handoff");
+assert.match(backendPackageRoot, /appSettings\(\): MobigentBackendClient/, "@mobigent/backend should keep backend.appSettings() compatibility");
 assert.match(backendPackageRoot, /appClient\(\): MobigentBackendClient/, "@mobigent/backend should keep backend.appClient() compatibility");
 assert.match(backendPackageRoot, /pairing\(\): MobigentBackendClient/, "@mobigent/backend should keep backend.pairing() compatibility");
 assert.match(backendPackageRoot, /chatgpt\(options\?: MobigentAgentOptions\): ProviderBundle/, "@mobigent/backend should expose backend.chatgpt() for common ChatGPT setup");
@@ -108,7 +108,7 @@ for (const typeName of [
 ]) {
   assert.match(backendPackageRoot, new RegExp(`export type ${typeName}\\b`), `@mobigent/backend should expose friendly ${typeName} type`);
 }
-assert.match(appPackageRoot, /backend\?: MobigentAppBackendSource/, "@mobigent/app should accept backend app settings as the clean app handoff");
+assert.match(appPackageRoot, /backend\?: MobigentAppBackendSource/, "@mobigent/app should accept a backend object as the clean app handoff");
 assert.match(appBackendTargetType, /pairing\?: MobigentAppPairingSource/, "@mobigent/app should keep backend pairing compatibility");
 assert.match(appPackageRoot, /MobigentSimpleAppConfig \| \(\(\) => MobigentSimpleAppConfig\)/, "@mobigent/app should accept a pairing object or backend.pairing method");
 assert.match(appBackendTargetType, /connection\?: MobigentSimpleConnectionSettings/, "@mobigent/app should keep backend.connection compatibility");
@@ -318,7 +318,8 @@ assert.doesNotMatch(starterServer, /const gatewayPort|const httpPort|wsPort: 878
 assert.match(starterServer, /startMobigent\("com\.example\.app", "Example App"\)/);
 assert.doesNotMatch(starterServer, /appId: "com\.example\.app"/);
 assert.doesNotMatch(starterServer, /app: \{/);
-assert.match(starterServer, /backend: backend\.appSettings\(\)/);
+assert.match(starterServer, /backend,\n/);
+assert.doesNotMatch(starterServer, /backend: backend\.appSettings\(\)/);
 assert.doesNotMatch(starterServer, /pairing: backend\.pairing\(\)/);
 assert.match(starterServer, /mobigent\.connect\(\)/);
 assert.doesNotMatch(starterServer, /mobigent\.connect\(backend\)/);
@@ -424,7 +425,8 @@ for (const path of ["packages/app/README.md", "packages/react-native/README.md"]
   assert.match(appReadme, /type AppFunctions/, "packages/app/README.md should teach the friendly AppFunctions type");
   assert.match(appReadme, /MobigentApp/, "packages/app/README.md should list the friendly MobigentApp type");
   assert.match(appReadme, /MobigentAppBackendSource/, "packages/app/README.md should teach the friendly app backend handoff type");
-  assert.match(appReadme, /backend\.appSettings\(\)/, "packages/app/README.md should teach friendly backend app settings");
+  assert.match(appReadme, /backend: backend|give the app object the backend once/, "packages/app/README.md should teach passing the backend object directly");
+  assert.doesNotMatch(appReadme, /backend\.appSettings\(\)/, "packages/app/README.md should not teach appSettings as the beginner handoff");
   assert.doesNotMatch(appReadme, /backend\.pairing\(\)/, "packages/app/README.md should not teach pairing as the beginner settings name");
 }
 
@@ -432,9 +434,10 @@ for (const path of ["packages/app/README.md", "packages/react-native/README.md"]
   const backendReadme = readFileSync("packages/backend/README.md", "utf8");
   assert.match(backendReadme, /type Backend/, "packages/backend/README.md should teach the friendly Backend type");
   assert.match(backendReadme, /BackendOptions/, "packages/backend/README.md should list the friendly BackendOptions type");
-  assert.match(backendReadme, /backend\.appSettings\(\)/, "packages/backend/README.md should teach backend.appSettings()");
+  assert.match(backendReadme, /backend: backend|pass the backend object/, "packages/backend/README.md should teach passing the backend object directly");
   assert.match(backendReadme, /backend\.chatgpt\(\).*backend\.claude\(\).*backend\.openai\(\)/, "packages/backend/README.md should teach friendly common agent setup shortcuts");
-  assert.match(backendReadme, /BackendPairing.*backend\.pairing\(\)/, "packages/backend/README.md should teach BackendPairing for backend.pairing()");
+  assert.match(backendReadme, /backend\.connection.*backend\.appSettings\(\)/, "packages/backend/README.md should keep explicit app setup values as compatibility detail");
+  assert.match(backendReadme, /BackendPairing.*backend\.pairing\(\)/, "packages/backend/README.md should keep BackendPairing for backend.pairing() compatibility");
   assert.match(backendReadme, /startMobigent\("com\.acme\.expenses"\)/);
   assert.match(backendReadme, /mobigent\.app\.expense\.create/);
   assert.match(backendReadme, /mobigent\.use\("expense", \{\s+createExpense: "create"/);
@@ -503,8 +506,9 @@ for (const path of [
   "apps/docs/docs/api.md"
 ]) {
   const contents = readFileSync(path, "utf8");
-  assert.match(contents, /backend: backend\.appSettings\(\)/, `${path} should teach app setup with backend app settings`);
+  assert.match(contents, /backend: backend|backend,|backend\s*\n\s*\}/, `${path} should teach app setup with the backend object`);
   assert.match(contents, /\.\s*connect\(\)/, `${path} should teach no-argument connect after backend setup`);
+  assert.doesNotMatch(contents, /backend: backend\.appSettings\(\)/, `${path} should not teach appSettings as the beginner handoff`);
   assert.doesNotMatch(contents, /pairing: backend\.pairing\(\)/, `${path} should not teach pairing as the beginner setup word`);
   assert.doesNotMatch(contents, /mobigent\.connect\(backend\)/, `${path} should not teach backend-object connect as the beginner path`);
   assert.doesNotMatch(contents, /mobigent\.connect\(backend\.pairing\(\)\)/, `${path} should not teach connect-time pairing as the beginner path`);

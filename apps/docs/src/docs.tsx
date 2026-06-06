@@ -30,7 +30,7 @@ npm exec --yes \\
 const deviceConnectionCode = `export const mobigent = createApp("com.acme.expenses", {
   expense: { list, create }
 }, {
-  pairing: backend.pairing()
+  backend
 });
 
 // physical phone or hosted backend:
@@ -294,7 +294,7 @@ const nativeUrls = [
 const firstRunChecks = [
   ["Install", "Add the app package to React Native and the backend package to your server."],
   ["Expose", "`createApp(appId, functions)` turns real app functions into typed agent-callable APIs."],
-  ["Pair", "Use the same app id on both sides; pass `backend.pairing()` when you want explicit app settings."],
+  ["Connect", "Use the same app id on both sides; pass the backend object in demos or use a hosted URL in production."],
   ["Call", "`mobigent.app.expense.create()` calls the app-owned function from backend code."],
   ["Approve", "Risky actions pause inside the app before handlers run."],
   ["Audit", "Calls, approvals, denials, errors, and events appear in `/audit`."]
@@ -325,14 +325,14 @@ const packages = [
 ];
 
 const reactNativeApis = [
-  ["createApp()", "Creates one app SDK object from app functions, app id, and optional pairing settings."],
+  ["createApp()", "Creates one app SDK object from app functions, app id, and optional backend settings."],
   ["read()", "Exposes read-only app data to agents."],
   ["write()", "Exposes a confirmed app action with plain input fields."],
   ["screen()", "Exposes screen-aware app behavior when agents need to focus UI."],
   ["mobigent.with()", "Wraps the existing React Native app in one normal function call."],
   ["mobigent.connect()", "Connects a non-React host or local demo to a backend object."],
   ["mobigent.emit()", "Queues or sends app events without touching the lower-level client."],
-  ["pairing", "Accepts `backend.pairing()` so the app does not know transport details."],
+  ["backend", "Accepts the backend object so the app does not know transport details."],
   ["connection", "Advanced fallback for physical phones or hosted `wss://` backend URLs."],
   ["useMobigentStatus()", "Reads connection state for badges, diagnostics, and debugging."],
   ["MobigentStatusBadge", "Optional UI component for local development visibility."]
