@@ -226,6 +226,9 @@ export type MobigentBackend = {
   client(): MobigentBackendClient;
   client(appId: string, appName?: string, options?: Omit<MobigentBackendAppConfigOptions, "appId" | "appName">): MobigentBackendClient;
   client(options: MobigentBackendAppConfigOptions): MobigentBackendClient;
+  forApp(): MobigentBackendClient;
+  forApp(appId: string, appName?: string, options?: Omit<MobigentBackendAppConfigOptions, "appId" | "appName">): MobigentBackendClient;
+  forApp(options: MobigentBackendAppConfigOptions): MobigentBackendClient;
   appClient(): MobigentBackendClient;
   appClient(appId: string, appName?: string, options?: Omit<MobigentBackendAppConfigOptions, "appId" | "appName">): MobigentBackendClient;
   appClient(options: MobigentBackendAppConfigOptions): MobigentBackendClient;
@@ -490,6 +493,7 @@ export async function startMobigentBackend(
     connection: defaultApp,
     advanced,
     client,
+    forApp: client,
     appClient: client,
     appSettings: client,
     pairing: client,

@@ -80,6 +80,14 @@ const mobigent = createApp(appFunctions, {
 await mobigent.connect();
 ```
 
+If the app and backend live in separate processes and you need a plain settings object, use the backend SDK's explicit app handoff:
+
+```ts
+const mobigent = createApp(appFunctions, {
+  backend: backend.forApp()
+});
+```
+
 Use `mobigent.emit(name, payload)` for app events.
 
 No app-side init command is required. Write the functions directly in your app code. Optional generators are for examples, not real integration.

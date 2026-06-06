@@ -53,7 +53,15 @@ const app = createApp(appFunctions, {
 await app.connect();
 ```
 
-The public `backend.connection` object contains the same app connection details for compatibility. You usually do not need to read or copy it yourself.
+If the app setup needs a plain serializable settings object instead of the live backend object, pass `backend.forApp()`:
+
+```ts
+const app = createApp(appFunctions, {
+  backend: backend.forApp()
+});
+```
+
+The public `backend.connection` object contains the same app connection details for compatibility. `backend.appSettings()` is an older name for that explicit setup object. You usually do not need either in the normal same-process demo path.
 For debugging, `backend.appConnectionUrl` shows where apps connect and `backend.agentUrl` shows the agent-facing API.
 
 ## What It Handles
@@ -89,6 +97,7 @@ The public TypeScript surface uses backend names:
 - `BackendOptions` for startup options
 - `BackendStartOptions` for `startMobigent(appId, options)`
 - `backend.functions` for calling app functions from backend code
+- `backend.forApp()` for explicit app setup values when you cannot pass the backend object directly
 - `backend.connection` and `backend.appSettings()` for compatibility when code needs explicit app setup values
 - `backend.setup.chatgpt()`, `backend.setup.claude()`, and `backend.setup.openai()` for common agent setup
 - `backend.chatgpt()`, `backend.claude()`, and `backend.openai()` as direct aliases

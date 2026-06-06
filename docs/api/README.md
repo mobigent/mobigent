@@ -58,6 +58,14 @@ const connection = await mobigent.connect();
 connection.disconnect();
 ```
 
+When the app setup needs a plain settings object instead of the live backend object:
+
+```ts
+const mobigent = createApp(expenseFunctions, {
+  backend: backend.forApp()
+});
+```
+
 ## Backend API
 
 ```ts
@@ -86,6 +94,7 @@ The common backend object includes:
 - `agentUrl`
 - `openApiUrl`
 - `appConnectionUrl`
+- `forApp()` for explicit app setup values when the app cannot receive the live backend object
 - `connection` and `appSettings()` for compatibility when code needs explicit app setup values
 - `pairing()` for older app-side pairing settings
 - `appClient()` as an older explicit name for `pairing()`
@@ -119,6 +128,7 @@ Advanced and compatibility fields are still available, but they should not be ne
 - `createApp(appId, functions)`: optional explicit identity setup when you want identity in code.
 - `mobigent.with(App)`: wraps an existing React Native app.
 - `createApp(functions, { backend })`: lets the app SDK read identity and connection details from the backend object.
+- `createApp(functions, { backend: backend.forApp() })`: passes a plain settings object when the app/backend boundary needs one.
 - `mobigent.connect()`: connects a non-React host or demo after setup.
 - `mobigent.emit(name, payload)`: emits app activity.
 - `createApp(functions, { connection: { host: "192.168.1.20" } })`: connects a physical phone to your local backend.

@@ -91,6 +91,7 @@ assert.match(backendPackageRoot, /agentUrl: string/, "@mobigent/backend should e
 assert.match(backendPackageRoot, /appConnectionUrl: string/, "@mobigent/backend should expose a friendly appConnectionUrl alias");
 assert.match(backendPackageRoot, /functions: MobigentBackendFunctions/, "@mobigent/backend should expose backend.functions as the plain function-calling surface");
 assert.match(backendPackageRoot, /setup: MobigentBackendSetupAccessor/, "@mobigent/backend should expose grouped backend.setup helpers for agent setup");
+assert.match(backendPackageRoot, /forApp\(\): MobigentBackendClient/, "@mobigent/backend should expose backend.forApp() as the clean app handoff");
 assert.match(backendPackageRoot, /appSettings\(\): MobigentBackendClient/, "@mobigent/backend should keep backend.appSettings() compatibility");
 assert.match(backendPackageRoot, /appClient\(\): MobigentBackendClient/, "@mobigent/backend should keep backend.appClient() compatibility");
 assert.match(backendPackageRoot, /pairing\(\): MobigentBackendClient/, "@mobigent/backend should keep backend.pairing() compatibility");
@@ -480,7 +481,8 @@ for (const path of ["packages/app/README.md", "packages/react-native/README.md"]
   assert.match(appReadme, /type AppFunctions/, "packages/app/README.md should teach the friendly AppFunctions type");
   assert.match(appReadme, /MobigentApp/, "packages/app/README.md should list the friendly MobigentApp type");
   assert.match(appReadme, /MobigentAppBackendSource/, "packages/app/README.md should teach the friendly app backend handoff type");
-  assert.match(appReadme, /createApp\(appFunctions, \{[\s\S]{0,80}?backend/, "packages/app/README.md should teach passing the backend object without repeating the app id");
+  assert.match(appReadme, /backend\.forApp\(\)/, "packages/app/README.md should teach backend.forApp() as the explicit app handoff");
+  assert.match(appReadme, /createApp\(appFunctions, \{[\s\S]{0,120}?backend/, "packages/app/README.md should teach passing backend settings without repeating the app id");
   assert.doesNotMatch(appReadme, /backend\.appSettings\(\)/, "packages/app/README.md should not teach appSettings as the beginner handoff");
   assert.doesNotMatch(appReadme, /backend\.pairing\(\)/, "packages/app/README.md should not teach pairing as the beginner settings name");
 }
@@ -490,7 +492,8 @@ for (const path of ["packages/app/README.md", "packages/react-native/README.md"]
   assert.match(backendReadme, /type Backend/, "packages/backend/README.md should teach the friendly Backend type");
   assert.match(backendReadme, /BackendOptions/, "packages/backend/README.md should list the friendly BackendOptions type");
   assert.match(backendReadme, /BackendStartOptions/, "packages/backend/README.md should list the friendly BackendStartOptions type");
-  assert.match(backendReadme, /createApp\(appFunctions, \{[\s\S]{0,80}?backend/, "packages/backend/README.md should teach passing the backend object without repeating the app id");
+  assert.match(backendReadme, /backend\.forApp\(\)/, "packages/backend/README.md should teach backend.forApp() as the clean explicit app handoff");
+  assert.match(backendReadme, /createApp\(appFunctions, \{[\s\S]{0,120}?backend/, "packages/backend/README.md should teach passing backend settings without repeating the app id");
   assert.match(backendReadme, /backend\.setup\.chatgpt\(\).*backend\.setup\.claude\(\).*backend\.setup\.openai\(\)/, "packages/backend/README.md should teach grouped agent setup helpers");
   assert.match(backendReadme, /backend\.chatgpt\(\).*backend\.claude\(\).*backend\.openai\(\)/, "packages/backend/README.md should teach friendly common agent setup shortcuts");
   assert.match(backendReadme, /backend\.connection.*backend\.appSettings\(\)/, "packages/backend/README.md should keep explicit app setup values as compatibility detail");
@@ -564,6 +567,7 @@ for (const path of [
 ]) {
   const contents = readFileSync(path, "utf8");
   assert.match(contents, /backend: backend|backend,|backend\s*\n\s*\}/, `${path} should teach app setup with the backend object`);
+  assert.match(contents, /backend\.forApp\(\)|backend: backend|backend,|backend\s*\n\s*\}/, `${path} should teach either backend.forApp() or direct backend object setup`);
   assert.doesNotMatch(contents, /createApp\("com\.acme\.expenses", (appFunctions|expenseFunctions), \{[\s\S]{0,80}?backend/, `${path} should not repeat app id when a backend object can provide it`);
   assert.match(contents, /\.\s*connect\(\)/, `${path} should teach no-argument connect after backend setup`);
   assert.doesNotMatch(contents, /backend: backend\.appSettings\(\)/, `${path} should not teach appSettings as the beginner handoff`);

@@ -400,7 +400,15 @@ test("backend helper starts HTTP, OpenAPI, and inspector endpoints from one func
     assert.equal(backend.advanced.urls.http, backend.apiUrl);
     assert.match(backend.advanced.copyAppConfig(), new RegExp(backend.connection.appId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
     assert.deepEqual(backend.client(), backend.connection);
+    assert.deepEqual(backend.forApp(), backend.connection);
     assert.deepEqual(backend.client("com.example.client", "Client App"), {
+      appId: "com.example.client",
+      appName: "Client App",
+      connectionUrl: "ws://localhost:18987",
+      authToken: "dev-token",
+      version: undefined
+    });
+    assert.deepEqual(backend.forApp("com.example.client", "Client App"), {
       appId: "com.example.client",
       appName: "Client App",
       connectionUrl: "ws://localhost:18987",
@@ -617,6 +625,48 @@ test("app package connects to a backend object without connection URL ceremony",
       assert.deepEqual(await backend.functions.expense.create({ merchant: "Coffee" }), {
         id: "EXP-BACKEND",
         merchant: "Coffee"
+      });
+    } finally {
+      connection.disconnect();
+    }
+  } finally {
+    await backend.stop();
+  }
+});
+
+test("app package accepts backend.forApp() as the clean explicit handoff", async () => {
+  const backend = await startMobigent("com.example.forapp", "For App", {
+    wsPort: 19031,
+    httpPort: 19032,
+    silent: true
+  });
+  const app = createApp(
+    {
+      expense: {
+        create: write(async (input) => ({ id: "EXP-FORAPP", ...input }), {
+          confirm: true
+        })
+      }
+    },
+    {
+      backend: backend.forApp(),
+      createSocket: createNodeSocket,
+      confirm: async () => true
+    }
+  );
+
+  try {
+    assert.equal(app.options.appId, "com.example.forapp");
+    assert.equal(app.options.appName, "For App");
+    assert.equal(app.options.gatewayUrl, "ws://localhost:19031");
+
+    const connection = await app.connect();
+
+    try {
+      await backend.waitForApp({ minFunctions: 1 });
+      assert.deepEqual(await backend.functions.expense.create({ merchant: "Notebook" }), {
+        id: "EXP-FORAPP",
+        merchant: "Notebook"
       });
     } finally {
       connection.disconnect();
