@@ -61,7 +61,17 @@ for (const item of publicPackages) {
 
 assert.ok(packageJsons.get("@mobigent/backend")?.bin?.["mobigent-backend"], "@mobigent/backend must ship mobigent-backend bin.");
 assert.ok(packageJsons.get("@mobigent/backend")?.bin?.["mobigent-mcp"], "@mobigent/backend must ship mobigent-mcp bin.");
-assert.ok(packageJsons.get("@mobigent/react-native")?.bin?.["mobigent-init"], "@mobigent/react-native must ship mobigent-init bin.");
+assert.ok(packageJsons.get("@mobigent/react-native")?.bin?.["mobigent-rn-init"], "@mobigent/react-native must ship explicit mobigent-rn-init bin.");
+assert.equal(
+  packageJsons.get("@mobigent/react-native")?.bin?.["mobigent-init"],
+  undefined,
+  "@mobigent/react-native must not publish the broad mobigent-init alias; normal app adoption is package-first."
+);
+assert.equal(
+  packageJsons.get("@mobigent/react-native")?.bin?.["mobigent-expo-init"],
+  undefined,
+  "@mobigent/react-native must not publish the broad mobigent-expo-init alias; Expo apps use @mobigent/app directly."
+);
 assert.equal(packageJsons.get("@mobigent/app")?.bin, undefined, "@mobigent/app should stay SDK-only and must not ship init bins.");
 assert.equal(
   Boolean(packageJsons.get("@mobigent/app")?.exports?.["./cli"]),

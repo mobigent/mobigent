@@ -450,8 +450,9 @@ for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.
 
 for (const path of ["docs/existing-react-native-app.md", "apps/docs/docs/existing-react-native-app.md"]) {
   const contents = readFileSync(path, "utf8");
-  assert.match(contents, /You do not need `npx mobigent-init`/, `${path} should answer the old init-command confusion directly`);
-  assert.match(contents, /only creates sample files for demos/, `${path} should frame mobigent-init as sample generation only`);
+  assert.match(contents, /You do not need a generator/, `${path} should answer the old init-command confusion directly`);
+  assert.match(contents, /mobigent-rn-init --feature-only/, `${path} should frame the React Native CLI as optional sample-module generation only`);
+  assert.doesNotMatch(contents, /mobigent-init/, `${path} should not preserve the broad legacy init command name`);
   assert.match(contents, /npm install @mobigent\/app[\s\S]{0,120}?npm install @mobigent\/backend/, `${path} should lead with normal package installs`);
   assert.match(contents, /appFunctions[\s\S]{0,240}?createApp\(appFunctions\)|createApp\(\{/, `${path} should teach createApp(functions)`);
   assert.match(contents, /withMobigent\(App, \{/, `${path} should teach the one-file existing-app wrapper`);

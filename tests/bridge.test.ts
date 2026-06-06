@@ -2247,7 +2247,7 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
 	    ],
 	    { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
 	    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream,
-	    "mobigent-init"
+	    "mobigent-rn-init"
 	  );
 	  assert.equal(initDryRunCode, 0);
 	  assert.equal(stderr, "");
@@ -2272,7 +2272,7 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
 	    ],
 	    { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
 	    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream,
-	    "mobigent-init"
+	    "mobigent-rn-init"
 	  );
 	  assert.equal(initBareDryRunCode, 0);
 	  assert.equal(stderr, "");

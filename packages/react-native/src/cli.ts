@@ -467,7 +467,7 @@ export function runReactNativeInitCli(
 ) {
   try {
     const normalized = normalizeMobigentCommand(argv, commandName);
-    const options = parseArgs(normalized.argv, { expo: isExpoFirstCommand(normalized.commandName) });
+    const options = parseArgs(normalized.argv);
 
     if (options.help) {
       output.write(helpText());
@@ -1632,7 +1632,7 @@ Normal app integration does not need this command:
   # createApp(functions).with(App)
 
 Add Mobigent to real apps in code. Use this CLI only for checks
-and advanced integration artifacts.
+advanced integration artifacts, or an optional sample function module.
 
 Usage:
   mobigent app --doctor --app-root .
@@ -1646,10 +1646,10 @@ For a throwaway demo, use the starter instead:
 
 Advanced artifact commands:
   mobigent app --write-manifest ./mobigent-integration.json --feature expense
-  mobigent-rn-init --validate-manifest ./mobigent-integration.json
+  mobigent app --validate-manifest ./mobigent-integration.json
   mobigent app --write-contract ./mobigent-contract.json --feature expense
-  mobigent-rn-init --validate-contract ./mobigent-contract.json
-  mobigent-rn-init --write-env ./.env.mobigent --gateway-url ws://localhost:8787
+  mobigent app --validate-contract ./mobigent-contract.json
+  mobigent app --write-env ./.env.mobigent --gateway-url ws://localhost:8787
 
 Options:
   --app-id <id>          Mobile app identifier. Default: inferred from package.json.
@@ -1685,10 +1685,6 @@ Options:
   --dry-run              Print generated files as JSON without writing.
   --force                Overwrite existing files.
 `;
-}
-
-function isExpoFirstCommand(commandName: string) {
-  return commandName === "mobigent-init" || commandName === "mobigent-expo-init";
 }
 
 function isMainModule() {

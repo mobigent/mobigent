@@ -16,7 +16,7 @@ try {
   await linkBin("mobigent-mcp", "packages/backend/dist/mcp.js");
   await linkBin("mobigent-provider", "packages/providers/dist/cli.js");
   await linkBin("mobigent", "packages/cli/dist/cli.js");
-  await linkBin("mobigent-init", "packages/react-native/dist/cli.js");
+  await linkBin("mobigent-rn-init", "packages/react-native/dist/cli.js");
 
   const createApp = await run(join(binDir, "create-mobigent-app"), ["--help"]);
   assert.match(createApp, /create-mobigent-app/);
@@ -47,10 +47,11 @@ try {
   assert.match(provider, /Claude Desktop/);
   assert.match(provider, /mobigent-mcp/);
 
-  const rn = await run(join(binDir, "mobigent-init"), ["--help"]);
+  const rn = await run(join(binDir, "mobigent-rn-init"), ["--help"]);
   assert.match(rn, /Mobigent React Native developer tools/);
   assert.match(rn, /npm install @mobigent\/app/);
   assert.match(rn, /Normal app integration does not need this command/);
+  assert.match(rn, /sample function module/);
   assert.doesNotMatch(rn, /mobigent init --feature/);
   assert.doesNotMatch(rn, /mobigent-rn-init --feature expense --out-dir src/);
 

@@ -4,9 +4,9 @@ sidebar_position: 3
 
 # Existing React Native App
 
-This is the normal Mobigent integration path. You do not need `npx mobigent-init`.
+This is the normal Mobigent integration path. You do not need a generator.
 
-That command only creates sample files for demos. In a real app, developers should write the Mobigent functions beside the app code they already have.
+Generators only create sample files for demos. In a real app, developers should write the Mobigent functions beside the app code they already have.
 
 ## Install
 
@@ -151,4 +151,4 @@ If your backend wants custom helper names, bind them once with `mobigent.use(...
 
 Use `create-mobigent-app` when you want a full runnable demo before touching your app.
 
-Use `mobigent-init` only if you want sample files copied into a project. It is not required for adoption.
+Use `mobigent-rn-init --feature-only` only if you want a sample function module copied into a project. It is not required for adoption.
