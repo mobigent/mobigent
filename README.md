@@ -49,10 +49,10 @@ The backend developer starts Mobigent like backend plumbing and calls app functi
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { appFunctions } from "./app-functions";
+import type { MyAppFunctions } from "../app/mobigent";
 
 const backend = await startMobigent();
-const app = backend.use(appFunctions);
+const app = backend.use<MyAppFunctions>();
 
 await app.expense.create({ merchant: "Coffee", amount: 8 });
 ```
@@ -146,14 +146,18 @@ npm install @mobigent/app
 Then create one Mobigent file and wire it once:
 
 ```ts
-import { createApp } from "@mobigent/app";
+import { createApp, type AppFunctions } from "@mobigent/app";
 
-export const mobigent = createApp({
+export const appFunctions = {
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
   }
-});
+} satisfies AppFunctions;
+
+export type MyAppFunctions = typeof appFunctions;
+
+export const mobigent = createApp(appFunctions);
 ```
 
 For production, prefer environment config so the app code stays the same:
@@ -205,10 +209,10 @@ Then backend code can call app functions like ordinary functions:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { appFunctions } from "./app-functions";
+import type { MyAppFunctions } from "../app/mobigent";
 
 const mobigent = await startMobigent();
-const app = mobigent.use(appFunctions);
+const app = mobigent.use<MyAppFunctions>();
 
 await app.expense.create({ merchant: "Coffee", amount: 8 });
 ```
@@ -283,14 +287,18 @@ For quick local experiments, the app SDK uses safe local defaults. For productio
 Create one Mobigent file and one app SDK object:
 
 ```ts
-import { createApp } from "@mobigent/app";
+import { createApp, type AppFunctions } from "@mobigent/app";
 
-export const mobigent = createApp({
+export const appFunctions = {
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
   }
-});
+} satisfies AppFunctions;
+
+export type MyAppFunctions = typeof appFunctions;
+
+export const mobigent = createApp(appFunctions);
 ```
 
 For production, set public app config:
@@ -378,15 +386,15 @@ That one function starts Mobigent, routes app function calls, infers a local app
 Call app-owned functions through a normal backend object. Mobigent waits for the app connection when the function is called:
 
 ```ts
-import { appFunctions } from "./app-functions";
+import type { MyAppFunctions } from "../app/mobigent";
 
-const app = mobigent.use(appFunctions);
+const app = mobigent.use<MyAppFunctions>();
 
 await app.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
 await app.expense.list();
 ```
 
-If the backend cannot import that shared object, the dynamic path still works:
+That import is type-only, so your backend gets autocomplete without loading mobile app code. If the backend cannot share that type, the dynamic path still works:
 
 ```ts
 await mobigent.functions.expense.create({ merchant: "Airport Taxi", amount: 42.25 });

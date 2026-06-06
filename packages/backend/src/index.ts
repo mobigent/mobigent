@@ -263,6 +263,7 @@ export type MobigentBackendFeatureFunctions = {
   [functionName: string]: MobigentBackendFunction;
 };
 export type MobigentBackendUse = {
+  <const T extends MobigentBackendAppFunctionContract>(): MobigentBackendAppFunctions<T>;
   (namespace: string): MobigentBackendFeatureFunctions;
   <const T extends readonly string[]>(namespace: string, functions: T): MobigentBackendNamedFunctionMap<T>;
   <const T extends Record<string, string>>(namespace: string, functions: T): MobigentBackendFunctionMap<T>;
@@ -436,15 +437,20 @@ export async function startMobigentBackend(
   const appFunction = (name: string): MobigentBackendFunction =>
     (input: unknown = {}, callOptions?: MobigentBackendCallOptions) => invoke(name, input, callOptions);
   const appFeature = (namespace: string): MobigentBackendFeatureFunctions => createFeatureFunctionProxy(namespace, appFunction);
+  function appFunctions<const T extends MobigentBackendAppFunctionContract>(): MobigentBackendAppFunctions<T>;
   function appFunctions(namespace: string): MobigentBackendFeatureFunctions;
   function appFunctions<const T extends readonly string[]>(namespace: string, functions: T): MobigentBackendNamedFunctionMap<T>;
   function appFunctions<const T extends Record<string, string>>(namespace: string, functions: T): MobigentBackendFunctionMap<T>;
   function appFunctions<const T extends MobigentBackendAppFunctionContract>(functions: T): MobigentBackendAppFunctions<T>;
   function appFunctions<const T extends Record<string, string>>(functions: T): MobigentBackendFunctionMap<T>;
   function appFunctions<const T extends Record<string, string>, const U extends readonly string[]>(
-    functionsOrNamespace: T | MobigentBackendAppFunctionContract | string,
+    functionsOrNamespace?: T | MobigentBackendAppFunctionContract | string,
     namespaceFunctions?: T | U
   ): MobigentBackendFunctionMap<T> | MobigentBackendAppFunctions<MobigentBackendAppFunctionContract> | MobigentBackendNamedFunctionMap<U> | MobigentBackendFeatureFunctions {
+    if (!functionsOrNamespace) {
+      return createBackendAppFunctionContractProxy(appFeature);
+    }
+
     if (typeof functionsOrNamespace === "string") {
       if (!namespaceFunctions) {
         return appFeature(functionsOrNamespace);
@@ -631,6 +637,29 @@ function createBackendAppFunctionContractBindings(
         ])
       )
     ])
+  ) as MobigentBackendAppFunctions<MobigentBackendAppFunctionContract>;
+}
+
+function createBackendAppFunctionContractProxy(
+  appFeature: (namespace: string) => MobigentBackendFeatureFunctions
+): MobigentBackendAppFunctions<MobigentBackendAppFunctionContract> {
+  const cache = new Map<string, MobigentBackendFeatureFunctions>();
+
+  return new Proxy(
+    {},
+    {
+      get(_target, property) {
+        if (typeof property !== "string" || property === "then") {
+          return undefined;
+        }
+
+        if (!cache.has(property)) {
+          cache.set(property, appFeature(property));
+        }
+
+        return cache.get(property);
+      }
+    }
   ) as MobigentBackendAppFunctions<MobigentBackendAppFunctionContract>;
 }
 

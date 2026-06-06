@@ -20,10 +20,10 @@ npm exec --yes \
 
 ```ts
 import { startMobigent, type Backend } from "@mobigent/backend";
-import { appFunctions } from "./app-functions";
+import type { MyAppFunctions } from "../app/mobigent";
 
 const mobigent: Backend = await startMobigent();
-const app = mobigent.use(appFunctions);
+const app = mobigent.use<MyAppFunctions>();
 
 await app.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
 await app.expense.list();
@@ -31,7 +31,7 @@ await app.expense.list();
 
 That is the main backend API.
 
-Mobigent handles waiting for the app connection and routing calls to the matching app functions. The shared `appFunctions` object is only a TypeScript-friendly shape; the backend still calls the real function inside the connected app.
+Mobigent handles waiting for the app connection and routing calls to the matching app functions. The backend import is type-only, so Node never loads React Native app code; the SDK still calls the real function inside the connected app.
 
 For production, keep `startMobigent()` and set backend config:
 
@@ -108,7 +108,7 @@ The public TypeScript surface uses backend names:
 - `Backend` for the object returned by `startMobigent(...)`
 - `BackendOptions` for startup options
 - `BackendStartOptions` for `startMobigent(appId, options)`
-- `backend.use(appFunctions)` for typed backend calls that mirror the app's plain function object
+- `backend.use<MyAppFunctions>()` for typed backend calls that mirror the app's plain function object without importing app runtime code
 - `backend.functions` for dynamic app function calls when the backend cannot import the function shape
 - `backend.forApp()` for explicit app setup values when you cannot pass the backend object directly
 - `backend.connection` and `backend.appSettings()` for compatibility when code needs explicit app setup values

@@ -34,14 +34,18 @@ npm exec --yes \
 Create a Mobigent file yourself. There is no app-side init command in the normal path:
 
 ```ts
-import { createApp } from "@mobigent/app";
+import { createApp, type AppFunctions } from "@mobigent/app";
 
-export const mobigent = createApp({
+export const appFunctions = {
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
   }
-});
+} satisfies AppFunctions;
+
+export type MyAppFunctions = typeof appFunctions;
+
+export const mobigent = createApp(appFunctions);
 ```
 
 For production, keep the same app code and set public app config:
@@ -125,18 +129,18 @@ The backend handles the connection, function routing, inspector, agent endpoints
 
 Prefer generated sample files? Use the starter. Starter generation is a demo shortcut, not required integration.
 
-Call app functions from the backend SDK object. If you can import the same function shape the app exposes, the backend gets typed calls with the same namespaces:
+Call app functions from the backend SDK object. If you can import the app function type, the backend gets typed calls with the same namespaces without loading mobile code:
 
 ```ts
-import { appFunctions } from "./app-functions";
+import type { MyAppFunctions } from "../app/mobigent";
 
-const app = mobigent.use(appFunctions);
+const app = mobigent.use<MyAppFunctions>();
 
 await app.expense.create({ merchant: "Coffee", amount: 8 });
 await app.expense.list();
 ```
 
-Mobigent waits for the app connection when a function is called. If the backend cannot import that shared object, `mobigent.functions.expense.create(...)` still works dynamically. If you want backend-specific helper names, bind aliases once:
+Mobigent waits for the app connection when a function is called. If the backend cannot share that type, `mobigent.functions.expense.create(...)` still works dynamically. If you want backend-specific helper names, bind aliases once:
 
 ```ts
 const expenses = mobigent.use("expense", {

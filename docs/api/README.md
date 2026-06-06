@@ -10,14 +10,18 @@ Lower-level packages exist inside the repo, but most developers should not need 
 ## App API
 
 ```ts
-import { createApp } from "@mobigent/app";
+import { createApp, type AppFunctions } from "@mobigent/app";
 
-export const mobigent = createApp({
+export const appFunctions = {
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
   }
-});
+} satisfies AppFunctions;
+
+export type MyAppFunctions = typeof appFunctions;
+
+export const mobigent = createApp(appFunctions);
 ```
 
 ```tsx
@@ -70,10 +74,10 @@ const mobigent = createApp(expenseFunctions, {
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { appFunctions } from "./app-functions";
+import type { MyAppFunctions } from "../app/mobigent";
 
 const mobigent = await startMobigent();
-const app = mobigent.use(appFunctions);
+const app = mobigent.use<MyAppFunctions>();
 
 await app.expense.create({ merchant: "Coffee", amount: 8 });
 
@@ -102,7 +106,7 @@ The common backend object includes:
 - `connect.chatgpt()`, `connect.claude()`, and `connect.openai()` for common agent setup
 - `setup.chatgpt()`, `setup.claude()`, and `setup.openai()` as compatibility aliases
 - `chatgpt()`, `claude()`, and `openai()` as direct aliases
-- `use(appFunctions)` to create typed backend calls from the same plain function object the app exposes
+- `use<MyAppFunctions>()` to create typed backend calls from the same plain function shape the app exposes without importing app runtime code
 - `app.expense.create(input)` or `app.expense.list()` to call app functions with the clean package API
 - `use("expense", { createExpense: "create" })` to bind backend-friendly helper names
 - `use("expense").create(input)` or `use("expense", ["create", "list"])` to bind app function groups

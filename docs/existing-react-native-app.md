@@ -28,14 +28,18 @@ npm exec --yes \
 Create one small Mobigent file:
 
 ```ts
-import { createApp } from "@mobigent/app";
+import { createApp, type AppFunctions } from "@mobigent/app";
 
-export const mobigent = createApp({
+export const appFunctions = {
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
   }
-});
+} satisfies AppFunctions;
+
+export type MyAppFunctions = typeof appFunctions;
+
+export const mobigent = createApp(appFunctions);
 ```
 
 Wrap your existing app once:
@@ -100,12 +104,12 @@ EXPO_PUBLIC_MOBIGENT_APP=com.acme.expenses
 EXPO_PUBLIC_MOBIGENT_URL=wss://your-backend.example.com
 ```
 
-Call app-owned functions from backend code. If the backend can import the same function shape your app exposes, use it for typed calls:
+Call app-owned functions from backend code. If the backend can import the app function type, use it for typed calls without loading React Native code:
 
 ```ts
-import { appFunctions } from "./app-functions";
+import type { MyAppFunctions } from "../app/mobigent";
 
-const app = mobigent.use(appFunctions);
+const app = mobigent.use<MyAppFunctions>();
 
 await app.expense.create({
   merchant: "Coffee",
@@ -115,7 +119,7 @@ await app.expense.create({
 await app.expense.list();
 ```
 
-If the backend cannot import that shared object, `mobigent.functions.expense.create(...)` and `mobigent.app.expense.create(...)` still work dynamically.
+If the backend cannot share that type, `mobigent.functions.expense.create(...)` and `mobigent.app.expense.create(...)` still work dynamically.
 
 If your backend wants custom helper names, bind them once with `mobigent.use(...)`. Most apps do not need that on day one.
 

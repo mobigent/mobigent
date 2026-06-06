@@ -27,14 +27,18 @@ For a first local run, you do not need an app id. Production apps can keep the s
 ## 2. Expose App Functions
 
 ```ts
-import { createApp } from "@mobigent/app";
+import { createApp, type AppFunctions } from "@mobigent/app";
 
-export const mobigent = createApp({
+export const appFunctions = {
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
   }
-});
+} satisfies AppFunctions;
+
+export type MyAppFunctions = typeof appFunctions;
+
+export const mobigent = createApp(appFunctions);
 ```
 
 This exposes:
@@ -120,17 +124,17 @@ const mobigent = await startMobigent();
 
 Backend function calls wait for the app connection automatically. For production, set `MOBIGENT_APP=com.acme.expenses` on the backend.
 
-Your backend can call app namespaces directly. If you can import the same function shape the app exposes, use it for typed backend calls:
+Your backend can call app namespaces directly. If you can import the app function type, use it for typed backend calls without loading React Native code:
 
 ```ts
-import { appFunctions } from "./app-functions";
+import type { MyAppFunctions } from "../app/mobigent";
 
-const app = mobigent.use(appFunctions);
+const app = mobigent.use<MyAppFunctions>();
 
 await app.expense.create({ merchant: "Coffee", amount: 8 });
 ```
 
-If the backend cannot import that shared object, `mobigent.functions.expense.create(...)` still works dynamically. Or bind backend-friendly helper names once:
+If the backend cannot share that type, `mobigent.functions.expense.create(...)` still works dynamically. Or bind backend-friendly helper names once:
 
 ```ts
 const expenses = mobigent.use("expense", {

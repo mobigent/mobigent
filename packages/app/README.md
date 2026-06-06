@@ -21,12 +21,14 @@ Then expose normal app functions and create one app SDK object:
 ```ts
 import { createApp, type AppFunctions } from "@mobigent/app";
 
-const appFunctions: AppFunctions = {
+export const appFunctions = {
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
   }
-};
+} satisfies AppFunctions;
+
+export type MyAppFunctions = typeof appFunctions;
 
 export const mobigent = createApp(appFunctions);
 ```

@@ -575,6 +575,7 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
       };
       const typedApp: BackendAppFunctions<typeof appFunctions> = backend.use(appFunctions);
       const typedFromFunctionsAccessor = backend.functions(appFunctions);
+      const typeOnlyApp = backend.use<typeof appFunctions>();
       const contractShape: BackendAppFunctionContract = appFunctions;
       assert.equal(typeof contractShape.expense.create, "function");
       const typedResult: { id: string; merchant: string } = await typedApp.expense.create({ merchant: "Lunch" });
@@ -585,6 +586,10 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
       assert.deepEqual(await typedFromFunctionsAccessor.expense.create({ merchant: "Stationery" }), {
         id: "EXP-1",
         merchant: "Stationery"
+      });
+      assert.deepEqual(await typeOnlyApp.expense.create({ merchant: "Bookstore" }), {
+        id: "EXP-1",
+        merchant: "Bookstore"
       });
 
       const app = backend.feature("expense");
@@ -605,6 +610,7 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
           { id: "EXP-1", merchant: "Grocer" },
           { id: "EXP-1", merchant: "Lunch" },
           { id: "EXP-1", merchant: "Stationery" },
+          { id: "EXP-1", merchant: "Bookstore" },
           { id: "EXP-1", merchant: "Bakery" }
         ]
       });

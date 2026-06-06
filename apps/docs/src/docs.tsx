@@ -28,13 +28,15 @@ npm exec --yes \\
   -- mobigent-install backend`;
 
 const existingAppRecipeCode = `// App
-export default withMobigent(App, {
+export const appFunctions = {
   expense: { list, create }
-});
+};
+export type MyAppFunctions = typeof appFunctions;
+export default withMobigent(App, appFunctions);
 
 // Backend
 const mobigent = await startMobigent();
-const app = mobigent.use(appFunctions);
+const app = mobigent.use<MyAppFunctions>();
 
 await app.expense.create(input);`;
 
@@ -72,16 +74,20 @@ npm run dev
 npm run doctor
 npm run agent:local`;
 
-const moduleCode = `import { createApp } from "@mobigent/app";
+const moduleCode = `import { createApp, type AppFunctions } from "@mobigent/app";
 
-export const mobigent = createApp({
+export const appFunctions = {
   expense: {
     list: async () => ({
       items: await listExpenses()
     }),
     create: async (input) => createExpense(input)
   }
-});`;
+} satisfies AppFunctions;
+
+export type MyAppFunctions = typeof appFunctions;
+
+export const mobigent = createApp(appFunctions);`;
 
 const optionalMetadataCode = `import { write } from "@mobigent/app";
 
@@ -109,10 +115,10 @@ export default withMobigent(App, {
 });`;
 
 const backendCode = `import { startMobigent } from "@mobigent/backend";
-import { appFunctions } from "./app-functions";
+import type { MyAppFunctions } from "../app/mobigent";
 
 const mobigent = await startMobigent();
-const app = mobigent.use(appFunctions);
+const app = mobigent.use<MyAppFunctions>();
 
 await app.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
 await app.expense.list();
@@ -121,7 +127,7 @@ console.log(mobigent.inspectorUrl);`;
 
 const backendShortCode = `const mobigent = await startMobigent();`;
 
-const backendUseCode = `const app = mobigent.use(appFunctions);
+const backendUseCode = `const app = mobigent.use<MyAppFunctions>();
 
 await app.expense.create({
   merchant: "Airport Taxi",
@@ -305,7 +311,7 @@ const firstRunChecks = [
   ["Install", "Add the app package to React Native and the backend package to your server."],
   ["Expose", "`createApp(functions)` turns real app functions into typed agent-callable APIs."],
   ["Connect", "Use local defaults first; set env config for production instead of threading ids through code."],
-  ["Call", "`mobigent.use(appFunctions)` gives the backend typed calls to app-owned functions."],
+  ["Call", "`mobigent.use<MyAppFunctions>()` gives the backend typed calls without loading mobile code."],
   ["Approve", "Risky actions pause inside the app before handlers run."],
   ["Audit", "Calls, approvals, denials, errors, and events appear in `/audit`."]
 ];
@@ -358,7 +364,7 @@ const nativeApis = [
 const backendApis = [
   ["startMobigent()", "Starts the backend service with local defaults."],
   ["waitForApp()", "Optional health gate when startup should wait for a connected app."],
-  ["use(appFunctions)", "Creates typed backend calls from the same plain function shape the app exposes."],
+  ["use<MyAppFunctions>()", "Creates typed backend calls from the same plain function shape the app exposes."],
   ["functions", "Dynamic fallback for app function calls when the backend cannot import the shared shape."],
   ["use()", "Also supports helper aliasing when backend code wants different function names."],
   ["call()", "Makes a quick one-off app function call by name."],

@@ -36,14 +36,18 @@ npm exec --yes \
 Create one app SDK object and expose the functions agents may call:
 
 ```ts
-import { createApp } from "@mobigent/app";
+import { createApp, type AppFunctions } from "@mobigent/app";
 
-export const mobigent = createApp({
+export const appFunctions = {
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
   }
-});
+} satisfies AppFunctions;
+
+export type MyAppFunctions = typeof appFunctions;
+
+export const mobigent = createApp(appFunctions);
 ```
 
 Plain functions are the beginner path. Mobigent treats `list`, `get`, `read`, `fetch`, `search`, and `load` as reads. Other plain functions are confirmed writes by default.
@@ -105,10 +109,10 @@ npm exec --yes \
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { appFunctions } from "./app-functions";
+import type { MyAppFunctions } from "../app/mobigent";
 
 const mobigent = await startMobigent();
-const app = mobigent.use(appFunctions);
+const app = mobigent.use<MyAppFunctions>();
 
 await app.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
 await app.expense.list();
@@ -129,7 +133,7 @@ EXPO_PUBLIC_MOBIGENT_URL=wss://your-backend.example.com
 
 Prefer generated sample files? Use the starter. Starter generation is a demo shortcut, not required integration.
 
-If the backend cannot import that shared function shape, `mobigent.functions.expense.create(...)` still works dynamically. If your backend wants its own helper names, bind aliases once:
+That import is type-only, so your backend gets autocomplete without loading React Native code. If the backend cannot share that function shape, `mobigent.functions.expense.create(...)` still works dynamically. If your backend wants its own helper names, bind aliases once:
 
 ```ts
 const expenses = mobigent.use("expense", {

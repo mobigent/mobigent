@@ -12,14 +12,18 @@ Most integrations use two packages:
 ## React Native
 
 ```ts
-import { createApp } from "@mobigent/app";
+import { createApp, type AppFunctions } from "@mobigent/app";
 
-export const mobigent = createApp({
+export const appFunctions = {
   expense: {
     list: async () => ({ items: await listExpenses() }),
     create: async (input) => createExpense(input)
   }
-});
+} satisfies AppFunctions;
+
+export type MyAppFunctions = typeof appFunctions;
+
+export const mobigent = createApp(appFunctions);
 ```
 
 ```tsx
@@ -103,10 +107,10 @@ Advanced app helpers are still available from `@mobigent/app/app` when you need 
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
-import { appFunctions } from "./app-functions";
+import type { MyAppFunctions } from "../app/mobigent";
 
 const mobigent = await startMobigent();
-const app = mobigent.use(appFunctions);
+const app = mobigent.use<MyAppFunctions>();
 
 await app.expense.create({ merchant: "Coffee", amount: 8 });
 
@@ -137,7 +141,7 @@ The backend object exposes:
 - `listFunctions()`
 - `waitForApp()` to wait until an app is connected and callable
 - `app.expense.create(input)` or `app.expense.list()` to call app functions with the clean package API
-- `use(appFunctions)` to create typed backend calls from the same plain function object the app exposes
+- `use<MyAppFunctions>()` to create typed backend calls from the same plain function shape the app exposes without importing app runtime code
 - `use("expense").create(input)`, `use("expense", ["create", "list"])`, or `use("expense", { createExpense: "create" })` to bind app functions in backend code
 - `feature("expense")` when you need the older grouped API shape
 - `functions.expense.create(input)` for backward compatibility with the older object-style backend SDK shape
