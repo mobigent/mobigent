@@ -13,6 +13,8 @@ import {
 import type {
   AppFunction,
   AppFunctionInfo,
+  BackendAppFunctions,
+  BackendAppFunctionContract,
   AppSession,
   Backend,
   BackendConnection,
@@ -76,6 +78,8 @@ type PublicBackendTypeAliasesCompile = [
   BackendStatus,
   AppFunction,
   AppFunctionInfo,
+  BackendAppFunctionContract,
+  BackendAppFunctions,
   AppSession,
   CallOptions,
   CallResult
@@ -563,6 +567,26 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
         merchant: "Grocer"
       });
 
+      const appFunctions = {
+        expense: {
+          create: async (input: { merchant: string }) => ({ id: "EXP-1", merchant: input.merchant }),
+          list: async () => ({ items: [] as Array<{ id: string; merchant: string }> })
+        }
+      };
+      const typedApp: BackendAppFunctions<typeof appFunctions> = backend.use(appFunctions);
+      const typedFromFunctionsAccessor = backend.functions(appFunctions);
+      const contractShape: BackendAppFunctionContract = appFunctions;
+      assert.equal(typeof contractShape.expense.create, "function");
+      const typedResult: { id: string; merchant: string } = await typedApp.expense.create({ merchant: "Lunch" });
+      assert.deepEqual(typedResult, {
+        id: "EXP-1",
+        merchant: "Lunch"
+      });
+      assert.deepEqual(await typedFromFunctionsAccessor.expense.create({ merchant: "Stationery" }), {
+        id: "EXP-1",
+        merchant: "Stationery"
+      });
+
       const app = backend.feature("expense");
 
       assert.deepEqual(await app.create({ merchant: "Bakery" }), {
@@ -579,6 +603,8 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
           { id: "EXP-1", merchant: "Deli" },
           { id: "EXP-1", merchant: "Market" },
           { id: "EXP-1", merchant: "Grocer" },
+          { id: "EXP-1", merchant: "Lunch" },
+          { id: "EXP-1", merchant: "Stationery" },
           { id: "EXP-1", merchant: "Bakery" }
         ]
       });

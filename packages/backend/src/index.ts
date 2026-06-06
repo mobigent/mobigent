@@ -266,10 +266,12 @@ export type MobigentBackendUse = {
   (namespace: string): MobigentBackendFeatureFunctions;
   <const T extends readonly string[]>(namespace: string, functions: T): MobigentBackendNamedFunctionMap<T>;
   <const T extends Record<string, string>>(namespace: string, functions: T): MobigentBackendFunctionMap<T>;
+  <const T extends MobigentBackendAppFunctionContract>(functions: T): MobigentBackendAppFunctions<T>;
   <const T extends Record<string, string>>(functions: T): MobigentBackendFunctionMap<T>;
 };
 export type MobigentBackendFunctions = {
   (): MobigentFunctionInfo[];
+  <const T extends MobigentBackendAppFunctionContract>(functions: T): MobigentBackendAppFunctions<T>;
   <const T extends Record<string, string>>(functions: T): MobigentBackendFunctionMap<T>;
   [namespace: string]: MobigentBackendFeatureFunctions;
 };
@@ -290,6 +292,26 @@ export type MobigentBackendFunctionMap<T extends Record<string, string>> = {
 export type MobigentBackendNamedFunctionMap<T extends readonly string[]> = {
   [K in T[number]]: MobigentBackendFunction;
 };
+export type MobigentBackendAppFunctionContract = Record<string, Record<string, unknown>>;
+export type MobigentBackendAppFunctions<T extends MobigentBackendAppFunctionContract> = {
+  [Namespace in keyof T]: {
+    [FunctionName in keyof T[Namespace]]: MobigentBackendFunctionFor<T[Namespace][FunctionName]>;
+  };
+};
+export type MobigentBackendFunctionFor<T> = T extends { kind: "action"; handler: infer Handler }
+  ? MobigentBackendCallableFor<Handler>
+  : T extends { kind: "resource"; read: infer Reader }
+    ? MobigentBackendCallableFor<Reader>
+    : T extends { kind: "component"; focus: infer Focus }
+      ? MobigentBackendCallableFor<Focus>
+      : MobigentBackendCallableFor<T>;
+export type MobigentBackendCallableFor<T> = T extends (...args: infer Args) => infer Result
+  ? Args extends []
+    ? (input?: undefined, options?: MobigentBackendCallOptions) => Promise<Awaited<Result>>
+    : undefined extends Args[0]
+      ? (input?: Args[0], options?: MobigentBackendCallOptions) => Promise<Awaited<Result>>
+      : (input: Args[0], options?: MobigentBackendCallOptions) => Promise<Awaited<Result>>
+  : MobigentBackendFunction;
 
 export type MobigentBackendWithApp = MobigentBackend & {
   connection: MobigentBackendClient;
@@ -305,6 +327,8 @@ export type BackendStartOptions = MobigentBackendStartOptions;
 export type BackendPairing = MobigentBackendPairing;
 export type BackendConnection = MobigentBackendClient;
 export type BackendStatus = MobigentBackendStatus;
+export type BackendAppFunctionContract = MobigentBackendAppFunctionContract;
+export type BackendAppFunctions<T extends BackendAppFunctionContract> = MobigentBackendAppFunctions<T>;
 export type AppFunction = MobigentBackendFunction;
 export type AppFunctionInfo = MobigentFunctionInfo;
 export type AppSession = MobigentAppSession;
@@ -415,11 +439,12 @@ export async function startMobigentBackend(
   function appFunctions(namespace: string): MobigentBackendFeatureFunctions;
   function appFunctions<const T extends readonly string[]>(namespace: string, functions: T): MobigentBackendNamedFunctionMap<T>;
   function appFunctions<const T extends Record<string, string>>(namespace: string, functions: T): MobigentBackendFunctionMap<T>;
+  function appFunctions<const T extends MobigentBackendAppFunctionContract>(functions: T): MobigentBackendAppFunctions<T>;
   function appFunctions<const T extends Record<string, string>>(functions: T): MobigentBackendFunctionMap<T>;
   function appFunctions<const T extends Record<string, string>, const U extends readonly string[]>(
-    functionsOrNamespace: T | string,
+    functionsOrNamespace: T | MobigentBackendAppFunctionContract | string,
     namespaceFunctions?: T | U
-  ): MobigentBackendFunctionMap<T> | MobigentBackendNamedFunctionMap<U> | MobigentBackendFeatureFunctions {
+  ): MobigentBackendFunctionMap<T> | MobigentBackendAppFunctions<MobigentBackendAppFunctionContract> | MobigentBackendNamedFunctionMap<U> | MobigentBackendFeatureFunctions {
     if (typeof functionsOrNamespace === "string") {
       if (!namespaceFunctions) {
         return appFeature(functionsOrNamespace);
@@ -431,6 +456,10 @@ export async function startMobigentBackend(
     }
 
     const functions = functionsOrNamespace;
+    if (!isBackendAliasMap(functions)) {
+      return createBackendAppFunctionContractBindings(functions, appFunction);
+    }
+
     return createBackendFunctionBindings(undefined, functions, appFunction) as MobigentBackendFunctionMap<T>;
   }
   const functions = createBackendFunctionsAccessor(() => gateway.listTools(), appFeature, appFunction);
@@ -588,6 +617,32 @@ function createBackendFunctionBindings<const T extends Record<string, string> | 
   );
 }
 
+function createBackendAppFunctionContractBindings(
+  functions: MobigentBackendAppFunctionContract,
+  appFunction: (name: string) => MobigentBackendFunction
+): MobigentBackendAppFunctions<MobigentBackendAppFunctionContract> {
+  return Object.fromEntries(
+    Object.entries(functions).map(([namespace, namespaceFunctions]) => [
+      namespace,
+      Object.fromEntries(
+        Object.keys(namespaceFunctions).map((functionName) => [
+          functionName,
+          appFunction(joinBackendFunctionName(namespace, functionName))
+        ])
+      )
+    ])
+  ) as MobigentBackendAppFunctions<MobigentBackendAppFunctionContract>;
+}
+
+function isBackendAliasMap(value: unknown): value is Record<string, string> {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      !Array.isArray(value) &&
+      Object.values(value).every((entry) => typeof entry === "string")
+  );
+}
+
 function joinBackendFunctionName(namespace: string | undefined, functionName: string) {
   return namespace ? `${namespace}.${functionName}` : functionName;
 }
@@ -615,9 +670,13 @@ function createBackendFunctionsAccessor(
   appFunction: (name: string) => MobigentBackendFunction
 ): MobigentBackendFunctions {
   const cache = new Map<string, MobigentBackendFeatureFunctions>();
-  const callable = ((aliases?: Record<string, string>) => {
+  const callable = ((aliases?: Record<string, string> | MobigentBackendAppFunctionContract) => {
     if (!aliases) {
       return list();
+    }
+
+    if (!isBackendAliasMap(aliases)) {
+      return createBackendAppFunctionContractBindings(aliases, appFunction);
     }
 
     const entries = Object.entries(aliases).map(([alias, functionName]) => [alias, appFunction(functionName)]);

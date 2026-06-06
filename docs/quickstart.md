@@ -121,14 +121,18 @@ The backend handles the connection, function routing, inspector, agent endpoints
 
 Prefer generated sample files? Use the starter. Starter generation is a demo shortcut, not required integration.
 
-Call app functions from the backend SDK object. Mobigent waits for the app connection when a function is called:
+Call app functions from the backend SDK object. If you can import the same function shape the app exposes, the backend gets typed calls with the same namespaces:
 
 ```ts
-await mobigent.functions.expense.create({ merchant: "Coffee", amount: 8 });
-await mobigent.functions.expense.list();
+import { appFunctions } from "./app-functions";
+
+const app = mobigent.use(appFunctions);
+
+await app.expense.create({ merchant: "Coffee", amount: 8 });
+await app.expense.list();
 ```
 
-If you want backend-specific helper names, bind aliases once:
+Mobigent waits for the app connection when a function is called. If the backend cannot import that shared object, `mobigent.functions.expense.create(...)` still works dynamically. If you want backend-specific helper names, bind aliases once:
 
 ```ts
 const expenses = mobigent.use("expense", {

@@ -70,10 +70,12 @@ const mobigent = createApp(expenseFunctions, {
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
+import { appFunctions } from "./app-functions";
 
 const mobigent = await startMobigent();
+const app = mobigent.use(appFunctions);
 
-await mobigent.functions.expense.create({ merchant: "Coffee", amount: 8 });
+await app.expense.create({ merchant: "Coffee", amount: 8 });
 
 console.log(mobigent.inspectorUrl);
 console.log(mobigent.openApiUrl);
@@ -100,6 +102,7 @@ The common backend object includes:
 - `connect.chatgpt()`, `connect.claude()`, and `connect.openai()` for common agent setup
 - `setup.chatgpt()`, `setup.claude()`, and `setup.openai()` as compatibility aliases
 - `chatgpt()`, `claude()`, and `openai()` as direct aliases
+- `use(appFunctions)` to create typed backend calls from the same plain function object the app exposes
 - `app.expense.create(input)` or `app.expense.list()` to call app functions with the clean package API
 - `use("expense", { createExpense: "create" })` to bind backend-friendly helper names
 - `use("expense").create(input)` or `use("expense", ["create", "list"])` to bind app function groups

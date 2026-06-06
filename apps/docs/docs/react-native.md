@@ -120,13 +120,17 @@ const mobigent = await startMobigent();
 
 Backend function calls wait for the app connection automatically. For production, set `MOBIGENT_APP=com.acme.expenses` on the backend.
 
-Your backend can call app namespaces directly:
+Your backend can call app namespaces directly. If you can import the same function shape the app exposes, use it for typed backend calls:
 
 ```ts
-await mobigent.functions.expense.create({ merchant: "Coffee", amount: 8 });
+import { appFunctions } from "./app-functions";
+
+const app = mobigent.use(appFunctions);
+
+await app.expense.create({ merchant: "Coffee", amount: 8 });
 ```
 
-Or bind backend-friendly helper names once:
+If the backend cannot import that shared object, `mobigent.functions.expense.create(...)` still works dynamically. Or bind backend-friendly helper names once:
 
 ```ts
 const expenses = mobigent.use("expense", {

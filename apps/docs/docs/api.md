@@ -103,10 +103,12 @@ Advanced app helpers are still available from `@mobigent/app/app` when you need 
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
+import { appFunctions } from "./app-functions";
 
 const mobigent = await startMobigent();
+const app = mobigent.use(appFunctions);
 
-await mobigent.functions.expense.create({ merchant: "Coffee", amount: 8 });
+await app.expense.create({ merchant: "Coffee", amount: 8 });
 
 const expenses = mobigent.use("expense", {
   createExpense: "create",
@@ -135,6 +137,7 @@ The backend object exposes:
 - `listFunctions()`
 - `waitForApp()` to wait until an app is connected and callable
 - `app.expense.create(input)` or `app.expense.list()` to call app functions with the clean package API
+- `use(appFunctions)` to create typed backend calls from the same plain function object the app exposes
 - `use("expense").create(input)`, `use("expense", ["create", "list"])`, or `use("expense", { createExpense: "create" })` to bind app functions in backend code
 - `feature("expense")` when you need the older grouped API shape
 - `functions.expense.create(input)` for backward compatibility with the older object-style backend SDK shape

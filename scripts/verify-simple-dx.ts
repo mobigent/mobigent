@@ -501,6 +501,7 @@ for (const path of ["packages/app/README.md", "packages/react-native/README.md"]
   assert.match(backendReadme, /backend\.connection.*backend\.appSettings\(\)/, "packages/backend/README.md should keep explicit app setup values as compatibility detail");
   assert.match(backendReadme, /BackendPairing.*backend\.pairing\(\)/, "packages/backend/README.md should keep BackendPairing for backend.pairing() compatibility");
   assert.match(backendReadme, /startMobigent\(\)/);
+  assert.match(backendReadme, /mobigent\.use\(appFunctions\)/, "packages/backend/README.md should teach typed backend calls from the shared app function shape");
   assert.match(backendReadme, /mobigent\.app\.expense\.create/);
   assert.match(backendReadme, /mobigent\.use\("expense", \{\s+createExpense: "create"/);
   assert.doesNotMatch(
@@ -533,7 +534,7 @@ for (const path of [
     /mobigent-core-0\.1\.15\.tgz/,
     `${path} should not expose internal package tarballs in beginner docs`
   );
-  assert.match(contents, /mobigent\.functions\.expense\.create|backend\.functions\.expense\.create/, `${path} should teach the clean backend function path`);
+  assert.match(contents, /mobigent\.use\(appFunctions\)|backend\.use\(appFunctions\)/, `${path} should teach the typed shared-shape backend function path`);
   assert.doesNotMatch(
     contents,
     /backend\.defaultApp|connectionUrl: backend|mobigent\.app\.json|appDir\b|npx mobigent-backend|mobigent-backend --app/,
@@ -614,7 +615,7 @@ for (const path of [
   "apps/docs/src/docs.tsx"
 ]) {
   const contents = readFileSync(path, "utf8");
-  assert.match(contents, /mobigent\.functions\.expense/, `${path} should teach the direct backend functions surface`);
+  assert.match(contents, /mobigent\.use\(appFunctions\)|app\.expense\.create/, `${path} should teach the typed shared-shape backend functions surface`);
   assert.match(
     contents,
     /withMobigent\(App, \{/,

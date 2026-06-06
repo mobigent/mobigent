@@ -100,18 +100,22 @@ EXPO_PUBLIC_MOBIGENT_APP=com.acme.expenses
 EXPO_PUBLIC_MOBIGENT_URL=wss://your-backend.example.com
 ```
 
-Call app-owned functions from backend code:
+Call app-owned functions from backend code. If the backend can import the same function shape your app exposes, use it for typed calls:
 
 ```ts
-await mobigent.functions.expense.create({
+import { appFunctions } from "./app-functions";
+
+const app = mobigent.use(appFunctions);
+
+await app.expense.create({
   merchant: "Coffee",
   amount: 8
 });
 
-await mobigent.functions.expense.list();
+await app.expense.list();
 ```
 
-`mobigent.app.expense.create(...)` works too. It means the same thing.
+If the backend cannot import that shared object, `mobigent.functions.expense.create(...)` and `mobigent.app.expense.create(...)` still work dynamically.
 
 If your backend wants custom helper names, bind them once with `mobigent.use(...)`. Most apps do not need that on day one.
 

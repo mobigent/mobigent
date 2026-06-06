@@ -49,10 +49,12 @@ The backend developer starts Mobigent like backend plumbing and calls app functi
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
+import { appFunctions } from "./app-functions";
 
 const backend = await startMobigent();
+const app = backend.use(appFunctions);
 
-await backend.functions.expense.create({ merchant: "Coffee", amount: 8 });
+await app.expense.create({ merchant: "Coffee", amount: 8 });
 ```
 
 That is the local path: no app-side setup command, no copied config, no generated file required.
@@ -203,10 +205,12 @@ Then backend code can call app functions like ordinary functions:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
+import { appFunctions } from "./app-functions";
 
 const mobigent = await startMobigent();
+const app = mobigent.use(appFunctions);
 
-await mobigent.functions.expense.create({ merchant: "Coffee", amount: 8 });
+await app.expense.create({ merchant: "Coffee", amount: 8 });
 ```
 
 See [docs/simple-integration.md](./docs/simple-integration.md) for the clean path before reading advanced docs.
@@ -374,8 +378,18 @@ That one function starts Mobigent, routes app function calls, infers a local app
 Call app-owned functions through a normal backend object. Mobigent waits for the app connection when the function is called:
 
 ```ts
+import { appFunctions } from "./app-functions";
+
+const app = mobigent.use(appFunctions);
+
+await app.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
+await app.expense.list();
+```
+
+If the backend cannot import that shared object, the dynamic path still works:
+
+```ts
 await mobigent.functions.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
-await mobigent.functions.expense.list();
 ```
 
 If you want backend-specific helper names, bind aliases once:

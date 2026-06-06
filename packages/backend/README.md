@@ -20,16 +20,18 @@ npm exec --yes \
 
 ```ts
 import { startMobigent, type Backend } from "@mobigent/backend";
+import { appFunctions } from "./app-functions";
 
 const mobigent: Backend = await startMobigent();
+const app = mobigent.use(appFunctions);
 
-await mobigent.functions.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
-await mobigent.functions.expense.list();
+await app.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
+await app.expense.list();
 ```
 
 That is the main backend API.
 
-Mobigent handles waiting for the app connection and routing calls to the matching app functions.
+Mobigent handles waiting for the app connection and routing calls to the matching app functions. The shared `appFunctions` object is only a TypeScript-friendly shape; the backend still calls the real function inside the connected app.
 
 For production, keep `startMobigent()` and set backend config:
 
@@ -74,7 +76,7 @@ For debugging, `backend.appConnectionUrl` shows where apps connect and `backend.
 - inspector and audit trail
 - agent setup helpers
 
-`mobigent.app.expense.create(...)` works too. It means the same thing and reads nicely when you want to emphasize that the function lives inside the app.
+`mobigent.functions.expense.create(...)` and `mobigent.app.expense.create(...)` work too when the backend cannot import the shared app function object.
 
 Bind backend-friendly names once when you do not want backend code to mirror app namespaces:
 
@@ -106,7 +108,8 @@ The public TypeScript surface uses backend names:
 - `Backend` for the object returned by `startMobigent(...)`
 - `BackendOptions` for startup options
 - `BackendStartOptions` for `startMobigent(appId, options)`
-- `backend.functions` for calling app functions from backend code
+- `backend.use(appFunctions)` for typed backend calls that mirror the app's plain function object
+- `backend.functions` for dynamic app function calls when the backend cannot import the function shape
 - `backend.forApp()` for explicit app setup values when you cannot pass the backend object directly
 - `backend.connection` and `backend.appSettings()` for compatibility when code needs explicit app setup values
 - `backend.connect.chatgpt()`, `backend.connect.claude()`, and `backend.connect.openai()` for common agent setup

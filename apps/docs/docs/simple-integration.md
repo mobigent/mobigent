@@ -105,11 +105,13 @@ npm exec --yes \
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
+import { appFunctions } from "./app-functions";
 
 const mobigent = await startMobigent();
+const app = mobigent.use(appFunctions);
 
-await mobigent.functions.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
-await mobigent.functions.expense.list();
+await app.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
+await app.expense.list();
 ```
 
 That is the backend integration.
@@ -127,7 +129,7 @@ EXPO_PUBLIC_MOBIGENT_URL=wss://your-backend.example.com
 
 Prefer generated sample files? Use the starter. Starter generation is a demo shortcut, not required integration.
 
-If your backend wants its own helper names, bind aliases once:
+If the backend cannot import that shared function shape, `mobigent.functions.expense.create(...)` still works dynamically. If your backend wants its own helper names, bind aliases once:
 
 ```ts
 const expenses = mobigent.use("expense", {
