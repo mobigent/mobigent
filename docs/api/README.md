@@ -1,13 +1,13 @@
 # API Reference
 
-Start with the two-package path:
+Most Mobigent apps use two packages:
 
-- `@mobigent/app`: app SDK for exposing app functions.
-- `@mobigent/backend`: backend SDK for the agent-facing API, inspector, OpenAPI, MCP-ready routing, and app connections.
+- `@mobigent/app`: lives inside the mobile app and exposes normal app functions.
+- `@mobigent/backend`: lives in your backend and gives agents a clean API for those functions.
 
-Lower-level packages exist inside the repo, but most developers should not need them on day one.
+## App Package
 
-## App API
+Create one Mobigent app object from functions you already own:
 
 ```ts
 import { createApp, type AppFunctions } from "@mobigent/app";
@@ -24,6 +24,8 @@ export type MyAppFunctions = typeof appFunctions;
 export const mobigent = createApp(appFunctions);
 ```
 
+Wrap the existing React Native app once:
+
 ```tsx
 import { mobigent } from "./mobigent/expenses";
 import App from "./App";
@@ -31,7 +33,7 @@ import App from "./App";
 export default mobigent.with(App);
 ```
 
-Direct one-file wrapper:
+Or use the one-file trial path:
 
 ```tsx
 import { withMobigent } from "@mobigent/app";
@@ -45,7 +47,7 @@ export default withMobigent(App, {
 });
 ```
 
-For non-React hosts, demos, and tests:
+For local demos, tests, or non-React hosts, pass the backend object during setup and connect with no arguments:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
@@ -62,7 +64,7 @@ const connection = await mobigent.connect();
 connection.disconnect();
 ```
 
-When the app setup needs a plain settings object instead of the live backend object:
+If the app and backend live in separate processes, pass the explicit app handoff values:
 
 ```ts
 const mobigent = createApp(expenseFunctions, {
@@ -70,7 +72,29 @@ const mobigent = createApp(expenseFunctions, {
 });
 ```
 
-## Backend API
+Common app helpers:
+
+- `createApp(functions)`: app setup for local and env-configured production.
+- `createApp(appId, functions)`: optional identity-in-code setup.
+- `mobigent.with(App)`: React Native wrapper.
+- `withMobigent(App, functions)`: direct existing-app wrapper.
+- `createApp(functions, { backend })`: app/backend setup without repeating app identity.
+- `createApp(functions, { backend: backend.forApp() })`: explicit plain handoff object.
+- `mobigent.connect()`: manual connection for non-React hosts and tests.
+- `mobigent.emit(name, payload)`: app activity events.
+- `read(handler, options)`: force read-only behavior when the name is not obvious.
+- `write(handler, options)`: force confirmed write behavior.
+- `screen(handler, options)`: focus a screen or UI surface.
+
+Useful app types:
+
+- `AppFunctions` and `AppFunctionMap` for app-owned function maps.
+- `MobigentApp` for the object returned by `createApp`.
+- `MobigentAppBackendSource` for accepted backend handoff values.
+
+## Backend Package
+
+Start the backend, import only the app function type, then call the app with autocomplete:
 
 ```ts
 import { startMobigent } from "@mobigent/backend";
@@ -86,83 +110,46 @@ console.log(mobigent.openApiUrl);
 console.log(mobigent.agentUrl);
 ```
 
-For production, keep the same code and set backend app identity:
+For production, keep the same code and set matching app identity:
 
 ```bash
 MOBIGENT_APP=com.acme.expenses
 ```
 
-The common backend object includes:
+Common backend helpers:
 
-- `inspectorUrl`
-- `apiUrl`
-- `agentUrl`
-- `openApiUrl`
-- `appConnectionUrl`
-- `forApp()` for explicit app setup values when the app cannot receive the live backend object
-- `connection` and `appSettings()` for compatibility when code needs explicit app setup values
-- `pairing()` for older app-side pairing settings
-- `appClient()` as an older explicit name for `pairing()`
-- `connect.chatgpt()`, `connect.claude()`, and `connect.openai()` for common agent setup
-- `setup.chatgpt()`, `setup.claude()`, and `setup.openai()` as compatibility aliases
-- `chatgpt()`, `claude()`, and `openai()` as direct aliases
-- `use<MyAppFunctions>()` to create typed backend calls from the same plain function shape the app exposes without importing app runtime code
-- `app.expense.create(input)` or `app.expense.list()` to call app functions with the clean package API
-- `use("expense", { createExpense: "create" })` to bind backend-friendly helper names
-- `use("expense").create(input)` or `use("expense", ["create", "list"])` to bind app function groups
-- `call("expense.create", input)` or `call("expense.list")`; pass `{ waitForApp: false }` only when you want an immediate failure if the app is not connected
-- `fn("expense.create")` to create a reusable backend function
-- `listFunctions()` to inspect discovered app functions
-- `apps()` to inspect connected app sessions
-- `waitForApp()` when you want an explicit startup health gate
-- `resolveFunctionName("expense.create")`
-- `stop()`
+- `startMobigent()`: starts the local backend.
+- `mobigent.use<MyAppFunctions>()`: typed calls from the app-owned function shape.
+- `mobigent.use("expense", { createExpense: "create" })`: backend-friendly helper names.
+- `mobigent.call("expense.create", input)`: dynamic call when names are runtime data.
+- `mobigent.fn("expense.create")`: reusable single function handle.
+- `mobigent.waitForApp()`: explicit startup health gate.
+- `mobigent.listFunctions()`: inspect connected app functions.
+- `mobigent.apps()`: inspect connected app sessions.
+- `mobigent.forApp()`: explicit app setup values for separate processes.
+- `mobigent.connect.chatgpt()`, `mobigent.connect.claude()`, and `mobigent.connect.openai()`: common agent setup.
+- `mobigent.stop()`: stop the backend.
 
-Advanced and compatibility fields are still available, but they should not be needed for the normal package path:
+Useful backend types:
 
-- `advanced` for lower-level server and transport details
-- `advanced.urls.websocket`, `advanced.urls.http`, `advanced.urls.inspector`, and `advanced.urls.openapi` for transport details
-- `advanced.appConfigPath` and `advanced.appConfigModulePath` for optional generated local files
-- `advanced.appConfig({ appId, appName })`, `advanced.appConfigModule(...)`, and `advanced.copyAppConfig()` for manual app pairing artifacts
-- `client()` as the older name for `appClient()` and `pairing()`
-- `app({ appId, appName })` when you need to produce a connection object for another app id
-- `feature("expense")` and `functions.expense.create(input)` for older backend SDK styles
-- `tools()`, `resolveToolName()`, `callApp()`, `function()`, `appFunction()`, `appFunctions()`, and `invoke()` for provider internals or backward compatibility
+- `Backend`
+- `BackendOptions`
+- `BackendStartOptions`
 
-## Simple App Helpers
+## Production Config
 
-- `createApp(functions)`: normal app setup for local and env-configured production.
-- `createApp(appId, functions)`: optional explicit identity setup when you want identity in code.
-- `mobigent.with(App)`: wraps an existing React Native app.
-- `createApp(functions, { backend })`: lets the app SDK read identity and connection details from the backend object.
-- `createApp(functions, { backend: backend.forApp() })`: passes a plain settings object when the app/backend boundary needs one.
-- `mobigent.connect()`: connects a non-React host or demo after setup.
-- `mobigent.emit(name, payload)`: emits app activity.
-- `createApp(functions, { connection: { host: "192.168.1.20" } })`: connects a physical phone to your local backend.
-- `createApp(functions, { connection: "wss://your-backend.example.com" })`: connects an app to a hosted backend.
-- `read(handler, options)`: exposes app state.
-- `write(handler, options)`: exposes confirmed app behavior.
-- `screen(handler, options)`: lets an agent focus a screen or UI surface.
+App:
 
-Friendly public types:
+```bash
+EXPO_PUBLIC_MOBIGENT_APP=com.acme.expenses
+EXPO_PUBLIC_MOBIGENT_URL=wss://your-backend.example.com
+```
 
-- `AppFunctions` and `AppFunctionMap` for app-owned functions.
-- `MobigentAppBackendSource` for app/backend handoff values.
-- `AppPairing`, `BackendPairing`, and `Pairing` remain available for compatibility.
-- `Backend`, `BackendOptions`, and `BackendPairing` from `@mobigent/backend`.
-- `AppConnection`, `AppConnectionSettings`, and `BackendConnection` remain available for compatibility.
+Backend:
 
-Advanced app helpers are still available from `@mobigent/app/app` when you need explicit internal objects or manual lifecycle control:
-
-- `defineFunctions({ namespace: { name: read(fn) } })`
-- `defineFeature(namespace, { name: read(fn), name: write(fn) })`
-- `defineMobigent({ namespace: { name: read(fn) } })`: older alias for `defineFunctions`
-- `defineMobigentConfig(config)`: typed compatibility helper
-- `withMobigent(App, feature)`: older wrapper helper kept for compatibility.
-- `setupMobigent(feature)`: wraps a React Native app once.
-- `setupMobigent({ config, features })`: production form when you need exact app config.
-- `connectMobigent(feature, options)`: lower-level connect helper.
-- `registerFeatures(client, features)`: lower-level attach helper when you need manual lifecycle control.
+```bash
+MOBIGENT_APP=com.acme.expenses
+```
 
 ## App Function Types
 
@@ -227,4 +214,4 @@ Full JSON Schema and lower-level `schema.*` helpers are still available for adva
 
 ## Advanced Internals
 
-The app and backend packages own the public integration path. Internal packages still power schema validation, transport, provider mapping, and hosting, but app teams should reach for them only when building Mobigent itself or a custom hosting/runtime layer.
+The app and backend packages own the public integration path. Advanced subpath imports and compatibility aliases still exist for older code and custom runtime work, but new apps should start with `@mobigent/app`, `@mobigent/backend`, and plain app functions.

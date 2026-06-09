@@ -637,7 +637,9 @@ for (const path of [
 for (const path of ["docs/api/README.md", "apps/docs/docs/api.md"]) {
   const contents = readFileSync(path, "utf8");
   assert.doesNotMatch(contents, /## Capability Types/, `${path} should frame beginner docs as app functions`);
-  assert.doesNotMatch(contents, /defineFeature\("cart"/, `${path} should not teach defineFeature in the first API examples`);
+  assert.doesNotMatch(contents, /defineFeature|defineMobigentConfig|connectMobigent|registerFeatures/, `${path} should not teach lower-level app lifecycle helpers in the package API docs`);
+  assert.doesNotMatch(contents, /appSettings|pairing\(|BackendPairing|AppPairing|Pairing\b/, `${path} should not promote older setup names in package API docs`);
+  assert.doesNotMatch(contents, /feature\("expense"\)|functions\.expense\.create|mobigent\.functions/, `${path} should not show older dynamic backend API examples`);
   assert.doesNotMatch(
     contents,
     /@mobigent\/core|@mobigent\/gateway|@mobigent\/providers/,
