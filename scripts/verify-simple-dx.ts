@@ -76,9 +76,6 @@ for (const typeName of [
   "AppFunctions",
   "AppFunctionMap",
   "AppOptions",
-  "AppPairing",
-  "BackendPairing",
-  "Pairing",
   "AppConnection",
   "AppConnectionSettings",
   "BackendConnection",
@@ -113,7 +110,6 @@ for (const typeName of [
   "Backend",
   "BackendOptions",
   "BackendStartOptions",
-  "BackendPairing",
   "BackendConnection",
   "BackendStatus",
   "AppFunction",
@@ -127,8 +123,9 @@ for (const typeName of [
 assert.match(appPackageRoot, /backend\?: MobigentAppBackendSource/, "@mobigent/app should accept a backend object as the clean app handoff");
 assert.match(appPackageRoot, /normalizeBackendBackedAppInput/, "@mobigent/app should infer app identity and connection from a backend object");
 assert.match(appPackageRoot, /appId: options\.appId \?\? backendSettings\.appId/, "@mobigent/app should use backend.appId when app code does not repeat one");
-assert.match(appBackendTargetType, /pairing\?: MobigentAppPairingSource/, "@mobigent/app should keep backend pairing compatibility");
-assert.match(appPackageRoot, /MobigentSimpleAppConfig \| \(\(\) => MobigentSimpleAppConfig\)/, "@mobigent/app should accept a pairing object or backend.pairing method");
+assert.match(appBackendTargetType, /pairing\?: MobigentAppPairingSource/, "@mobigent/app should keep older backend pairing compatibility internally");
+assert.doesNotMatch(appPackageRoot, /export type (Pairing|AppPairing|BackendPairing|MobigentAppPairing|MobigentAppPairingSource)\b/, "@mobigent/app root should not expose pairing jargon as public beginner types");
+assert.match(appPackageRoot, /MobigentSimpleAppConfig \| \(\(\) => MobigentSimpleAppConfig\)/, "@mobigent/app should still accept older pairing objects internally");
 assert.match(appBackendTargetType, /connection\?: MobigentSimpleConnectionSettings/, "@mobigent/app should keep backend.connection compatibility");
 assert.doesNotMatch(
   appBackendTargetType,

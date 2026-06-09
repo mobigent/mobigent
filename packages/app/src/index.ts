@@ -93,7 +93,7 @@ export type MobigentAppPackageIdentityOptions = Omit<MobigentSimpleAppOptions, "
   backend?: MobigentAppBackendSource;
 };
 export type MobigentAppPackageInput = MobigentAppPackageOptions | MobigentSimpleFunctionMap | string;
-export type MobigentAppPairingSource = MobigentSimpleAppConfig | (() => MobigentSimpleAppConfig);
+type MobigentAppPairingSource = MobigentSimpleAppConfig | (() => MobigentSimpleAppConfig);
 export type MobigentBackendConnectionTarget = {
   pairing?: MobigentAppPairingSource;
   connection?: MobigentSimpleConnectionSettings;
@@ -116,7 +116,6 @@ type MobigentLegacyBackendConnectionTarget = MobigentBackendConnectionTarget & {
 };
 export type MobigentAppBackendSource = MobigentAppPairingSource | MobigentBackendConnectionTarget;
 export type MobigentAppConnectSettings = MobigentSimpleConnectionSettings | MobigentBackendConnectionTarget;
-export type MobigentAppPairing = MobigentSimpleAppConfig;
 
 export type MobigentAppPackage = ReturnType<typeof setupMobigent> & {
   with<P extends object>(App: ComponentType<P>, rootProps?: Omit<AgentAppRootProps, "children">): ComponentType<P>;
@@ -127,12 +126,9 @@ export type MobigentAppPackage = ReturnType<typeof setupMobigent> & {
 export type AppFunctions = MobigentSimpleFunctionMap;
 export type AppFunctionMap = MobigentSimpleFunctionMap;
 export type AppOptions = MobigentAppPackageIdentityOptions;
-export type Pairing = MobigentAppPairing;
 export type AppConnection = MobigentSimpleConnection;
 export type AppConnectionSettings = MobigentAppConnectSettings;
-export type BackendPairing = MobigentBackendConnectionTarget;
 export type BackendConnection = MobigentBackendConnectionTarget;
-export type AppPairing = MobigentAppPairing;
 export type MobigentApp = MobigentAppPackage;
 
 export function createApp(

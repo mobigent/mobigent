@@ -19,7 +19,6 @@ import type {
   Backend,
   BackendConnection,
   BackendOptions,
-  BackendPairing,
   BackendStatus,
   CallOptions,
   CallResult
@@ -39,10 +38,8 @@ import type {
   AppFunctionMap,
   AppFunctions,
   AppOptions,
-  AppPairing,
   BackendConnection as AppBackendConnection,
   MobigentAppBackendSource,
-  BackendPairing as AppBackendPairing,
   MobigentApp
 } from "@mobigent/app";
 import {
@@ -62,8 +59,6 @@ type PublicAppTypeAliasesCompile = [
   AppFunctions,
   AppFunctionMap,
   AppOptions,
-  AppPairing,
-  AppBackendPairing,
   MobigentAppBackendSource,
   AppConnection,
   AppConnectionSettings,
@@ -73,7 +68,6 @@ type PublicAppTypeAliasesCompile = [
 type PublicBackendTypeAliasesCompile = [
   Backend,
   BackendOptions,
-  BackendPairing,
   BackendConnection,
   BackendStatus,
   AppFunction,
