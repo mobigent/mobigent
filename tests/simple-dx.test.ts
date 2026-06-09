@@ -1365,13 +1365,14 @@ test("backend init helper creates a simple server entrypoint", () => {
   assert.doesNotMatch(files[0]?.contents ?? "", /defaultApp/);
   assert.doesNotMatch(files[0]?.contents ?? "", /export const mobigentConfig/);
   assert.match(files[0]?.contents ?? "", /export const waitForApp = mobigent\.waitForApp/);
-  assert.match(files[0]?.contents ?? "", /export const functions = mobigent\.functions/);
+  assert.match(files[0]?.contents ?? "", /export const app = mobigent\.use\(\)/);
+  assert.match(files[0]?.contents ?? "", /export const use = mobigent\.use/);
   assert.match(files[0]?.contents ?? "", /export const call = mobigent\.call/);
   assert.match(files[0]?.contents ?? "", /export const listFunctions = mobigent\.listFunctions/);
   assert.match(files[0]?.contents ?? "", /export const fn = mobigent\.fn/);
   assert.match(files[0]?.contents ?? "", /mobigent\.inspectorUrl/);
   assert.match(files[0]?.contents ?? "", /mobigent\.openApiUrl/);
-  assert.doesNotMatch(files[0]?.contents ?? "", /callApp|appFunction|appFunctions|mobigent\.appFunction/);
+  assert.doesNotMatch(files[0]?.contents ?? "", /export const functions|mobigent\.functions|mobigent\.app|callApp|appFunction|appFunctions|mobigent\.appFunction/);
   assert.doesNotMatch(files[0]?.contents ?? "", /copyAppConfig|mobigent\.urls|mobigent\.feature|appConfigPath|appConfigModulePath|Copy this/);
   assert.match(files[1]?.contents ?? "", /# MOBIGENT_AUTH_TOKEN=replace-me/);
   assert.equal(files.some((file) => file.path === "mobigent.app.json"), false);

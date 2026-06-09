@@ -220,17 +220,16 @@ assert.doesNotMatch(backendFile, /app: \{/);
 assert.doesNotMatch(backendFile, /defaultApp/);
 assert.doesNotMatch(backendFile, /export const mobigentConfig/);
 assert.match(backendFile, /export const waitForApp = mobigent\.waitForApp/);
-assert.match(backendFile, /export const app = mobigent\.app/);
-assert.match(backendFile, /export const functions = mobigent\.functions/);
+assert.match(backendFile, /export const app = mobigent\.use\(\)/);
+assert.match(backendFile, /export const use = mobigent\.use/);
 assert.match(backendFile, /export const call = mobigent\.call/);
 assert.match(backendFile, /export const listFunctions = mobigent\.listFunctions/);
-assert.match(backendFile, /export const use = mobigent\.use/);
 assert.match(backendFile, /export const fn = mobigent\.fn/);
 assert.match(backendFile, /mobigent\.inspectorUrl/);
 assert.match(backendFile, /mobigent\.openApiUrl/);
 assert.doesNotMatch(
   backendFile,
-  /callApp|appFunction|appFunctions|mobigent\.appFunction|mobigent\.urls|mobigent\.feature|BridgeGateway|createHttpApp|appConfigPath|appConfigModulePath|mobigent\.appConfigModule\(|copyAppConfig|Copy this/
+  /export const functions|mobigent\.functions|mobigent\.app|callApp|appFunction|appFunctions|mobigent\.appFunction|mobigent\.urls|mobigent\.feature|BridgeGateway|createHttpApp|appConfigPath|appConfigModulePath|mobigent\.appConfigModule\(|copyAppConfig|Copy this/
 );
 
 const backendWithAppDir = createMobigentBackendFiles({
