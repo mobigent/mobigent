@@ -96,7 +96,7 @@ import { startMobigent } from "@mobigent/backend";
 import type { MyAppFunctions } from "../app/mobigent";
 
 const mobigent = await startMobigent();
-const app = mobigent.use<MyAppFunctions>();
+const app = mobigent.app<MyAppFunctions>();
 
 await app.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
 await app.expense.list();
@@ -120,7 +120,7 @@ Prefer generated sample files? Use the starter. Starter generation is a demo sho
 That import is type-only, so your backend gets autocomplete without loading React Native code. If the backend cannot share that function shape, bind the app function group once:
 
 ```ts
-const expenses = mobigent.use("expense", {
+const expenses = mobigent.app("expense", {
   createExpense: "create",
   listExpenses: "list"
 });

@@ -303,7 +303,7 @@ const appPort = ${options.appPort};
 const functionName = "expense.create";
 
 const backend = await ${backendStart};
-const appApi = backend.use<MyAppFunctions>();
+const appApi = backend.app<MyAppFunctions>();
 
 const app = express();
 app.use(express.json());

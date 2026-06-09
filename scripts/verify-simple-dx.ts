@@ -96,6 +96,7 @@ assert.match(
 );
 assert.match(backendPackageRoot, /setup: MobigentBackendSetupAccessor/, "@mobigent/backend should expose grouped backend.setup helpers for agent setup");
 assert.match(backendPackageRoot, /connect: MobigentBackendSetupAccessor/, "@mobigent/backend should expose backend.connect helpers for agent setup");
+assert.match(backendPackageRoot, /<const T extends MobigentBackendAppFunctionContract>\(\): MobigentBackendAppFunctions<T>/, "@mobigent/backend should expose backend.app<MyAppFunctions>() as the clearest typed app-call surface");
 assert.match(backendPackageRoot, /forApp\(\): MobigentBackendClient/, "@mobigent/backend should keep backend.forApp() compatibility for explicit app settings");
 assert.match(backendPackageRoot, /appSettings\(\): MobigentBackendClient/, "@mobigent/backend should keep backend.appSettings() compatibility");
 assert.match(backendPackageRoot, /appClient\(\): MobigentBackendClient/, "@mobigent/backend should keep backend.appClient() compatibility");
@@ -233,7 +234,8 @@ assert.doesNotMatch(backendFile, /app: \{/);
 assert.doesNotMatch(backendFile, /defaultApp/);
 assert.doesNotMatch(backendFile, /export const mobigentConfig/);
 assert.match(backendFile, /export const waitForApp = mobigent\.waitForApp/);
-assert.match(backendFile, /export const app = mobigent\.use\(\)/);
+assert.match(backendFile, /export const app = mobigent\.app\(\)/);
+assert.doesNotMatch(backendFile, /export const app = mobigent\.use\(\)/);
 assert.match(backendFile, /export const use = mobigent\.use/);
 assert.match(backendFile, /export const call = mobigent\.call/);
 assert.match(backendFile, /export const listFunctions = mobigent\.listFunctions/);
@@ -242,7 +244,7 @@ assert.match(backendFile, /mobigent\.inspectorUrl/);
 assert.match(backendFile, /mobigent\.openApiUrl/);
 assert.doesNotMatch(
   backendFile,
-  /export const functions|mobigent\.functions|mobigent\.app|callApp|appFunction|appFunctions|mobigent\.appFunction|mobigent\.urls|mobigent\.feature|BridgeGateway|createHttpApp|appConfigPath|appConfigModulePath|mobigent\.appConfigModule\(|copyAppConfig|Copy this/
+  /export const functions|mobigent\.functions|mobigent\.app\.|callApp|appFunction|appFunctions|mobigent\.appFunction|mobigent\.urls|mobigent\.feature|BridgeGateway|createHttpApp|appConfigPath|appConfigModulePath|mobigent\.appConfigModule\(|copyAppConfig|Copy this/
 );
 
 const backendWithAppDir = createMobigentBackendFiles({
@@ -374,7 +376,8 @@ assert.doesNotMatch(starterServer, /mobigent\.connect\(backend\)/);
 assert.doesNotMatch(starterServer, /connectionUrl: backend\.urls\.websocket/);
 assert.doesNotMatch(starterServer, /backend\.defaultApp/);
 assert.doesNotMatch(starterServer, /const expense = backend\.feature\("expense"\)/);
-assert.match(starterServer, /backend\.use<MyAppFunctions>\(\)/);
+assert.match(starterServer, /backend\.app<MyAppFunctions>\(\)/);
+assert.doesNotMatch(starterServer, /backend\.use<MyAppFunctions>\(\)/);
 assert.match(starterServer, /appApi\.expense\.create\(input\)/);
 assert.doesNotMatch(starterServer, /backend\.functions\.expense\.create\(input\)/);
 assert.doesNotMatch(starterServer, /backend\.app\.expense\.create\(input\)/);
@@ -397,7 +400,7 @@ for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.
   );
   assert.match(
     contents,
-    /mobigent\.use<MyAppFunctions>\(\)|backend\.use<MyAppFunctions>\(\)|mobigent\.use&lt;MyAppFunctions&gt;\(\)/,
+    /mobigent\.app<MyAppFunctions>\(\)|backend\.app<MyAppFunctions>\(\)|mobigent\.app&lt;MyAppFunctions&gt;\(\)/,
     `${path} should teach the typed backend function path as the clean path`
   );
   assert.match(
@@ -407,8 +410,8 @@ for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.
   );
   assert.match(
     contents,
-    /mobigent\.use\("expense", \{\s+createExpense: "create"/,
-    `${path} should teach namespace-first backend function aliases through the simple use() API`
+    /mobigent\.app\("expense", \{\s+createExpense: "create"/,
+    `${path} should teach namespace-first backend function aliases through the simple app() API`
   );
   assert.match(contents, /startMobigent\(\)/, `${path} should teach the no-config backend start path`);
   assert.doesNotMatch(
@@ -470,7 +473,7 @@ for (const path of ["docs/existing-react-native-app.md", "apps/docs/docs/existin
   assert.match(contents, /withMobigent\(App, \{/, `${path} should teach the one-file existing-app wrapper`);
   assert.match(contents, /startMobigent\(\)/, `${path} should teach the no-config backend start path`);
   assert.match(contents, /EXPO_PUBLIC_MOBIGENT_APP[\s\S]{0,240}?MOBIGENT_APP|MOBIGENT_APP[\s\S]{0,240}?EXPO_PUBLIC_MOBIGENT_APP/, `${path} should teach matching short env identity for production`);
-  assert.match(contents, /mobigent\.use<MyAppFunctions>\(\)[\s\S]{0,160}?app\.expense\.create|mobigent\.functions\.expense\.create/, `${path} should teach backend calls through app-owned functions`);
+  assert.match(contents, /mobigent\.app<MyAppFunctions>\(\)[\s\S]{0,160}?app\.expense\.create/, `${path} should teach backend calls through app-owned functions`);
   assert.match(contents, /Most apps do not need that on day one/, `${path} should keep backend-friendly aliases optional`);
   assert.match(contents, /What Developers Should Care About/, `${path} should separate developer-owned concerns from SDK-owned plumbing`);
   assert.match(contents, /What Mobigent Handles/, `${path} should make SDK-owned work explicit`);
@@ -520,9 +523,9 @@ for (const path of ["packages/app/README.md", "packages/react-native/README.md"]
   assert.doesNotMatch(backendReadme, /mobigent\.functions\.expense\.create/, "packages/backend/README.md should not show the dynamic backend call as a product example");
   assert.match(backendReadme, /startMobigent\(\)/);
   assert.match(backendReadme, /import type \{ MyAppFunctions \}/, "packages/backend/README.md should teach type-only app function sharing");
-  assert.match(backendReadme, /mobigent\.use<MyAppFunctions>\(\)/, "packages/backend/README.md should teach typed backend calls without importing app runtime code");
+  assert.match(backendReadme, /mobigent\.app<MyAppFunctions>\(\)/, "packages/backend/README.md should teach typed backend calls without importing app runtime code");
   assert.doesNotMatch(backendReadme, /mobigent\.app\.expense\.create/, "packages/backend/README.md should not teach the older backend.app dynamic style");
-  assert.match(backendReadme, /mobigent\.use\("expense", \{\s+createExpense: "create"/);
+  assert.match(backendReadme, /mobigent\.app\("expense", \{\s+createExpense: "create"/);
   assert.doesNotMatch(
     backendReadme,
     /backend\.defaultApp|mobigent\.app\.json|appDir\b|npx mobigent-backend|mobigent-backend --app/,
@@ -558,7 +561,7 @@ for (const path of [
     /mobigent-core-0\.1\.15\.tgz|create-mobigent-app-0\.1\.15\.tgz|mobigent-install|npm exec --yes/,
     `${path} should not expose preview installer commands or package tarballs in beginner docs`
   );
-  assert.match(contents, /mobigent\.use<MyAppFunctions>\(\)|backend\.use<MyAppFunctions>\(\)|mobigent\.use&lt;MyAppFunctions&gt;\(\)/, `${path} should teach the type-only backend function path`);
+  assert.match(contents, /mobigent\.app<MyAppFunctions>\(\)|backend\.app<MyAppFunctions>\(\)|mobigent\.app&lt;MyAppFunctions&gt;\(\)/, `${path} should teach the type-only backend function path`);
   assert.doesNotMatch(
     contents,
     /backend\.defaultApp|connectionUrl: backend|mobigent\.app\.json|appDir\b|npx mobigent-backend|mobigent-backend --app/,
@@ -594,7 +597,8 @@ for (const path of [
 ]) {
   const contents = readFileSync(path, "utf8");
   assert.match(contents, /backend: backend|backend,|backend\s*\n\s*\}/, `${path} should teach app setup with the backend object`);
-  assert.match(contents, /backend\.forApp\(\)|backend: backend|backend,|backend\s*\n\s*\}/, `${path} should teach either backend.forApp() or direct backend object setup`);
+  assert.match(contents, /backend: backend|backend,|backend\s*\n\s*\}/, `${path} should teach direct backend object setup`);
+  assert.doesNotMatch(contents, /backend\.forApp\(\)/, `${path} should not teach explicit backend handoff setup`);
   assert.doesNotMatch(contents, /createApp\("com\.acme\.expenses", (appFunctions|expenseFunctions), \{[\s\S]{0,80}?backend/, `${path} should not repeat app id when a backend object can provide it`);
   assert.match(contents, /\.\s*connect\(\)/, `${path} should teach no-argument connect after backend setup`);
   assert.doesNotMatch(contents, /backend: backend\.appSettings\(\)/, `${path} should not teach appSettings as the beginner handoff`);
@@ -678,7 +682,7 @@ for (const path of [
   "apps/docs/src/docs.tsx"
 ]) {
   const contents = readFileSync(path, "utf8");
-  assert.match(contents, /mobigent\.use<MyAppFunctions>\(\)|mobigent\.use&lt;MyAppFunctions&gt;\(\)|app\.expense\.create/, `${path} should teach the typed shared-shape backend functions surface`);
+  assert.match(contents, /mobigent\.app<MyAppFunctions>\(\)|mobigent\.app&lt;MyAppFunctions&gt;\(\)|app\.expense\.create/, `${path} should teach the typed shared-shape backend functions surface`);
   assert.match(
     contents,
     /withMobigent\(App, \{/,

@@ -91,7 +91,7 @@ import { startMobigent } from "@mobigent/backend";
 import type { MyAppFunctions } from "../app/mobigent";
 
 const mobigent = await startMobigent();
-const app = mobigent.use<MyAppFunctions>();
+const app = mobigent.app<MyAppFunctions>();
 
 await app.expense.create({ merchant: "Coffee", amount: 8 });
 
@@ -109,14 +109,14 @@ MOBIGENT_APP=com.acme.expenses
 Common backend helpers:
 
 - `startMobigent()`: starts the local backend.
-- `mobigent.use<MyAppFunctions>()`: typed calls from the app-owned function shape.
-- `mobigent.use("expense", { createExpense: "create" })`: backend-friendly helper names.
+- `mobigent.app<MyAppFunctions>()`: typed calls from the app-owned function shape.
+- `mobigent.use<MyAppFunctions>()`: compatibility alias for typed backend calls.
+- `mobigent.app("expense", { createExpense: "create" })`: backend-friendly helper names.
 - `mobigent.call("expense.create", input)`: dynamic call when names are runtime data.
 - `mobigent.fn("expense.create")`: reusable single function handle.
 - `mobigent.waitForApp()`: explicit startup health gate.
 - `mobigent.listFunctions()`: inspect connected app functions.
 - `mobigent.apps()`: inspect connected app sessions.
-- `mobigent.forApp()`: explicit app setup values for separate processes.
 - `mobigent.connect.chatgpt()`, `mobigent.connect.claude()`, and `mobigent.connect.openai()`: common agent setup.
 - `mobigent.stop()`: stop the backend.
 

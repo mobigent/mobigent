@@ -547,10 +547,25 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
         merchant: "Market"
       });
 
+      const appNamedExpenses = backend.app("expense", {
+        createExpense: "create",
+        listExpenses: "list"
+      });
+      assert.deepEqual(await appNamedExpenses.createExpense({ merchant: "Gift Shop" }), {
+        id: "EXP-1",
+        merchant: "Gift Shop"
+      });
+
       const directExpenses = backend.use("expense", ["create", "list"] as const);
       assert.deepEqual(await directExpenses.create({ merchant: "Grocer" }), {
         id: "EXP-1",
         merchant: "Grocer"
+      });
+
+      const appDirectExpenses = backend.app("expense", ["create", "list"] as const);
+      assert.deepEqual(await appDirectExpenses.create({ merchant: "Pharmacy" }), {
+        id: "EXP-1",
+        merchant: "Pharmacy"
       });
 
       const appFunctions = {
@@ -560,15 +575,21 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
         }
       };
       const typedApp: BackendAppFunctions<typeof appFunctions> = backend.use(appFunctions);
+      const typedAppFromAppAccessor: BackendAppFunctions<typeof appFunctions> = backend.app(appFunctions);
       const legacyFunctions = backend as unknown as { functions: typeof backend.use };
       const typedFromFunctionsAccessor = legacyFunctions.functions(appFunctions);
       const typeOnlyApp = backend.use<typeof appFunctions>();
+      const typeOnlyAppFromAppAccessor = backend.app<typeof appFunctions>();
       const contractShape: BackendAppFunctionContract = appFunctions;
       assert.equal(typeof contractShape.expense.create, "function");
       const typedResult: { id: string; merchant: string } = await typedApp.expense.create({ merchant: "Lunch" });
       assert.deepEqual(typedResult, {
         id: "EXP-1",
         merchant: "Lunch"
+      });
+      assert.deepEqual(await typedAppFromAppAccessor.expense.create({ merchant: "Flowers" }), {
+        id: "EXP-1",
+        merchant: "Flowers"
       });
       assert.deepEqual(await typedFromFunctionsAccessor.expense.create({ merchant: "Stationery" }), {
         id: "EXP-1",
@@ -577,6 +598,10 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
       assert.deepEqual(await typeOnlyApp.expense.create({ merchant: "Bookstore" }), {
         id: "EXP-1",
         merchant: "Bookstore"
+      });
+      assert.deepEqual(await typeOnlyAppFromAppAccessor.expense.create({ merchant: "Hardware" }), {
+        id: "EXP-1",
+        merchant: "Hardware"
       });
 
       const app = backend.feature("expense");
@@ -594,10 +619,14 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
           { id: "EXP-1", merchant: "Pizzeria" },
           { id: "EXP-1", merchant: "Deli" },
           { id: "EXP-1", merchant: "Market" },
+          { id: "EXP-1", merchant: "Gift Shop" },
           { id: "EXP-1", merchant: "Grocer" },
+          { id: "EXP-1", merchant: "Pharmacy" },
           { id: "EXP-1", merchant: "Lunch" },
+          { id: "EXP-1", merchant: "Flowers" },
           { id: "EXP-1", merchant: "Stationery" },
           { id: "EXP-1", merchant: "Bookstore" },
+          { id: "EXP-1", merchant: "Hardware" },
           { id: "EXP-1", merchant: "Bakery" }
         ]
       });
@@ -1352,14 +1381,15 @@ test("backend init helper creates a simple server entrypoint", () => {
   assert.doesNotMatch(files[0]?.contents ?? "", /defaultApp/);
   assert.doesNotMatch(files[0]?.contents ?? "", /export const mobigentConfig/);
   assert.match(files[0]?.contents ?? "", /export const waitForApp = mobigent\.waitForApp/);
-  assert.match(files[0]?.contents ?? "", /export const app = mobigent\.use\(\)/);
+  assert.match(files[0]?.contents ?? "", /export const app = mobigent\.app\(\)/);
+  assert.doesNotMatch(files[0]?.contents ?? "", /export const app = mobigent\.use\(\)/);
   assert.match(files[0]?.contents ?? "", /export const use = mobigent\.use/);
   assert.match(files[0]?.contents ?? "", /export const call = mobigent\.call/);
   assert.match(files[0]?.contents ?? "", /export const listFunctions = mobigent\.listFunctions/);
   assert.match(files[0]?.contents ?? "", /export const fn = mobigent\.fn/);
   assert.match(files[0]?.contents ?? "", /mobigent\.inspectorUrl/);
   assert.match(files[0]?.contents ?? "", /mobigent\.openApiUrl/);
-  assert.doesNotMatch(files[0]?.contents ?? "", /export const functions|mobigent\.functions|mobigent\.app|callApp|appFunction|appFunctions|mobigent\.appFunction/);
+  assert.doesNotMatch(files[0]?.contents ?? "", /export const functions|mobigent\.functions|mobigent\.app\.|callApp|appFunction|appFunctions|mobigent\.appFunction/);
   assert.doesNotMatch(files[0]?.contents ?? "", /copyAppConfig|mobigent\.urls|mobigent\.feature|appConfigPath|appConfigModulePath|Copy this/);
   assert.match(files[1]?.contents ?? "", /# MOBIGENT_AUTH_TOKEN=replace-me/);
   assert.equal(files.some((file) => file.path === "mobigent.app.json"), false);

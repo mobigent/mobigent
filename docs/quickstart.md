@@ -114,7 +114,7 @@ Call app functions from the backend SDK object. If you can import the app functi
 ```ts
 import type { MyAppFunctions } from "../app/mobigent";
 
-const app = mobigent.use<MyAppFunctions>();
+const app = mobigent.app<MyAppFunctions>();
 
 await app.expense.create({ merchant: "Coffee", amount: 8 });
 await app.expense.list();
@@ -123,7 +123,7 @@ await app.expense.list();
 Mobigent waits for the app when a function is called. If the backend cannot share that type, bind the app function group once:
 
 ```ts
-const expenses = mobigent.use("expense", {
+const expenses = mobigent.app("expense", {
   createExpense: "create",
   listExpenses: "list"
 });

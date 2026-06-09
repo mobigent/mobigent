@@ -27,6 +27,6 @@ try await client.connect()
 
 The default URL is the local simulator backend. Pass `backendURL` only for a physical device or hosted backend.
 
-Use `functions("expense")` to group app functions exactly how backend code calls them with `mobigent.use("expense")`.
+Use `functions("expense")` to group app functions exactly how backend code calls them with `mobigent.app("expense")`.
 
 Use `onConfirmation` to render your own native approval UI before sensitive handlers run.

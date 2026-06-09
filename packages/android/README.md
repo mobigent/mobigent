@@ -27,6 +27,6 @@ client.connect()
 
 The default URL is the local Android emulator backend. Pass `backendUrl(...)` only for a physical device or hosted backend.
 
-Use `functions("expense")` to group app functions exactly how backend code calls them with `mobigent.use("expense")`.
+Use `functions("expense")` to group app functions exactly how backend code calls them with `mobigent.app("expense")`.
 
 Use `confirmationHandler { request -> Boolean }` to render your own native approval UI before sensitive handlers run.

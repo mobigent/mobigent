@@ -15,7 +15,7 @@ import { startMobigent, type Backend } from "@mobigent/backend";
 import type { MyAppFunctions } from "../app/mobigent";
 
 const mobigent: Backend = await startMobigent();
-const app = mobigent.use<MyAppFunctions>();
+const app = mobigent.app<MyAppFunctions>();
 
 await app.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
 await app.expense.list();
@@ -46,10 +46,10 @@ await app.connect();
 
 ## Helper Names
 
-Backend code can mirror app namespaces through `mobigent.use<MyAppFunctions>()`. If you want backend-specific helper names, bind aliases once:
+Backend code can mirror app namespaces through `mobigent.app<MyAppFunctions>()`. If you want backend-specific helper names, bind aliases once:
 
 ```ts
-const expenses = mobigent.use("expense", {
+const expenses = mobigent.app("expense", {
   createExpense: "create",
   listExpenses: "list"
 });
@@ -73,7 +73,7 @@ const claude = mobigent.connect.claude();
 const openai = mobigent.connect.openai();
 ```
 
-Older setup aliases and the dynamic backend function API remain available for compatibility, but new backend code should start with `mobigent.use<MyAppFunctions>()`.
+Older setup aliases, `mobigent.use()`, and the dynamic backend function API remain available for compatibility, but new backend code should start with `mobigent.app<MyAppFunctions>()`.
 
 ## What It Handles
 

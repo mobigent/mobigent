@@ -82,7 +82,7 @@ client.functions("expense") {
 }
 ```
 
-`functions("expense")` keeps native code grouped the same way your backend calls it: `mobigent.use("expense").create(...)` and `mobigent.use("expense").list()`.
+`functions("expense")` keeps native code grouped the same way your backend calls it: `mobigent.app("expense").create(...)` and `mobigent.app("expense").list()`.
 
 ## Confirm Sensitive Actions
 
@@ -116,7 +116,7 @@ npm install @mobigent/backend
 import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent("com.example.expenses");
-const expenses = mobigent.use("expense");
+const expenses = mobigent.app("expense");
 
 await expenses.create({ merchant: "Coffee", amount: 8 });
 ```
@@ -145,7 +145,7 @@ Open the local inspector:
 open http://localhost:8788/inspect
 ```
 
-You should see the app functions, recent audit events, and metrics. The same functions are also available to backend code through `mobigent.use("expense")` and to agents through the backend service.
+You should see the app functions, recent audit events, and metrics. The same functions are also available to backend code through `mobigent.app("expense")` and to agents through the backend service.
 
 ## Optional App Actions Starter
 

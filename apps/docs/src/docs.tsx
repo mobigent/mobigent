@@ -28,7 +28,7 @@ export default withMobigent(App, appFunctions);
 
 // Backend
 const mobigent = await startMobigent();
-const app = mobigent.use<MyAppFunctions>();
+const app = mobigent.app<MyAppFunctions>();
 
 await app.expense.create(input);`;
 
@@ -108,7 +108,7 @@ const backendCode = `import { startMobigent } from "@mobigent/backend";
 import type { MyAppFunctions } from "../app/mobigent";
 
 const mobigent = await startMobigent();
-const app = mobigent.use<MyAppFunctions>();
+const app = mobigent.app<MyAppFunctions>();
 
 await app.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
 await app.expense.list();
@@ -117,7 +117,7 @@ console.log(mobigent.inspectorUrl);`;
 
 const backendShortCode = `const mobigent = await startMobigent();`;
 
-const backendUseCode = `const app = mobigent.use<MyAppFunctions>();
+const backendUseCode = `const app = mobigent.app<MyAppFunctions>();
 
 await app.expense.create({
   merchant: "Airport Taxi",
@@ -305,7 +305,7 @@ const firstRunChecks = [
   ["Install", "Add the app package to React Native and the backend package to your server."],
   ["Expose", "`createApp(functions)` turns real app functions into typed agent-callable APIs."],
   ["Connect", "Use local defaults first; set env config for production instead of threading ids through code."],
-  ["Call", "`mobigent.use<MyAppFunctions>()` gives the backend typed calls without loading mobile code."],
+  ["Call", "`mobigent.app<MyAppFunctions>()` gives the backend typed calls without loading mobile code."],
   ["Approve", "Risky actions pause inside the app before handlers run."],
   ["Audit", "Calls, approvals, denials, errors, and events appear in `/audit`."]
 ];
@@ -358,7 +358,7 @@ const nativeApis = [
 const backendApis = [
   ["startMobigent()", "Starts the backend service with local defaults."],
   ["waitForApp()", "Optional health gate when startup should wait for a connected app."],
-  ["use<MyAppFunctions>()", "Creates typed backend calls from the same plain function shape the app exposes."],
+  ["app<MyAppFunctions>()", "Creates typed backend calls from the same plain function shape the app exposes."],
   ["functions", "Dynamic fallback for app function calls when the backend cannot import the shared shape."],
   ["use()", "Also supports helper aliasing when backend code wants different function names."],
   ["call()", "Makes a quick one-off app function call by name."],

@@ -85,7 +85,7 @@ import { startMobigent } from "@mobigent/backend";
 import type { MyAppFunctions } from "../app/mobigent";
 
 const mobigent = await startMobigent();
-const app = mobigent.use<MyAppFunctions>();
+const app = mobigent.app<MyAppFunctions>();
 
 await app.expense.create({ merchant: "Coffee", amount: 8 });
 await app.expense.list();
@@ -96,7 +96,7 @@ That type import is erased at runtime, so the backend gets autocomplete without 
 If you want backend-friendly helper names, bind them once:
 
 ```ts
-const expenses = mobigent.use("expense", {
+const expenses = mobigent.app("expense", {
   createExpense: "create",
   listExpenses: "list"
 });

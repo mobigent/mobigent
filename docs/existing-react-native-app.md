@@ -97,7 +97,7 @@ Call app-owned functions from backend code. If the backend can import the app fu
 ```ts
 import type { MyAppFunctions } from "../app/mobigent";
 
-const app = mobigent.use<MyAppFunctions>();
+const app = mobigent.app<MyAppFunctions>();
 
 await app.expense.create({
   merchant: "Coffee",
@@ -107,7 +107,7 @@ await app.expense.create({
 await app.expense.list();
 ```
 
-If the backend cannot share that type, bind the app function group once with `mobigent.use("expense", aliases)`. Most apps do not need that on day one.
+If the backend cannot share that type, bind the app function group once with `mobigent.app("expense", aliases)`. Most apps do not need that on day one.
 
 ## What Developers Should Care About
 

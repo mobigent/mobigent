@@ -29,7 +29,7 @@ export type MyAppFunctions = typeof appFunctions;
 export const mobigent = createApp(appFunctions);
 ```
 
-Backend code can use that same function shape with `mobigent.use<MyAppFunctions>()`, so server code calls `app.expense.list()` and `app.expense.create(input)` with autocomplete.
+Backend code can use that same function shape with `mobigent.app<MyAppFunctions>()`, so server code calls `app.expense.list()` and `app.expense.create(input)` with autocomplete.
 
 For production, set public app config:
 
@@ -104,7 +104,7 @@ Your backend can call app namespaces directly. If you can import the app functio
 ```ts
 import type { MyAppFunctions } from "../app/mobigent";
 
-const app = mobigent.use<MyAppFunctions>();
+const app = mobigent.app<MyAppFunctions>();
 
 await app.expense.create({ merchant: "Coffee", amount: 8 });
 ```
@@ -112,7 +112,7 @@ await app.expense.create({ merchant: "Coffee", amount: 8 });
 If the backend cannot share that type, bind backend-friendly helper names once:
 
 ```ts
-const expenses = mobigent.use("expense", {
+const expenses = mobigent.app("expense", {
   createExpense: "create",
   listExpenses: "list"
 });

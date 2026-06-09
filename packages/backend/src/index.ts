@@ -280,7 +280,12 @@ export type MobigentBackendFunctions = {
   [namespace: string]: MobigentBackendFeatureFunctions;
 };
 export type MobigentBackendAppAccessor = {
+  <const T extends MobigentBackendAppFunctionContract>(): MobigentBackendAppFunctions<T>;
+  (namespace: string): MobigentBackendFeatureFunctions;
+  <const T extends readonly string[]>(namespace: string, functions: T): MobigentBackendNamedFunctionMap<T>;
+  <const T extends Record<string, string>>(namespace: string, functions: T): MobigentBackendFunctionMap<T>;
   (options: MobigentBackendAppConfigOptions): MobigentBackendAppConfig;
+  <const T extends MobigentBackendAppFunctionContract>(functions: T): MobigentBackendAppFunctions<T>;
   [namespace: string]: MobigentBackendFeatureFunctions;
 };
 export type MobigentBackendSetupAccessor = {
@@ -490,7 +495,7 @@ export async function startMobigentBackend(
         })
       : appConfig(input);
   }
-  const appAccessor = createBackendAppAccessor(appConfig, appFeature);
+  const appAccessor = createBackendAppAccessor(appConfig, appFeature, appFunction);
 
   const advanced: MobigentBackendAdvanced = {
     gateway,
@@ -734,10 +739,29 @@ function createBackendFunctionsAccessor(
 
 function createBackendAppAccessor(
   appConfig: (options: MobigentBackendAppConfigOptions) => MobigentBackendAppConfig,
-  appFeature: (namespace: string) => MobigentBackendFeatureFunctions
+  appFeature: (namespace: string) => MobigentBackendFeatureFunctions,
+  appFunction: (name: string) => MobigentBackendFunction
 ): MobigentBackendAppAccessor {
   const cache = new Map<string, MobigentBackendFeatureFunctions>();
-  const callable = appConfig as MobigentBackendAppAccessor;
+  const callable = ((input?: MobigentBackendAppConfigOptions | MobigentBackendAppFunctionContract | string, namespaceFunctions?: Record<string, string> | readonly string[]) => {
+    if (!input) {
+      return createBackendAppFunctionContractProxy(appFeature);
+    }
+
+    if (typeof input === "string") {
+      if (!namespaceFunctions) {
+        return appFeature(input);
+      }
+
+      return createBackendFunctionBindings(input, namespaceFunctions, appFunction);
+    }
+
+    if (isBackendAppConfigOptions(input)) {
+      return appConfig(input);
+    }
+
+    return createBackendAppFunctionContractBindings(input, appFunction);
+  }) as MobigentBackendAppAccessor;
 
   return new Proxy(callable, {
     get(target, property, receiver) {
@@ -756,6 +780,21 @@ function createBackendAppAccessor(
       return cache.get(property);
     }
   });
+}
+
+function isBackendAppConfigOptions(value: unknown): value is MobigentBackendAppConfigOptions {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      !Array.isArray(value) &&
+      (("appId" in value && typeof value.appId === "string") ||
+        ("id" in value && typeof value.id === "string") ||
+        ("appName" in value && typeof value.appName === "string") ||
+        ("name" in value && typeof value.name === "string") ||
+        ("connectionUrl" in value && typeof value.connectionUrl === "string") ||
+        ("gatewayUrl" in value && typeof value.gatewayUrl === "string") ||
+        ("authToken" in value && typeof value.authToken === "string"))
+  );
 }
 
 function createFeatureFunctionProxy(namespace: string, appFunction: (name: string) => MobigentBackendFunction) {

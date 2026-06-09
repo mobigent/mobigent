@@ -367,7 +367,7 @@ function createBackendFile(options: MobigentBackendInitOptions) {
 export const mobigent = await ${startExpression};
 
 export const waitForApp = mobigent.waitForApp;
-export const app = mobigent.use();
+export const app = mobigent.app();
 export const use = mobigent.use;
 export const call = mobigent.call;
 export const listFunctions = mobigent.listFunctions;
