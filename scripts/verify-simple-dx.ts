@@ -593,6 +593,26 @@ for (const path of [
 for (const path of [
   "README.md",
   "docs/quickstart.md",
+  "docs/react-native.md",
+  "docs/api/README.md",
+  "docs/simple-integration.md",
+  "docs/existing-react-native-app.md",
+  "packages/app/README.md",
+  "packages/backend/README.md",
+  "packages/react-native/README.md",
+  "apps/docs/docs/quickstart.md",
+  "apps/docs/docs/react-native.md",
+  "apps/docs/docs/api.md",
+  "apps/docs/docs/simple-integration.md",
+  "apps/docs/docs/existing-react-native-app.md"
+]) {
+  const contents = readFileSync(path, "utf8");
+  assert.doesNotMatch(contents, /mobigent\.functions|functions\.expense|mobigent\.app\.expense/, `${path} should keep old dynamic backend surfaces out of beginner docs`);
+}
+
+for (const path of [
+  "README.md",
+  "docs/quickstart.md",
   "docs/simple-integration.md",
   "docs/react-native.md",
   "packages/app/README.md",
@@ -652,8 +672,9 @@ for (const path of ["docs/api/README.md", "apps/docs/docs/api.md"]) {
   assert.match(docsPage, /Existing app path/, "website docs should include a dedicated existing-app adoption section");
   assert.match(docsPage, /No generator\. No copied config/, "website docs should make generator-free adoption visible");
   assert.match(docsPage, /sample generator is only for runnable demos/, "website docs should frame generators as demo helpers");
-  assert.match(docsPage, /client\.write\(/, "website native examples should teach client.write(...)");
-  assert.match(docsPage, /client\.read\(/, "website native examples should teach client.read(...)");
+  assert.match(docsPage, /client\.functions\("expense"\)/, "website native examples should teach grouped native app functions");
+  assert.match(docsPage, /expense\.write\(|write\(\s*"create"/, "website native examples should teach native writes inside grouped functions");
+  assert.match(docsPage, /expense\.read\(|read\(\s*"list"/, "website native examples should teach native reads inside grouped functions");
   assert.doesNotMatch(
     docsPage,
     /registerAction|registerResource|MobigentAction|MobigentResource/,
@@ -729,7 +750,7 @@ for (const path of ["scripts/check-npm-status.ts", "scripts/check-npm-publish-re
 for (const path of ["docs/ios.md", "docs/android.md", "packages/ios/README.md", "packages/android/README.md"]) {
   const contents = readFileSync(path, "utf8");
   assert.match(contents, /@mobigent\/backend/, `${path} should anchor native SDKs to the backend package`);
-  assert.match(contents, /client\.write\(/, `${path} should teach app functions with client.write(...)`);
+  assert.match(contents, /client\.functions\("expense"\)/, `${path} should teach grouped native app functions`);
   assert.doesNotMatch(
     contents,
     /gateway|gatewayURL|gatewayUrl|Register Capabilities|registerAction|registerResource|hello|manifest|protocol/i,
@@ -740,7 +761,7 @@ for (const path of ["docs/ios.md", "docs/android.md", "packages/ios/README.md", 
 const iosGuide = readFileSync("docs/ios.md", "utf8");
 assert.match(iosGuide, /MobigentClient\(\s*[\s\S]{0,120}?appId: "com\.example\.expenses"[\s\S]{0,120}?appName: "Expenses"[\s\S]{0,80}?\)/);
 assert.match(iosGuide, /backendURL: URL\(string: "ws:\/\/YOUR_MAC_LAN_IP:8787"\)!/);
-assert.match(iosGuide, /client\.read\(/);
+assert.match(iosGuide, /expense\.read\(/);
 assert.doesNotMatch(
   iosGuide.slice(iosGuide.indexOf("## Create A Client"), iosGuide.indexOf("That default connects")),
   /gatewayURL:/,
@@ -750,7 +771,7 @@ assert.doesNotMatch(
 const androidGuide = readFileSync("docs/android.md", "utf8");
 assert.match(androidGuide, /MobigentClient\.Builder\(context\)[\s\S]{0,160}?\.appId\("com\.example\.expenses"\)[\s\S]{0,80}?\.appName\("Expenses"\)[\s\S]{0,80}?\.build\(\)/);
 assert.match(androidGuide, /\.backendUrl\("ws:\/\/YOUR_MAC_LAN_IP:8787"\)/);
-assert.match(androidGuide, /client\.read\(/);
+assert.match(androidGuide, /read\(\s*"list"/);
 assert.doesNotMatch(
   androidGuide.slice(androidGuide.indexOf("## Create A Client"), androidGuide.indexOf("That default connects")),
   /\.gatewayUrl\(/,

@@ -30,25 +30,27 @@ let client = MobigentClient(
     heartbeat: .init(enabled: true)
 )
 
-client.registerAction(MobigentAction(
-    name: "create",
-    description: "Create an expense after approval.",
-    inputSchema: .object([
-        "merchant": .string(),
-        "amount": .number()
-    ], required: ["merchant", "amount"]),
-    confirmation: .init(required: true, title: "Create expense?", risk: .medium)
-) { input in
-    await store.create(input: input)
-})
+client.functions("expense") { expense in
+    expense.write(
+        "create",
+        description: "Create an expense after approval.",
+        inputSchema: .object([
+            "merchant": .string(),
+            "amount": .number()
+        ], required: ["merchant", "amount"]),
+        confirmation: .init(required: true, title: "Create expense?", risk: .medium)
+    ) { input in
+        await store.create(input: input)
+    }
 
-client.registerResource(MobigentResource(
-    name: "list",
-    description: "List expenses.",
-    outputSchema: .object(["items": .array(of: .object())], required: ["items"])
-) {
-    ["items": await store.list()]
-})
+    expense.read(
+        "list",
+        description: "List expenses.",
+        outputSchema: .object(["items": .array(of: .object())], required: ["items"])
+    ) {
+        ["items": await store.list()]
+    }
+}
 
 client.onConfirmation { request in
     print("Approving \(request.actionName): \(request.input)")

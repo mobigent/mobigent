@@ -46,26 +46,30 @@ let client = MobigentClient(
 ## Expose App Functions
 
 ```swift
-client.write(
-    name: "create",
-    description: "Create an expense after approval.",
-    inputSchema: .object([
-        "merchant": .string(),
-        "amount": .number()
-    ], required: ["merchant", "amount"]),
-    confirmation: .init(required: true, risk: .medium)
-) { input in
-    ["id": "EXP-1", "merchant": input["merchant"] ?? "", "amount": input["amount"] ?? 0]
-}
+client.functions("expense") { expense in
+    expense.write(
+        "create",
+        description: "Create an expense after approval.",
+        inputSchema: .object([
+            "merchant": .string(),
+            "amount": .number()
+        ], required: ["merchant", "amount"]),
+        confirmation: .init(required: true, risk: .medium)
+    ) { input in
+        ["id": "EXP-1", "merchant": input["merchant"] ?? "", "amount": input["amount"] ?? 0]
+    }
 
-client.read(
-    name: "list",
-    description: "List expenses.",
-    outputSchema: .object(["items": .array(of: .object())], required: ["items"])
-) {
-    ["items": []]
+    expense.read(
+        "list",
+        description: "List expenses.",
+        outputSchema: .object(["items": .array(of: .object())], required: ["items"])
+    ) {
+        ["items": []]
+    }
 }
 ```
+
+`functions("expense")` keeps native code grouped the same way your backend calls it: `mobigent.use("expense").create(...)` and `mobigent.use("expense").list()`.
 
 ## Confirm Sensitive Actions
 
@@ -99,6 +103,9 @@ npm install @mobigent/backend
 import { startMobigent } from "@mobigent/backend";
 
 const mobigent = await startMobigent("com.example.expenses");
+const expenses = mobigent.use("expense");
+
+await expenses.create({ merchant: "Coffee", amount: 8 });
 ```
 
 Then run the iOS app and connect the client:
@@ -125,7 +132,7 @@ Open the local inspector:
 open http://localhost:8788/inspect
 ```
 
-You should see the app functions, recent audit events, and metrics. The same functions are also available to the backend through `mobigent.functions.expense.create(...)` and to agents through the backend service.
+You should see the app functions, recent audit events, and metrics. The same functions are also available to backend code through `mobigent.use("expense")` and to agents through the backend service.
 
 ## Optional App Intents Starter
 

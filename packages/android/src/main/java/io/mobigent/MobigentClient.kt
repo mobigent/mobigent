@@ -192,6 +192,45 @@ data class MobigentDiagnostics(
     val backendUrl: String get() = gatewayUrl
 }
 
+class MobigentFunctions internal constructor(
+    private val namespace: String,
+    private val client: MobigentClient
+) {
+    fun write(
+        name: String,
+        description: String,
+        inputSchema: MobigentSchema = MobigentSchema.obj(),
+        outputSchema: MobigentSchema? = null,
+        confirmation: MobigentConfirmationPolicy? = null,
+        policy: MobigentCapabilityPolicy? = null,
+        handler: suspend (MobigentJson) -> Any?
+    ) = apply {
+        client.write(functionName(name), description, inputSchema, outputSchema, confirmation, policy, handler)
+    }
+
+    fun read(
+        name: String,
+        description: String,
+        outputSchema: MobigentSchema? = null,
+        policy: MobigentCapabilityPolicy? = null,
+        handler: suspend () -> Any?
+    ) = apply {
+        client.read(functionName(name), description, outputSchema, policy, handler)
+    }
+
+    fun screen(
+        name: String,
+        description: String,
+        propsSchema: MobigentSchema? = null,
+        policy: MobigentCapabilityPolicy? = null,
+        handler: suspend (MobigentJson) -> Any?
+    ) = apply {
+        client.screen(functionName(name), description, propsSchema, policy, handler)
+    }
+
+    private fun functionName(name: String) = "${namespace}_${name}"
+}
+
 interface MobigentTransport {
     val isOpen: Boolean
     fun connect(url: String, onMessage: (String) -> Unit, onClose: () -> Unit)
@@ -296,6 +335,11 @@ class MobigentClient private constructor(
 
     fun confirmationHandler(handler: suspend (MobigentConfirmationRequest) -> Boolean) = apply {
         confirmationHandler = handler
+    }
+
+    fun functions(namespace: String, build: MobigentFunctions.() -> Unit) = apply {
+        assertNamespaceAvailable(namespace)
+        MobigentFunctions(namespace, this).build()
     }
 
     fun registerAction(action: MobigentAction) {
@@ -535,6 +579,10 @@ class MobigentClient private constructor(
         require(!actions.containsKey(name) && !resources.containsKey(name) && !components.containsKey(name)) {
             "Duplicate capability name $name."
         }
+    }
+
+    private fun assertNamespaceAvailable(namespace: String) {
+        require(Regex("^[A-Za-z][A-Za-z0-9_]*$").matches(namespace)) { "Invalid function namespace $namespace." }
     }
 }
 

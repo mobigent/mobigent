@@ -14,3 +14,5 @@ gradle :app:installDebug
 ```
 
 The Android emulator uses `ws://10.0.2.2:8787` to reach the host gateway.
+
+The example exposes `expense.create` and `expense.list` with the same grouped function shape used by the backend SDK.

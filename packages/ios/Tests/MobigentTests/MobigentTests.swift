@@ -68,6 +68,30 @@ final class MobigentTests: XCTestCase {
         XCTAssertEqual((manifest["components"] as? [MobigentJSON])?.count, 1)
     }
 
+    func testFunctionNamespacesBuildBackendFriendlyNames() {
+        let client = MobigentClient(appId: "com.example.app", appName: "Example")
+
+        client.functions("expense") { expense in
+            expense.read("list", description: "List expenses.") {
+                ["items": []]
+            }
+            expense.write(
+                "create",
+                description: "Create an expense.",
+                inputSchema: .object(["amount": .number()], required: ["amount"]),
+                confirmation: .init(required: true, risk: .medium)
+            ) { input in
+                input
+            }
+        }
+
+        let manifest = client.manifest()
+        let actions = manifest["actions"] as? [MobigentJSON]
+        let resources = manifest["resources"] as? [MobigentJSON]
+        XCTAssertEqual(actions?.first?["name"] as? String, "expense_create")
+        XCTAssertEqual(resources?.first?["name"] as? String, "expense_list")
+    }
+
     func testConnectionSendsHelloAndManifestThenFlushesEvents() async throws {
         let socket = MockSocket()
         let client = MobigentClient(

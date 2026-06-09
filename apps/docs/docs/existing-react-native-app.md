@@ -123,9 +123,7 @@ await app.expense.create({
 await app.expense.list();
 ```
 
-If the backend cannot share that type, `mobigent.functions.expense.create(...)` and `mobigent.app.expense.create(...)` still work dynamically.
-
-If your backend wants custom helper names, bind them once with `mobigent.use(...)`. Most apps do not need that on day one.
+If the backend cannot share that type, bind the app function group once with `mobigent.use("expense", aliases)`. Most apps do not need that on day one.
 
 ## What Developers Should Care About
 

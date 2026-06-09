@@ -84,6 +84,35 @@ class MobigentClientTest {
     }
 
     @Test
+    fun functionNamespacesBuildBackendFriendlyNames() {
+        val client = MobigentClient.Builder()
+            .appId("com.example.app")
+            .appName("Example")
+            .build()
+
+        client.functions("expense") {
+            read("list", description = "List expenses.") {
+                mapOf("items" to emptyList<Map<String, Any?>>())
+            }
+            write(
+                "create",
+                description = "Create an expense.",
+                inputSchema = MobigentSchema.obj(
+                    mapOf("amount" to MobigentSchema.number()),
+                    required = listOf("amount")
+                ),
+                confirmation = MobigentConfirmationPolicy(required = true, risk = MobigentRisk.Medium)
+            ) { input -> input }
+        }
+
+        val manifest = client.manifest()
+        val actions = manifest["actions"] as List<Map<String, Any?>>
+        val resources = manifest["resources"] as List<Map<String, Any?>>
+        assertEquals("expense_create", actions.first()["name"])
+        assertEquals("expense_list", resources.first()["name"])
+    }
+
+    @Test
     fun connectSendsHelloManifestAndQueuedEvent() {
         val transport = MockTransport()
         val client = MobigentClient.Builder()

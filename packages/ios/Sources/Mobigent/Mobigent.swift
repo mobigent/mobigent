@@ -252,6 +252,72 @@ public struct MobigentDiagnostics: Sendable {
     }
 }
 
+public final class MobigentFunctions {
+    private let namespace: String
+    private let client: MobigentClient
+
+    init(namespace: String, client: MobigentClient) {
+        self.namespace = namespace
+        self.client = client
+    }
+
+    public func write(
+        _ name: String,
+        description: String,
+        inputSchema: MobigentSchema = .object(),
+        outputSchema: MobigentSchema? = nil,
+        confirmation: MobigentConfirmationPolicy? = nil,
+        policy: MobigentCapabilityPolicy? = nil,
+        handler: @escaping @Sendable (MobigentJSON) async throws -> Any
+    ) {
+        client.write(
+            name: functionName(name),
+            description: description,
+            inputSchema: inputSchema,
+            outputSchema: outputSchema,
+            confirmation: confirmation,
+            policy: policy,
+            handler: handler
+        )
+    }
+
+    public func read(
+        _ name: String,
+        description: String,
+        outputSchema: MobigentSchema? = nil,
+        policy: MobigentCapabilityPolicy? = nil,
+        handler: @escaping @Sendable () async throws -> Any
+    ) {
+        client.read(
+            name: functionName(name),
+            description: description,
+            outputSchema: outputSchema,
+            policy: policy,
+            handler: handler
+        )
+    }
+
+    public func screen(
+        _ name: String,
+        description: String,
+        propsSchema: MobigentSchema? = nil,
+        policy: MobigentCapabilityPolicy? = nil,
+        handler: @escaping @Sendable (MobigentJSON) async throws -> Any
+    ) {
+        client.screen(
+            name: functionName(name),
+            description: description,
+            propsSchema: propsSchema,
+            policy: policy,
+            handler: handler
+        )
+    }
+
+    private func functionName(_ name: String) -> String {
+        "\(namespace)_\(name)"
+    }
+}
+
 public struct MobigentReconnectOptions: Sendable {
     public var enabled: Bool
     public var maxAttempts: Int
@@ -441,6 +507,11 @@ public final class MobigentClient {
 
     public func onConfirmation(_ handler: @escaping ConfirmationHandler) {
         confirmationHandler = handler
+    }
+
+    public func functions(_ namespace: String, _ build: (MobigentFunctions) -> Void) {
+        assertNamespaceAvailable(namespace)
+        build(MobigentFunctions(namespace: namespace, client: self))
     }
 
     public func registerAction(_ action: MobigentAction) {
@@ -727,6 +798,10 @@ public final class MobigentClient {
     private func assertCapabilityAvailable(name: String) {
         precondition(name.range(of: #"^[A-Za-z][A-Za-z0-9_]*$"#, options: .regularExpression) != nil, "Invalid capability name \(name).")
         precondition(actions[name] == nil && resources[name] == nil && components[name] == nil, "Duplicate capability name \(name).")
+    }
+
+    private func assertNamespaceAvailable(_ namespace: String) {
+        precondition(namespace.range(of: #"^[A-Za-z][A-Za-z0-9_]*$"#, options: .regularExpression) != nil, "Invalid function namespace \(namespace).")
     }
 
     private func isoNow() -> String {

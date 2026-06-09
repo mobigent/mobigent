@@ -192,29 +192,31 @@ let client = MobigentClient(
   version: "1.0.0"
 )
 
-client.write(
-  name: "expense.create",
-  description: "Create an expense after approval.",
-  inputSchema: .object([
-    "merchant": .string(),
-    "amount": .number()
-  ], required: ["merchant", "amount"]),
-  confirmation: .init(required: true, risk: .medium)
-) { input in
-  createExpense(input)
-}
-
-client.read(
-  name: "expense.list",
-  description: "Read saved expenses.",
-  outputSchema: .object([
-    "items": .array(.object([
+client.functions("expense") { expense in
+  expense.write(
+    "create",
+    description: "Create an expense after approval.",
+    inputSchema: .object([
       "merchant": .string(),
       "amount": .number()
-    ]))
-  ])
-) {
-  ["items": listExpenses()]
+    ], required: ["merchant", "amount"]),
+    confirmation: .init(required: true, risk: .medium)
+  ) { input in
+    createExpense(input)
+  }
+
+  expense.read(
+    "list",
+    description: "Read saved expenses.",
+    outputSchema: .object([
+      "items": .array(of: .object([
+        "merchant": .string(),
+        "amount": .number()
+      ]))
+    ])
+  ) {
+    ["items": listExpenses()]
+  }
 }
 
 client.onConfirmation { request in
@@ -251,39 +253,41 @@ val client = MobigentClient.Builder(context)
   .version("1.0.0")
   .build()
 
-client.write(
-  name = "expense.create",
-  description = "Create an expense after approval.",
-  inputSchema = MobigentSchema.obj(
-    mapOf(
-      "merchant" to MobigentSchema.string(),
-      "amount" to MobigentSchema.number()
+client.functions("expense") {
+  write(
+    "create",
+    description = "Create an expense after approval.",
+    inputSchema = MobigentSchema.obj(
+      mapOf(
+        "merchant" to MobigentSchema.string(),
+        "amount" to MobigentSchema.number()
+      ),
+      required = listOf("merchant", "amount")
     ),
-    required = listOf("merchant", "amount")
-  ),
-  confirmation = MobigentConfirmationPolicy(
-    required = true,
-    risk = MobigentRisk.Medium
-  )
-) { input ->
-  createExpense(input)
-}
+    confirmation = MobigentConfirmationPolicy(
+      required = true,
+      risk = MobigentRisk.Medium
+    )
+  ) { input ->
+    createExpense(input)
+  }
 
-client.read(
-  name = "expense.list",
-  description = "Read saved expenses.",
-  outputSchema = MobigentSchema.obj(
-    mapOf("items" to MobigentSchema.array(
-      MobigentSchema.obj(
-        mapOf(
-          "merchant" to MobigentSchema.string(),
-          "amount" to MobigentSchema.number()
+  read(
+    "list",
+    description = "Read saved expenses.",
+    outputSchema = MobigentSchema.obj(
+      mapOf("items" to MobigentSchema.array(
+        MobigentSchema.obj(
+          mapOf(
+            "merchant" to MobigentSchema.string(),
+            "amount" to MobigentSchema.number()
+          )
         )
-      )
-    ))
-  )
-) {
-  mapOf("items" to listExpenses())
+      ))
+    )
+  ) {
+    mapOf("items" to listExpenses())
+  }
 }
 
 client.confirmationHandler { request ->
@@ -294,7 +298,7 @@ client.connect()`;
 
 const nativeLifecycle = [
   ["1. Create a client", "Give Mobigent the app functions. Local simulator/emulator URLs are the SDK defaults."],
-  ["2. Expose app functions", "Use write for confirmed changes, read for app data, and screen for important UI context."],
+  ["2. Expose app functions", "Group functions with client.functions(\"expense\"), then use write for changes, read for app data, and screen for UI context."],
   ["3. Add confirmations", "Mark risky actions and let the native app render the approval UI."],
   ["4. Connect", "The SDK connects to the backend and exposes those functions."],
   ["5. Emit events", "Send app events such as expense.created or sync.failed back to the agent."]

@@ -3,10 +3,8 @@ package io.mobigent.example
 import android.app.Activity
 import android.os.Bundle
 import android.widget.TextView
-import io.mobigent.MobigentAction
 import io.mobigent.MobigentClient
 import io.mobigent.MobigentConfirmationPolicy
-import io.mobigent.MobigentResource
 import io.mobigent.MobigentRisk
 import io.mobigent.MobigentSchema
 
@@ -24,9 +22,9 @@ class MainActivity : Activity() {
             .gatewayUrl("ws://10.0.2.2:8787")
             .build()
 
-        client.registerAction(
-            MobigentAction(
-                name = "create",
+        client.functions("expense") {
+            write(
+                "create",
                 description = "Create an expense after approval.",
                 inputSchema = MobigentSchema.obj(
                     mapOf("merchant" to MobigentSchema.string(), "amount" to MobigentSchema.number()),
@@ -40,17 +38,15 @@ class MainActivity : Activity() {
                     "amount" to input["amount"]
                 ).also { expenses += it }
             }
-        )
 
-        client.registerResource(
-            MobigentResource(
-                name = "list",
+            read(
+                "list",
                 description = "List expenses.",
                 outputSchema = MobigentSchema.obj(mapOf("items" to MobigentSchema.array(MobigentSchema.obj())), required = listOf("items"))
             ) {
                 mapOf("items" to expenses)
             }
-        )
+        }
 
         client.confirmationHandler { true }
         client.connect()

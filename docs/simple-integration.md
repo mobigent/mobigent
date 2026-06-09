@@ -129,7 +129,7 @@ EXPO_PUBLIC_MOBIGENT_URL=wss://your-backend.example.com
 
 Prefer generated sample files? Use the starter. Starter generation is a demo shortcut, not required integration.
 
-That import is type-only, so your backend gets autocomplete without loading React Native code. If the backend cannot share that function shape, `mobigent.functions.expense.create(...)` still works dynamically. If your backend wants its own helper names, bind aliases once:
+That import is type-only, so your backend gets autocomplete without loading React Native code. If the backend cannot share that function shape, bind the app function group once:
 
 ```ts
 const expenses = mobigent.use("expense", {

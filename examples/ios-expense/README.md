@@ -15,5 +15,5 @@ swift run
 
 The example exposes:
 
-- `create`: confirmed write action
-- `list`: read-only resource
+- `expense.create`: confirmed write app function
+- `expense.list`: read-only app function

@@ -136,7 +136,7 @@ await app.expense.create({ merchant: "Coffee", amount: 8 });
 await app.expense.list();
 ```
 
-Mobigent waits for the app connection when a function is called. If the backend cannot share that type, `mobigent.functions.expense.create(...)` still works dynamically. If you want backend-specific helper names, bind aliases once:
+Mobigent waits for the app connection when a function is called. If the backend cannot share that type, bind the app function group once:
 
 ```ts
 const expenses = mobigent.use("expense", {
@@ -147,6 +147,8 @@ const expenses = mobigent.use("expense", {
 await expenses.createExpense({ merchant: "Coffee", amount: 8 });
 await expenses.listExpenses();
 ```
+
+For one quick explicit call where the name is runtime data, use `mobigent.call("expense.create", input)`.
 
 With no options, Mobigent uses local defaults. Real deployments should set `MOBIGENT_APP`, the app's `EXPO_PUBLIC_MOBIGENT_APP`, and the hosted app URL in environment/config.
 
