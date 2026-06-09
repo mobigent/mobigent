@@ -89,7 +89,16 @@ for (const typeName of [
 assert.match(backendPackageRoot, /connection: MobigentBackendClient/, "@mobigent/backend should expose a clean backend.connection pairing object");
 assert.match(backendPackageRoot, /agentUrl: string/, "@mobigent/backend should expose a friendly agentUrl alias");
 assert.match(backendPackageRoot, /appConnectionUrl: string/, "@mobigent/backend should expose a friendly appConnectionUrl alias");
-assert.match(backendPackageRoot, /functions: MobigentBackendFunctions/, "@mobigent/backend should expose backend.functions as the plain function-calling surface");
+assert.doesNotMatch(
+  backendPublicType,
+  /functions: MobigentBackendFunctions/,
+  "@mobigent/backend should keep backend.functions out of the main public type; use backend.use() instead"
+);
+assert.match(
+  backendPackageRoot,
+  /export type MobigentBackendCompatibility/,
+  "@mobigent/backend should keep legacy backend.functions available only through an explicit compatibility type"
+);
 assert.match(backendPackageRoot, /setup: MobigentBackendSetupAccessor/, "@mobigent/backend should expose grouped backend.setup helpers for agent setup");
 assert.match(backendPackageRoot, /connect: MobigentBackendSetupAccessor/, "@mobigent/backend should expose backend.connect helpers for agent setup");
 assert.match(backendPackageRoot, /forApp\(\): MobigentBackendClient/, "@mobigent/backend should expose backend.forApp() as the clean app handoff");

@@ -66,6 +66,7 @@ const mobigent = await startMobigent("app.mobigent.local", "Mobigent App", {
 assert.equal(mobigent.defaultApp.connectionUrl, "ws://localhost:19081");
 assert.equal(mobigent.resolveFunctionName("expense.create"), "expense.create");
 assert.equal(Array.isArray(mobigent.listFunctions()), true);
+assert.equal(Object.prototype.propertyIsEnumerable.call(mobigent, "functions"), false);
 assert.equal(Array.isArray(mobigent.functions()), true);
 assert.equal(typeof mobigent.use("expense").create, "function");
 assert.equal(typeof mobigent.use("expense", { createExpense: "create" }).createExpense, "function");

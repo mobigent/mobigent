@@ -28,6 +28,7 @@ export {
   type CallResult,
   type MobigentAgentOptions,
   type MobigentBackend,
+  type MobigentBackendCompatibility,
   type MobigentBackendOptions
 } from "@mobigent/backend";
 export { runMobigentCli } from "./cli.js";

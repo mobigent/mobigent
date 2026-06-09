@@ -419,7 +419,7 @@ test("backend helper starts HTTP, OpenAPI, and inspector endpoints from one func
     assert.equal(backend.openApiUrl, "http://localhost:18988/openapi.json");
     assert.deepEqual(
       Object.keys(backend).filter((key) => ["gateway", "urls", "defaultApp", "functions", "tools"].includes(key)),
-      ["functions"]
+      []
     );
     assert.equal(typeof (backend as unknown as { functions: unknown }).functions, "function");
     assert.equal(backend.advanced.urls.websocket, "ws://localhost:18987");
@@ -527,7 +527,7 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
         merchant: "Airport Taxi"
       });
 
-      assert.deepEqual(await backend.functions.expense.create({ merchant: "Bookshop" }), {
+      assert.deepEqual(await backend.use("expense").create({ merchant: "Bookshop" }), {
         id: "EXP-1",
         merchant: "Bookshop"
       });
@@ -574,7 +574,8 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
         }
       };
       const typedApp: BackendAppFunctions<typeof appFunctions> = backend.use(appFunctions);
-      const typedFromFunctionsAccessor = backend.functions(appFunctions);
+      const legacyFunctions = backend as unknown as { functions: typeof backend.use };
+      const typedFromFunctionsAccessor = legacyFunctions.functions(appFunctions);
       const typeOnlyApp = backend.use<typeof appFunctions>();
       const contractShape: BackendAppFunctionContract = appFunctions;
       assert.equal(typeof contractShape.expense.create, "function");
@@ -681,7 +682,7 @@ test("app package connects to a backend object without connection URL ceremony",
         id: "EXP-BACKEND",
         merchant: "Tea"
       });
-      assert.deepEqual(await backend.functions.expense.create({ merchant: "Coffee" }), {
+      assert.deepEqual(await backend.use("expense").create({ merchant: "Coffee" }), {
         id: "EXP-BACKEND",
         merchant: "Coffee"
       });
@@ -723,7 +724,7 @@ test("app package accepts backend.forApp() as the clean explicit handoff", async
 
     try {
       await backend.waitForApp({ minFunctions: 1 });
-      assert.deepEqual(await backend.functions.expense.create({ merchant: "Notebook" }), {
+      assert.deepEqual(await backend.use("expense").create({ merchant: "Notebook" }), {
         id: "EXP-FORAPP",
         merchant: "Notebook"
       });
@@ -826,7 +827,7 @@ test("app package infers identity and connection from a backend object", async (
 
     try {
       await backend.waitForApp({ minFunctions: 1 });
-      assert.deepEqual(await backend.functions.expense.list(), {
+      assert.deepEqual(await backend.use("expense").list(), {
         items: [{ id: "EXP-INFER-BACKEND" }]
       });
     } finally {
@@ -1820,7 +1821,7 @@ test("app and backend can pair from environment config while code stays no-argum
 
     try {
       await waitFor(() => backend.listFunctions().some((fn) => fn.name === "com_example_envpair.expense_create"));
-      assert.deepEqual(await backend.functions.expense.create({ merchant: "Tea" }), {
+      assert.deepEqual(await backend.use("expense").create({ merchant: "Tea" }), {
         id: "EXP-ENV",
         merchant: "Tea"
       });
