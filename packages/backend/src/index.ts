@@ -54,6 +54,7 @@ export type MobigentBackendDefaultAppOptions = {
   appId?: string;
   appName?: string;
   version?: string;
+  backendUrl?: string;
   connectionUrl?: string;
   gatewayUrl?: string;
   appToken?: string;
@@ -64,6 +65,7 @@ export type MobigentBackendAppConfigOptions = {
   appId: string;
   appName: string;
   version?: string;
+  backendUrl?: string;
   connectionUrl?: string;
   gatewayUrl?: string;
   appToken?: string;
@@ -73,6 +75,7 @@ export type MobigentBackendAppConfigOptions = {
 export type MobigentBackendAppConfig = {
   appId: string;
   appName: string;
+  backendUrl: string;
   connectionUrl: string;
   gatewayUrl?: string;
   version?: string;
@@ -407,7 +410,8 @@ export async function startMobigentBackend(
   const appConfig = (appOptions: MobigentBackendAppConfigOptions): MobigentBackendAppConfig => ({
     appId: appOptions.appId,
     appName: appOptions.appName,
-    connectionUrl: appOptions.connectionUrl ?? appOptions.gatewayUrl ?? urls.websocket,
+    backendUrl: appOptions.backendUrl ?? appOptions.connectionUrl ?? appOptions.gatewayUrl ?? urls.websocket,
+    connectionUrl: appOptions.connectionUrl ?? appOptions.backendUrl ?? appOptions.gatewayUrl ?? urls.websocket,
     version: appOptions.version,
     authToken: appOptions.appToken ?? appOptions.authToken ?? appToken
   });
@@ -791,6 +795,7 @@ function isBackendAppConfigOptions(value: unknown): value is MobigentBackendAppC
         ("id" in value && typeof value.id === "string") ||
         ("appName" in value && typeof value.appName === "string") ||
         ("name" in value && typeof value.name === "string") ||
+        ("backendUrl" in value && typeof value.backendUrl === "string") ||
         ("connectionUrl" in value && typeof value.connectionUrl === "string") ||
         ("gatewayUrl" in value && typeof value.gatewayUrl === "string") ||
         ("authToken" in value && typeof value.authToken === "string"))
@@ -989,6 +994,7 @@ function normalizeDefaultApp(app: MobigentBackendDefaultAppOptions): MobigentBac
     appId,
     appName,
     version: app.version,
+    backendUrl: app.backendUrl,
     connectionUrl: app.connectionUrl,
     gatewayUrl: app.gatewayUrl,
     appToken: app.appToken,

@@ -433,6 +433,7 @@ test("backend helper starts HTTP, OpenAPI, and inspector endpoints from one func
     assert.deepEqual(backend.client("com.example.client", "Client App"), {
       appId: "com.example.client",
       appName: "Client App",
+      backendUrl: "ws://localhost:18987",
       connectionUrl: "ws://localhost:18987",
       authToken: "dev-token",
       version: undefined
@@ -440,6 +441,7 @@ test("backend helper starts HTTP, OpenAPI, and inspector endpoints from one func
     assert.deepEqual(backend.forApp("com.example.client", "Client App"), {
       appId: "com.example.client",
       appName: "Client App",
+      backendUrl: "ws://localhost:18987",
       connectionUrl: "ws://localhost:18987",
       authToken: "dev-token",
       version: undefined
@@ -447,6 +449,7 @@ test("backend helper starts HTTP, OpenAPI, and inspector endpoints from one func
     assert.deepEqual(backend.client({ appId: "com.example.client", appName: "Client App" }), {
       appId: "com.example.client",
       appName: "Client App",
+      backendUrl: "ws://localhost:18987",
       connectionUrl: "ws://localhost:18987",
       authToken: "dev-token",
       version: undefined
@@ -454,7 +457,16 @@ test("backend helper starts HTTP, OpenAPI, and inspector endpoints from one func
     assert.deepEqual(backend.app({ appId: "com.example.app", appName: "Example App" }), {
       appId: "com.example.app",
       appName: "Example App",
+      backendUrl: "ws://localhost:18987",
       connectionUrl: "ws://localhost:18987",
+      authToken: "dev-token",
+      version: undefined
+    });
+    assert.deepEqual(backend.client({ appId: "com.example.hosted", appName: "Hosted App", backendUrl: "wss://backend.example.com" }), {
+      appId: "com.example.hosted",
+      appName: "Hosted App",
+      backendUrl: "wss://backend.example.com",
+      connectionUrl: "wss://backend.example.com",
       authToken: "dev-token",
       version: undefined
     });
@@ -1017,6 +1029,7 @@ test("app and backend packages expose a plain app settings handoff", async () =>
     assert.deepEqual(backend.appSettings("com.example.other", "Other App"), {
       appId: "com.example.other",
       appName: "Other App",
+      backendUrl: "ws://localhost:19027",
       connectionUrl: "ws://localhost:19027",
       authToken: undefined,
       version: undefined
@@ -1156,6 +1169,7 @@ test("backend SDK can start with one app identity and normal backend options", a
     assert.deepEqual(backend.connection, {
       appId: "com.example.simple",
       appName: "Simple App",
+      backendUrl: "ws://localhost:18991",
       connectionUrl: "ws://localhost:18991",
       authToken: "dev-token",
       version: undefined
@@ -1178,6 +1192,7 @@ test("backend SDK can pair with an app using only a top-level app id", async () 
     assert.deepEqual(backend.connection, {
       appId: "com.example.minimal",
       appName: "Minimal",
+      backendUrl: "ws://localhost:19009",
       connectionUrl: "ws://localhost:19009",
       authToken: undefined,
       version: undefined
@@ -1238,6 +1253,7 @@ test("backend SDK uses the app package local identity when no app config is pass
       assert.deepEqual(backend.connection, {
         appId: "app.mobigent.local",
         appName: "Mobigent App",
+        backendUrl: "ws://localhost:18995",
         connectionUrl: "ws://localhost:18995",
         authToken: undefined,
         version: undefined
@@ -1267,6 +1283,7 @@ test("backend SDK accepts short app env alias and infers app name", async () => 
     assert.deepEqual(backend.connection, {
       appId: "com.example.travel.wallet",
       appName: "Wallet",
+      backendUrl: "ws://localhost:19043",
       connectionUrl: "ws://localhost:19043",
       authToken: undefined,
       version: "2.0.0"
@@ -1301,6 +1318,7 @@ test("backend SDK writes app config when appDir is provided", async () => {
       assert.deepEqual(config, {
         appId: "com.example.mobile",
         appName: "Mobile App",
+        backendUrl: "ws://localhost:19001",
         connectionUrl: "ws://localhost:19001",
         authToken: "dev-token"
       });
@@ -1331,6 +1349,7 @@ test("backend SDK infers default app identity from appDir", async () => {
       assert.deepEqual(backend.connection, {
         appId: "app.acme.travel.wallet.mobile",
         appName: "Travel Wallet Mobile",
+        backendUrl: "ws://localhost:19003",
         connectionUrl: "ws://localhost:19003",
         authToken: undefined,
         version: undefined

@@ -84,6 +84,7 @@ for (const typeName of [
 assert.match(backendPackageRoot, /connection: MobigentBackendClient/, "@mobigent/backend should expose a clean backend.connection pairing object");
 assert.match(backendPackageRoot, /agentUrl: string/, "@mobigent/backend should expose a friendly agentUrl alias");
 assert.match(backendPackageRoot, /appConnectionUrl: string/, "@mobigent/backend should expose a friendly appConnectionUrl alias");
+assert.match(backendPackageRoot, /backendUrl: string/, "@mobigent/backend should expose backendUrl in app handoff settings");
 assert.doesNotMatch(
   backendPublicType,
   /functions: MobigentBackendFunctions/,
