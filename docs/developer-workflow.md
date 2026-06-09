@@ -17,7 +17,9 @@ export const mobigent = createApp({
 });
 ```
 
-Then wrap the app once with `mobigent.with(App)`. Use `write(createExpense, { input, confirm })` when you want validation and custom approval copy. Set `EXPO_PUBLIC_MOBIGENT_APP` and `MOBIGENT_APP` before production. Use generators only when you want sample files.
+Then wrap the app once with `mobigent.with(App)`. Use `write(createExpense, { input, confirm })` when you want validation and custom approval copy. Set `EXPO_PUBLIC_MOBIGENT_APP` and `MOBIGENT_APP` before production.
+
+Do not start an existing app with the old app-side init command. It makes sample files, and sample files are not the integration. The integration is the app function object above.
 
 ## 2. Inspect The Gateway
 

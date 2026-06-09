@@ -4,22 +4,23 @@ sidebar_position: 4
 
 # Integration Artifacts
 
-Mobigent integrations are easiest to review when the app, provider, and CI setup all share small generated JSON artifacts.
+Mobigent integrations should start in code: install `@mobigent/app`, expose functions, and wrap the app once.
+
+Artifacts are optional review files for teams that want CI checks around app identity, capability names, and provider setup. They should not create or own your app code.
 
 ## Recommended Files
 
-For a React Native app, generate and commit:
+After your app functions exist, generate and commit only the JSON contract files you want to review:
 
 ```bash
 npx mobigent-rn-init \
-  --write-manifest ./mobigent-integration.json \
+  --write-contract ./mobigent-contract.json \
   --app-id com.example.expenses \
   --app-name "Example Expenses" \
-  --feature expense \
-  --out-dir src
+  --feature expense
 
 npx mobigent-rn-init \
-  --write-contract ./mobigent-contract.json \
+  --write-manifest ./mobigent-integration.json \
   --app-id com.example.expenses \
   --app-name "Example Expenses" \
   --feature expense
@@ -44,7 +45,7 @@ npx mobigent-provider \
 
 ## What They Prove
 
-`mobigent-integration.json` records the app identity, generated wrapper path, feature module path, gateway URL, installed module metadata, and expected capability names. Use it to review whether an app has the standard wrapper, feature namespace, and module inventory.
+`mobigent-integration.json` records the app identity, gateway URL, installed module metadata, and expected capability names. Use it to review whether an app exposes the expected namespace and package setup.
 
 `mobigent-contract.json` records the protocol-level action and resource contract. Use it to validate the agent-visible capability shape before wiring a provider.
 
@@ -64,7 +65,6 @@ npx mobigent-rn-init \
   --app-id com.example.expenses \
   --app-name "Example Expenses" \
   --feature expense \
-  --out-dir src \
   --app-root .
 
 npx mobigent-rn-init --validate-contract ./mobigent-contract.json
@@ -74,7 +74,7 @@ npx mobigent-provider --validate-setup-plan ./mobigent-provider-setup.json
 npm run verify
 ```
 
-`--doctor` checks app identity, gateway URL shape, package dependencies, the generated root wrapper, and the feature module. `--validate-contract` checks the saved capability contract against the Mobigent protocol. `--validate-manifest` checks the saved app integration metadata shape. `--validate-setup-plan` checks the saved provider onboarding artifact. `npm run verify` runs typecheck, tests, React Native CLI smoke checks, package checks, and the Vite build.
+`--doctor` checks app identity, gateway URL shape, package dependencies, and the expected feature namespace. `--validate-contract` checks the saved capability contract against the Mobigent protocol. `--validate-manifest` checks the saved app integration metadata shape. `--validate-setup-plan` checks the saved provider onboarding artifact. `npm run verify` runs typecheck, tests, React Native CLI smoke checks, package checks, and the Vite build.
 
 ## Refresh Flow
 
