@@ -383,7 +383,11 @@ for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.
     /createApp\(\{\s+expense:|createApp\(appFunctions\)/,
     `${path} should teach direct function-map mode for local demos`
   );
-  assert.match(contents, /mobigent\.functions\.expense\.create|backend\.functions\.expense\.create/, `${path} should teach the clean backend function path`);
+  assert.match(
+    contents,
+    /mobigent\.use<MyAppFunctions>\(\)|backend\.use<MyAppFunctions>\(\)|mobigent\.use&lt;MyAppFunctions&gt;\(\)/,
+    `${path} should teach the typed backend function path as the clean path`
+  );
   assert.match(
     contents,
     /withMobigent\(App, \{/,
