@@ -66,6 +66,7 @@ assert.doesNotMatch(
   "@mobigent/app root should not expose the lower-level singleton"
 );
 assert.doesNotMatch(appPackageRoot, /export const setup\b/, "@mobigent/app root should not expose setup aliases");
+assert.doesNotMatch(appPackageRoot, /export const connect\b/, "@mobigent/app root should not expose top-level connection plumbing; use createApp(functions).connect() for non-React hosts");
 assert.match(appPackageRoot, /createApp/);
 assert.match(appPackageRoot, /export function withMobigent/);
 assert.match(appPackageRoot, /read/);

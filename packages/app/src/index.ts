@@ -166,7 +166,6 @@ export function createApp(
 }
 
 export const app = createApp;
-export const connect = connectMobigent;
 export const emit = emitMobigentEvent;
 
 export function withMobigent<P extends object>(
