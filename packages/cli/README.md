@@ -6,6 +6,8 @@ Use this package when you want one command to remember:
 
 ```bash
 npx mobigent new my-demo --install
+npx mobigent install app
+npx mobigent install backend
 npx mobigent agent chatgpt --base-url https://your-backend.example
 ```
 
@@ -38,6 +40,13 @@ For production apps, the split packages keep ownership clear: `@mobigent/app` in
 You do not need the app-side init command for a real integration. Write the functions directly in your app code. The generator exists only when you want sample files.
 
 ## Common Commands
+
+```bash
+mobigent install app
+mobigent install backend
+```
+
+Install the app SDK or backend SDK from the current public release while npmjs publishing is being connected.
 
 ```bash
 mobigent new my-demo --install

@@ -98,9 +98,11 @@ await rootBackend.stop();
   assert.match(appHelp, /createApp\(functions\)\.with\(App\)/);
   assert.doesNotMatch(appHelp, /mobigent init --feature/);
   assert.match(await run(join(binDir, "mobigent"), ["backend", "--help"], appDir), /mobigent-backend/);
+  assert.match(await run(join(binDir, "mobigent"), ["install", "backend", "--dry-run"], appDir), /npm install @mobigent\/backend/);
+  assert.match(await run(join(binDir, "mobigent"), ["install", "app", "--dry-run"], appDir), /npm install @mobigent\/app/);
   assert.match(await run(join(binDir, "mobigent"), ["new", "--help"], appDir), /create-mobigent-app/);
   assert.match(await run(join(binDir, "create-mobigent-app"), ["--help"], appDir), /create-mobigent-app/);
-  assert.match(await run(join(binDir, "mobigent-install"), ["backend", "--dry-run"], appDir), /mobigent-backend-0\.1\.15\.tgz/);
+  assert.match(await run(join(binDir, "mobigent-install"), ["backend", "--dry-run"], appDir), /npm install @mobigent\/backend/);
 
   console.log("Mobigent packed install smoke check passed.");
 } finally {

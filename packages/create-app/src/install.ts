@@ -41,7 +41,10 @@ export function runMobigentInstallCli(
     const command = ["npm", "install", ...specs];
 
     if (options.dryRun) {
-      output.write(`${command.join(" ")}\n`);
+      output.write(`${friendlyInstallCommand(options.target)}\n`);
+      if (options.version === defaultMobigentVersion) {
+        output.write("Mobigent installs the matching runtime packages for this public release behind the scenes.\n");
+      }
       return 0;
     }
 
@@ -68,6 +71,17 @@ export function runMobigentInstallCli(
   } catch (error) {
     errorOutput.write(`${error instanceof Error ? error.message : String(error)}\n`);
     return 1;
+  }
+}
+
+function friendlyInstallCommand(target: InstallTarget) {
+  switch (target) {
+    case "app":
+      return "npm install @mobigent/app";
+    case "backend":
+      return "npm install @mobigent/backend";
+    case "both":
+      return "npm install @mobigent/app @mobigent/backend";
   }
 }
 

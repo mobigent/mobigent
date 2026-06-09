@@ -729,7 +729,10 @@ for (const path of ["docs/api/README.md", "apps/docs/docs/api.md"]) {
 
 const cliReadme = readFileSync("packages/cli/README.md", "utf8");
 assert.match(cliReadme, /startMobigent\(\)/);
+assert.match(cliReadme, /mobigent install app/);
+assert.match(cliReadme, /mobigent install backend/);
 assert.doesNotMatch(cliReadme, /startMobigent\(appId, appName\)/);
+assert.doesNotMatch(cliReadme, /mobigent-core|mobigent-gateway|mobigent-providers/);
 
 const previewInstaller = readFileSync("packages/create-app/src/install.ts", "utf8");
 assert.match(previewInstaller, /Backend SDK for servers and agent setup/);

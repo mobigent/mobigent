@@ -25,8 +25,8 @@ try {
 
   const installer = await run(join(binDir, "mobigent-install"), ["app", "--dry-run"]);
   assert.match(installer, /npm install/);
-  assert.match(installer, /mobigent-app-0\.1\.15\.tgz/);
-  assert.doesNotMatch(installer, /mobigent-backend-0\.1\.15\.tgz/);
+  assert.match(installer, /@mobigent\/app/);
+  assert.doesNotMatch(installer, /mobigent-core-0\.1\.15\.tgz|mobigent-backend-0\.1\.15\.tgz/);
 
   const backend = await run(join(binDir, "mobigent-backend"), ["--help"]);
   assert.match(backend, /mobigent-backend/);
@@ -63,10 +63,16 @@ try {
   const mobigentBackendHelp = await run(join(binDir, "mobigent"), ["backend", "--help"]);
   assert.match(mobigentBackendHelp, /mobigent-backend/);
   assert.doesNotMatch(mobigentBackendHelp, /--app-dir \.\.\/mobile-app/);
+  assert.match(await run(join(binDir, "mobigent"), ["install", "backend", "--dry-run"]), /npm install @mobigent\/backend/);
+  assert.match(await run(join(binDir, "mobigent"), ["install", "app", "--dry-run"]), /npm install @mobigent\/app/);
   const rootHelp = await run(join(binDir, "mobigent"), ["--help"]);
   assert.match(rootHelp, /backend --app com\.acme\.expenses/);
+  assert.match(rootHelp, /mobigent install app/);
+  assert.match(rootHelp, /mobigent install backend/);
   assert.match(rootHelp, /mobigent app --help/);
   assert.doesNotMatch(rootHelp, /mobigent init --help/);
+  assert.doesNotMatch(rootHelp, /\n  manifest\s+Advanced/);
+  assert.doesNotMatch(rootHelp, /\n  contract\s+Advanced/);
   assert.match(await run(join(binDir, "mobigent"), ["new", "--help"]), /create-mobigent-app/);
 
   console.log("Mobigent bin entrypoint smoke check passed.");
