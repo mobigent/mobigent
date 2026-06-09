@@ -221,7 +221,7 @@ test("app package createApp reads production identity from public environment co
 test("app package createApp accepts short production env aliases and infers app name", () => {
   const originalEnv = snapshotMobigentEnv();
   process.env.EXPO_PUBLIC_MOBIGENT_APP = "com.example.travel.wallet";
-  process.env.EXPO_PUBLIC_MOBIGENT_URL = "wss://mobigent.example.com";
+  process.env.EXPO_PUBLIC_MOBIGENT_BACKEND_URL = "wss://mobigent.example.com";
   process.env.EXPO_PUBLIC_MOBIGENT_TOKEN = "short-token";
 
   try {
@@ -319,7 +319,7 @@ test("createApp accepts a friendly connection target instead of generated app co
 test("createApp accepts a hosted backend URL directly", () => {
   const app = createApp({
     appId: "com.example.hosted",
-    connection: "wss://mobigent.example.com",
+    backendUrl: "wss://mobigent.example.com",
     functions: {
       expense: {
         list: read(async () => ({ items: [] }))
@@ -328,6 +328,23 @@ test("createApp accepts a hosted backend URL directly", () => {
   });
 
   assert.equal(app.options.gatewayUrl, "wss://mobigent.example.com");
+});
+
+test("app package accepts backendUrl as the product-facing connection option", () => {
+  const app = createApp(
+    {
+      expense: {
+        list: async () => ({ items: [] })
+      }
+    },
+    {
+      appName: "Backend URL App",
+      backendUrl: "wss://backend.example.com"
+    }
+  );
+
+  assert.equal(app.options.appName, "Backend URL App");
+  assert.equal(app.options.gatewayUrl, "wss://backend.example.com");
 });
 
 test("simple schema helper accepts plain field maps", () => {
@@ -1856,12 +1873,13 @@ function snapshotMobigentEnv() {
     MOBIGENT_APP_ID: process.env.MOBIGENT_APP_ID,
     MOBIGENT_APP_NAME: process.env.MOBIGENT_APP_NAME,
     MOBIGENT_APP_VERSION: process.env.MOBIGENT_APP_VERSION,
+    MOBIGENT_BACKEND_URL: process.env.MOBIGENT_BACKEND_URL,
     MOBIGENT_URL: process.env.MOBIGENT_URL,
     MOBIGENT_TOKEN: process.env.MOBIGENT_TOKEN,
     EXPO_PUBLIC_MOBIGENT_APP: process.env.EXPO_PUBLIC_MOBIGENT_APP,
     EXPO_PUBLIC_MOBIGENT_APP_ID: process.env.EXPO_PUBLIC_MOBIGENT_APP_ID,
     EXPO_PUBLIC_MOBIGENT_APP_NAME: process.env.EXPO_PUBLIC_MOBIGENT_APP_NAME,
-    EXPO_PUBLIC_MOBIGENT_URL: process.env.EXPO_PUBLIC_MOBIGENT_URL,
+    EXPO_PUBLIC_MOBIGENT_BACKEND_URL: process.env.EXPO_PUBLIC_MOBIGENT_BACKEND_URL,
     EXPO_PUBLIC_MOBIGENT_TOKEN: process.env.EXPO_PUBLIC_MOBIGENT_TOKEN,
     EXPO_PUBLIC_MOBIGENT_CONNECTION_URL: process.env.EXPO_PUBLIC_MOBIGENT_CONNECTION_URL,
     EXPO_PUBLIC_MOBIGENT_GATEWAY_URL: process.env.EXPO_PUBLIC_MOBIGENT_GATEWAY_URL,

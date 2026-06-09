@@ -140,6 +140,7 @@ export type MobigentSimpleConnectionOptions = {
   appName?: string;
   pairing?: MobigentSimpleAppConfig;
   connection?: MobigentSimpleBackendConnection;
+  backendUrl?: string;
   connectionUrl?: string;
   gatewayUrl?: string;
   features: MobigentSimpleFeature | MobigentSimpleFeature[];
@@ -155,7 +156,7 @@ export type MobigentSimpleConnectionOptions = {
 
 export type MobigentSimpleAppConfig = Pick<
   MobigentSimpleConnectionOptions,
-  "appId" | "appName" | "connection" | "connectionUrl" | "gatewayUrl" | "version" | "authToken"
+  "appId" | "appName" | "connection" | "backendUrl" | "connectionUrl" | "gatewayUrl" | "version" | "authToken"
 > & {
   appId: string;
   appName: string;
@@ -169,13 +170,14 @@ export function defineMobigentConfig(config: MobigentSimpleAppConfig): MobigentS
 
 export type MobigentSimpleConfiguredConnectionOptions = Omit<
   MobigentSimpleConnectionOptions,
-  "appId" | "appName" | "connection" | "connectionUrl" | "gatewayUrl" | "version" | "authToken"
+  "appId" | "appName" | "connection" | "backendUrl" | "connectionUrl" | "gatewayUrl" | "version" | "authToken"
 > & {
   config: MobigentSimpleAppConfig;
   appId?: string;
   appName?: string;
   pairing?: MobigentSimpleAppConfig;
   connection?: MobigentSimpleBackendConnection;
+  backendUrl?: string;
   connectionUrl?: string;
   gatewayUrl?: string;
   version?: string;
@@ -517,12 +519,15 @@ function resolveConnectionOptions(
       appName: options.appName ?? pairing?.appName ?? envConfig.appName ?? defaultMobigentSimpleAppIdentity.name,
       gatewayUrl:
         options.gatewayUrl ??
+        options.backendUrl ??
         options.connectionUrl ??
         resolveMobigentConnectionUrl(options.connection) ??
         pairing?.gatewayUrl ??
+        pairing?.backendUrl ??
         pairing?.connectionUrl ??
         resolveMobigentConnectionUrl(pairing?.connection) ??
         envConfig.gatewayUrl ??
+        envConfig.backendUrl ??
         envConfig.connectionUrl ??
         createMobigentGatewayUrl()
     };
@@ -539,15 +544,19 @@ function resolveConnectionOptions(
     appName,
     gatewayUrl:
       rest.gatewayUrl ??
+      rest.backendUrl ??
       rest.connectionUrl ??
       resolveMobigentConnectionUrl(rest.connection) ??
       pairing?.gatewayUrl ??
+      pairing?.backendUrl ??
       pairing?.connectionUrl ??
       resolveMobigentConnectionUrl(pairing?.connection) ??
       config.gatewayUrl ??
+      config.backendUrl ??
       config.connectionUrl ??
       resolveMobigentConnectionUrl(config.connection) ??
       envConfig.gatewayUrl ??
+      envConfig.backendUrl ??
       envConfig.connectionUrl ??
       createMobigentGatewayUrl(),
     version: rest.version ?? pairing?.version ?? config.version ?? envConfig.version,
@@ -564,13 +573,16 @@ export function resolveMobigentEnvironmentConfig(env: MobigentEnvironment = read
     appName,
     connectionUrl: firstEnv(
       env,
+      "EXPO_PUBLIC_MOBIGENT_BACKEND_URL",
       "EXPO_PUBLIC_MOBIGENT_CONNECTION_URL",
       "EXPO_PUBLIC_MOBIGENT_GATEWAY_URL",
       "EXPO_PUBLIC_MOBIGENT_URL",
+      "MOBIGENT_BACKEND_URL",
       "MOBIGENT_CONNECTION_URL",
       "MOBIGENT_GATEWAY_URL",
       "MOBIGENT_URL"
     ),
+    backendUrl: firstEnv(env, "EXPO_PUBLIC_MOBIGENT_BACKEND_URL", "MOBIGENT_BACKEND_URL"),
     gatewayUrl: firstEnv(env, "EXPO_PUBLIC_MOBIGENT_GATEWAY_URL", "EXPO_PUBLIC_MOBIGENT_URL", "MOBIGENT_GATEWAY_URL", "MOBIGENT_URL"),
     version: firstEnv(env, "EXPO_PUBLIC_MOBIGENT_APP_VERSION", "MOBIGENT_APP_VERSION"),
     authToken: firstEnv(env, "EXPO_PUBLIC_MOBIGENT_AUTH_TOKEN", "EXPO_PUBLIC_MOBIGENT_TOKEN", "MOBIGENT_AUTH_TOKEN", "MOBIGENT_TOKEN")

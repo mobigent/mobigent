@@ -1466,6 +1466,23 @@ test("React Native gateway URL helper handles simulator and device targets", () 
     gatewayUrl: "wss://gateway.example.com/bridge",
     authToken: undefined
   });
+  assert.deepEqual(createMobigentEnvironment({ backendUrl: "wss://backend.example.com/bridge" }), {
+    enabled: true,
+    gatewayUrl: "wss://backend.example.com/bridge",
+    authToken: undefined
+  });
+  assert.deepEqual(
+    createMobigentEnvironmentFromEnv({
+      env: {
+        EXPO_PUBLIC_MOBIGENT_BACKEND_URL: "wss://backend.example.com/bridge"
+      }
+    }),
+    {
+      enabled: true,
+      gatewayUrl: "wss://backend.example.com/bridge",
+      authToken: undefined
+    }
+  );
   assert.deepEqual(
     createMobigentEnvironmentFromEnv({
       env: {
@@ -1514,7 +1531,7 @@ test("React Native gateway URL helper handles simulator and device targets", () 
     }
   );
   assert.throws(() => createMobigentEnvironment({ mode: "device" }), /requires deviceHost or host/);
-  assert.throws(() => createMobigentEnvironment({ mode: "hosted" }), /requires host or gatewayUrl/);
+  assert.throws(() => createMobigentEnvironment({ mode: "hosted" }), /requires host, backendUrl, or gatewayUrl/);
 });
 
 test("React Native capability definition helpers create mountable kits", () => {

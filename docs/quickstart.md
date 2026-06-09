@@ -40,7 +40,7 @@ For production, keep the same app code and set public app config:
 
 ```bash
 EXPO_PUBLIC_MOBIGENT_APP=com.acme.expenses
-EXPO_PUBLIC_MOBIGENT_URL=wss://your-backend.example.com
+EXPO_PUBLIC_MOBIGENT_BACKEND_URL=wss://your-backend.example.com
 ```
 
 That is enough for a first integration. Mobigent treats `list`, `get`, `read`, `fetch`, `search`, and `load` as reads. Other plain functions are confirmed writes by default. Add `write()` later only when you want input validation or custom approval text.
@@ -157,13 +157,13 @@ open http://localhost:8788/inspect
 For local simulators, the SDK usually picks the right local URL. If you are on a physical device or hosted backend, set the backend location in public app config:
 
 ```bash
-EXPO_PUBLIC_MOBIGENT_URL=ws://192.168.1.20:8787
+EXPO_PUBLIC_MOBIGENT_BACKEND_URL=ws://192.168.1.20:8787
 ```
 
 Use your computer's LAN IP for a physical phone. For a hosted backend, use the hosted backend URL:
 
 ```bash
-EXPO_PUBLIC_MOBIGENT_URL=wss://your-backend.example.com
+EXPO_PUBLIC_MOBIGENT_BACKEND_URL=wss://your-backend.example.com
 ```
 
 No generated app config file is needed.

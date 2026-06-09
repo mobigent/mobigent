@@ -141,7 +141,7 @@ App:
 
 ```bash
 EXPO_PUBLIC_MOBIGENT_APP=com.acme.expenses
-EXPO_PUBLIC_MOBIGENT_URL=wss://your-backend.example.com
+EXPO_PUBLIC_MOBIGENT_BACKEND_URL=wss://your-backend.example.com
 ```
 
 Backend:

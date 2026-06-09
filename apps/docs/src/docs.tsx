@@ -41,7 +41,7 @@ const deviceBackendCode = `export const mobigent = createApp({
 // production env/config:
 MOBIGENT_APP=com.acme.expenses
 EXPO_PUBLIC_MOBIGENT_APP=com.acme.expenses
-EXPO_PUBLIC_MOBIGENT_URL=wss://your-backend.example.com`;
+EXPO_PUBLIC_MOBIGENT_BACKEND_URL=wss://your-backend.example.com`;
 
 const demoCode = `npm create mobigent-app@latest my-demo -- --install
 cd my-demo

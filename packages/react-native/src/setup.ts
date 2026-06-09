@@ -19,6 +19,7 @@ export type MobigentSimpleAppOptions = Omit<AgentAppFactoryOptions, "capabilitie
   config?: MobigentSimpleAppConfig;
   pairing?: MobigentSimpleAppConfig;
   connection?: MobigentSimpleBackendConnection;
+  backendUrl?: string;
   connectionUrl?: string;
   confirm?: MobigentSimpleConnectionOptions["confirm"];
   features?: MobigentSimpleFeature | MobigentSimpleFeature[];
@@ -60,15 +61,19 @@ export function mobigentApp(
   const envConfig = resolveMobigentEnvironmentConfig();
   const appConnectionUrl =
     appOptions.gatewayUrl ??
+    appOptions.backendUrl ??
     appOptions.connectionUrl ??
     resolveMobigentConnectionUrl(appOptions.connection) ??
     pairing?.gatewayUrl ??
+    pairing?.backendUrl ??
     pairing?.connectionUrl ??
     resolveMobigentConnectionUrl(pairing?.connection) ??
     config?.gatewayUrl ??
+    config?.backendUrl ??
     config?.connectionUrl ??
     resolveMobigentConnectionUrl(config?.connection) ??
     envConfig.gatewayUrl ??
+    envConfig.backendUrl ??
     envConfig.connectionUrl;
   const app = createAgentApp({
     ...appOptions,
@@ -87,6 +92,7 @@ export function mobigentApp(
     appId: appOptions.appId ?? pairing?.appId ?? config?.appId ?? envConfig.appId,
     appName: appOptions.appName ?? pairing?.appName ?? config?.appName ?? envConfig.appName,
     connection: appOptions.connection ?? config?.connection,
+    backendUrl: appOptions.backendUrl ?? config?.backendUrl,
     connectionUrl: appOptions.connectionUrl ?? config?.connectionUrl,
     gatewayUrl: appOptions.gatewayUrl ?? config?.gatewayUrl ?? envConfig.gatewayUrl,
     version: appOptions.version ?? config?.version ?? envConfig.version,

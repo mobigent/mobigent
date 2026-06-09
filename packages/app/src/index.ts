@@ -93,6 +93,7 @@ type MobigentAppPairingSource = MobigentSimpleAppConfig | (() => MobigentSimpleA
 type MobigentBackendConnectionTarget = {
   pairing?: MobigentAppPairingSource;
   connection?: MobigentSimpleConnectionSettings;
+  backendUrl?: string;
   appConnectionUrl?: string;
 };
 type MobigentLegacyBackendConnectionTarget = MobigentBackendConnectionTarget & {
@@ -105,6 +106,7 @@ type MobigentLegacyBackendConnectionTarget = MobigentBackendConnectionTarget & {
     appName?: string;
     connection?: MobigentSimpleBackendConnection;
     connectionUrl?: string;
+    backendUrl?: string;
     gatewayUrl?: string;
     version?: string;
     authToken?: string;
@@ -232,6 +234,7 @@ function normalizeBackendBackedAppInput(input: MobigentAppPackageOptions): Mobig
     appId: options.appId ?? backendSettings.appId,
     appName: options.appName ?? backendSettings.appName,
     connection: options.connection ?? backendSettings.connection,
+    backendUrl: options.backendUrl ?? backendSettings.backendUrl,
     connectionUrl: options.connectionUrl ?? backendSettings.connectionUrl,
     gatewayUrl: options.gatewayUrl ?? backendSettings.gatewayUrl,
     version: options.version ?? backendSettings.version,
@@ -336,7 +339,14 @@ function resolveBackendConnectionSettings(target: MobigentLegacyBackendConnectio
     appName: config.appName,
     pairing,
     connection: config.connection,
-    connectionUrl: config.connectionUrl ?? config.gatewayUrl ?? target.appConnectionUrl ?? target.urls?.websocket,
+    backendUrl: config.backendUrl ?? target.backendUrl,
+    connectionUrl:
+      config.connectionUrl ??
+      config.backendUrl ??
+      config.gatewayUrl ??
+      target.backendUrl ??
+      target.appConnectionUrl ??
+      target.urls?.websocket,
     version: config.version,
     authToken: config.authToken
   };
@@ -363,6 +373,7 @@ function isBackendConnectionTarget(value: unknown): value is MobigentLegacyBacke
       (("pairing" in value && typeof value.pairing === "object") ||
         ("pairing" in value && typeof value.pairing === "function") ||
         ("connection" in value && typeof value.connection === "object") ||
+        ("backendUrl" in value && typeof value.backendUrl === "string") ||
         ("appConnectionUrl" in value && typeof value.appConnectionUrl === "string") ||
         ("urls" in value && typeof value.urls === "object") ||
         ("defaultApp" in value && typeof value.defaultApp === "object"))

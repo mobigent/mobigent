@@ -58,6 +58,7 @@ export type MobigentEnvironmentOptions = {
   port?: number;
   secure?: boolean;
   path?: string;
+  backendUrl?: string;
   gatewayUrl?: string;
   authToken?: string;
   enabled?: boolean;
@@ -111,6 +112,7 @@ export type MobigentProviderProps = {
   app?: MobigentAppIdentity;
   appId?: string;
   appName?: string;
+  backendUrl?: string;
   gatewayUrl?: string;
   gateway?: MobigentProviderGatewayOptions;
   authToken?: string;
@@ -366,6 +368,7 @@ export function MobigentProvider({
   app,
   appId,
   appName,
+  backendUrl,
   gatewayUrl,
   gateway,
   authToken,
@@ -403,7 +406,7 @@ export function MobigentProvider({
       return;
     }
 
-    const resolvedGatewayUrl = resolveMobigentProviderGatewayUrl(gatewayUrl, gateway);
+    const resolvedGatewayUrl = resolveMobigentProviderGatewayUrl(gatewayUrl ?? backendUrl, gateway);
     const identity = resolveMobigentAppIdentity(app, appId, appName, version);
 
     bridgeRef.current.configure({
@@ -424,6 +427,7 @@ export function MobigentProvider({
     app,
     appId,
     appName,
+    backendUrl,
     gatewayUrl,
     gateway,
     authToken,
@@ -513,6 +517,7 @@ export function createMobigentEnvironment({
   port,
   secure,
   path,
+  backendUrl,
   gatewayUrl,
   authToken,
   enabled
@@ -524,10 +529,12 @@ export function createMobigentEnvironment({
     };
   }
 
-  if (gatewayUrl) {
+  const resolvedUrl = gatewayUrl ?? backendUrl;
+
+  if (resolvedUrl) {
     return {
       enabled: enabled ?? true,
-      gatewayUrl,
+      gatewayUrl: resolvedUrl,
       authToken
     };
   }
@@ -554,7 +561,7 @@ export function createMobigentEnvironment({
 
   if (mode === "hosted") {
     if (!host) {
-      throw new Error("Mobigent hosted environment requires host or gatewayUrl.");
+      throw new Error("Mobigent hosted environment requires host, backendUrl, or gatewayUrl.");
     }
 
     return {
@@ -610,7 +617,8 @@ export function createMobigentEnvironmentFromEnv({
     port,
     secure,
     path: read("PATH") ?? fallback.path,
-    gatewayUrl: read("GATEWAY_URL") ?? fallback.gatewayUrl,
+    backendUrl: read("BACKEND_URL") ?? fallback.backendUrl,
+    gatewayUrl: read("GATEWAY_URL") ?? read("BACKEND_URL") ?? fallback.gatewayUrl ?? fallback.backendUrl,
     authToken: read("AUTH_TOKEN") ?? fallback.authToken
   });
 }
@@ -1611,7 +1619,8 @@ function readMobigentExpoExtraConfig(expo: MobigentExpoConfig): MobigentExpoExtr
     port: parseMobigentPort(readMobigentString(raw.port)) ?? (typeof raw.port === "number" ? raw.port : undefined),
     secure: typeof raw.secure === "boolean" ? raw.secure : parseMobigentBoolean(readMobigentString(raw.secure)),
     path: readMobigentString(raw.path),
-    gatewayUrl: readMobigentString(raw.gatewayUrl),
+    backendUrl: readMobigentString(raw.backendUrl),
+    gatewayUrl: readMobigentString(raw.gatewayUrl) ?? readMobigentString(raw.backendUrl),
     authToken: readMobigentString(raw.authToken),
     enabled: typeof raw.enabled === "boolean" ? raw.enabled : parseMobigentBoolean(readMobigentString(raw.enabled)),
     app,

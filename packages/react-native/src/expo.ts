@@ -14,6 +14,7 @@ export type MobigentExpoPluginOptions = {
   port?: number;
   secure?: boolean;
   path?: string;
+  backendUrl?: string;
   gatewayUrl?: string;
   deviceHost?: string;
   platform?: MobigentGatewayPlatform;
@@ -43,6 +44,7 @@ export default function withMobigentExpoConfig<
         port: options.port,
         secure: options.secure,
         path: options.path,
+        backendUrl: options.backendUrl,
         gatewayUrl: options.gatewayUrl,
         deviceHost: options.deviceHost,
         platform: options.platform,

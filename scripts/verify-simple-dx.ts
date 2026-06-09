@@ -822,8 +822,8 @@ assert.ok(
   quickstart.indexOf("## 1. Add App Functions To An Existing App") < quickstart.indexOf("## 5. Optional Starter"),
   "docs/quickstart.md should teach real existing-app integration before starter scaffolding"
 );
-assert.match(quickstart, /EXPO_PUBLIC_MOBIGENT_URL=ws:\/\/192\.168\.1\.20:8787/);
-assert.match(quickstart, /EXPO_PUBLIC_MOBIGENT_URL=wss:\/\/your-backend\.example\.com/);
+assert.match(quickstart, /EXPO_PUBLIC_MOBIGENT_BACKEND_URL=ws:\/\/192\.168\.1\.20:8787/);
+assert.match(quickstart, /EXPO_PUBLIC_MOBIGENT_BACKEND_URL=wss:\/\/your-backend\.example\.com/);
 assert.doesNotMatch(
   quickstart,
   /set the app connection URL in `mobigent\.app\.json`/,
