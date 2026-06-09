@@ -95,22 +95,15 @@ npx mobigent app --platform-actions android-xml \
 
 These outputs are bridge plans, not magic app-store configuration. Review them, connect them to your native entry points, and keep Mobigent as the app-owned execution layer.
 
-## 6. Install From The Preview Release
-
-Until npmjs publishing is connected, use the tiny preview installer:
+## 6. Install Packages
 
 ```bash
-npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
-  -- mobigent-install app
+npm install @mobigent/app
+npm install @mobigent/backend
 ```
 
-Use the starter tarball for the easiest first run:
+For a runnable starter, use the normal npm create flow:
 
 ```bash
-npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
-  -- create-mobigent-app my-demo --install
+npm create mobigent-app@latest my-demo -- --install
 ```
-
-After npmjs publishing is connected, the same packages can be installed with normal npm names.

@@ -2,12 +2,10 @@
 
 This is the fastest way to show what Mobigent solves.
 
-For a new project from the public GitHub release:
+For a new project:
 
 ```bash
-npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
-  -- create-mobigent-app my-demo --install
+npm create mobigent-app@latest my-demo -- --install
 cd my-demo
 npm run dev
 ```
@@ -32,7 +30,7 @@ The demo runs the Mobigent backend, connects a visible expense app, and opens th
 - App state on the left
 - Agent request box on the right
 - One button that calls the app through Mobigent
-- Inspector link for the gateway details
+- Inspector link for app calls, approvals, and audit events
 
 Generated starters also include `npm run doctor`. Run it in another terminal while `npm run dev` is running to confirm the visible app, backend health, readiness, and expected app function are all working. Then run `npm run agent:local`, `npm run agent:openapi`, or `npm run agent:chatgpt` for copy-paste agent setup.
 
@@ -44,7 +42,7 @@ If your system blocks auto-open, open the app manually:
 open http://localhost:8790
 ```
 
-Open the inspector when you want to see the gateway details:
+Open the inspector when you want to see app functions, call results, approvals, and audit events:
 
 ```bash
 open http://localhost:8788/inspect
@@ -52,15 +50,15 @@ open http://localhost:8788/inspect
 
 ## What To Say
 
-Mobigent gives mobile apps a real agent interface. The app declares safe capabilities, the gateway exposes them as tools, and agents call those tools through HTTP, OpenAPI, or MCP. Risky actions still pause inside the app for user approval.
+Mobigent gives mobile apps a real agent interface. The app exposes safe functions, the backend lets agents call those functions, and risky writes still pause inside the app for user approval.
 
 ## Demo Beats
 
 1. Run `npm run demo:app`.
 2. Click `Run agent request`.
 3. Show the new expense row appear in the app.
-4. Open `/inspect` to show the discovered tools, call count, app session, and audit trail.
-5. Point to ChatGPT Actions or MCP: the same gateway contract works across agent runtimes.
+4. Open `/inspect` to show discovered app functions, call count, app session, and audit trail.
+5. Point to ChatGPT Actions or MCP: the same backend can connect those agents after the app loop works.
 
 ## Video Shot List
 

@@ -19,14 +19,6 @@ Install the app SDK:
 npm install @mobigent/app
 ```
 
-Current public fallback until npmjs publishing is connected:
-
-```bash
-npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
-  -- mobigent-install app
-```
-
 Create a Mobigent file yourself. There is no app-side init command in the normal path:
 
 ```ts
@@ -101,14 +93,6 @@ Install the backend SDK:
 
 ```bash
 npm install @mobigent/backend
-```
-
-Current public fallback until npmjs publishing is connected:
-
-```bash
-npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
-  -- mobigent-install backend
 ```
 
 In your server:
@@ -200,9 +184,7 @@ You know the first integration works when:
 If you want to see a full sample before touching an existing app, run the starter:
 
 ```bash
-npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
-  -- create-mobigent-app my-demo --install
+npm create mobigent-app@latest my-demo -- --install
 cd my-demo
 npm run dev
 ```

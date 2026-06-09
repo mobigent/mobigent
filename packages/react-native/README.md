@@ -32,14 +32,6 @@ Recommended app package:
 npm install @mobigent/app
 ```
 
-Until npmjs publishing is connected, install from the public GitHub release:
-
-```bash
-npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
-  -- mobigent-install app
-```
-
 Install this package directly only when you need the full React Native API surface:
 
 ```bash

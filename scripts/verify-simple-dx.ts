@@ -404,20 +404,15 @@ for (const path of ["README.md", "docs/simple-integration.md", "docs/quickstart.
     `${path} should not make mobigent-init part of the app install path`
   );
   assert.doesNotMatch(contents, /npx mobigent-init/, `${path} should not teach the legacy app init binary`);
-  assert.match(
+  assert.doesNotMatch(
     contents,
-    /mobigent-install app/,
-    `${path} should hide preview app tarball details behind mobigent-install`
-  );
-  assert.match(
-    contents,
-    /mobigent-install backend/,
-    `${path} should hide preview backend tarball details behind mobigent-install`
+    /mobigent-install|npm exec --yes|create-mobigent-app-0\.1\.15\.tgz/,
+    `${path} should keep preview installer details out of beginner package docs`
   );
   assert.doesNotMatch(
     contents,
-    /mobigent-core-0\.1\.15\.tgz/,
-    `${path} should not expose internal package tarballs in beginner docs`
+    /mobigent-core-0\.1\.15\.tgz|create-mobigent-app-0\.1\.15\.tgz/,
+    `${path} should not expose package tarballs in beginner docs`
   );
   assert.doesNotMatch(
     contents,
@@ -456,6 +451,7 @@ for (const path of ["docs/existing-react-native-app.md", "apps/docs/docs/existin
   assert.match(contents, /You do not need a generator/, `${path} should answer the old init-command confusion directly`);
   assert.match(contents, /mobigent-rn-init --feature-only/, `${path} should frame the React Native CLI as optional sample-module generation only`);
   assert.doesNotMatch(contents, /mobigent-init/, `${path} should not preserve the broad legacy init command name`);
+  assert.doesNotMatch(contents, /mobigent-install|npm exec --yes|create-mobigent-app-0\.1\.15\.tgz/, `${path} should not show preview installer commands in the existing-app path`);
   assert.match(contents, /npm install @mobigent\/app[\s\S]{0,120}?npm install @mobigent\/backend/, `${path} should lead with normal package installs`);
   assert.match(contents, /appFunctions[\s\S]{0,240}?createApp\(appFunctions\)|createApp\(\{/, `${path} should teach createApp(functions)`);
   assert.match(contents, /withMobigent\(App, \{/, `${path} should teach the one-file existing-app wrapper`);
@@ -477,6 +473,7 @@ for (const path of ["packages/app/README.md", "packages/react-native/README.md"]
     `${path} should make setup commands unnecessary`
   );
   assert.doesNotMatch(contents, /npx mobigent-init|mobigent\.app\.json|appDir\b/, `${path} should not teach app init or generated app config`);
+  assert.doesNotMatch(contents, /mobigent-install|npm exec --yes|create-mobigent-app-0\.1\.15\.tgz/, `${path} should not show preview installer commands in the package README`);
   assert.match(contents, /EXPO_PUBLIC_MOBIGENT_APP|MOBIGENT_APP/, `${path} should mention env-configured production identity`);
   assert.doesNotMatch(
     contents,
@@ -519,6 +516,11 @@ for (const path of ["packages/app/README.md", "packages/react-native/README.md"]
     /backend\.defaultApp|mobigent\.app\.json|appDir\b|npx mobigent-backend|mobigent-backend --app/,
     "packages/backend/README.md should keep the package path as install plus code"
   );
+  assert.doesNotMatch(
+    backendReadme,
+    /mobigent-install|npm exec --yes|create-mobigent-app-0\.1\.15\.tgz/,
+    "packages/backend/README.md should not show preview installer commands in the package README"
+  );
 }
 
 for (const path of [
@@ -541,8 +543,8 @@ for (const path of [
   assert.doesNotMatch(contents, /startMobigent\(appId, appName\)/, `${path} should not require an app name in the beginner path`);
   assert.doesNotMatch(
     contents,
-    /mobigent-core-0\.1\.15\.tgz/,
-    `${path} should not expose internal package tarballs in beginner docs`
+    /mobigent-core-0\.1\.15\.tgz|create-mobigent-app-0\.1\.15\.tgz|mobigent-install|npm exec --yes/,
+    `${path} should not expose preview installer commands or package tarballs in beginner docs`
   );
   assert.match(contents, /mobigent\.use<MyAppFunctions>\(\)|backend\.use<MyAppFunctions>\(\)|mobigent\.use&lt;MyAppFunctions&gt;\(\)/, `${path} should teach the type-only backend function path`);
   assert.doesNotMatch(
@@ -634,6 +636,20 @@ for (const path of [
     beginnerSlice,
     /\bbridge\b/i,
     `${path} should describe the beginner path as app functions and connections, not a bridge`
+  );
+}
+
+for (const path of ["docs/flagship-demo.md", "docs/developer-workflow.md"]) {
+  const contents = readFileSync(path, "utf8");
+  assert.doesNotMatch(
+    contents,
+    /mobigent-install|npm exec --yes|create-mobigent-app-0\.1\.15\.tgz/,
+    `${path} should keep public demo workflow commands on normal npm package names`
+  );
+  assert.doesNotMatch(
+    contents.slice(0, Math.min(contents.length, 3500)),
+    /gateway exposes|declares safe capabilities|tools through HTTP/i,
+    `${path} should explain demos in app-function language, not gateway/tool-first language`
   );
 }
 

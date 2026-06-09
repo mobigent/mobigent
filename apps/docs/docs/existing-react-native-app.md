@@ -15,18 +15,6 @@ npm install @mobigent/app
 npm install @mobigent/backend
 ```
 
-Current public fallback until npmjs publishing is connected:
-
-```bash
-npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
-  -- mobigent-install app
-
-npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
-  -- mobigent-install backend
-```
-
 ## App Code
 
 Create one small Mobigent file:

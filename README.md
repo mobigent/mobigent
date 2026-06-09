@@ -21,17 +21,7 @@ npm install @mobigent/app
 npm install @mobigent/backend
 ```
 
-Preview fallback until npm publishing is fully connected:
-
-```bash
-npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
-  -- mobigent-install app
-
-npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
-  -- mobigent-install backend
-```
+That is the normal integration. No app-side init command is required.
 
 ## App Code
 
@@ -135,14 +125,6 @@ Try the full loop before touching your app:
 npm create mobigent-app@latest my-demo -- --install
 cd my-demo
 npm run dev
-```
-
-Preview fallback:
-
-```bash
-npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
-  -- create-mobigent-app my-demo --install
 ```
 
 The demo opens one page with app state, an agent request box, and an inspector link. Click **Run agent request** to call the app-owned `expense.create` function.

@@ -14,14 +14,6 @@ For the shortest existing-app recipe, see [Existing React Native App](./existing
 npm install @mobigent/app
 ```
 
-Current public fallback until npmjs publishing is connected:
-
-```bash
-npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
-  -- mobigent-install app
-```
-
 For a first local run, you do not need an app id. Production apps can keep the same code and set `EXPO_PUBLIC_MOBIGENT_APP` plus backend `MOBIGENT_APP`.
 
 ## 2. Expose App Functions
@@ -101,14 +93,6 @@ In your backend:
 
 ```bash
 npm install @mobigent/backend
-```
-
-Current public fallback until npmjs publishing is connected:
-
-```bash
-npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
-  -- mobigent-install backend
 ```
 
 ```ts

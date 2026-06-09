@@ -25,14 +25,6 @@ The app owns the real behavior. The backend calls that behavior. Mobigent owns t
 npm install @mobigent/app
 ```
 
-Current public fallback until npmjs publishing is connected:
-
-```bash
-npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
-  -- mobigent-install app
-```
-
 Create one app SDK object and expose the functions agents may call:
 
 ```ts
@@ -97,14 +89,6 @@ No app-side init command is required. Write the functions directly in your app c
 
 ```bash
 npm install @mobigent/backend
-```
-
-Current public fallback until npmjs publishing is connected:
-
-```bash
-npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
-  -- mobigent-install backend
 ```
 
 ```ts

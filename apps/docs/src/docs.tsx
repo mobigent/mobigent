@@ -19,14 +19,6 @@ import "./styles.css";
 const existingAppInstallCode = `npm install @mobigent/app
 npm install @mobigent/backend`;
 
-const existingAppFallbackCode = `npm exec --yes \\
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \\
-  -- mobigent-install app
-
-npm exec --yes \\
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \\
-  -- mobigent-install backend`;
-
 const existingAppRecipeCode = `// App
 export const appFunctions = {
   expense: { list, create }
@@ -51,9 +43,7 @@ MOBIGENT_APP=com.acme.expenses
 EXPO_PUBLIC_MOBIGENT_APP=com.acme.expenses
 EXPO_PUBLIC_MOBIGENT_URL=wss://your-backend.example.com`;
 
-const demoCode = `npm exec --yes \\
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \\
-  -- create-mobigent-app my-demo --install
+const demoCode = `npm create mobigent-app@latest my-demo -- --install
 cd my-demo
 npm run dev
 
@@ -504,7 +494,6 @@ function Docs() {
         </div>
         <div className="codeGrid docsCodeGrid">
           <Code title="1. Install packages" code={existingAppInstallCode} />
-          <Code title="Temporary public fallback" code={existingAppFallbackCode} />
           <Code title="2. Define app functions" code={moduleCode} />
           <Code title="Optional validation and approval copy" code={optionalMetadataCode} />
           <Code title="3. Wrap the app" code={appCode} />

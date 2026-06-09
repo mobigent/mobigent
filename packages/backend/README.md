@@ -8,14 +8,6 @@ Use it like normal backend plumbing: start Mobigent, then call app-owned functio
 npm install @mobigent/backend
 ```
 
-Preview fallback until npm publishing is fully connected:
-
-```bash
-npm exec --yes \
-  --package https://github.com/mobigent/mobigent/releases/download/v0.1.15/create-mobigent-app-0.1.15.tgz \
-  -- mobigent-install backend
-```
-
 ## Call App Functions
 
 ```ts
