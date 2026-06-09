@@ -12,7 +12,7 @@ Mobigent is an open-source SDK for letting AI agents call safe functions inside 
 - install `@mobigent/backend` in the backend
 - expose normal functions from the app
 - call those functions from backend code
-- let the SDK handle connection, validation, confirmations, retries, events, agent setup, and audit logs
+- let the SDK handle delivery, validation, confirmations, retries, events, agent setup, and audit logs
 
 ## Install
 
@@ -207,7 +207,7 @@ Optional helpers:
 
 ## Status
 
-Mobigent is an early developer preview. The current SDK includes React Native, native iOS, native Android, local app/backend connection, HTTP/OpenAPI, MCP, confirmation flow, validation, audit events, provider examples, GitHub Pages docs, native CI, and Docker production hosting.
+Mobigent is an early developer preview. The current SDK includes React Native, native iOS, native Android, local app/backend delivery, HTTP/OpenAPI, MCP, confirmation flow, validation, audit events, provider examples, GitHub Pages docs, native CI, and Docker production hosting.
 
 The goal is simple: make Mobigent the easiest way to build agentic mobile apps.
 

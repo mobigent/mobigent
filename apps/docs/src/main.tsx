@@ -32,7 +32,7 @@ function App() {
             Install the app package, install the backend package, expose real app functions with
             withMobigent(App, functions) or createApp(functions), then startMobigent() and call
             app.expense.create(input) through mobigent.use&lt;MyAppFunctions&gt;().
-            Mobigent handles the app connection, approvals, retries, discovery, and agent setup.
+            Mobigent handles app delivery, approvals, retries, discovery, and agent setup.
           </p>
           <div className="heroActions">
             <a className="primaryButton" href="./docs.html">

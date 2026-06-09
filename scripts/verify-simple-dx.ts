@@ -647,7 +647,12 @@ for (const path of [
   assert.doesNotMatch(
     beginnerSlice,
     /\bbridge\b/i,
-    `${path} should describe the beginner path as app functions and connections, not a bridge`
+    `${path} should describe the beginner path as app functions and SDK-owned delivery, not a bridge`
+  );
+  assert.doesNotMatch(
+    beginnerSlice,
+    /\bconnection\b/i,
+    `${path} should keep first-run copy focused on SDK-owned delivery instead of transport connection vocabulary`
   );
 }
 

@@ -2,7 +2,7 @@
 
 The backend-side Mobigent SDK.
 
-Use it like normal backend plumbing: start Mobigent, then call app-owned functions from your server code. The SDK waits for the app connection, routes the call, handles validation and confirmations, and exposes agent setup from the same backend object.
+Use it like normal backend SDK code: start Mobigent, then call app-owned functions from your server code. The SDK waits for the app, routes the call, handles validation and confirmations, and exposes agent setup from the same backend object.
 
 ```bash
 npm install @mobigent/backend
@@ -77,7 +77,7 @@ Older setup aliases and the dynamic backend function API remain available for co
 
 ## What It Handles
 
-- app connection setup
+- app/backend delivery
 - app/backend matching by app id
 - automatic waiting while the app connects
 - app function routing

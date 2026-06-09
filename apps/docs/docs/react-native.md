@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # React Native Integration
 
-Use Mobigent like normal app code: expose a few real functions, wrap the app once, and let the SDK handle the connection.
+Use Mobigent like normal app code: expose a few real functions, wrap the app once, and let the SDK handle delivery.
 
 For the shortest existing-app recipe, see [Existing React Native App](./existing-react-native-app.md). No generator is required.
 
@@ -101,7 +101,7 @@ import { startMobigent } from "@mobigent/backend";
 const mobigent = await startMobigent();
 ```
 
-Backend function calls wait for the app connection automatically. For production, set `MOBIGENT_APP=com.acme.expenses` on the backend.
+Backend function calls wait for the app automatically. For production, set `MOBIGENT_APP=com.acme.expenses` on the backend.
 
 Your backend can call app namespaces directly. If you can import the app function type, use it for typed backend calls without loading React Native code:
 
@@ -138,15 +138,15 @@ const mobigent = createApp(expenseFunctions, {
   backend
 });
 
-const connection = await mobigent.connect();
+const session = await mobigent.connect();
 
 ```
 
-That one call registers the feature, connects to the backend, and returns a `disconnect()` helper.
+That one call makes the functions available to the backend and returns a `disconnect()` helper.
 
 ## What The SDK Handles
 
-- app connection
+- app/backend delivery
 - namespacing
 - schema generation
 - input/output validation

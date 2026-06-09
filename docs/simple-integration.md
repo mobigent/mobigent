@@ -4,7 +4,7 @@ Mobigent should feel like two normal SDK installs.
 
 Adding it to an app that already exists? Use [Existing React Native App](./existing-react-native-app.md). It is the same simple model without any generated app files.
 
-You do not start with connection plumbing. The SDK owns that until you need advanced production control.
+You do not start with transport setup. The SDK owns that until you need advanced production control.
 
 ## The Whole Model
 
@@ -13,7 +13,7 @@ mobile app  ->  @mobigent/app      -> exposes real app functions
 backend     ->  @mobigent/backend  -> lets agents call those functions
 ```
 
-The app owns the real behavior. The backend calls that behavior. Mobigent owns the connection, discovery, validation, confirmations, retries, and audit trail.
+The app owns the real behavior. The backend calls that behavior. Mobigent owns delivery, discovery, validation, confirmations, retries, and the audit trail.
 
 ## 1. Add It To The App
 
@@ -129,7 +129,7 @@ For one quick explicit call, use `mobigent.call("expense.create", input)`.
 
 ## 3. What The SDK Handles
 
-- app connection
+- app/backend delivery
 - local development defaults
 - app/backend matching by app id
 - function naming

@@ -21,8 +21,8 @@ const mobigent = createApp({
 });
 ```
 
-The SDK handles namespacing, JSON Schema generation, validation, confirmation, connection lifecycle, reconnects, heartbeat, event queueing, and agent discovery updates.
-Advanced apps can still pass a backend connection directly, but the normal path does not require generated files or setup commands.
+The SDK handles namespacing, JSON Schema generation, validation, confirmation, app/backend delivery, retries, heartbeat, event queueing, and agent discovery updates.
+Advanced apps can still pass backend transport settings directly, but the normal path does not require generated files or setup commands.
 
 ## Install
 
@@ -121,7 +121,7 @@ const mobigent = createApp(expenseFunctions, {
   backend
 });
 
-const connection = await mobigent.connect();
+const session = await mobigent.connect();
 ```
 
 ## Field Types

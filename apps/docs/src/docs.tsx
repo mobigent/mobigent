@@ -32,7 +32,7 @@ const app = mobigent.use<MyAppFunctions>();
 
 await app.expense.create(input);`;
 
-const deviceConnectionCode = `export const mobigent = createApp({
+const deviceBackendCode = `export const mobigent = createApp({
   expense: { list, create }
 }, {
   backend
@@ -340,11 +340,11 @@ const reactNativeApis = [
   ["write()", "Exposes a confirmed app action with plain input fields."],
   ["screen()", "Exposes screen-aware app behavior when agents need to focus UI."],
   ["mobigent.with()", "Wraps the existing React Native app in one normal function call."],
-  ["mobigent.connect()", "Connects a non-React host or local demo to a backend object."],
+  ["mobigent.connect()", "Starts a non-React host or local demo after setup."],
   ["mobigent.emit()", "Queues or sends app events without touching the lower-level client."],
   ["backend", "Accepts the backend object so the app does not know transport details."],
-  ["connection", "Advanced fallback for physical phones or hosted `wss://` backend URLs."],
-  ["useMobigentStatus()", "Reads connection state for badges, diagnostics, and debugging."],
+  ["backendUrl", "Advanced fallback for physical phones or hosted `wss://` backend URLs."],
+  ["useMobigentStatus()", "Reads app readiness for badges, diagnostics, and debugging."],
   ["MobigentStatusBadge", "Optional UI component for local development visibility."]
 ];
 
@@ -367,7 +367,7 @@ const backendApis = [
 ];
 
 const backendRuntime = [
-  ["App connection", "Keeps mobile app sessions connected and reconnects when needed."],
+  ["App delivery", "Keeps mobile app sessions ready and retries when needed."],
   ["Function routing", "Maps backend calls such as `app.expense.create()` to the right app-owned handler."],
   ["Readiness", "Waits for connected apps before the backend or agent flow calls app functions."],
   ["Validation", "Checks input and output shapes before results leave the app boundary."],
@@ -407,7 +407,7 @@ const safety = [
 
 const developerExperience = [
   ["Inspector", "Open the inspector during development to see connected apps, functions, metrics, and audit events."],
-  ["Security doctor", "Run `--security-doctor` before sharing a hosted connection to catch unsafe transport and missing approval UI."],
+  ["Security doctor", "Run `--security-doctor` before sharing a hosted backend to catch unsafe transport and missing approval UI."],
   ["Schema adapters", "Use Zod, TypeBox-style JSON Schema, or the built-in helpers without changing app code shape."],
   ["Native assistant bridges", "Generate App Intents and Android App Actions plans from the same app function definitions."]
 ];
@@ -452,7 +452,7 @@ function Docs() {
           <h1>Everything you need to make a mobile app agent-ready.</h1>
           <p>
             Mobigent lets a mobile app expose real app functions to AI agents through two normal packages.
-            The app owns the behavior, the backend calls it, and the SDK handles the connection details.
+            The app owns the behavior, the backend calls it, and the SDK handles the delivery details.
           </p>
         </div>
       </section>
@@ -498,7 +498,7 @@ function Docs() {
           <Code title="Optional validation and approval copy" code={optionalMetadataCode} />
           <Code title="3. Wrap the app" code={appCode} />
           <Code title="One-file wrap option" code={directWrapCode} />
-          <Code title="4. Physical phone or hosted backend" code={deviceConnectionCode} />
+          <Code title="4. Physical phone or hosted backend" code={deviceBackendCode} />
         </div>
       </section>
 
@@ -514,7 +514,7 @@ function Docs() {
           <Code title="The whole adoption shape" code={existingAppRecipeCode} />
           <div className="apiList endpointList">
             <Row title="Developer chooses" text="The small set of app functions agents may call." />
-            <Row title="SDK handles" text="Connection, discovery, validation, approvals, retries, events, inspector, and agent setup." />
+            <Row title="SDK handles" text="Delivery, discovery, validation, approvals, retries, events, inspector, and agent setup." />
             <Row title="Read more" text="Open docs/existing-react-native-app.md for the copy-paste existing-app recipe." />
           </div>
         </div>

@@ -119,7 +119,7 @@ If the backend cannot share that type, bind the app function group once with `mo
 
 ## What Mobigent Handles
 
-- app/backend connection
+- app/backend delivery
 - local development defaults
 - function discovery
 - validation

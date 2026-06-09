@@ -13,7 +13,7 @@ Mobigent is two normal packages:
 - `@mobigent/app` goes in the app and exposes real app functions.
 - `@mobigent/backend` goes in the backend and calls those functions.
 
-The SDK handles the app/backend connection, local defaults, production env config, validation, confirmations, agent setup, and audit events. Local demos can start with no app id; production can keep the same code and set environment keys.
+The SDK handles app/backend delivery, local defaults, production env config, validation, confirmations, agent setup, and audit events. Local demos can start with no app id; production can keep the same code and set environment keys.
 
 ## 1. Add App Functions To An Existing App
 
@@ -74,7 +74,7 @@ export default withMobigent(App, {
 
 That is the app integration. For real production apps, set `EXPO_PUBLIC_MOBIGENT_APP` so the app and backend pair by a stable identity without passing the same string through code. Mobigent infers the app name from that id unless you override it.
 
-No app-side init command is required. The SDK handles the app connection. Optional generators are only useful when you want example files.
+No app-side init command is required. The SDK handles app reachability. Optional generators are only useful when you want example files.
 
 For a non-React demo or test host, pass the backend once and connect with no extra setup:
 
@@ -109,7 +109,7 @@ const mobigent = await startMobigent();
 console.log(mobigent.inspectorUrl);
 ```
 
-The backend handles the connection, function routing, inspector, agent endpoints, and readiness waiting. For production, set `MOBIGENT_APP` to the same value as the app's public config.
+The backend handles function routing, inspector, agent endpoints, and readiness waiting. For production, set `MOBIGENT_APP` to the same value as the app's public config.
 
 Prefer generated sample files? Use the starter. Starter generation is a demo shortcut, not required integration.
 
@@ -124,7 +124,7 @@ await app.expense.create({ merchant: "Coffee", amount: 8 });
 await app.expense.list();
 ```
 
-Mobigent waits for the app connection when a function is called. If the backend cannot share that type, bind the app function group once:
+Mobigent waits for the app when a function is called. If the backend cannot share that type, bind the app function group once:
 
 ```ts
 const expenses = mobigent.use("expense", {
@@ -156,15 +156,15 @@ curl http://localhost:8788/health
 open http://localhost:8788/inspect
 ```
 
-## 3. Connect From A Device
+## 3. Run From A Device
 
-For local simulators, the SDK usually picks the right local connection. If you are on a physical device or hosted backend, set the backend location in public app config:
+For local simulators, the SDK usually picks the right local URL. If you are on a physical device or hosted backend, set the backend location in public app config:
 
 ```bash
 EXPO_PUBLIC_MOBIGENT_URL=ws://192.168.1.20:8787
 ```
 
-Use your computer's LAN IP for a physical phone. For a hosted backend, use the hosted app connection URL:
+Use your computer's LAN IP for a physical phone. For a hosted backend, use the hosted backend URL:
 
 ```bash
 EXPO_PUBLIC_MOBIGENT_URL=wss://your-backend.example.com

@@ -61,9 +61,9 @@ const mobigent = createApp(expenseFunctions, {
   backend
 });
 
-const connection = await mobigent.connect();
+const session = await mobigent.connect();
 
-connection.disconnect();
+session.disconnect();
 ```
 
 Common app helpers:
@@ -73,7 +73,7 @@ Common app helpers:
 - `mobigent.with(App)`: React Native wrapper.
 - `withMobigent(App, functions)`: direct existing-app wrapper.
 - `createApp(functions, { backend })`: app/backend setup without repeating app identity.
-- `mobigent.connect()`: connects a non-React host or demo after setup.
+- `mobigent.connect()`: starts a non-React host or demo after setup.
 - `mobigent.emit(name, payload)`: emits app activity.
 - `read(handler, options)`: force read-only behavior when the name is not obvious.
 - `write(handler, options)`: force confirmed write behavior.
