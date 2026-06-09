@@ -73,18 +73,10 @@ const mobigent = createApp(appFunctions, {
 await mobigent.connect();
 ```
 
-If the app and backend live in separate processes and you need a plain settings object, use the backend SDK's explicit app handoff:
-
-```ts
-const mobigent = createApp(appFunctions, {
-  backend: backend.forApp()
-});
-```
-
 Use `mobigent.emit(name, payload)` for app events.
 
 No app-side init command is required. Write the functions directly in your app code. Optional generators are for examples, not real integration.
 
-The root `@mobigent/app` import is intentionally small: app functions, schema helpers, confirmation/status UI, event helpers, and friendly types such as `AppFunctions`, `AppFunctionMap`, `MobigentApp`, and `MobigentAppBackendSource`.
+The root `@mobigent/app` import is intentionally small: app functions, schema helpers, confirmation/status UI, event helpers, and friendly types such as `AppFunctions`, `AppFunctionMap`, and `MobigentApp`.
 
 Advanced React Native APIs remain available from explicit subpaths such as `@mobigent/app/app`, `@mobigent/app/ui`, `@mobigent/app/schema-adapters`, `@mobigent/app/platform-actions`, and `@mobigent/app/expo`.

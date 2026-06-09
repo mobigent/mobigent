@@ -64,14 +64,6 @@ const connection = await mobigent.connect();
 connection.disconnect();
 ```
 
-If the app and backend live in separate processes, pass the explicit app handoff values:
-
-```ts
-const mobigent = createApp(expenseFunctions, {
-  backend: backend.forApp()
-});
-```
-
 Common app helpers:
 
 - `createApp(functions)`: app setup for local and env-configured production.
@@ -79,7 +71,6 @@ Common app helpers:
 - `mobigent.with(App)`: React Native wrapper.
 - `withMobigent(App, functions)`: direct existing-app wrapper.
 - `createApp(functions, { backend })`: app/backend setup without repeating app identity.
-- `createApp(functions, { backend: backend.forApp() })`: explicit plain handoff object.
 - `mobigent.connect()`: manual connection for non-React hosts and tests.
 - `mobigent.emit(name, payload)`: app activity events.
 - `read(handler, options)`: force read-only behavior when the name is not obvious.
@@ -90,7 +81,6 @@ Useful app types:
 
 - `AppFunctions` and `AppFunctionMap` for app-owned function maps.
 - `MobigentApp` for the object returned by `createApp`.
-- `MobigentAppBackendSource` for accepted backend handoff values.
 
 ## Backend Package
 

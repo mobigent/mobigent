@@ -25,13 +25,9 @@ export {
   type MobigentSimpleActionOptions,
   type MobigentSimpleAppConfig,
   type MobigentSimpleCapabilities,
-  type MobigentSimpleBackendConnection,
   type MobigentSimpleCapabilityDefinition,
   type MobigentSimpleCapabilityMap,
   type MobigentSimpleComponentOptions,
-  type MobigentSimpleConnection,
-  type MobigentSimpleConnectionOptions,
-  type MobigentSimpleConnectionSettings,
   type MobigentSimpleFeature,
   type MobigentSimpleFeatureMap,
   type MobigentSimpleField,
@@ -94,7 +90,7 @@ export type MobigentAppPackageIdentityOptions = Omit<MobigentSimpleAppOptions, "
 };
 export type MobigentAppPackageInput = MobigentAppPackageOptions | MobigentSimpleFunctionMap | string;
 type MobigentAppPairingSource = MobigentSimpleAppConfig | (() => MobigentSimpleAppConfig);
-export type MobigentBackendConnectionTarget = {
+type MobigentBackendConnectionTarget = {
   pairing?: MobigentAppPairingSource;
   connection?: MobigentSimpleConnectionSettings;
   appConnectionUrl?: string;
@@ -114,8 +110,8 @@ type MobigentLegacyBackendConnectionTarget = MobigentBackendConnectionTarget & {
     authToken?: string;
   };
 };
-export type MobigentAppBackendSource = MobigentAppPairingSource | MobigentBackendConnectionTarget;
-export type MobigentAppConnectSettings = MobigentSimpleConnectionSettings | MobigentBackendConnectionTarget;
+type MobigentAppBackendSource = MobigentAppPairingSource | MobigentBackendConnectionTarget;
+type MobigentAppConnectSettings = MobigentSimpleConnectionSettings | MobigentBackendConnectionTarget;
 
 export type MobigentAppPackage = ReturnType<typeof setupMobigent> & {
   with<P extends object>(App: ComponentType<P>, rootProps?: Omit<AgentAppRootProps, "children">): ComponentType<P>;
@@ -127,8 +123,6 @@ export type AppFunctions = MobigentSimpleFunctionMap;
 export type AppFunctionMap = MobigentSimpleFunctionMap;
 export type AppOptions = MobigentAppPackageIdentityOptions;
 export type AppConnection = MobigentSimpleConnection;
-export type AppConnectionSettings = MobigentAppConnectSettings;
-export type BackendConnection = MobigentBackendConnectionTarget;
 export type MobigentApp = MobigentAppPackage;
 
 export function createApp(

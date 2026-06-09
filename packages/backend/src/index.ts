@@ -328,7 +328,6 @@ export type MobigentBackendOptionsWithApp = MobigentBackendOptions & {
 export type Backend = MobigentBackend;
 export type BackendOptions = MobigentBackendOptions;
 export type BackendStartOptions = MobigentBackendStartOptions;
-export type BackendConnection = MobigentBackendClient;
 export type BackendStatus = MobigentBackendStatus;
 export type BackendAppFunctionContract = MobigentBackendAppFunctionContract;
 export type BackendAppFunctions<T extends BackendAppFunctionContract> = MobigentBackendAppFunctions<T>;

@@ -17,7 +17,6 @@ import type {
   BackendAppFunctionContract,
   AppSession,
   Backend,
-  BackendConnection,
   BackendOptions,
   BackendStatus,
   CallOptions,
@@ -34,12 +33,9 @@ import {
 } from "@mobigent/app";
 import type {
   AppConnection,
-  AppConnectionSettings,
   AppFunctionMap,
   AppFunctions,
   AppOptions,
-  BackendConnection as AppBackendConnection,
-  MobigentAppBackendSource,
   MobigentApp
 } from "@mobigent/app";
 import {
@@ -59,16 +55,12 @@ type PublicAppTypeAliasesCompile = [
   AppFunctions,
   AppFunctionMap,
   AppOptions,
-  MobigentAppBackendSource,
   AppConnection,
-  AppConnectionSettings,
-  AppBackendConnection,
   MobigentApp
 ];
 type PublicBackendTypeAliasesCompile = [
   Backend,
   BackendOptions,
-  BackendConnection,
   BackendStatus,
   AppFunction,
   AppFunctionInfo,
@@ -688,7 +680,7 @@ test("app package connects to a backend object without connection URL ceremony",
   }
 });
 
-test("app package accepts backend.forApp() as the clean explicit handoff", async () => {
+test("app package keeps backend.forApp() compatibility for explicit settings", async () => {
   const backend = await startMobigent("com.example.forapp", "For App", {
     wsPort: 19031,
     httpPort: 19032,
@@ -768,7 +760,7 @@ test("app package connects with the backend object directly", async () => {
     httpPort: 19030,
     silent: true
   });
-  const backendSource: MobigentAppBackendSource = backend;
+  const backendSource: AppOptions["backend"] = backend;
   const app = createApp("com.example.backendobject", {
     expense: {
       list: async () => ({ items: [{ id: "EXP-BACKEND-OBJECT" }] })
@@ -964,7 +956,7 @@ test("app and backend packages expose a plain app settings handoff", async () =>
     httpPort: 19028,
     silent: true
   });
-  const appSettings: MobigentAppBackendSource = backend.appSettings();
+  const appSettings: AppOptions["backend"] = backend.appSettings();
   const app = createApp("com.example.appsettings", {
     expense: {
       list: async () => ({ items: [{ id: "EXP-SETTINGS" }] })

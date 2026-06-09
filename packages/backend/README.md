@@ -44,14 +44,6 @@ const app = createApp(appFunctions, {
 await app.connect();
 ```
 
-When the app/backend boundary needs a plain settings object, use the explicit handoff:
-
-```ts
-const app = createApp(appFunctions, {
-  backend: backend.forApp()
-});
-```
-
 ## Helper Names
 
 Backend code can mirror app namespaces through `mobigent.use<MyAppFunctions>()`. If you want backend-specific helper names, bind aliases once:
@@ -100,7 +92,6 @@ Friendly public types:
 - `Backend`
 - `BackendOptions`
 - `BackendStartOptions`
-- `BackendConnection`
 - `AppFunction`
 - `MobigentFunctionInfo`
 - `MobigentBackendStatus`
