@@ -504,15 +504,16 @@ for (const path of ["packages/app/README.md", "packages/react-native/README.md"]
   assert.match(backendReadme, /BackendStartOptions/, "packages/backend/README.md should list the friendly BackendStartOptions type");
   assert.match(backendReadme, /backend\.forApp\(\)/, "packages/backend/README.md should teach backend.forApp() as the clean explicit app handoff");
   assert.match(backendReadme, /createApp\(appFunctions, \{[\s\S]{0,120}?backend/, "packages/backend/README.md should teach passing backend settings without repeating the app id");
-  assert.match(backendReadme, /backend\.setup\.chatgpt\(\).*backend\.setup\.claude\(\).*backend\.setup\.openai\(\)/, "packages/backend/README.md should teach grouped agent setup helpers");
-  assert.match(backendReadme, /backend\.connect\.chatgpt\(\).*backend\.connect\.claude\(\).*backend\.connect\.openai\(\)/, "packages/backend/README.md should teach friendly agent connect helpers");
-  assert.match(backendReadme, /backend\.chatgpt\(\).*backend\.claude\(\).*backend\.openai\(\)/, "packages/backend/README.md should teach friendly common agent setup shortcuts");
-  assert.match(backendReadme, /backend\.connection.*backend\.appSettings\(\)/, "packages/backend/README.md should keep explicit app setup values as compatibility detail");
-  assert.match(backendReadme, /BackendPairing.*backend\.pairing\(\)/, "packages/backend/README.md should keep BackendPairing for backend.pairing() compatibility");
+  assert.match(backendReadme, /mobigent\.connect\.chatgpt\(/, "packages/backend/README.md should teach ChatGPT setup through connect helpers");
+  assert.match(backendReadme, /mobigent\.connect\.claude\(/, "packages/backend/README.md should teach Claude setup through connect helpers");
+  assert.match(backendReadme, /mobigent\.connect\.openai\(/, "packages/backend/README.md should teach OpenAI setup through connect helpers");
+  assert.match(backendReadme, /remain available for compatibility/, "packages/backend/README.md should mention compatibility without leading with it");
+  assert.doesNotMatch(backendReadme, /backend\.appSettings\(\)|backend\.pairing\(\)|BackendPairing/, "packages/backend/README.md should not promote older setup names");
+  assert.doesNotMatch(backendReadme, /mobigent\.functions\.expense\.create/, "packages/backend/README.md should not show the dynamic backend call as a product example");
   assert.match(backendReadme, /startMobigent\(\)/);
   assert.match(backendReadme, /import type \{ MyAppFunctions \}/, "packages/backend/README.md should teach type-only app function sharing");
   assert.match(backendReadme, /mobigent\.use<MyAppFunctions>\(\)/, "packages/backend/README.md should teach typed backend calls without importing app runtime code");
-  assert.match(backendReadme, /mobigent\.app\.expense\.create/);
+  assert.doesNotMatch(backendReadme, /mobigent\.app\.expense\.create/, "packages/backend/README.md should not teach the older backend.app dynamic style");
   assert.match(backendReadme, /mobigent\.use\("expense", \{\s+createExpense: "create"/);
   assert.doesNotMatch(
     backendReadme,

@@ -2,13 +2,13 @@
 
 The backend-side Mobigent SDK.
 
-Use it like normal backend plumbing: start Mobigent, then call app functions from your server code. Mobigent waits for the app connection when a function is called.
+Use it like normal backend plumbing: start Mobigent, then call app-owned functions from your server code. The SDK waits for the app connection, routes the call, handles validation and confirmations, and exposes agent setup from the same backend object.
 
 ```bash
 npm install @mobigent/backend
 ```
 
-Until npmjs publishing is connected, install the public release tarballs together:
+Preview fallback until npm publishing is fully connected:
 
 ```bash
 npm exec --yes \
@@ -29,19 +29,17 @@ await app.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
 await app.expense.list();
 ```
 
-That is the main backend API.
+That is the main backend API. The type import is erased at runtime, so Node gets autocomplete without loading React Native app code.
 
-Mobigent handles waiting for the app connection and routing calls to the matching app functions. The backend import is type-only, so Node never loads React Native app code; the SDK still calls the real function inside the connected app.
-
-For production, keep `startMobigent()` and set backend config:
+For production, keep the code the same and set backend identity in config:
 
 ```bash
 MOBIGENT_APP=com.acme.expenses
 ```
 
-Explicit `startMobigent("com.acme.expenses")` still works when you want identity in code.
+## Local Tests And Demos
 
-For tests or non-React demos, pass the backend object when you create the app SDK object:
+If your app code is running in the same Node process for a demo or test, pass the backend object once:
 
 ```ts
 import { createApp } from "@mobigent/app";
@@ -54,7 +52,7 @@ const app = createApp(appFunctions, {
 await app.connect();
 ```
 
-If the app setup needs a plain serializable settings object instead of the live backend object, pass `backend.forApp()`:
+When the app/backend boundary needs a plain settings object, use the explicit handoff:
 
 ```ts
 const app = createApp(appFunctions, {
@@ -62,23 +60,9 @@ const app = createApp(appFunctions, {
 });
 ```
 
-The public `backend.connection` object contains the same app connection details for compatibility. `backend.appSettings()` is an older name for that explicit setup object. You usually do not need either in the normal same-process demo path.
-For debugging, `backend.appConnectionUrl` shows where apps connect and `backend.agentUrl` shows the agent-facing API.
+## Helper Names
 
-## What It Handles
-
-- app connection setup
-- app/backend matching by app id
-- app function routing
-- validation
-- confirmations
-- automatic readiness waiting
-- inspector and audit trail
-- agent setup helpers
-
-`mobigent.functions.expense.create(...)` and `mobigent.app.expense.create(...)` work too when the backend cannot import the shared app function object.
-
-Bind backend-friendly names once when you do not want backend code to mirror app namespaces:
+Backend code can mirror app namespaces through `mobigent.use<MyAppFunctions>()`. If you want backend-specific helper names, bind aliases once:
 
 ```ts
 const expenses = mobigent.use("expense", {
@@ -90,9 +74,11 @@ await expenses.createExpense({ merchant: "Airport Taxi", amount: 42.25 });
 await expenses.listExpenses();
 ```
 
-For quick one-off explicit calls, use `mobigent.call("expense.create", input)`. For shutdown, call `await mobigent.stop()`.
+For one-off explicit calls, use `mobigent.call("expense.create", input)`.
 
-When the app loop works, connect an agent from the same backend object:
+## Agents
+
+When the app loop works, connect agents from the same backend object:
 
 ```ts
 const chatgpt = mobigent.connect.chatgpt({
@@ -103,26 +89,30 @@ const claude = mobigent.connect.claude();
 const openai = mobigent.connect.openai();
 ```
 
-The public TypeScript surface uses backend names:
+Older setup aliases and the dynamic backend function API remain available for compatibility, but new backend code should start with `mobigent.use<MyAppFunctions>()`.
 
-- `Backend` for the object returned by `startMobigent(...)`
-- `BackendOptions` for startup options
-- `BackendStartOptions` for `startMobigent(appId, options)`
-- `backend.use<MyAppFunctions>()` for typed backend calls that mirror the app's plain function object without importing app runtime code
-- `backend.functions` for dynamic app function calls when the backend cannot import the function shape
-- `backend.forApp()` for explicit app setup values when you cannot pass the backend object directly
-- `backend.connection` and `backend.appSettings()` for compatibility when code needs explicit app setup values
-- `backend.connect.chatgpt()`, `backend.connect.claude()`, and `backend.connect.openai()` for common agent setup
-- `backend.setup.chatgpt()`, `backend.setup.claude()`, and `backend.setup.openai()` as compatibility aliases
-- `backend.chatgpt()`, `backend.claude()`, and `backend.openai()` as direct aliases
-- `BackendPairing` for `backend.pairing()`
-- `BackendConnection` for `backend.connection` and compatibility code
-- `AppFunction` for a callable app function on the backend
-- `MobigentFunctionInfo` for `listFunctions()`
-- `MobigentBackendStatus` for `ready()` and `waitForApp()`
-- `MobigentAppSession` for `apps()`
-- `MobigentCallResult` for app function call results
+## What It Handles
 
-Prefer generated sample files? Use `create-mobigent-app`. The backend package is designed so real integrations can stay as install plus code.
+- app connection setup
+- app/backend matching by app id
+- automatic waiting while the app connects
+- app function routing
+- input and output validation
+- user confirmations for risky writes
+- inspector, health, readiness, and audit trail
+- ChatGPT, Claude, OpenAI, OpenAPI, and MCP setup helpers
+- clean shutdown with `await mobigent.stop()`
+
+Friendly public types:
+
+- `Backend`
+- `BackendOptions`
+- `BackendStartOptions`
+- `BackendConnection`
+- `AppFunction`
+- `MobigentFunctionInfo`
+- `MobigentBackendStatus`
+- `MobigentAppSession`
+- `MobigentCallResult`
 
 Advanced docs cover OpenAPI, MCP, custom auth, provider runtimes, and hosted deployments after the simple app/backend loop works.

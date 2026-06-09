@@ -41,12 +41,7 @@ export type MyAppFunctions = typeof appFunctions;
 export const mobigent = createApp(appFunctions);
 ```
 
-This exposes:
-
-- backend call `mobigent.functions.expense.list`
-- backend call `mobigent.functions.expense.create`
-
-Backend code can use those same short names.
+Backend code can use that same function shape with `mobigent.use<MyAppFunctions>()`, so server code calls `app.expense.list()` and `app.expense.create(input)` with autocomplete.
 
 For production, set public app config:
 
@@ -134,7 +129,7 @@ const app = mobigent.use<MyAppFunctions>();
 await app.expense.create({ merchant: "Coffee", amount: 8 });
 ```
 
-If the backend cannot share that type, `mobigent.functions.expense.create(...)` still works dynamically. Or bind backend-friendly helper names once:
+If the backend cannot share that type, bind backend-friendly helper names once:
 
 ```ts
 const expenses = mobigent.use("expense", {
