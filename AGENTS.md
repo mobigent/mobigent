@@ -94,6 +94,7 @@ Execute in this order unless the user says otherwise:
 
 ## Guardrails
 
+- **Do not use "codex" in branch names, commit messages, file names, examples, or any visible names.** Use descriptive prefixes like `feat/`, `fix/`, `chore/` instead.
 - Do not rewrite the public API casually. The current architecture is coherent and has broad test coverage.
 - Preserve local developer ergonomics while adding stricter production behavior.
 - Every runtime behavior change needs tests and docs.

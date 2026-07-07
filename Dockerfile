@@ -12,6 +12,8 @@ RUN npm ci
 
 FROM deps AS build
 COPY . .
+# Clean composite build info so TypeScript emits fresh output.
+RUN find packages -name '*.tsbuildinfo' -delete 2>/dev/null || true
 # Build only packages needed for the gateway runtime image.
 # Dependency order: core → providers → gateway.
 RUN npm run build -w @mobigent/core \
