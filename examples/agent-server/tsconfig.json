@@ -4,7 +4,5 @@
     "noEmit": true
   },
   "include": ["*.ts"],
-  "references": [
-    { "path": "../../packages/providers" }
-  ]
+  "references": [{ "path": "../../packages/providers" }]
 }

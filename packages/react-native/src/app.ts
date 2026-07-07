@@ -10,8 +10,8 @@ export {
   type MobigentSimpleAppIdentityOptions,
   type MobigentSimpleAppInput,
   type MobigentSimpleAppOptions,
-  type MobigentWithAppOptions
-} from "./setup.js";
+  type MobigentWithAppOptions,
+} from './setup.js';
 
 export {
   agentFeature,
@@ -54,8 +54,8 @@ export {
   type MobigentSimpleFunctionMap,
   type MobigentSimpleObjectSchema,
   type MobigentSimpleResourceOptions,
-  type MobigentSimpleSchema
-} from "./simple.js";
+  type MobigentSimpleSchema,
+} from './simple.js';
 
 export {
   AgentAction,
@@ -116,8 +116,8 @@ export {
   type AgentScreenFactory,
   type AgentScreenHookResult,
   type AgentScreenOptions,
-  type AgentSurfaceProps
-} from "./index.js";
+  type AgentSurfaceProps,
+} from './index.js';
 export {
   AgentApp,
   MobigentConfirmationModal,
@@ -132,5 +132,5 @@ export {
   type MobigentConfirmationComponentProps,
   type MobigentConfirmationModalProps,
   type MobigentDiagnosticsPanelProps,
-  type MobigentStatusBadgeProps
-} from "./ui.js";
+  type MobigentStatusBadgeProps,
+} from './ui.js';

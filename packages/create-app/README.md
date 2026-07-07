@@ -29,9 +29,9 @@ export const expenseFunctions = {
   expense: {
     list: async () => listExpenses(),
     create: write(createExpense, {
-      input: { amount: "number", merchant: "string" }
-    })
-  }
+      input: { amount: 'number', merchant: 'string' },
+    }),
+  },
 };
 ```
 

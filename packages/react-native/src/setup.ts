@@ -1,5 +1,5 @@
-import { createElement, type ComponentType } from "react";
-import { createAgentApp, type AgentAppFactoryOptions, type AgentAppRootProps } from "./ui.js";
+import { createElement, type ComponentType } from 'react';
+import { createAgentApp, type AgentAppFactoryOptions, type AgentAppRootProps } from './ui.js';
 import {
   connectMobigent,
   defineMobigent,
@@ -12,33 +12,40 @@ import {
   type MobigentSimpleConnectionOptions,
   type MobigentSimpleConnectionSettings,
   type MobigentSimpleFeature,
-  type MobigentSimpleFunctionMap
-} from "./simple.js";
+  type MobigentSimpleFunctionMap,
+} from './simple.js';
 
-export type MobigentSimpleAppOptions = Omit<AgentAppFactoryOptions, "capabilities" | "modules"> & {
+export type MobigentSimpleAppOptions = Omit<AgentAppFactoryOptions, 'capabilities' | 'modules'> & {
   config?: MobigentSimpleAppConfig;
   pairing?: MobigentSimpleAppConfig;
   connection?: MobigentSimpleBackendConnection;
   backendUrl?: string;
   connectionUrl?: string;
-  confirm?: MobigentSimpleConnectionOptions["confirm"];
+  confirm?: MobigentSimpleConnectionOptions['confirm'];
   features?: MobigentSimpleFeature | MobigentSimpleFeature[];
   functions?: MobigentSimpleFunctionMap;
-  capabilities?: AgentAppFactoryOptions["capabilities"];
-  modules?: AgentAppFactoryOptions["modules"];
+  capabilities?: AgentAppFactoryOptions['capabilities'];
+  modules?: AgentAppFactoryOptions['modules'];
 };
 
-export type MobigentSimpleAppInput = MobigentSimpleAppOptions | MobigentSimpleFeature | MobigentSimpleFeature[];
-export type MobigentSimpleAppIdentityOptions = Omit<MobigentSimpleAppOptions, "appId" | "functions"> & {
+export type MobigentSimpleAppInput =
+  MobigentSimpleAppOptions | MobigentSimpleFeature | MobigentSimpleFeature[];
+export type MobigentSimpleAppIdentityOptions = Omit<
+  MobigentSimpleAppOptions,
+  'appId' | 'functions'
+> & {
   appName?: string;
 };
 
 export type MobigentWithAppOptions = MobigentSimpleAppOptions & {
-  rootProps?: Omit<AgentAppRootProps, "children">;
+  rootProps?: Omit<AgentAppRootProps, 'children'>;
 };
 
 export type MobigentCreatedApp = ReturnType<typeof createAgentApp> & {
-  with<P extends object>(App: ComponentType<P>, rootProps?: Omit<AgentAppRootProps, "children">): ComponentType<P>;
+  with<P extends object>(
+    App: ComponentType<P>,
+    rootProps?: Omit<AgentAppRootProps, 'children'>,
+  ): ComponentType<P>;
   connect(settings?: MobigentSimpleConnectionSettings): Promise<MobigentSimpleConnection>;
   emit: typeof emitMobigentEvent;
 };
@@ -46,16 +53,18 @@ export type MobigentCreatedApp = ReturnType<typeof createAgentApp> & {
 export function mobigentApp(
   appId: string,
   functions: MobigentSimpleFunctionMap,
-  options?: MobigentSimpleAppIdentityOptions
+  options?: MobigentSimpleAppIdentityOptions,
 ): MobigentCreatedApp;
 export function mobigentApp(input: MobigentSimpleAppInput): MobigentCreatedApp;
 export function mobigentApp(
   input: MobigentSimpleAppInput | string,
   functions?: MobigentSimpleFunctionMap,
-  identityOptions: MobigentSimpleAppIdentityOptions = {}
+  identityOptions: MobigentSimpleAppIdentityOptions = {},
 ): MobigentCreatedApp {
   const normalizedInput = normalizeMobigentAppInput(input, functions, identityOptions);
-  const options = isMobigentFeatureInput(normalizedInput) ? { features: normalizedInput } : normalizedInput;
+  const options = isMobigentFeatureInput(normalizedInput)
+    ? { features: normalizedInput }
+    : normalizedInput;
   const features = [...toArray(options.features), ...resolveFunctionFeatures(options.functions)];
   const { config, pairing, functions: _functions, confirm, ...appOptions } = options;
   const envConfig = resolveMobigentEnvironmentConfig();
@@ -81,9 +90,10 @@ export function mobigentApp(
     appName: appOptions.appName ?? pairing?.appName ?? config?.appName ?? envConfig.appName,
     gatewayUrl: appConnectionUrl,
     version: appOptions.version ?? pairing?.version ?? config?.version ?? envConfig.version,
-    authToken: appOptions.authToken ?? pairing?.authToken ?? config?.authToken ?? envConfig.authToken,
+    authToken:
+      appOptions.authToken ?? pairing?.authToken ?? config?.authToken ?? envConfig.authToken,
     capabilities: [...toArray(options.capabilities), ...features],
-    modules: options.modules
+    modules: options.modules,
   });
 
   const connectionSettings = {
@@ -102,29 +112,29 @@ export function mobigentApp(
     createSocket: appOptions.createSocket,
     reconnect: appOptions.reconnect,
     eventQueue: appOptions.eventQueue,
-    heartbeat: appOptions.heartbeat
+    heartbeat: appOptions.heartbeat,
   };
 
   return {
     ...app,
-    with<P extends object>(App: ComponentType<P>, rootProps?: Omit<AgentAppRootProps, "children">) {
+    with<P extends object>(App: ComponentType<P>, rootProps?: Omit<AgentAppRootProps, 'children'>) {
       function MobigentWrappedApp(props: P) {
         return createElement(app.Root, {
           ...rootProps,
-          children: createElement(App, props)
+          children: createElement(App, props),
         });
       }
 
-      MobigentWrappedApp.displayName = `mobigent.with(${App.displayName ?? App.name ?? "App"})`;
+      MobigentWrappedApp.displayName = `mobigent.with(${App.displayName ?? App.name ?? 'App'})`;
       return MobigentWrappedApp;
     },
     connect(settings: MobigentSimpleConnectionSettings = {}) {
       return connectMobigent(features, {
         ...connectionSettings,
-        ...settings
+        ...settings,
       });
     },
-    emit: emitMobigentEvent
+    emit: emitMobigentEvent,
   };
 }
 
@@ -136,31 +146,34 @@ export const setupMobigent = mobigentApp;
 export function withMobigent<P extends object>(
   App: ComponentType<P>,
   input: MobigentSimpleAppInput,
-  rootProps?: Omit<AgentAppRootProps, "children">
+  rootProps?: Omit<AgentAppRootProps, 'children'>,
 ): ComponentType<P>;
-export function withMobigent<P extends object>(App: ComponentType<P>, options: MobigentWithAppOptions): ComponentType<P>;
+export function withMobigent<P extends object>(
+  App: ComponentType<P>,
+  options: MobigentWithAppOptions,
+): ComponentType<P>;
 export function withMobigent<P extends object>(
   App: ComponentType<P>,
   input: MobigentSimpleAppInput | MobigentWithAppOptions,
-  rootProps?: Omit<AgentAppRootProps, "children">
+  rootProps?: Omit<AgentAppRootProps, 'children'>,
 ): ComponentType<P> {
   const { Root, rootProps: resolvedRootProps } = createMobigentWrapper(input, rootProps);
 
   function MobigentWrappedApp(props: P) {
     return createElement(Root, {
       ...resolvedRootProps,
-      children: createElement(App, props)
+      children: createElement(App, props),
     });
   }
 
-  MobigentWrappedApp.displayName = `withMobigent(${App.displayName ?? App.name ?? "App"})`;
+  MobigentWrappedApp.displayName = `withMobigent(${App.displayName ?? App.name ?? 'App'})`;
 
   return MobigentWrappedApp;
 }
 
 export function createMobigentWrapper(
   input: MobigentSimpleAppInput | MobigentWithAppOptions,
-  rootProps?: Omit<AgentAppRootProps, "children">
+  rootProps?: Omit<AgentAppRootProps, 'children'>,
 ) {
   if (isMobigentWithAppOptions(input)) {
     const { rootProps: inputRootProps, ...options } = input;
@@ -168,7 +181,7 @@ export function createMobigentWrapper(
 
     return {
       Root,
-      rootProps: inputRootProps ?? rootProps
+      rootProps: inputRootProps ?? rootProps,
     };
   }
 
@@ -176,13 +189,15 @@ export function createMobigentWrapper(
 
   return {
     Root,
-    rootProps
+    rootProps,
   };
 }
 
 export const wrapMobigent = withMobigent;
 
-function isMobigentFeatureInput(value: MobigentSimpleAppInput): value is MobigentSimpleFeature | MobigentSimpleFeature[] {
+function isMobigentFeatureInput(
+  value: MobigentSimpleAppInput,
+): value is MobigentSimpleFeature | MobigentSimpleFeature[] {
   if (Array.isArray(value)) {
     return value.every(isMobigentFeature);
   }
@@ -193,36 +208,42 @@ function isMobigentFeatureInput(value: MobigentSimpleAppInput): value is Mobigen
 function normalizeMobigentAppInput(
   input: MobigentSimpleAppInput | string,
   functions: MobigentSimpleFunctionMap | undefined,
-  options: MobigentSimpleAppIdentityOptions
+  options: MobigentSimpleAppIdentityOptions,
 ): MobigentSimpleAppInput {
-  if (typeof input !== "string") {
+  if (typeof input !== 'string') {
     return input;
   }
 
   if (!functions) {
-    throw new Error("createApp(appId, functions) requires an app functions object.");
+    throw new Error('createApp(appId, functions) requires an app functions object.');
   }
 
   return {
     ...options,
     appId: input,
-    functions
+    functions,
   };
 }
 
-function isMobigentFeature(value: MobigentSimpleAppInput | MobigentSimpleFeature): value is MobigentSimpleFeature {
+function isMobigentFeature(
+  value: MobigentSimpleAppInput | MobigentSimpleFeature,
+): value is MobigentSimpleFeature {
   return Boolean(
     value &&
-      typeof value === "object" &&
-      "namespace" in value &&
-      "actions" in value &&
-      "resources" in value &&
-      "components" in value
+    typeof value === 'object' &&
+    'namespace' in value &&
+    'actions' in value &&
+    'resources' in value &&
+    'components' in value,
   );
 }
 
-function isMobigentWithAppOptions(value: MobigentSimpleAppInput | MobigentWithAppOptions): value is MobigentWithAppOptions {
-  return Boolean(value && typeof value === "object" && !Array.isArray(value) && "rootProps" in value);
+function isMobigentWithAppOptions(
+  value: MobigentSimpleAppInput | MobigentWithAppOptions,
+): value is MobigentWithAppOptions {
+  return Boolean(
+    value && typeof value === 'object' && !Array.isArray(value) && 'rootProps' in value,
+  );
 }
 
 function toArray<T>(value: T | T[] | undefined): T[] {
@@ -233,6 +254,8 @@ function toArray<T>(value: T | T[] | undefined): T[] {
   return Array.isArray(value) ? value : [value];
 }
 
-function resolveFunctionFeatures(functions: MobigentSimpleFunctionMap | undefined): MobigentSimpleFeature[] {
+function resolveFunctionFeatures(
+  functions: MobigentSimpleFunctionMap | undefined,
+): MobigentSimpleFeature[] {
   return functions ? defineMobigent(functions) : [];
 }

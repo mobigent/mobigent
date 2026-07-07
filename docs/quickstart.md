@@ -22,13 +22,13 @@ npm install @mobigent/app
 Create a Mobigent file yourself. There is no app-side init command in the normal path:
 
 ```ts
-import { createApp, type AppFunctions } from "@mobigent/app";
+import { createApp, type AppFunctions } from '@mobigent/app';
 
 export const appFunctions = {
   expense: {
     list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
+    create: async (input) => createExpense(input),
+  },
 } satisfies AppFunctions;
 
 export type MyAppFunctions = typeof appFunctions;
@@ -48,8 +48,8 @@ That is enough for a first integration. Mobigent treats `list`, `get`, `read`, `
 Create one Mobigent app object and wrap your existing app once:
 
 ```tsx
-import { mobigent } from "./mobigent";
-import App from "./App";
+import { mobigent } from './mobigent';
+import App from './App';
 
 export default mobigent.with(App);
 ```
@@ -57,14 +57,14 @@ export default mobigent.with(App);
 Or wrap directly in one file while you are trying the SDK:
 
 ```tsx
-import { withMobigent } from "@mobigent/app";
-import App from "./App";
+import { withMobigent } from '@mobigent/app';
+import App from './App';
 
 export default withMobigent(App, {
   expense: {
     list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
+    create: async (input) => createExpense(input),
+  },
 });
 ```
 
@@ -75,13 +75,13 @@ No app-side init command is required. The SDK handles app reachability. Optional
 For a non-React demo or test host, pass the backend once and connect with no extra setup:
 
 ```ts
-import { startMobigent } from "@mobigent/backend";
-import { createApp } from "@mobigent/app";
-import { expenseFunctions } from "./app-functions";
+import { startMobigent } from '@mobigent/backend';
+import { createApp } from '@mobigent/app';
+import { expenseFunctions } from './app-functions';
 
 const backend = await startMobigent();
 const mobigent = createApp(expenseFunctions, {
-  backend
+  backend,
 });
 
 await mobigent.connect();
@@ -98,7 +98,7 @@ npm install @mobigent/backend
 In your server:
 
 ```ts
-import { startMobigent } from "@mobigent/backend";
+import { startMobigent } from '@mobigent/backend';
 
 const mobigent = await startMobigent();
 
@@ -112,23 +112,23 @@ Prefer generated sample files? Use the starter. Starter generation is a demo sho
 Call app functions from the backend SDK object. If you can import the app function type, the backend gets typed calls with the same namespaces without loading mobile code:
 
 ```ts
-import type { MyAppFunctions } from "../app/mobigent";
+import type { MyAppFunctions } from '../app/mobigent';
 
 const app = mobigent.app<MyAppFunctions>();
 
-await app.expense.create({ merchant: "Coffee", amount: 8 });
+await app.expense.create({ merchant: 'Coffee', amount: 8 });
 await app.expense.list();
 ```
 
 Mobigent waits for the app when a function is called. If the backend cannot share that type, bind the app function group once:
 
 ```ts
-const expenses = mobigent.app("expense", {
-  createExpense: "create",
-  listExpenses: "list"
+const expenses = mobigent.app('expense', {
+  createExpense: 'create',
+  listExpenses: 'list',
 });
 
-await expenses.createExpense({ merchant: "Coffee", amount: 8 });
+await expenses.createExpense({ merchant: 'Coffee', amount: 8 });
 await expenses.listExpenses();
 ```
 

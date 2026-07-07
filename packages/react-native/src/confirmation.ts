@@ -1,4 +1,4 @@
-import type { ActionDefinition, JsonObject } from "@mobigent/core";
+import type { ActionDefinition, JsonObject } from '@mobigent/core';
 
 export type ConfirmationRequest = {
   id: string;
@@ -23,7 +23,7 @@ export class ConfirmationController {
         id: `${Date.now()}_${Math.random().toString(36).slice(2)}`,
         action,
         input,
-        resolve
+        resolve,
       };
       this.notify();
     });

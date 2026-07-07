@@ -1,6 +1,6 @@
-import { existsSync, mkdirSync, realpathSync, writeFileSync } from "node:fs";
-import { spawnSync } from "node:child_process";
-import { basename, join, resolve } from "node:path";
+import { existsSync, mkdirSync, realpathSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { basename, join, resolve } from 'node:path';
 
 export type CreateMobigentAppOptions = {
   targetDir: string;
@@ -14,7 +14,7 @@ export type CreateMobigentAppOptions = {
   force: boolean;
   dryRun: boolean;
   localPackages?: string;
-  packageSource?: "github-release" | "npm";
+  packageSource?: 'github-release' | 'npm';
   packageVersion?: string;
   installDependencies?: boolean;
   stableAppIdentity?: boolean;
@@ -30,37 +30,37 @@ export function createMobigentAppFiles(options: CreateMobigentAppOptions): Gener
 
   return [
     {
-      path: "package.json",
-      contents: `${JSON.stringify(createPackageJson(packageName, options), null, 2)}\n`
+      path: 'package.json',
+      contents: `${JSON.stringify(createPackageJson(packageName, options), null, 2)}\n`,
     },
     {
-      path: "README.md",
-      contents: createReadme(options)
+      path: 'README.md',
+      contents: createReadme(options),
     },
     {
-      path: "tsconfig.json",
-      contents: `${JSON.stringify(createTsConfig(), null, 2)}\n`
+      path: 'tsconfig.json',
+      contents: `${JSON.stringify(createTsConfig(), null, 2)}\n`,
     },
     {
-      path: ".gitignore",
-      contents: "node_modules\ndist\n.env\n.DS_Store\n"
+      path: '.gitignore',
+      contents: 'node_modules\ndist\n.env\n.DS_Store\n',
     },
     {
-      path: join("src", "server.ts"),
-      contents: createServerFile(options)
+      path: join('src', 'server.ts'),
+      contents: createServerFile(options),
     },
     {
-      path: join("src", "app-functions.ts"),
-      contents: createCapabilitiesFile()
+      path: join('src', 'app-functions.ts'),
+      contents: createCapabilitiesFile(),
     },
     {
-      path: join("src", "doctor.ts"),
-      contents: createDoctorFile(options)
+      path: join('src', 'doctor.ts'),
+      contents: createDoctorFile(options),
     },
     {
-      path: join("src", "nodeSocket.ts"),
-      contents: createNodeSocketFile()
-    }
+      path: join('src', 'nodeSocket.ts'),
+      contents: createNodeSocketFile(),
+    },
   ];
 }
 
@@ -73,16 +73,20 @@ export function writeMobigentApp(options: CreateMobigentAppOptions): GeneratedFi
   }
 
   if (existsSync(targetDir) && !options.force) {
-    throw new Error(`Target directory already exists: ${targetDir}. Re-run with --force to write into it.`);
+    throw new Error(
+      `Target directory already exists: ${targetDir}. Re-run with --force to write into it.`,
+    );
   }
 
   for (const file of files) {
     const path = join(targetDir, file.path);
     if (existsSync(path) && !options.force) {
-      throw new Error(`Refusing to overwrite ${path}. Re-run with --force to replace generated files.`);
+      throw new Error(
+        `Refusing to overwrite ${path}. Re-run with --force to replace generated files.`,
+      );
     }
-    mkdirSync(resolve(path, ".."), { recursive: true });
-    writeFileSync(path, file.contents, "utf8");
+    mkdirSync(resolve(path, '..'), { recursive: true });
+    writeFileSync(path, file.contents, 'utf8');
   }
 
   return files;
@@ -111,92 +115,94 @@ Run "npm run doctor" in another terminal to confirm the app, backend, readiness 
 `;
 }
 
-export function installMobigentAppDependencies(options: Pick<CreateMobigentAppOptions, "targetDir">) {
-  const result = spawnSync("npm", ["install"], {
+export function installMobigentAppDependencies(
+  options: Pick<CreateMobigentAppOptions, 'targetDir'>,
+) {
+  const result = spawnSync('npm', ['install'], {
     cwd: resolve(options.targetDir),
-    encoding: "utf8"
+    encoding: 'utf8',
   });
 
   return {
     status: result.status ?? 1,
-    stdout: result.stdout ?? "",
-    stderr: result.stderr ?? "",
-    error: result.error
+    stdout: result.stdout ?? '',
+    stderr: result.stderr ?? '',
+    error: result.error,
   };
 }
 
-export const defaultMobigentVersion = "0.1.15";
+export const defaultMobigentVersion = '0.1.15';
 
 function createPackageJson(packageName: string, options?: CreateMobigentAppOptions) {
-  const packageSource = options?.packageSource ?? "github-release";
+  const packageSource = options?.packageSource ?? 'github-release';
   const version = options?.packageVersion ?? defaultMobigentVersion;
-  const agentCommand = "mobigent-backend agent";
+  const agentCommand = 'mobigent-backend agent';
   const dependencies = options?.localPackages
-      ? {
-        "@mobigent/backend": localPackageSpec(options, "backend"),
-        "@mobigent/app": localPackageSpec(options, "app"),
-        express: "^5.2.1",
-        ws: "^8.21.0"
+    ? {
+        '@mobigent/backend': localPackageSpec(options, 'backend'),
+        '@mobigent/app': localPackageSpec(options, 'app'),
+        express: '^5.2.1',
+        ws: '^8.21.0',
       }
-    : packageSource === "github-release"
+    : packageSource === 'github-release'
       ? {
-          "@mobigent/backend": releaseTarballSpec("mobigent-backend", version),
-          "@mobigent/app": releaseTarballSpec("mobigent-app", version),
-          express: "^5.2.1",
-          ws: "^8.21.0"
+          '@mobigent/backend': releaseTarballSpec('mobigent-backend', version),
+          '@mobigent/app': releaseTarballSpec('mobigent-app', version),
+          express: '^5.2.1',
+          ws: '^8.21.0',
         }
-    : {
-        "@mobigent/backend": `^${version}`,
-        "@mobigent/app": `^${version}`,
-        express: "^5.2.1",
-        ws: "^8.21.0"
-      };
+      : {
+          '@mobigent/backend': `^${version}`,
+          '@mobigent/app': `^${version}`,
+          express: '^5.2.1',
+          ws: '^8.21.0',
+        };
 
   return {
     name: packageName,
     version: defaultMobigentVersion,
     private: true,
-    type: "module",
+    type: 'module',
     scripts: {
-      dev: "tsx src/server.ts",
-      doctor: "tsx src/doctor.ts",
-      "agent:local": `${agentCommand} claude --format guide`,
-      "agent:openapi": `${agentCommand} openapi --base-url http://localhost:${options?.httpPort ?? 8788} --format guide`,
-      "agent:chatgpt": `${agentCommand} chatgpt --base-url https://your-public-backend.example --format guide`,
-      check: "tsc -p tsconfig.json --noEmit"
+      dev: 'tsx src/server.ts',
+      doctor: 'tsx src/doctor.ts',
+      'agent:local': `${agentCommand} claude --format guide`,
+      'agent:openapi': `${agentCommand} openapi --base-url http://localhost:${options?.httpPort ?? 8788} --format guide`,
+      'agent:chatgpt': `${agentCommand} chatgpt --base-url https://your-public-backend.example --format guide`,
+      check: 'tsc -p tsconfig.json --noEmit',
     },
     dependencies,
     overrides: createPackageOverrides(options, version, packageSource),
     devDependencies: {
-      "@types/express": "^5.0.6",
-      "@types/node": "^25.9.1",
-      "@types/ws": "^8.18.1",
-      tsx: "^4.22.3",
-      typescript: "^6.0.3"
-    }
+      '@types/express': '^5.0.6',
+      '@types/node': '^25.9.1',
+      '@types/ws': '^8.18.1',
+      tsx: '^4.22.3',
+      typescript: '^6.0.3',
+    },
   };
 }
 
 function createPackageOverrides(
   options: CreateMobigentAppOptions | undefined,
   version: string,
-  packageSource: "github-release" | "npm"
+  packageSource: 'github-release' | 'npm',
 ) {
   if (options?.localPackages) {
     return {
-      "@mobigent/core": localPackageSpec(options, "core"),
-      "@mobigent/gateway": localPackageSpec(options, "gateway"),
-      "@mobigent/providers": localPackageSpec(options, "providers"),
-      "@mobigent/react-native": localPackageSpec(options, "react-native")
+      '@mobigent/core': localPackageSpec(options, 'core'),
+      '@mobigent/gateway': localPackageSpec(options, 'gateway'),
+      '@mobigent/providers': localPackageSpec(options, 'providers'),
+      '@mobigent/react-native': localPackageSpec(options, 'react-native'),
     };
   }
 
-  if (packageSource === "github-release") {
+  if (packageSource === 'github-release') {
     return {
-      "@mobigent/core": releaseTarballSpec("mobigent-core", version),
-      "@mobigent/gateway": releaseTarballSpec("mobigent-gateway", version),
-      "@mobigent/providers": releaseTarballSpec("mobigent-providers", version),
-      "@mobigent/react-native": releaseTarballSpec("mobigent-react-native", version)
+      '@mobigent/core': releaseTarballSpec('mobigent-core', version),
+      '@mobigent/gateway': releaseTarballSpec('mobigent-gateway', version),
+      '@mobigent/providers': releaseTarballSpec('mobigent-providers', version),
+      '@mobigent/react-native': releaseTarballSpec('mobigent-react-native', version),
     };
   }
 
@@ -206,27 +212,29 @@ function createPackageOverrides(
 function createTsConfig() {
   return {
     compilerOptions: {
-      target: "ES2022",
-      module: "NodeNext",
-      moduleResolution: "NodeNext",
+      target: 'ES2022',
+      module: 'NodeNext',
+      moduleResolution: 'NodeNext',
       strict: true,
       esModuleInterop: true,
       skipLibCheck: true,
-      types: ["node"]
+      types: ['node'],
     },
-    include: ["src/**/*.ts"]
+    include: ['src/**/*.ts'],
   };
 }
 
 function createReadme(options: CreateMobigentAppOptions) {
-  const packageSource = options.localPackages ? "local" : (options.packageSource ?? "github-release");
+  const packageSource = options.localPackages
+    ? 'local'
+    : (options.packageSource ?? 'github-release');
   const sourceNote =
-    packageSource === "local"
-      ? "\nThis starter is linked to local Mobigent packages from this repository.\n"
-      : packageSource === "github-release"
-        ? "\nThis starter installs the public Mobigent app and backend packages from GitHub release tarballs. Internal package pins are handled for you until npmjs publishing is connected.\n"
-        : "";
-  const runSteps = options.installDependencies ? "npm run dev" : "npm install\nnpm run dev";
+    packageSource === 'local'
+      ? '\nThis starter is linked to local Mobigent packages from this repository.\n'
+      : packageSource === 'github-release'
+        ? '\nThis starter installs the public Mobigent app and backend packages from GitHub release tarballs. Internal package pins are handled for you until npmjs publishing is connected.\n'
+        : '';
+  const runSteps = options.installDependencies ? 'npm run dev' : 'npm install\nnpm run dev';
 
   return `# ${options.appName}
 
@@ -279,16 +287,16 @@ When you move this into a real mobile app, start by copying the shape from \`src
 
 function createServerFile(options: CreateMobigentAppOptions) {
   const portLines = [
-    options.gatewayPort === 8787 ? "" : `  wsPort: ${options.gatewayPort},\n`,
-    options.httpPort === 8788 ? "" : `  httpPort: ${options.httpPort},\n`
-  ].join("");
+    options.gatewayPort === 8787 ? '' : `  wsPort: ${options.gatewayPort},\n`,
+    options.httpPort === 8788 ? '' : `  httpPort: ${options.httpPort},\n`,
+  ].join('');
   const backendStart = portLines
     ? options.stableAppIdentity
       ? `startMobigent(${JSON.stringify(options.appId)}, ${JSON.stringify(options.appName)}, {\n${portLines}})`
       : `startMobigent({\n${portLines}})`
     : options.stableAppIdentity
       ? `startMobigent(${JSON.stringify(options.appId)}, ${JSON.stringify(options.appName)})`
-      : "startMobigent()";
+      : 'startMobigent()';
 
   return `import { spawn } from "node:child_process";
 import express from "express";
@@ -348,7 +356,7 @@ const mobigent = createApp(expenseFunctions, {
 const mobigentConnection = await mobigent.connect();
 
 function openBrowser(url: string) {
-  if (${options.openBrowser ? "false" : "true"} || process.env.MOBIGENT_DEMO_OPEN === "0") {
+  if (${options.openBrowser ? 'false' : 'true'} || process.env.MOBIGENT_DEMO_OPEN === "0") {
     return;
   }
   const command = process.platform === "darwin" ? "open" : process.platform === "win32" ? "cmd" : "xdg-open";
@@ -642,7 +650,10 @@ function titleCase(value: string) {
 }
 
 function createDoctorFile(options: CreateMobigentAppOptions) {
-  const functionName = backendFunctionName(options.stableAppIdentity ? options.appId : "app.mobigent.local", "expense_create");
+  const functionName = backendFunctionName(
+    options.stableAppIdentity ? options.appId : 'app.mobigent.local',
+    'expense_create',
+  );
   return `const appUrl = "http://localhost:${options.appPort}";
 const backendUrl = "http://localhost:${options.httpPort}";
 const expectedFunction = "${functionName}";
@@ -728,15 +739,15 @@ function sanitizePackageName(name: string) {
   const normalized = name
     .trim()
     .toLowerCase()
-    .replace(/[^a-z0-9._/-]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+    .replace(/[^a-z0-9._/-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 
-  return normalized || "mobigent-app";
+  return normalized || 'mobigent-app';
 }
 
 function localPackageSpec(options: CreateMobigentAppOptions, packageDir: string) {
-  const packagePath = realpathSync(resolve(options.localPackages ?? ".", "packages", packageDir));
-  return `file:${packagePath.replaceAll("\\", "/")}`;
+  const packagePath = realpathSync(resolve(options.localPackages ?? '.', 'packages', packageDir));
+  return `file:${packagePath.replaceAll('\\', '/')}`;
 }
 
 export function releaseTarballSpec(packageFileName: string, version: string) {
@@ -744,13 +755,13 @@ export function releaseTarballSpec(packageFileName: string, version: string) {
 }
 
 function backendFunctionName(appId: string, capability: string) {
-  return `${appId.replace(/[^a-zA-Z0-9]/g, "_")}.${capability}`.toLowerCase();
+  return `${appId.replace(/[^a-zA-Z0-9]/g, '_')}.${capability}`.toLowerCase();
 }
 
 function shellPath(path: string) {
-  return path.includes(" ") ? JSON.stringify(path) : path;
+  return path.includes(' ') ? JSON.stringify(path) : path;
 }
 
 function escapeTemplate(value: string) {
-  return value.replace(/[`\\]/g, "\\$&").replace(/\${/g, "\\${");
+  return value.replace(/[`\\]/g, '\\$&').replace(/\${/g, '\\${');
 }

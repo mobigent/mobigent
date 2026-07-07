@@ -1,17 +1,17 @@
-import { createHmac, timingSafeEqual, randomUUID } from "node:crypto";
-import { EventEmitter } from "node:events";
-import { mkdirSync, appendFileSync } from "node:fs";
-import { dirname } from "node:path";
-import { WebSocket, WebSocketServer } from "ws";
+import { createHmac, timingSafeEqual, randomUUID } from 'node:crypto';
+import { EventEmitter } from 'node:events';
+import { mkdirSync, appendFileSync } from 'node:fs';
+import { dirname } from 'node:path';
+import { WebSocket, WebSocketServer } from 'ws';
 import type {
   BridgeMessage,
   CapabilityPolicy,
   CapabilityManifest,
   JsonObject,
   ManifestSignature,
-  ToolDescriptor
-} from "@mobigent/core";
-import { canonicalJson, toolName, validateCapabilityManifest } from "@mobigent/core";
+  ToolDescriptor,
+} from '@mobigent/core';
+import { canonicalJson, toolName, validateCapabilityManifest } from '@mobigent/core';
 
 type PendingCall = {
   resolve: (value: unknown) => void;
@@ -40,32 +40,32 @@ export type AgentProfile = {
   allowedTools?: string[];
   deniedTools?: string[];
   readOnly?: boolean;
-  maxRisk?: "low" | "medium" | "high";
+  maxRisk?: 'low' | 'medium' | 'high';
 };
 
 export type AuditEventType =
-  | "gateway.started"
-  | "gateway.stopped"
-  | "session.connected"
-  | "session.disconnected"
-  | "app.authenticated"
-  | "app.rejected"
-  | "manifest.registered"
-  | "app.event"
-  | "message.malformed"
-  | "tool.call.started"
-  | "manifest.rejected"
-  | "tool.call.deduplicated"
-  | "tool.call.succeeded"
-  | "tool.call.failed"
-  | "tool.call.denied"
-  | "tool.call.timed_out";
+  | 'gateway.started'
+  | 'gateway.stopped'
+  | 'session.connected'
+  | 'session.disconnected'
+  | 'app.authenticated'
+  | 'app.rejected'
+  | 'manifest.registered'
+  | 'app.event'
+  | 'message.malformed'
+  | 'tool.call.started'
+  | 'manifest.rejected'
+  | 'tool.call.deduplicated'
+  | 'tool.call.succeeded'
+  | 'tool.call.failed'
+  | 'tool.call.denied'
+  | 'tool.call.timed_out';
 
 export type AuditEvent = {
   id: string;
   at: string;
   type: AuditEventType;
-  severity: "info" | "warn" | "error";
+  severity: 'info' | 'warn' | 'error';
   message: string;
   sessionId?: string;
   app?: {
@@ -91,7 +91,7 @@ export type GatewayStatus = {
   agentProfilesConfigured: boolean;
 };
 
-type ToolCallMetric = "started" | "succeeded" | "failed" | "denied" | "timedOut" | "deduplicated";
+type ToolCallMetric = 'started' | 'succeeded' | 'failed' | 'denied' | 'timedOut' | 'deduplicated';
 type ToolCallMetricCounts = Record<ToolCallMetric, number>;
 
 export type GatewayMetrics = {
@@ -124,7 +124,7 @@ export type GatewayAppSession = {
   app?: {
     id: string;
     name: string;
-    sdk: CapabilityManifest["sdk"];
+    sdk: CapabilityManifest['sdk'];
     version: string;
     protocolVersion: number;
     protocolCompatible: boolean;
@@ -170,14 +170,14 @@ export type BridgeGatewayOptions = {
 };
 
 const defaultAuditRedactKeys = [
-  "access_token",
-  "api_key",
-  "authorization",
-  "authToken",
-  "password",
-  "refresh_token",
-  "secret",
-  "token"
+  'access_token',
+  'api_key',
+  'authorization',
+  'authToken',
+  'password',
+  'refresh_token',
+  'secret',
+  'token',
 ];
 
 function emptyToolCallMetricCounts(): ToolCallMetricCounts {
@@ -187,7 +187,7 @@ function emptyToolCallMetricCounts(): ToolCallMetricCounts {
     failed: 0,
     denied: 0,
     timedOut: 0,
-    deduplicated: 0
+    deduplicated: 0,
   };
 }
 
@@ -200,26 +200,26 @@ function cloneMetricBuckets(buckets: Record<string, ToolCallMetricCounts>) {
     Object.entries(buckets).map(([key, value]) => [
       key,
       {
-        ...value
-      }
-    ])
+        ...value,
+      },
+    ]),
   );
 }
 
 function toolCallMetric(type: AuditEventType): ToolCallMetric | undefined {
   switch (type) {
-    case "tool.call.started":
-      return "started";
-    case "tool.call.succeeded":
-      return "succeeded";
-    case "tool.call.failed":
-      return "failed";
-    case "tool.call.denied":
-      return "denied";
-    case "tool.call.timed_out":
-      return "timedOut";
-    case "tool.call.deduplicated":
-      return "deduplicated";
+    case 'tool.call.started':
+      return 'started';
+    case 'tool.call.succeeded':
+      return 'succeeded';
+    case 'tool.call.failed':
+      return 'failed';
+    case 'tool.call.denied':
+      return 'denied';
+    case 'tool.call.timed_out':
+      return 'timedOut';
+    case 'tool.call.deduplicated':
+      return 'deduplicated';
     default:
       return undefined;
   }
@@ -233,28 +233,28 @@ export class BridgeGateway {
   private idempotencyRecords = new Map<string, IdempotencyRecord>();
   private rateLimitBuckets = new Map<string, number[]>();
   private auditLog: AuditEvent[] = [];
-  private readonly metrics: Omit<GatewayMetrics, "status"> = {
+  private readonly metrics: Omit<GatewayMetrics, 'status'> = {
     auditEvents: {
-      "gateway.started": 0,
-      "gateway.stopped": 0,
-      "session.connected": 0,
-      "session.disconnected": 0,
-      "app.authenticated": 0,
-      "app.rejected": 0,
-      "manifest.registered": 0,
-      "app.event": 0,
-      "message.malformed": 0,
-      "tool.call.started": 0,
-      "manifest.rejected": 0,
-      "tool.call.deduplicated": 0,
-      "tool.call.succeeded": 0,
-      "tool.call.failed": 0,
-      "tool.call.denied": 0,
-      "tool.call.timed_out": 0
+      'gateway.started': 0,
+      'gateway.stopped': 0,
+      'session.connected': 0,
+      'session.disconnected': 0,
+      'app.authenticated': 0,
+      'app.rejected': 0,
+      'manifest.registered': 0,
+      'app.event': 0,
+      'message.malformed': 0,
+      'tool.call.started': 0,
+      'manifest.rejected': 0,
+      'tool.call.deduplicated': 0,
+      'tool.call.succeeded': 0,
+      'tool.call.failed': 0,
+      'tool.call.denied': 0,
+      'tool.call.timed_out': 0,
     },
     toolCalls: emptyToolCallMetricCounts(),
     byTool: {},
-    byAgent: {}
+    byAgent: {},
   };
   private readonly port: number;
   private readonly authToken?: string;
@@ -270,7 +270,7 @@ export class BridgeGateway {
   private cleanupTimer?: NodeJS.Timeout;
 
   constructor(options: BridgeGatewayOptions | number = 8787) {
-    if (typeof options === "number") {
+    if (typeof options === 'number') {
       this.port = options;
       this.requestTimeoutMs = 15_000;
       this.idempotencyRecordTtlMs = 5 * 60_000;
@@ -290,7 +290,9 @@ export class BridgeGateway {
     this.auditLogLimit = options.auditLogLimit ?? 500;
     this.auditLogPath = options.auditLogPath;
     this.auditRedactKeys = new Set(
-      [...defaultAuditRedactKeys, ...(options.auditRedactKeys ?? [])].map((key) => key.toLowerCase())
+      [...defaultAuditRedactKeys, ...(options.auditRedactKeys ?? [])].map((key) =>
+        key.toLowerCase(),
+      ),
     );
     this.manifestSigningSecret = options.manifestSigningSecret;
     this.allowedAppIds = new Set(options.allowedAppIds ?? []);
@@ -299,21 +301,21 @@ export class BridgeGateway {
 
   start() {
     this.appServer = new WebSocketServer({ port: this.port });
-    this.appServer.on("connection", (socket) => this.handleConnection(socket));
+    this.appServer.on('connection', (socket) => this.handleConnection(socket));
     this.startCleanupTimer();
     console.log(`Mobigent gateway listening for mobile apps on ws://localhost:${this.port}`);
     this.emitAudit({
-      type: "gateway.started",
-      severity: "info",
+      type: 'gateway.started',
+      severity: 'info',
       message: `Gateway listening for mobile apps on port ${this.port}.`,
-      details: { port: this.port }
+      details: { port: this.port },
     });
   }
 
   stop() {
     for (const pending of this.pending.values()) {
       clearTimeout(pending.timeout);
-      pending.reject(new Error("Gateway stopped."));
+      pending.reject(new Error('Gateway stopped.'));
     }
     this.pending.clear();
     this.idempotencyRecords.clear();
@@ -325,25 +327,25 @@ export class BridgeGateway {
     this.appServer?.close();
     this.emitToolsChanged();
     this.emitAudit({
-      type: "gateway.stopped",
-      severity: "info",
-      message: "Gateway stopped."
+      type: 'gateway.stopped',
+      severity: 'info',
+      message: 'Gateway stopped.',
     });
   }
 
   onToolsChanged(listener: () => void) {
-    this.events.on("toolsChanged", listener);
+    this.events.on('toolsChanged', listener);
 
     return () => {
-      this.events.off("toolsChanged", listener);
+      this.events.off('toolsChanged', listener);
     };
   }
 
   onAudit(listener: (event: AuditEvent) => void) {
-    this.events.on("audit", listener);
+    this.events.on('audit', listener);
 
     return () => {
-      this.events.off("audit", listener);
+      this.events.off('audit', listener);
     };
   }
 
@@ -364,7 +366,7 @@ export class BridgeGateway {
       rateLimitBuckets: this.rateLimitBuckets.size,
       manifestSigningRequired: Boolean(this.manifestSigningSecret),
       appAllowlistEnabled: this.allowedAppIds.size > 0,
-      agentProfilesConfigured: this.agentProfiles.size > 0
+      agentProfilesConfigured: this.agentProfiles.size > 0,
     };
   }
 
@@ -374,7 +376,7 @@ export class BridgeGateway {
       auditEvents: { ...this.metrics.auditEvents },
       toolCalls: { ...this.metrics.toolCalls },
       byTool: cloneMetricBuckets(this.metrics.byTool),
-      byAgent: cloneMetricBuckets(this.metrics.byAgent)
+      byAgent: cloneMetricBuckets(this.metrics.byAgent),
     };
   }
 
@@ -398,26 +400,27 @@ export class BridgeGateway {
               name: manifest.appName,
               sdk: manifest.sdk,
               version: manifest.version,
-              protocolVersion: session.protocolVersion ?? manifest.protocolVersion ?? currentProtocolVersion,
+              protocolVersion:
+                session.protocolVersion ?? manifest.protocolVersion ?? currentProtocolVersion,
               protocolCompatible: isSupportedProtocolVersion(
-                session.protocolVersion ?? manifest.protocolVersion ?? currentProtocolVersion
-              )
+                session.protocolVersion ?? manifest.protocolVersion ?? currentProtocolVersion,
+              ),
             }
           : undefined,
         capabilities: {
           actions,
           resources,
           components,
-          tools: actions + resources + components
+          tools: actions + resources + components,
         },
         manifest:
           manifest && session.manifestAcceptedAt
             ? {
                 acceptedAt: session.manifestAcceptedAt,
                 signed: Boolean(session.manifestSignature),
-                keyId: session.manifestSignature?.keyId
+                keyId: session.manifestSignature?.keyId,
               }
-            : undefined
+            : undefined,
       };
     });
   }
@@ -437,11 +440,11 @@ export class BridgeGateway {
           inputSchema: action.inputSchema,
           outputSchema: action.outputSchema,
           readOnly: action.policy?.readOnly ?? false,
-          risk: action.confirmation?.risk ?? "medium",
+          risk: action.confirmation?.risk ?? 'medium',
           app: {
             id: session.manifest.appId,
-            name: session.manifest.appName
-          }
+            name: session.manifest.appName,
+          },
         });
       }
 
@@ -450,16 +453,16 @@ export class BridgeGateway {
           name: toolName(session.manifest.appId, `get_${resource.name}`),
           description: `${session.manifest.appName}: Read ${resource.description}`,
           inputSchema: {
-            type: "object",
-            properties: {}
+            type: 'object',
+            properties: {},
           },
           outputSchema: resource.outputSchema,
           readOnly: true,
-          risk: "low",
+          risk: 'low',
           app: {
             id: session.manifest.appId,
-            name: session.manifest.appName
-          }
+            name: session.manifest.appName,
+          },
         });
       }
 
@@ -468,15 +471,15 @@ export class BridgeGateway {
           name: toolName(session.manifest.appId, `show_${component.name}`),
           description: `${session.manifest.appName}: Show ${component.description}`,
           inputSchema: component.propsSchema ?? {
-            type: "object",
-            properties: {}
+            type: 'object',
+            properties: {},
           },
           readOnly: false,
-          risk: "low",
+          risk: 'low',
           app: {
             id: session.manifest.appId,
-            name: session.manifest.appName
-          }
+            name: session.manifest.appName,
+          },
         });
       }
     }
@@ -494,16 +497,18 @@ export class BridgeGateway {
         ? agentIds
         : this.agentProfiles.size > 0
           ? [...this.agentProfiles.keys()]
-          : ["anonymous"];
+          : ['anonymous'];
     const tools = this.listTools();
 
     return resolvedAgentIds.map((agentId) => {
-      const effectiveAgentId = agentId === "anonymous" ? undefined : agentId;
+      const effectiveAgentId = agentId === 'anonymous' ? undefined : agentId;
       const visibleToolNames = tools
         .filter((tool) => this.isToolVisibleToAgent(tool.name, effectiveAgentId))
         .map((tool) => tool.name);
       const visible = new Set(visibleToolNames);
-      const hiddenToolNames = tools.filter((tool) => !visible.has(tool.name)).map((tool) => tool.name);
+      const hiddenToolNames = tools
+        .filter((tool) => !visible.has(tool.name))
+        .map((tool) => tool.name);
       const profile = this.agentProfiles.get(agentId);
 
       return {
@@ -513,7 +518,7 @@ export class BridgeGateway {
         visibleTools: visibleToolNames.length,
         hiddenTools: hiddenToolNames.length,
         visibleToolNames,
-        hiddenToolNames
+        hiddenToolNames,
       };
     });
   }
@@ -522,11 +527,11 @@ export class BridgeGateway {
     const route = this.resolveTool(name);
     if (!route) {
       this.emitAudit({
-        type: "tool.call.failed",
-        severity: "warn",
+        type: 'tool.call.failed',
+        severity: 'warn',
         message: `No connected app exposes tool: ${name}`,
         tool: name,
-        agentId: options.agentId
+        agentId: options.agentId,
       });
       throw new Error(`No connected app exposes tool: ${name}`);
     }
@@ -535,13 +540,13 @@ export class BridgeGateway {
       this.assertAgentCanUseTool(name, route.policy, options.agentId);
     } catch (error) {
       this.emitAudit({
-        type: "tool.call.denied",
-        severity: "warn",
+        type: 'tool.call.denied',
+        severity: 'warn',
         message: error instanceof Error ? error.message : String(error),
         sessionId: route.session.id,
         app: this.sessionApp(route.session),
         tool: name,
-        agentId: options.agentId
+        agentId: options.agentId,
       });
       throw error;
     }
@@ -560,13 +565,13 @@ export class BridgeGateway {
         this.idempotencyRecords.delete(idempotency.key);
       }
       this.emitAudit({
-        type: "tool.call.denied",
-        severity: "warn",
+        type: 'tool.call.denied',
+        severity: 'warn',
         message: error instanceof Error ? error.message : String(error),
         sessionId: route.session.id,
         app: this.sessionApp(route.session),
         tool: name,
-        agentId: options.agentId
+        agentId: options.agentId,
       });
       throw error;
     }
@@ -574,29 +579,29 @@ export class BridgeGateway {
     const id = randomUUID();
     const startedAt = Date.now();
     const message: BridgeMessage =
-      route.type === "action"
+      route.type === 'action'
         ? {
-            type: "call_action",
+            type: 'call_action',
             id,
             name: route.capabilityName,
-            input
+            input,
           }
-        : route.type === "resource"
+        : route.type === 'resource'
           ? {
-              type: "read_resource",
-              id,
-              name: route.capabilityName
-            }
-          : {
-              type: "focus_component",
+              type: 'read_resource',
               id,
               name: route.capabilityName,
-              props: input
+            }
+          : {
+              type: 'focus_component',
+              id,
+              name: route.capabilityName,
+              props: input,
             };
 
     this.emitAudit({
-      type: "tool.call.started",
-      severity: "info",
+      type: 'tool.call.started',
+      severity: 'info',
       message: `Calling ${name}.`,
       sessionId: route.session.id,
       app: this.sessionApp(route.session),
@@ -606,14 +611,14 @@ export class BridgeGateway {
         requestId: id,
         externalRequestId: options.requestId,
         idempotencyKey: options.idempotencyKey,
-        capabilityType: route.type
-      }
+        capabilityType: route.type,
+      },
     });
 
     try {
       const promise = this.sendRequest(route.session, message, id, options.timeoutMs, {
         tool: name,
-        agentId: options.agentId
+        agentId: options.agentId,
       });
       if (idempotency?.record) {
         idempotency.record.promise = promise;
@@ -626,8 +631,8 @@ export class BridgeGateway {
         idempotency.record.promise = undefined;
       }
       this.emitAudit({
-        type: "tool.call.succeeded",
-        severity: "info",
+        type: 'tool.call.succeeded',
+        severity: 'info',
         message: `Tool call succeeded: ${name}.`,
         sessionId: route.session.id,
         app: this.sessionApp(route.session),
@@ -637,8 +642,8 @@ export class BridgeGateway {
         details: {
           requestId: id,
           externalRequestId: options.requestId,
-          idempotencyKey: options.idempotencyKey
-        }
+          idempotencyKey: options.idempotencyKey,
+        },
       });
       return result;
     } catch (error) {
@@ -647,8 +652,8 @@ export class BridgeGateway {
       }
       const messageText = error instanceof Error ? error.message : String(error);
       this.emitAudit({
-        type: messageText.startsWith("Timed out") ? "tool.call.timed_out" : "tool.call.failed",
-        severity: "error",
+        type: messageText.startsWith('Timed out') ? 'tool.call.timed_out' : 'tool.call.failed',
+        severity: 'error',
         message: messageText,
         sessionId: route.session.id,
         app: this.sessionApp(route.session),
@@ -658,8 +663,8 @@ export class BridgeGateway {
         details: {
           requestId: id,
           externalRequestId: options.requestId,
-          idempotencyKey: options.idempotencyKey
-        }
+          idempotencyKey: options.idempotencyKey,
+        },
       });
       throw error;
     }
@@ -692,7 +697,7 @@ export class BridgeGateway {
     name: string,
     input: JsonObject,
     options: ToolCallOptions,
-    session: AppSession
+    session: AppSession,
   ):
     | {
         key: string;
@@ -709,13 +714,15 @@ export class BridgeGateway {
 
     if (existing) {
       if (existing.inputHash !== inputHash) {
-        throw new Error(`Idempotency key "${options.idempotencyKey}" was already used with different input.`);
+        throw new Error(
+          `Idempotency key "${options.idempotencyKey}" was already used with different input.`,
+        );
       }
 
       existing.lastUsedAt = Date.now();
       this.emitAudit({
-        type: "tool.call.deduplicated",
-        severity: "info",
+        type: 'tool.call.deduplicated',
+        severity: 'info',
         message: `Reusing idempotent result for ${name}.`,
         sessionId: session.id,
         app: this.sessionApp(session),
@@ -723,13 +730,15 @@ export class BridgeGateway {
         agentId: options.agentId,
         details: {
           externalRequestId: options.requestId,
-          idempotencyKey: options.idempotencyKey
-        }
+          idempotencyKey: options.idempotencyKey,
+        },
       });
 
       return {
-        promise: existing.settled ? Promise.resolve(existing.result) : existing.promise ?? Promise.resolve(existing.result),
-        reused: true
+        promise: existing.settled
+          ? Promise.resolve(existing.result)
+          : (existing.promise ?? Promise.resolve(existing.result)),
+        reused: true,
       };
     }
 
@@ -737,19 +746,19 @@ export class BridgeGateway {
       inputHash,
       createdAt: Date.now(),
       lastUsedAt: Date.now(),
-      settled: false
+      settled: false,
     };
     this.idempotencyRecords.set(key, record);
 
     return {
       key,
       record,
-      reused: false
+      reused: false,
     };
   }
 
   private idempotencyRecordKey(name: string, options: ToolCallOptions) {
-    return `${options.agentId ?? "anonymous"}:${name}:${options.idempotencyKey}`;
+    return `${options.agentId ?? 'anonymous'}:${name}:${options.idempotencyKey}`;
   }
 
   private handleConnection(socket: WebSocket) {
@@ -758,72 +767,70 @@ export class BridgeGateway {
       socket,
       authenticated: !this.authToken,
       connectedAt: new Date().toISOString(),
-      lastSeenAt: new Date().toISOString()
+      lastSeenAt: new Date().toISOString(),
     };
 
     this.sessions.set(session.id, session);
     console.log(`Mobile app session connected: ${session.id}`);
     this.emitAudit({
-      type: "session.connected",
-      severity: "info",
+      type: 'session.connected',
+      severity: 'info',
       message: `Mobile app session connected: ${session.id}.`,
-      sessionId: session.id
+      sessionId: session.id,
     });
 
-    socket.on("message", (raw) => {
+    socket.on('message', (raw) => {
       try {
         session.lastSeenAt = new Date().toISOString();
         this.handleAppMessage(session, JSON.parse(raw.toString()) as BridgeMessage);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        console.warn(
-          `Ignoring malformed app message from ${session.id}: ${message}`
-        );
+        console.warn(`Ignoring malformed app message from ${session.id}: ${message}`);
         this.emitAudit({
-          type: "message.malformed",
-          severity: "warn",
+          type: 'message.malformed',
+          severity: 'warn',
           message: `Ignoring malformed app message: ${message}`,
-          sessionId: session.id
+          sessionId: session.id,
         });
       }
     });
 
-    socket.on("close", () => {
+    socket.on('close', () => {
       this.sessions.delete(session.id);
       console.log(`Mobile app session disconnected: ${session.id}`);
       this.emitAudit({
-        type: "session.disconnected",
-        severity: "info",
+        type: 'session.disconnected',
+        severity: 'info',
         message: `Mobile app session disconnected: ${session.id}.`,
         sessionId: session.id,
-        app: this.sessionApp(session)
+        app: this.sessionApp(session),
       });
       this.emitToolsChanged();
     });
   }
 
   private handleAppMessage(session: AppSession, message: BridgeMessage) {
-    if (message.type === "hello") {
+    if (message.type === 'hello') {
       const protocolVersion = message.protocolVersion ?? currentProtocolVersion;
       if (!isSupportedProtocolVersion(protocolVersion)) {
         console.warn(`Rejected app session with unsupported protocol version: ${protocolVersion}`);
         session.authenticated = false;
         this.emitAudit({
-          type: "app.rejected",
-          severity: "warn",
+          type: 'app.rejected',
+          severity: 'warn',
           message: `Rejected app session with unsupported protocol version: ${protocolVersion}.`,
           sessionId: session.id,
           app: {
             id: message.appId,
-            name: message.appName
+            name: message.appName,
           },
           details: {
-            reason: "unsupported_protocol_version",
+            reason: 'unsupported_protocol_version',
             protocolVersion,
-            supportedProtocolVersions
-          }
+            supportedProtocolVersions,
+          },
         });
-        session.socket.close(1002, "Unsupported Mobigent protocol version.");
+        session.socket.close(1002, 'Unsupported Mobigent protocol version.');
         return;
       }
 
@@ -831,35 +838,35 @@ export class BridgeGateway {
         console.warn(`Rejected app session with disallowed app id: ${message.appId}`);
         session.authenticated = false;
         this.emitAudit({
-          type: "app.rejected",
-          severity: "warn",
+          type: 'app.rejected',
+          severity: 'warn',
           message: `Rejected app session with disallowed app id: ${message.appId}.`,
           sessionId: session.id,
           app: {
             id: message.appId,
-            name: message.appName
+            name: message.appName,
           },
           details: {
-            reason: "app_id_not_allowed"
-          }
+            reason: 'app_id_not_allowed',
+          },
         });
-        session.socket.close(1008, "Mobigent app id is not allowed.");
+        session.socket.close(1008, 'Mobigent app id is not allowed.');
         return;
       }
 
       if (this.authToken && message.authToken !== this.authToken) {
         console.warn(`Rejected unauthenticated app session: ${session.id}`);
         this.emitAudit({
-          type: "app.rejected",
-          severity: "warn",
+          type: 'app.rejected',
+          severity: 'warn',
           message: `Rejected unauthenticated app session: ${session.id}.`,
           sessionId: session.id,
           app: {
             id: message.appId,
-            name: message.appName
-          }
+            name: message.appName,
+          },
         });
-        session.socket.close(1008, "Invalid Mobigent auth token.");
+        session.socket.close(1008, 'Invalid Mobigent auth token.');
         return;
       }
 
@@ -868,21 +875,21 @@ export class BridgeGateway {
       console.log(`App hello: ${message.appName} (${message.appId}) via ${message.sdk}`);
       session.socket.send(
         JSON.stringify({
-          type: "ready",
+          type: 'ready',
           protocolVersion,
-          supportedProtocolVersions
-        } satisfies BridgeMessage)
+          supportedProtocolVersions,
+        } satisfies BridgeMessage),
       );
       this.emitAudit({
-        type: "app.authenticated",
-        severity: "info",
+        type: 'app.authenticated',
+        severity: 'info',
         message: `App authenticated: ${message.appName}.`,
         sessionId: session.id,
         app: {
           id: message.appId,
-          name: message.appName
+          name: message.appName,
         },
-        details: { sdk: message.sdk, version: message.version, protocolVersion }
+        details: { sdk: message.sdk, version: message.version, protocolVersion },
       });
       return;
     }
@@ -892,41 +899,42 @@ export class BridgeGateway {
       return;
     }
 
-    if (message.type === "manifest") {
+    if (message.type === 'manifest') {
       const manifestValidation = validateCapabilityManifest(message.manifest);
       if (!manifestValidation.ok) {
         console.warn(`Rejected malformed manifest from ${session.id}`);
         this.emitAudit({
-          type: "manifest.rejected",
-          severity: "warn",
+          type: 'manifest.rejected',
+          severity: 'warn',
           message: `Rejected malformed manifest from ${session.id}.`,
           sessionId: session.id,
           app: this.manifestAuditApp(message.manifest),
           details: {
-            reason: "invalid_manifest",
-            errors: manifestValidation.errors
-          }
+            reason: 'invalid_manifest',
+            errors: manifestValidation.errors,
+          },
         });
         return;
       }
 
-      const manifestProtocolVersion = message.manifest.protocolVersion ?? session.protocolVersion ?? currentProtocolVersion;
+      const manifestProtocolVersion =
+        message.manifest.protocolVersion ?? session.protocolVersion ?? currentProtocolVersion;
       if (!isSupportedProtocolVersion(manifestProtocolVersion)) {
         console.warn(`Rejected manifest with unsupported protocol version from ${session.id}`);
         this.emitAudit({
-          type: "manifest.rejected",
-          severity: "warn",
+          type: 'manifest.rejected',
+          severity: 'warn',
           message: `Rejected manifest with unsupported protocol version from ${session.id}.`,
           sessionId: session.id,
           app: {
             id: message.manifest.appId,
-            name: message.manifest.appName
+            name: message.manifest.appName,
           },
           details: {
-            reason: "unsupported_protocol_version",
+            reason: 'unsupported_protocol_version',
             protocolVersion: manifestProtocolVersion,
-            supportedProtocolVersions
-          }
+            supportedProtocolVersions,
+          },
         });
         return;
       }
@@ -934,34 +942,36 @@ export class BridgeGateway {
       if (!this.verifyManifestSignature(message.manifest, message.signature)) {
         console.warn(`Rejected unsigned or invalid manifest from ${session.id}`);
         this.emitAudit({
-          type: "manifest.rejected",
-          severity: "warn",
+          type: 'manifest.rejected',
+          severity: 'warn',
           message: `Rejected unsigned or invalid manifest from ${session.id}.`,
           sessionId: session.id,
           app: {
             id: message.manifest.appId,
-            name: message.manifest.appName
-          }
+            name: message.manifest.appName,
+          },
         });
         return;
       }
 
       const duplicateToolName = this.findDuplicateToolName(session, message.manifest);
       if (duplicateToolName) {
-        console.warn(`Rejected manifest from ${session.id} because ${duplicateToolName} is already exposed`);
+        console.warn(
+          `Rejected manifest from ${session.id} because ${duplicateToolName} is already exposed`,
+        );
         this.emitAudit({
-          type: "manifest.rejected",
-          severity: "warn",
+          type: 'manifest.rejected',
+          severity: 'warn',
           message: `Rejected manifest with duplicate tool name: ${duplicateToolName}.`,
           sessionId: session.id,
           app: {
             id: message.manifest.appId,
-            name: message.manifest.appName
+            name: message.manifest.appName,
           },
           details: {
-            reason: "duplicate_tool_name",
-            tool: duplicateToolName
-          }
+            reason: 'duplicate_tool_name',
+            tool: duplicateToolName,
+          },
         });
         return;
       }
@@ -970,56 +980,56 @@ export class BridgeGateway {
       session.manifestAcceptedAt = new Date().toISOString();
       session.manifestSignature = message.signature;
       console.log(
-        `Manifest registered: ${message.manifest.appName} with ${message.manifest.actions.length} actions, ${message.manifest.resources.length} resources, and ${message.manifest.components?.length ?? 0} components`
+        `Manifest registered: ${message.manifest.appName} with ${message.manifest.actions.length} actions, ${message.manifest.resources.length} resources, and ${message.manifest.components?.length ?? 0} components`,
       );
       this.emitAudit({
-        type: "manifest.registered",
-        severity: "info",
+        type: 'manifest.registered',
+        severity: 'info',
         message: `Manifest registered: ${message.manifest.appName}.`,
         sessionId: session.id,
         app: this.sessionApp(session),
         details: {
           actionCount: message.manifest.actions.length,
           resourceCount: message.manifest.resources.length,
-          componentCount: message.manifest.components?.length ?? 0
-        }
+          componentCount: message.manifest.components?.length ?? 0,
+        },
       });
       this.emitToolsChanged();
       return;
     }
 
-    if (message.type === "event") {
+    if (message.type === 'event') {
       console.log(`App event: ${message.name}`, this.redactValue(message.payload));
       this.emitAudit({
-        type: "app.event",
-        severity: "info",
+        type: 'app.event',
+        severity: 'info',
         message: `App event: ${message.name}.`,
         sessionId: session.id,
         app: this.sessionApp(session),
         details: {
           name: message.name,
           payload: message.payload,
-          at: message.at
-        }
+          at: message.at,
+        },
       });
       return;
     }
 
-    if (message.type === "ping") {
+    if (message.type === 'ping') {
       session.socket.send(
         JSON.stringify({
-          type: "pong",
+          type: 'pong',
           id: message.id,
-          at: new Date().toISOString()
-        } satisfies BridgeMessage)
+          at: new Date().toISOString(),
+        } satisfies BridgeMessage),
       );
       return;
     }
 
     if (
-      message.type === "action_result" ||
-      message.type === "resource_result" ||
-      message.type === "component_result"
+      message.type === 'action_result' ||
+      message.type === 'resource_result' ||
+      message.type === 'component_result'
     ) {
       const pending = this.pending.get(message.id);
       if (!pending) {
@@ -1040,7 +1050,7 @@ export class BridgeGateway {
   private resolveTool(name: string):
     | {
         session: AppSession;
-        type: "action" | "resource" | "component";
+        type: 'action' | 'resource' | 'component';
         capabilityName: string;
         policy?: CapabilityPolicy;
       }
@@ -1052,7 +1062,7 @@ export class BridgeGateway {
 
       for (const action of session.manifest.actions) {
         if (toolName(session.manifest.appId, action.name) === name) {
-          return { session, type: "action", capabilityName: action.name, policy: action.policy };
+          return { session, type: 'action', capabilityName: action.name, policy: action.policy };
         }
       }
 
@@ -1061,9 +1071,9 @@ export class BridgeGateway {
         if (resourceToolName === name) {
           return {
             session,
-            type: "resource",
+            type: 'resource',
             capabilityName: resource.name,
-            policy: resource.policy
+            policy: resource.policy,
           };
         }
       }
@@ -1073,9 +1083,9 @@ export class BridgeGateway {
         if (componentToolName === name) {
           return {
             session,
-            type: "component",
+            type: 'component',
             capabilityName: component.name,
-            policy: component.policy
+            policy: component.policy,
           };
         }
       }
@@ -1105,7 +1115,9 @@ export class BridgeGateway {
     return [
       ...manifest.actions.map((action) => toolName(manifest.appId, action.name)),
       ...manifest.resources.map((resource) => toolName(manifest.appId, `get_${resource.name}`)),
-      ...(manifest.components ?? []).map((component) => toolName(manifest.appId, `show_${component.name}`))
+      ...(manifest.components ?? []).map((component) =>
+        toolName(manifest.appId, `show_${component.name}`),
+      ),
     ];
   }
 
@@ -1117,10 +1129,10 @@ export class BridgeGateway {
     _context?: {
       tool: string;
       agentId?: string;
-    }
+    },
   ) {
     if (session.socket.readyState !== WebSocket.OPEN) {
-      throw new Error("App session is not connected.");
+      throw new Error('App session is not connected.');
     }
 
     const response = new Promise<unknown>((resolve, reject) => {
@@ -1137,24 +1149,40 @@ export class BridgeGateway {
     return response;
   }
 
-  private assertPolicyAllowsCall(tool: string, policy: CapabilityPolicy | undefined, agentId?: string) {
+  private assertPolicyAllowsCall(
+    tool: string,
+    policy: CapabilityPolicy | undefined,
+    agentId?: string,
+  ) {
     this.assertAgentCanUseTool(tool, policy, agentId);
     this.assertRateLimitAllowsCall(tool, policy, agentId);
   }
 
-  private assertRateLimitAllowsCall(tool: string, policy: CapabilityPolicy | undefined, agentId?: string) {
+  private assertRateLimitAllowsCall(
+    tool: string,
+    policy: CapabilityPolicy | undefined,
+    agentId?: string,
+  ) {
     if (policy?.rateLimitPerMinute) {
-      this.consumeRateLimit(tool, agentId ?? "anonymous", policy.rateLimitPerMinute);
+      this.consumeRateLimit(tool, agentId ?? 'anonymous', policy.rateLimitPerMinute);
     }
   }
 
-  private assertAllowedAgents(tool: string, policy: CapabilityPolicy | undefined, agentId?: string) {
+  private assertAllowedAgents(
+    tool: string,
+    policy: CapabilityPolicy | undefined,
+    agentId?: string,
+  ) {
     if (policy?.allowedAgents?.length && (!agentId || !policy.allowedAgents.includes(agentId))) {
-      throw new Error(`Agent "${agentId ?? "anonymous"}" is not allowed to call ${tool}.`);
+      throw new Error(`Agent "${agentId ?? 'anonymous'}" is not allowed to call ${tool}.`);
     }
   }
 
-  private assertAgentCanUseTool(tool: string, policy: CapabilityPolicy | undefined, agentId?: string) {
+  private assertAgentCanUseTool(
+    tool: string,
+    policy: CapabilityPolicy | undefined,
+    agentId?: string,
+  ) {
     this.assertAllowedAgents(tool, policy, agentId);
     this.assertAgentProfileAllowsTool(tool, agentId);
   }
@@ -1166,11 +1194,16 @@ export class BridgeGateway {
     }
 
     if (profile.deniedTools?.some((pattern) => matchesToolPattern(toolNameValue, pattern))) {
-      throw new Error(`Agent "${agentId ?? "anonymous"}" profile denies access to ${toolNameValue}.`);
+      throw new Error(
+        `Agent "${agentId ?? 'anonymous'}" profile denies access to ${toolNameValue}.`,
+      );
     }
 
-    if (profile.allowedTools?.length && !profile.allowedTools.some((pattern) => matchesToolPattern(toolNameValue, pattern))) {
-      throw new Error(`Agent "${agentId ?? "anonymous"}" profile does not allow ${toolNameValue}.`);
+    if (
+      profile.allowedTools?.length &&
+      !profile.allowedTools.some((pattern) => matchesToolPattern(toolNameValue, pattern))
+    ) {
+      throw new Error(`Agent "${agentId ?? 'anonymous'}" profile does not allow ${toolNameValue}.`);
     }
 
     const descriptor = this.listTools().find((candidate) => candidate.name === toolNameValue);
@@ -1179,25 +1212,29 @@ export class BridgeGateway {
     }
 
     if (profile.readOnly && !descriptor.readOnly) {
-      throw new Error(`Agent "${agentId ?? "anonymous"}" profile is read-only and cannot call ${toolNameValue}.`);
+      throw new Error(
+        `Agent "${agentId ?? 'anonymous'}" profile is read-only and cannot call ${toolNameValue}.`,
+      );
     }
 
     if (profile.maxRisk && riskRank(descriptor.risk) > riskRank(profile.maxRisk)) {
       throw new Error(
-        `Agent "${agentId ?? "anonymous"}" profile allows up to ${profile.maxRisk} risk, but ${toolNameValue} is ${descriptor.risk} risk.`
+        `Agent "${agentId ?? 'anonymous'}" profile allows up to ${profile.maxRisk} risk, but ${toolNameValue} is ${descriptor.risk} risk.`,
       );
     }
   }
 
   private agentProfileFor(agentId?: string) {
-    return this.agentProfiles.get(agentId ?? "anonymous") ?? this.agentProfiles.get("*");
+    return this.agentProfiles.get(agentId ?? 'anonymous') ?? this.agentProfiles.get('*');
   }
 
   private consumeRateLimit(tool: string, agentId: string, limit: number) {
     const now = Date.now();
     const windowStart = now - 60_000;
     const key = `${agentId}:${tool}`;
-    const calls = (this.rateLimitBuckets.get(key) ?? []).filter((timestamp) => timestamp > windowStart);
+    const calls = (this.rateLimitBuckets.get(key) ?? []).filter(
+      (timestamp) => timestamp > windowStart,
+    );
 
     if (calls.length >= limit) {
       this.rateLimitBuckets.set(key, calls);
@@ -1256,14 +1293,14 @@ export class BridgeGateway {
   }
 
   private emitToolsChanged() {
-    this.events.emit("toolsChanged");
+    this.events.emit('toolsChanged');
   }
 
-  private emitAudit(event: Omit<AuditEvent, "id" | "at">) {
+  private emitAudit(event: Omit<AuditEvent, 'id' | 'at'>) {
     const auditEvent: AuditEvent = {
       id: randomUUID(),
       at: new Date().toISOString(),
-      ...this.redactAuditEvent(event)
+      ...this.redactAuditEvent(event),
     };
 
     this.recordMetrics(auditEvent);
@@ -1272,7 +1309,7 @@ export class BridgeGateway {
       this.auditLog.splice(0, this.auditLog.length - this.auditLogLimit);
     }
     this.writeAuditEvent(auditEvent);
-    this.events.emit("audit", auditEvent);
+    this.events.emit('audit', auditEvent);
   }
 
   private recordMetrics(event: AuditEvent) {
@@ -1286,35 +1323,35 @@ export class BridgeGateway {
     if (event.tool) {
       this.metricBucket(this.metrics.byTool, event.tool)[metric] += 1;
     }
-    this.metricBucket(this.metrics.byAgent, event.agentId ?? "anonymous")[metric] += 1;
+    this.metricBucket(this.metrics.byAgent, event.agentId ?? 'anonymous')[metric] += 1;
   }
 
-  private metricBucket(buckets: GatewayMetrics["byTool"], key: string): ToolCallMetricCounts {
+  private metricBucket(buckets: GatewayMetrics['byTool'], key: string): ToolCallMetricCounts {
     buckets[key] ??= {
-      ...emptyToolCallMetricCounts()
+      ...emptyToolCallMetricCounts(),
     };
     return buckets[key];
   }
 
-  private redactAuditEvent(event: Omit<AuditEvent, "id" | "at">): Omit<AuditEvent, "id" | "at"> {
-    return this.redactValue(event) as Omit<AuditEvent, "id" | "at">;
+  private redactAuditEvent(event: Omit<AuditEvent, 'id' | 'at'>): Omit<AuditEvent, 'id' | 'at'> {
+    return this.redactValue(event) as Omit<AuditEvent, 'id' | 'at'>;
   }
 
   private redactValue(value: unknown, key?: string): unknown {
     if (key && this.auditRedactKeys.has(key.toLowerCase())) {
-      return "[REDACTED]";
+      return '[REDACTED]';
     }
 
     if (Array.isArray(value)) {
       return value.map((item) => this.redactValue(item));
     }
 
-    if (value && typeof value === "object") {
+    if (value && typeof value === 'object') {
       return Object.fromEntries(
         Object.entries(value as JsonObject).map(([childKey, childValue]) => [
           childKey,
-          this.redactValue(childValue, childKey)
-        ])
+          this.redactValue(childValue, childKey),
+        ]),
       );
     }
 
@@ -1326,19 +1363,18 @@ export class BridgeGateway {
       return true;
     }
 
-    if (!signature || signature.alg !== "hmac-sha256") {
+    if (!signature || signature.alg !== 'hmac-sha256') {
       return false;
     }
 
-    const expected = createHmac("sha256", this.manifestSigningSecret)
+    const expected = createHmac('sha256', this.manifestSigningSecret)
       .update(canonicalJson(manifest))
-      .digest("hex");
-    const expectedBuffer = Buffer.from(expected, "hex");
-    const actualBuffer = Buffer.from(signature.signature, "hex");
+      .digest('hex');
+    const expectedBuffer = Buffer.from(expected, 'hex');
+    const actualBuffer = Buffer.from(signature.signature, 'hex');
 
     return (
-      expectedBuffer.length === actualBuffer.length &&
-      timingSafeEqual(expectedBuffer, actualBuffer)
+      expectedBuffer.length === actualBuffer.length && timingSafeEqual(expectedBuffer, actualBuffer)
     );
   }
 
@@ -1349,12 +1385,12 @@ export class BridgeGateway {
 
     try {
       mkdirSync(dirname(this.auditLogPath), { recursive: true });
-      appendFileSync(this.auditLogPath, `${JSON.stringify(event)}\n`, "utf8");
+      appendFileSync(this.auditLogPath, `${JSON.stringify(event)}\n`, 'utf8');
     } catch (error) {
       console.warn(
         `Failed to write Mobigent audit event to ${this.auditLogPath}: ${
           error instanceof Error ? error.message : String(error)
-        }`
+        }`,
       );
     }
   }
@@ -1366,21 +1402,21 @@ export class BridgeGateway {
 
     return {
       id: session.manifest.appId,
-      name: session.manifest.appName
+      name: session.manifest.appName,
     };
   }
 
   private manifestAuditApp(manifest: unknown) {
     if (
       manifest &&
-      typeof manifest === "object" &&
+      typeof manifest === 'object' &&
       !Array.isArray(manifest) &&
-      typeof (manifest as { appId?: unknown }).appId === "string" &&
-      typeof (manifest as { appName?: unknown }).appName === "string"
+      typeof (manifest as { appId?: unknown }).appId === 'string' &&
+      typeof (manifest as { appName?: unknown }).appName === 'string'
     ) {
       return {
         id: (manifest as { appId: string }).appId,
-        name: (manifest as { appName: string }).appName
+        name: (manifest as { appName: string }).appName,
       };
     }
 
@@ -1389,24 +1425,24 @@ export class BridgeGateway {
 }
 
 function matchesToolPattern(tool: string, pattern: string) {
-  if (pattern === "*" || pattern === tool) {
+  if (pattern === '*' || pattern === tool) {
     return true;
   }
 
-  if (pattern.endsWith("*")) {
+  if (pattern.endsWith('*')) {
     return tool.startsWith(pattern.slice(0, -1));
   }
 
   return false;
 }
 
-function riskRank(risk: "low" | "medium" | "high") {
+function riskRank(risk: 'low' | 'medium' | 'high') {
   switch (risk) {
-    case "low":
+    case 'low':
       return 1;
-    case "medium":
+    case 'medium':
       return 2;
-    case "high":
+    case 'high':
       return 3;
   }
 }

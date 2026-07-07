@@ -1,1 +1,1 @@
-export * from "@mobigent/react-native/schema-adapters";
+export * from '@mobigent/react-native/schema-adapters';

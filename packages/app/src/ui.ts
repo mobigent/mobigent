@@ -1,1 +1,1 @@
-export * from "@mobigent/react-native/ui";
+export * from '@mobigent/react-native/ui';

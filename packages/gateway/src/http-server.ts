@@ -1,130 +1,82 @@
 #!/usr/bin/env node
-import { BridgeGateway, type AgentProfile } from "./BridgeGateway.js";
-import { createHttpApp } from "./http.js";
+import { BridgeGateway } from './BridgeGateway.js';
+import { createHttpApp } from './http.js';
+import { loadGatewayConfig, configDiagnostics } from './config.js';
 
-const bridgePort = Number(process.env.MOBIGENT_WS_PORT ?? 8787);
-const httpPort = Number(process.env.MOBIGENT_HTTP_PORT ?? 8788);
-const authToken = process.env.MOBIGENT_AUTH_TOKEN;
-const httpApiKey = process.env.MOBIGENT_HTTP_API_KEY;
-const httpAgentApiKeys = process.env.MOBIGENT_HTTP_AGENT_API_KEYS
-  ? parseStringMap(process.env.MOBIGENT_HTTP_AGENT_API_KEYS, "MOBIGENT_HTTP_AGENT_API_KEYS")
-  : undefined;
-const httpJsonBodyLimit = process.env.MOBIGENT_HTTP_JSON_LIMIT;
-const httpCorsOrigins = process.env.MOBIGENT_HTTP_CORS_ORIGINS
-  ?.split(",")
-  .map((value) => value.trim())
-  .filter(Boolean);
-const auditLogPath = process.env.MOBIGENT_AUDIT_LOG_PATH;
-const idempotencyRecordTtlMs = process.env.MOBIGENT_IDEMPOTENCY_RECORD_TTL_MS
-  ? Number(process.env.MOBIGENT_IDEMPOTENCY_RECORD_TTL_MS)
-  : undefined;
-const cleanupIntervalMs = process.env.MOBIGENT_CLEANUP_INTERVAL_MS
-  ? Number(process.env.MOBIGENT_CLEANUP_INTERVAL_MS)
-  : undefined;
-const manifestSigningSecret = process.env.MOBIGENT_MANIFEST_SIGNING_SECRET;
-const allowedAppIds = process.env.MOBIGENT_ALLOWED_APP_IDS
-  ?.split(",")
-  .map((value) => value.trim())
-  .filter(Boolean);
-const auditRedactKeys = process.env.MOBIGENT_AUDIT_REDACT_KEYS
-  ?.split(",")
-  .map((value) => value.trim())
-  .filter(Boolean);
-const agentProfiles = process.env.MOBIGENT_AGENT_PROFILES
-  ? parseAgentProfiles(process.env.MOBIGENT_AGENT_PROFILES)
-  : undefined;
+const config = loadGatewayConfig();
+
+if (config.env === 'production') {
+  console.log('Mobigent Gateway starting in production mode.');
+}
+
+console.log('Gateway configuration:', configDiagnostics(config));
 
 const gateway = new BridgeGateway({
-  port: bridgePort,
-  authToken,
-  auditLogPath,
-  idempotencyRecordTtlMs,
-  cleanupIntervalMs,
-  auditRedactKeys,
-  manifestSigningSecret,
-  allowedAppIds,
-  agentProfiles
+  port: config.wsPort,
+  authToken: config.authToken,
+  auditLogPath: config.auditLogPath,
+  idempotencyRecordTtlMs: config.idempotencyRecordTtlMs,
+  cleanupIntervalMs: config.cleanupIntervalMs,
+  auditRedactKeys: config.auditRedactKeys,
+  manifestSigningSecret: config.manifestSigningSecret,
+  allowedAppIds: config.allowedAppIds,
+  agentProfiles: config.agentProfiles,
 });
 gateway.start();
 
 const app = createHttpApp(gateway, {
-  apiKey: httpApiKey,
-  agentApiKeys: httpAgentApiKeys,
-  corsOrigins: httpCorsOrigins,
-  jsonBodyLimit: httpJsonBodyLimit
+  apiKey: config.httpApiKey,
+  agentApiKeys: config.httpAgentApiKeys,
+  corsOrigins: config.httpCorsOrigins,
+  jsonBodyLimit: config.httpJsonBodyLimit,
+  healthEndpoint: config.healthEndpoint,
+  readyEndpoint: config.readyEndpoint,
+  configEndpoint: config.configEndpoint,
+  openApiEndpoint: config.openApiEndpoint,
+  inspectorMode: config.inspectorMode,
 });
-const server = app.listen(httpPort, () => {
-  console.log(`Mobigent HTTP API listening on http://localhost:${httpPort}`);
-  console.log(`OpenAPI schema: http://localhost:${httpPort}/openapi.json`);
-  if (httpApiKey) {
-    console.log("HTTP API key auth is enabled.");
+const server = app.listen(config.httpPort, () => {
+  console.log(`Mobigent HTTP API listening on http://localhost:${config.httpPort}`);
+  console.log(`OpenAPI schema: http://localhost:${config.httpPort}/openapi.json`);
+  if (config.httpApiKey) {
+    console.log('HTTP API key auth is enabled.');
   }
-  if (httpAgentApiKeys && Object.keys(httpAgentApiKeys).length) {
-    console.log(`Per-agent HTTP API keys are enabled for: ${Object.keys(httpAgentApiKeys).join(", ")}`);
-  }
-  if (httpCorsOrigins?.length) {
-    console.log(`HTTP CORS origins are restricted to: ${httpCorsOrigins.join(", ")}`);
-  }
-  if (httpJsonBodyLimit) {
-    console.log(`HTTP JSON body limit is ${httpJsonBodyLimit}.`);
-  }
-  if (auditLogPath) {
-    console.log(`Audit events will be written to ${auditLogPath}.`);
-  }
-  if (auditRedactKeys?.length) {
-    console.log(`Additional audit redaction keys: ${auditRedactKeys.join(", ")}`);
-  }
-  if (manifestSigningSecret) {
-    console.log("Manifest signature verification is enabled.");
-  }
-  if (allowedAppIds?.length) {
-    console.log(`App id allowlist is enabled: ${allowedAppIds.join(", ")}`);
-  }
-  if (agentProfiles && Object.keys(agentProfiles).length) {
-    console.log(`Agent profiles are enabled for: ${Object.keys(agentProfiles).join(", ")}`);
-  }
-});
-
-process.on("SIGINT", () => {
-  server.close();
-  gateway.stop();
-});
-
-process.on("SIGTERM", () => {
-  server.close();
-  gateway.stop();
-});
-
-function parseAgentProfiles(raw: string): Record<string, AgentProfile> {
-  try {
-    const parsed = JSON.parse(raw) as unknown;
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-      throw new Error("value must be a JSON object");
-    }
-
-    return parsed as Record<string, AgentProfile>;
-  } catch (error) {
-    throw new Error(
-      `MOBIGENT_AGENT_PROFILES must be valid JSON. ${error instanceof Error ? error.message : String(error)}`
+  if (config.httpAgentApiKeys && Object.keys(config.httpAgentApiKeys).length) {
+    console.log(
+      `Per-agent HTTP API keys are enabled for: ${Object.keys(config.httpAgentApiKeys).join(', ')}`,
     );
   }
-}
-
-function parseStringMap(raw: string, envName: string): Record<string, string> {
-  try {
-    const parsed = JSON.parse(raw) as unknown;
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-      throw new Error("value must be a JSON object");
-    }
-
-    for (const [key, value] of Object.entries(parsed)) {
-      if (typeof value !== "string" || !value) {
-        throw new Error(`${key} must map to a non-empty string`);
-      }
-    }
-
-    return parsed as Record<string, string>;
-  } catch (error) {
-    throw new Error(`${envName} must be valid JSON. ${error instanceof Error ? error.message : String(error)}`);
+  if (config.httpCorsOrigins?.length) {
+    console.log(`HTTP CORS origins are restricted to: ${config.httpCorsOrigins.join(', ')}`);
   }
-}
+  if (config.httpJsonBodyLimit) {
+    console.log(`HTTP JSON body limit is ${config.httpJsonBodyLimit}.`);
+  }
+  if (config.auditLogPath) {
+    console.log(`Audit events will be written to ${config.auditLogPath}.`);
+  }
+  if (config.auditRedactKeys?.length) {
+    console.log(`Additional audit redaction keys: ${config.auditRedactKeys.join(', ')}`);
+  }
+  if (config.manifestSigningSecret) {
+    console.log('Manifest signature verification is enabled.');
+  }
+  if (config.allowedAppIds?.length) {
+    console.log(`App id allowlist is enabled: ${config.allowedAppIds.join(', ')}`);
+  }
+  if (config.agentProfiles && Object.keys(config.agentProfiles).length) {
+    console.log(`Agent profiles are enabled for: ${Object.keys(config.agentProfiles).join(', ')}`);
+  }
+  console.log(`Endpoint policies — health:${config.healthEndpoint} ready:${config.readyEndpoint} config:${config.configEndpoint} openapi:${config.openApiEndpoint}`);
+  console.log(`Inspector mode: ${config.inspectorMode}`);
+});
+
+process.on('SIGINT', () => {
+  server.close();
+  gateway.stop();
+});
+
+process.on('SIGTERM', () => {
+  server.close();
+  gateway.stop();
+});

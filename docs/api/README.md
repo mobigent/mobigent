@@ -10,13 +10,13 @@ Most Mobigent apps use two packages:
 Create one Mobigent app object from functions you already own:
 
 ```ts
-import { createApp, type AppFunctions } from "@mobigent/app";
+import { createApp, type AppFunctions } from '@mobigent/app';
 
 export const appFunctions = {
   expense: {
     list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
+    create: async (input) => createExpense(input),
+  },
 } satisfies AppFunctions;
 
 export type MyAppFunctions = typeof appFunctions;
@@ -27,8 +27,8 @@ export const mobigent = createApp(appFunctions);
 Wrap the existing React Native app once:
 
 ```tsx
-import { mobigent } from "./mobigent/expenses";
-import App from "./App";
+import { mobigent } from './mobigent/expenses';
+import App from './App';
 
 export default mobigent.with(App);
 ```
@@ -36,27 +36,27 @@ export default mobigent.with(App);
 Or use the one-file trial path:
 
 ```tsx
-import { withMobigent } from "@mobigent/app";
-import App from "./App";
+import { withMobigent } from '@mobigent/app';
+import App from './App';
 
 export default withMobigent(App, {
   expense: {
     list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
+    create: async (input) => createExpense(input),
+  },
 });
 ```
 
 For local demos, tests, or non-React hosts, pass the backend object during setup and connect with no arguments:
 
 ```ts
-import { startMobigent } from "@mobigent/backend";
-import { createApp } from "@mobigent/app";
-import { expenseFunctions } from "./app-functions";
+import { startMobigent } from '@mobigent/backend';
+import { createApp } from '@mobigent/app';
+import { expenseFunctions } from './app-functions';
 
 const backend = await startMobigent();
 const mobigent = createApp(expenseFunctions, {
-  backend
+  backend,
 });
 
 const session = await mobigent.connect();
@@ -87,13 +87,13 @@ Useful app types:
 Start the backend, import only the app function type, then call the app with autocomplete:
 
 ```ts
-import { startMobigent } from "@mobigent/backend";
-import type { MyAppFunctions } from "../app/mobigent";
+import { startMobigent } from '@mobigent/backend';
+import type { MyAppFunctions } from '../app/mobigent';
 
 const mobigent = await startMobigent();
 const app = mobigent.app<MyAppFunctions>();
 
-await app.expense.create({ merchant: "Coffee", amount: 8 });
+await app.expense.create({ merchant: 'Coffee', amount: 8 });
 
 console.log(mobigent.inspectorUrl);
 console.log(mobigent.openApiUrl);
@@ -150,8 +150,8 @@ Expose app state without changing anything:
 ```ts
 createApp({
   cart: {
-    current: read(async () => getCart())
-  }
+    current: read(async () => getCart()),
+  },
 });
 ```
 
@@ -163,10 +163,10 @@ Expose app behavior that changes state:
 createApp({
   cart: {
     checkout: write(async (input) => checkout(input), {
-      input: { paymentMethodId: "string" },
-      confirm: "Place order?"
-    })
-  }
+      input: { paymentMethodId: 'string' },
+      confirm: 'Place order?',
+    }),
+  },
 });
 ```
 
@@ -177,13 +177,16 @@ Expose a focusable app surface:
 ```ts
 createApp({
   expense: {
-    detail: screen(async (props) => {
-      navigation.navigate("ExpenseDetail", { id: props.id });
-      return { focused: true };
-    }, {
-      props: { id: "string" }
-    })
-  }
+    detail: screen(
+      async (props) => {
+        navigation.navigate('ExpenseDetail', { id: props.id });
+        return { focused: true };
+      },
+      {
+        props: { id: 'string' },
+      },
+    ),
+  },
 });
 ```
 

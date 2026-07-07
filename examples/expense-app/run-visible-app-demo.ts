@@ -1,8 +1,8 @@
-import { spawn } from "node:child_process";
-import express from "express";
-import { BridgeGateway, createHttpApp } from "@mobigent/gateway";
-import { mobigent, schema } from "@mobigent/react-native";
-import { createNodeSocket } from "./nodeSocket.js";
+import { spawn } from 'node:child_process';
+import express from 'express';
+import { BridgeGateway, createHttpApp } from '@mobigent/gateway';
+import { mobigent, schema } from '@mobigent/react-native';
+import { createNodeSocket } from './nodeSocket.js';
 
 type Expense = {
   id: string;
@@ -29,12 +29,12 @@ type AgentRun = {
 
 const expenses: Expense[] = [
   {
-    id: "EXP-1001",
+    id: 'EXP-1001',
     amount: 18.75,
-    merchant: "Blue Bottle",
-    category: "Meals",
-    createdAt: new Date().toISOString()
-  }
+    merchant: 'Blue Bottle',
+    category: 'Meals',
+    createdAt: new Date().toISOString(),
+  },
 ];
 
 let lastAgentRun: AgentRun | undefined;
@@ -44,30 +44,30 @@ gateway.start();
 
 const gatewayApp = createHttpApp(gateway);
 const gatewayServer = gatewayApp.listen(8788, () => {
-  console.log("Mobigent gateway inspector: http://localhost:8788/inspect");
+  console.log('Mobigent gateway inspector: http://localhost:8788/inspect');
 });
 
 const app = express();
 app.use(express.json());
-app.get("/favicon.ico", (_req, res) => res.status(204).end());
-app.get("/", (_req, res) => res.type("html").send(renderExpenseApp()));
-app.get("/state", (_req, res) => res.json({ expenses, lastAgentRun }));
+app.get('/favicon.ico', (_req, res) => res.status(204).end());
+app.get('/', (_req, res) => res.type('html').send(renderExpenseApp()));
+app.get('/state', (_req, res) => res.json({ expenses, lastAgentRun }));
 
-app.post("/agent/run", async (req, res) => {
-  const prompt = typeof req.body?.prompt === "string" ? req.body.prompt : "";
+app.post('/agent/run', async (req, res) => {
+  const prompt = typeof req.body?.prompt === 'string' ? req.body.prompt : '';
   const input = parseExpensePrompt(prompt);
   const run: AgentRun = {
     prompt,
-    tool: "com_mobigent_visible_expenses.create_expense",
+    tool: 'com_mobigent_visible_expenses.create_expense',
     input,
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
   };
 
   try {
     const response = await fetch(`http://localhost:8788/tools/${run.tool}/call`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(input)
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(input),
     });
     const body = await response.json();
 
@@ -86,35 +86,35 @@ app.post("/agent/run", async (req, res) => {
 });
 
 const appServer = app.listen(8790, () => {
-  console.log("Visible Expense app: http://localhost:8790");
-  console.log("Agent playground is built into the same page. No curl needed.");
-  openDemoPage("http://localhost:8790");
+  console.log('Visible Expense app: http://localhost:8790');
+  console.log('Agent playground is built into the same page. No curl needed.');
+  openDemoPage('http://localhost:8790');
 });
 
 mobigent.configure({
-  appId: "com.mobigent.visible.expenses",
-  appName: "Visible Expense App",
-  gatewayUrl: "ws://localhost:8787",
+  appId: 'com.mobigent.visible.expenses',
+  appName: 'Visible Expense App',
+  gatewayUrl: 'ws://localhost:8787',
   createSocket: createNodeSocket,
   confirm: async ({ action, input }) => {
     console.log(`\n[app approval] ${action.confirmation?.title ?? action.name}`);
     console.log(JSON.stringify(input, null, 2));
-    console.log("[app approval] approved by visible demo host\n");
+    console.log('[app approval] approved by visible demo host\n');
     return true;
-  }
+  },
 });
 
 mobigent.registerAction({
-  name: "create_expense",
-  description: "Create an expense in the visible app UI.",
+  name: 'create_expense',
+  description: 'Create an expense in the visible app UI.',
   inputSchema: schema.object(
     {
-      amount: schema.number({ description: "Expense amount." }),
-      merchant: schema.string({ description: "Merchant name." }),
-      category: schema.string({ description: "Expense category." }),
-      notes: schema.string({ description: "Optional notes." })
+      amount: schema.number({ description: 'Expense amount.' }),
+      merchant: schema.string({ description: 'Merchant name.' }),
+      category: schema.string({ description: 'Expense category.' }),
+      notes: schema.string({ description: 'Optional notes.' }),
     },
-    { required: ["amount", "merchant", "category"] }
+    { required: ['amount', 'merchant', 'category'] },
   ),
   outputSchema: schema.object(
     {
@@ -122,18 +122,18 @@ mobigent.registerAction({
       amount: schema.number(),
       merchant: schema.string(),
       category: schema.string(),
-      createdAt: schema.string()
+      createdAt: schema.string(),
     },
-    { required: ["id", "amount", "merchant", "category", "createdAt"] }
+    { required: ['id', 'amount', 'merchant', 'category', 'createdAt'] },
   ),
   confirmation: {
     required: true,
-    title: "Create expense in app?",
-    risk: "medium"
+    title: 'Create expense in app?',
+    risk: 'medium',
   },
   policy: {
     foregroundOnly: true,
-    requiresUser: true
+    requiresUser: true,
   },
   handler: async (input) => {
     const expense: Expense = {
@@ -142,26 +142,30 @@ mobigent.registerAction({
       merchant: String(input.merchant),
       category: String(input.category),
       notes: input.notes ? String(input.notes) : undefined,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
 
     expenses.unshift(expense);
-    mobigent.emit("expense.created", { id: expense.id, amount: expense.amount, merchant: expense.merchant });
+    mobigent.emit('expense.created', {
+      id: expense.id,
+      amount: expense.amount,
+      merchant: expense.merchant,
+    });
     return expense;
-  }
+  },
 });
 
 mobigent.registerResource({
-  name: "expenses",
-  description: "Read expenses from the visible app UI.",
+  name: 'expenses',
+  description: 'Read expenses from the visible app UI.',
   outputSchema: schema.object(
     {
-      expenses: schema.array(schema.object())
+      expenses: schema.array(schema.object()),
     },
-    { required: ["expenses"] }
+    { required: ['expenses'] },
   ),
   policy: { readOnly: true },
-  read: async () => ({ expenses })
+  read: async () => ({ expenses }),
 });
 
 await mobigent.connect();
@@ -174,25 +178,29 @@ const shutdown = () => {
   process.exit(0);
 };
 
-process.on("SIGINT", shutdown);
-process.on("SIGTERM", shutdown);
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
 
-function parseExpensePrompt(prompt: string): AgentRun["input"] {
+function parseExpensePrompt(prompt: string): AgentRun['input'] {
   const fallback = {
     amount: 42.8,
-    merchant: "Expo Coffee",
-    category: "Meals",
-    notes: "Created from the built-in agent playground"
+    merchant: 'Expo Coffee',
+    category: 'Meals',
+    notes: 'Created from the built-in agent playground',
   };
 
   const amountMatch = prompt.match(/(?:\$|usd\s*)?(\d+(?:\.\d{1,2})?)/i);
   const amount = amountMatch ? Number(amountMatch[1]) : fallback.amount;
 
-  const categoryMatch = prompt.match(/\b(meals|travel|software|office|lodging|transport|shopping)\b/i);
+  const categoryMatch = prompt.match(
+    /\b(meals|travel|software|office|lodging|transport|shopping)\b/i,
+  );
   const category = categoryMatch ? titleCase(categoryMatch[1]) : fallback.category;
 
-  const merchantMatch = prompt.match(/\b(?:at|from|for)\s+(.+?)(?:\s+(?:with|as|under|category|note|notes)\b|$)/i);
-  const merchant = merchantMatch?.[1]?.replace(/[.,]$/, "").trim() || fallback.merchant;
+  const merchantMatch = prompt.match(
+    /\b(?:at|from|for)\s+(.+?)(?:\s+(?:with|as|under|category|note|notes)\b|$)/i,
+  );
+  const merchant = merchantMatch?.[1]?.replace(/[.,]$/, '').trim() || fallback.merchant;
 
   const notesMatch = prompt.match(/\bnotes?\s*[:\-]?\s*["']?(.+?)["']?$/i);
 
@@ -200,7 +208,7 @@ function parseExpensePrompt(prompt: string): AgentRun["input"] {
     amount,
     merchant,
     category,
-    notes: notesMatch?.[1]?.trim() || fallback.notes
+    notes: notesMatch?.[1]?.trim() || fallback.notes,
   };
 }
 
@@ -209,19 +217,19 @@ function titleCase(value: string) {
 }
 
 function openDemoPage(url: string) {
-  if (process.env.MOBIGENT_DEMO_OPEN === "0") {
+  if (process.env.MOBIGENT_DEMO_OPEN === '0') {
     return;
   }
 
   const command =
-    process.platform === "darwin" ? "open" : process.platform === "win32" ? "cmd" : "xdg-open";
-  const args = process.platform === "win32" ? ["/c", "start", "", url] : [url];
+    process.platform === 'darwin' ? 'open' : process.platform === 'win32' ? 'cmd' : 'xdg-open';
+  const args = process.platform === 'win32' ? ['/c', 'start', '', url] : [url];
 
   const child = spawn(command, args, {
     detached: true,
-    stdio: "ignore"
+    stdio: 'ignore',
   });
-  child.on("error", () => undefined);
+  child.on('error', () => undefined);
   child.unref();
 }
 

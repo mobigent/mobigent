@@ -1,18 +1,18 @@
-import assert from "node:assert/strict";
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-import { runReactNativeInitCli } from "../packages/react-native/src/cli.js";
+import assert from 'node:assert/strict';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { runReactNativeInitCli } from '../packages/react-native/src/cli.js';
 
-const dir = await mkdtemp(join(tmpdir(), "mobigent-rn-cli-"));
+const dir = await mkdtemp(join(tmpdir(), 'mobigent-rn-cli-'));
 
 function run(args: string[]) {
-  let stdout = "";
-  let stderr = "";
+  let stdout = '';
+  let stderr = '';
   const code = runReactNativeInitCli(
     args,
     { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
-    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
+    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream,
   );
 
   return { code, stdout, stderr };
@@ -20,29 +20,29 @@ function run(args: string[]) {
 
 try {
   await writeFile(
-    join(dir, "package.json"),
+    join(dir, 'package.json'),
     JSON.stringify({
       dependencies: {
-        "@mobigent/app": "0.1.15",
-        "react-native": "0.74.0"
-      }
+        '@mobigent/app': '0.1.15',
+        'react-native': '0.74.0',
+      },
     }),
-    "utf8"
+    'utf8',
   );
 
   const init = run([
-    "--app-id",
-    "com.mobigent.smoke",
-    "--app-name",
-    "Mobigent Smoke",
-    "--feature",
-    "task",
-    "--out-dir",
+    '--app-id',
+    'com.mobigent.smoke',
+    '--app-name',
+    'Mobigent Smoke',
+    '--feature',
+    'task',
+    '--out-dir',
     dir,
-    "--custom-confirmation"
+    '--custom-confirmation',
   ]);
   assert.equal(init.code, 0, init.stderr);
-  const rootFile = await readFile(join(dir, "mobigent.tsx"), "utf8");
+  const rootFile = await readFile(join(dir, 'mobigent.tsx'), 'utf8');
   assert.match(rootFile, /MobigentRoot/);
   assert.match(rootFile, /@mobigent\/app/);
   assert.match(rootFile, /createApp/);
@@ -52,31 +52,34 @@ try {
   assert.match(rootFile, /createApp\("com\.mobigent\.smoke", \{ \.\.\.taskFunctions \}, \{/);
   assert.match(rootFile, /appName: "Mobigent Smoke"/);
   assert.match(rootFile, /ConfirmationComponent: MobigentAgentApproval/);
-  assert.match(await readFile(join(dir, "mobigent-confirmation.tsx"), "utf8"), /useMobigentConfirmation/);
   assert.match(
-    await readFile(join(dir, "mobigent-functions", "task.ts"), "utf8"),
-    /export const taskFunctions = \{[\s\S]*task: \{[\s\S]*list: read\([\s\S]*create: write\(/
+    await readFile(join(dir, 'mobigent-confirmation.tsx'), 'utf8'),
+    /useMobigentConfirmation/,
+  );
+  assert.match(
+    await readFile(join(dir, 'mobigent-functions', 'task.ts'), 'utf8'),
+    /export const taskFunctions = \{[\s\S]*task: \{[\s\S]*list: read\([\s\S]*create: write\(/,
   );
 
   await writeFile(
-    join(dir, "mobigent.app.json"),
+    join(dir, 'mobigent.app.json'),
     JSON.stringify({
-      appId: "com.mobigent.auto",
-      appName: "Auto Config App",
-      connectionUrl: "ws://localhost:8787",
-      authToken: "dev-token"
+      appId: 'com.mobigent.auto',
+      appName: 'Auto Config App',
+      connectionUrl: 'ws://localhost:8787',
+      authToken: 'dev-token',
     }),
-    "utf8"
+    'utf8',
   );
   const previousCwd = process.cwd();
   process.chdir(dir);
   try {
-    const autoConfigInit = run(["--feature", "auto", "--out-dir", join(dir, "auto-config")]);
+    const autoConfigInit = run(['--feature', 'auto', '--out-dir', join(dir, 'auto-config')]);
     assert.equal(autoConfigInit.code, 0, autoConfigInit.stderr);
   } finally {
     process.chdir(previousCwd);
   }
-  const autoConfigRoot = await readFile(join(dir, "auto-config", "mobigent.tsx"), "utf8");
+  const autoConfigRoot = await readFile(join(dir, 'auto-config', 'mobigent.tsx'), 'utf8');
   assert.match(autoConfigRoot, /createApp\("com\.mobigent\.auto", \{ \.\.\.autoFunctions \}, \{/);
   assert.match(autoConfigRoot, /appName: "Auto Config App"/);
   assert.match(autoConfigRoot, /connection: "ws:\/\/localhost:8787"/);
@@ -84,34 +87,37 @@ try {
   assert.doesNotMatch(autoConfigRoot, /config: mobigentConfig/);
   assert.doesNotMatch(autoConfigRoot, /gatewayUrl: process\.env/);
 
-  const backendDir = join(dir, "backend");
+  const backendDir = join(dir, 'backend');
   await mkdir(backendDir);
   await writeFile(
-    join(backendDir, "mobigent.app.json"),
+    join(backendDir, 'mobigent.app.json'),
     JSON.stringify({
-      appId: "com.mobigent.backenddir",
-      appName: "Backend Dir App",
-      connectionUrl: "ws://localhost:8787"
+      appId: 'com.mobigent.backenddir',
+      appName: 'Backend Dir App',
+      connectionUrl: 'ws://localhost:8787',
     }),
-    "utf8"
+    'utf8',
   );
   const backendDirInit = run([
-    "--backend-dir",
+    '--backend-dir',
     backendDir,
-    "--feature",
-    "backenddir",
-    "--out-dir",
-    join(dir, "backend-dir-config")
+    '--feature',
+    'backenddir',
+    '--out-dir',
+    join(dir, 'backend-dir-config'),
   ]);
   assert.equal(backendDirInit.code, 0, backendDirInit.stderr);
-  const backendDirRoot = await readFile(join(dir, "backend-dir-config", "mobigent.tsx"), "utf8");
-  assert.match(backendDirRoot, /createApp\("com\.mobigent\.backenddir", \{ \.\.\.backenddirFunctions \}, \{/);
+  const backendDirRoot = await readFile(join(dir, 'backend-dir-config', 'mobigent.tsx'), 'utf8');
+  assert.match(
+    backendDirRoot,
+    /createApp\("com\.mobigent\.backenddir", \{ \.\.\.backenddirFunctions \}, \{/,
+  );
   assert.match(backendDirRoot, /appName: "Backend Dir App"/);
 
-  const backendFirstDir = join(dir, "backend-first");
+  const backendFirstDir = join(dir, 'backend-first');
   await mkdir(backendFirstDir);
   await writeFile(
-    join(backendFirstDir, "mobigent-config.ts"),
+    join(backendFirstDir, 'mobigent-config.ts'),
     `import { defineMobigentConfig } from "@mobigent/app/app";
 
 export const mobigentConfig = defineMobigentConfig({
@@ -120,143 +126,152 @@ export const mobigentConfig = defineMobigentConfig({
   connectionUrl: "ws://localhost:8787"
 });
 `,
-    "utf8"
+    'utf8',
   );
   const backendFirstInit = run([
-    "--app-id",
-    "com.mobigent.generated",
-    "--app-name",
-    "Generated App",
-    "--feature",
-    "backendfirst",
-    "--out-dir",
-    backendFirstDir
+    '--app-id',
+    'com.mobigent.generated',
+    '--app-name',
+    'Generated App',
+    '--feature',
+    'backendfirst',
+    '--out-dir',
+    backendFirstDir,
   ]);
   assert.equal(backendFirstInit.code, 0, backendFirstInit.stderr);
-  const backendFirstGeneratedRoot = await readFile(join(backendFirstDir, "mobigent.tsx"), "utf8");
-  assert.match(backendFirstGeneratedRoot, /createApp\("com\.mobigent\.generated", \{ \.\.\.backendfirstFunctions \}, \{/);
+  const backendFirstGeneratedRoot = await readFile(join(backendFirstDir, 'mobigent.tsx'), 'utf8');
+  assert.match(
+    backendFirstGeneratedRoot,
+    /createApp\("com\.mobigent\.generated", \{ \.\.\.backendfirstFunctions \}, \{/,
+  );
   assert.match(backendFirstGeneratedRoot, /appName: "Generated App"/);
   assert.doesNotMatch(backendFirstGeneratedRoot, /config: mobigentConfig/);
 
   const secondFeatureInit = run([
-    "--app-id",
-    "com.mobigent.backendfirst",
-    "--app-name",
-    "Backend First App",
-    "--feature",
-    "invoice",
-    "--out-dir",
-    backendFirstDir
+    '--app-id',
+    'com.mobigent.backendfirst',
+    '--app-name',
+    'Backend First App',
+    '--feature',
+    'invoice',
+    '--out-dir',
+    backendFirstDir,
   ]);
   assert.equal(secondFeatureInit.code, 0, secondFeatureInit.stderr);
-  const backendFirstRoot = await readFile(join(backendFirstDir, "mobigent.tsx"), "utf8");
+  const backendFirstRoot = await readFile(join(backendFirstDir, 'mobigent.tsx'), 'utf8');
   assert.match(backendFirstRoot, /backendfirstFunctions/);
   assert.match(backendFirstRoot, /invoiceFunctions/);
   assert.match(
-    await readFile(join(backendFirstDir, "mobigent-functions", "invoice.ts"), "utf8"),
-    /export const invoiceFunctions = \{[\s\S]*create: write\(/
+    await readFile(join(backendFirstDir, 'mobigent-functions', 'invoice.ts'), 'utf8'),
+    /export const invoiceFunctions = \{[\s\S]*create: write\(/,
   );
 
-  const workspaceDir = join(dir, "workspace");
-  const workspaceBackendDir = join(workspaceDir, "backend");
-  const workspaceAppDir = join(workspaceDir, "mobile");
+  const workspaceDir = join(dir, 'workspace');
+  const workspaceBackendDir = join(workspaceDir, 'backend');
+  const workspaceAppDir = join(workspaceDir, 'mobile');
   await mkdir(workspaceBackendDir, { recursive: true });
   await mkdir(workspaceAppDir);
   await writeFile(
-    join(workspaceBackendDir, "mobigent.app.json"),
+    join(workspaceBackendDir, 'mobigent.app.json'),
     JSON.stringify({
-      appId: "com.mobigent.sibling",
-      appName: "Sibling Backend App",
-      connectionUrl: "ws://localhost:8787"
+      appId: 'com.mobigent.sibling',
+      appName: 'Sibling Backend App',
+      connectionUrl: 'ws://localhost:8787',
     }),
-    "utf8"
+    'utf8',
   );
   const previousSiblingCwd = process.cwd();
   process.chdir(workspaceAppDir);
   try {
-    const siblingInit = run(["--feature", "sibling", "--out-dir", join(workspaceAppDir, "src")]);
+    const siblingInit = run(['--feature', 'sibling', '--out-dir', join(workspaceAppDir, 'src')]);
     assert.equal(siblingInit.code, 0, siblingInit.stderr);
   } finally {
     process.chdir(previousSiblingCwd);
   }
-  const siblingRoot = await readFile(join(workspaceAppDir, "src", "mobigent.tsx"), "utf8");
-  assert.match(siblingRoot, /createApp\("com\.mobigent\.sibling", \{ \.\.\.siblingFunctions \}, \{/);
+  const siblingRoot = await readFile(join(workspaceAppDir, 'src', 'mobigent.tsx'), 'utf8');
+  assert.match(
+    siblingRoot,
+    /createApp\("com\.mobigent\.sibling", \{ \.\.\.siblingFunctions \}, \{/,
+  );
 
   const doctor = run([
-    "--doctor",
-    "--app-id",
-    "com.mobigent.smoke",
-    "--app-name",
-    "Mobigent Smoke",
-    "--feature",
-    "task",
-    "--app-root",
+    '--doctor',
+    '--app-id',
+    'com.mobigent.smoke',
+    '--app-name',
+    'Mobigent Smoke',
+    '--feature',
+    'task',
+    '--app-root',
     dir,
-    "--out-dir",
+    '--out-dir',
     dir,
-    "--custom-confirmation"
+    '--custom-confirmation',
   ]);
   assert.equal(doctor.code, 0, doctor.stderr);
   assert.match(doctor.stdout, /Mobigent React Native doctor: PASS/);
 
-  const contractPath = join(dir, "mobigent-contract.json");
+  const contractPath = join(dir, 'mobigent-contract.json');
   const writeContract = run([
-    "--write-contract",
+    '--write-contract',
     contractPath,
-    "--app-id",
-    "com.mobigent.smoke",
-    "--app-name",
-    "Mobigent Smoke",
-    "--feature",
-    "task"
+    '--app-id',
+    'com.mobigent.smoke',
+    '--app-name',
+    'Mobigent Smoke',
+    '--feature',
+    'task',
   ]);
   assert.equal(writeContract.code, 0, writeContract.stderr);
-  assert.match(await readFile(contractPath, "utf8"), /mobigent.react-native.capability-contract/);
+  assert.match(await readFile(contractPath, 'utf8'), /mobigent.react-native.capability-contract/);
 
-  const validateContract = run(["--validate-contract", contractPath]);
+  const validateContract = run(['--validate-contract', contractPath]);
   assert.equal(validateContract.code, 0, validateContract.stderr);
   assert.match(validateContract.stdout, /Mobigent React Native contract: PASS/);
 
-  const manifestPath = join(dir, "mobigent-integration.json");
+  const manifestPath = join(dir, 'mobigent-integration.json');
   const writeManifest = run([
-    "--write-manifest",
+    '--write-manifest',
     manifestPath,
-    "--app-id",
-    "com.mobigent.smoke",
-    "--app-name",
-    "Mobigent Smoke",
-    "--feature",
-    "task",
-    "--out-dir",
-    dir
+    '--app-id',
+    'com.mobigent.smoke',
+    '--app-name',
+    'Mobigent Smoke',
+    '--feature',
+    'task',
+    '--out-dir',
+    dir,
   ]);
   assert.equal(writeManifest.code, 0, writeManifest.stderr);
-  assert.equal(JSON.parse(await readFile(manifestPath, "utf8")).capabilities.actions[0], "task_create");
+  assert.equal(
+    JSON.parse(await readFile(manifestPath, 'utf8')).capabilities.actions[0],
+    'task_create',
+  );
 
-  const validateManifest = run(["--validate-manifest", manifestPath]);
+  const validateManifest = run(['--validate-manifest', manifestPath]);
   assert.equal(validateManifest.code, 0, validateManifest.stderr);
   assert.match(validateManifest.stdout, /Mobigent React Native integration manifest: PASS/);
 
-  const envPath = join(dir, ".env.mobigent");
-  const writeEnv = run(["--write-env", envPath, "--gateway-url", "ws://localhost:8787"]);
+  const envPath = join(dir, '.env.mobigent');
+  const writeEnv = run(['--write-env', envPath, '--gateway-url', 'ws://localhost:8787']);
   assert.equal(writeEnv.code, 0, writeEnv.stderr);
-  assert.match(await readFile(envPath, "utf8"), /EXPO_PUBLIC_MOBIGENT_URL=ws:\/\/localhost:8787/);
+  assert.match(await readFile(envPath, 'utf8'), /EXPO_PUBLIC_MOBIGENT_URL=ws:\/\/localhost:8787/);
 
   const manifest = run([
-    "--manifest",
-    "--app-id",
-    "com.mobigent.smoke",
-    "--app-name",
-    "Mobigent Smoke",
-    "--feature",
-    "task",
-    "--out-dir",
-    dir
+    '--manifest',
+    '--app-id',
+    'com.mobigent.smoke',
+    '--app-name',
+    'Mobigent Smoke',
+    '--feature',
+    'task',
+    '--out-dir',
+    dir,
   ]);
   assert.equal(manifest.code, 0, manifest.stderr);
-  assert.equal(JSON.parse(manifest.stdout).capabilities.actions[0], "task_create");
+  assert.equal(JSON.parse(manifest.stdout).capabilities.actions[0], 'task_create');
 
-  console.log("Mobigent React Native CLI smoke check passed.");
+  console.log('Mobigent React Native CLI smoke check passed.');
 } finally {
   await rm(dir, { force: true, recursive: true });
 }

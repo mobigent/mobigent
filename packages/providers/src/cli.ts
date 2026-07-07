@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
-import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   createAnthropicToolUseProvider,
   createAutoGenProvider,
@@ -61,8 +61,8 @@ import {
   type McpStdioOptions,
   type OpenApiOptions,
   type ProviderDescriptor,
-  type ProviderRecommendationUseCase
-} from "./index.js";
+  type ProviderRecommendationUseCase,
+} from './index.js';
 
 type CliResult = {
   code: number;
@@ -77,9 +77,9 @@ type CliOptions = {
   env?: Record<string, string>;
   baseUrl?: string;
   schemaPath?: string;
-  auth?: OpenApiOptions["auth"];
+  auth?: OpenApiOptions['auth'];
   agentId?: string;
-  format?: "json" | "guide" | "runtime-env" | "bundle";
+  format?: 'json' | 'guide' | 'runtime-env' | 'bundle';
   validate?: boolean;
   list?: boolean;
   matrix?: boolean;
@@ -129,39 +129,39 @@ type ProviderRecommendationCliReport = {
 };
 
 const supportedProviders = [
-  "mcp-stdio",
-  "claude-desktop",
-  "cursor",
-  "vscode",
-  "openapi",
-  "chatgpt-actions",
-  "openai-responses",
-  "azure-openai",
-  "openai-compatible",
-  "openrouter",
-  "litellm",
-  "ollama",
-  "lm-studio",
-  "groq",
-  "perplexity",
-  "xai-grok",
-  "deepseek",
-  "together-ai",
-  "fireworks-ai",
-  "mistral",
-  "cohere",
-  "anthropic-tool-use",
-  "google-gemini",
-  "aws-bedrock-converse",
-  "vercel-ai-sdk",
-  "langchain",
-  "llamaindex",
-  "mastra",
-  "semantic-kernel",
-  "crewai",
-  "autogen",
-  "haystack",
-  "generic-agent"
+  'mcp-stdio',
+  'claude-desktop',
+  'cursor',
+  'vscode',
+  'openapi',
+  'chatgpt-actions',
+  'openai-responses',
+  'azure-openai',
+  'openai-compatible',
+  'openrouter',
+  'litellm',
+  'ollama',
+  'lm-studio',
+  'groq',
+  'perplexity',
+  'xai-grok',
+  'deepseek',
+  'together-ai',
+  'fireworks-ai',
+  'mistral',
+  'cohere',
+  'anthropic-tool-use',
+  'google-gemini',
+  'aws-bedrock-converse',
+  'vercel-ai-sdk',
+  'langchain',
+  'llamaindex',
+  'mastra',
+  'semantic-kernel',
+  'crewai',
+  'autogen',
+  'haystack',
+  'generic-agent',
 ];
 
 export function runProviderCli(argv = process.argv.slice(2)): CliResult {
@@ -169,114 +169,145 @@ export function runProviderCli(argv = process.argv.slice(2)): CliResult {
     const options = parseArgs(argv);
 
     if (options.help) {
-      return { code: 0, stdout: helpText(), stderr: "" };
+      return { code: 0, stdout: helpText(), stderr: '' };
     }
 
     if (options.list) {
-      return { code: 0, stdout: `${supportedProviders.join("\n")}\n`, stderr: "" };
+      return { code: 0, stdout: `${supportedProviders.join('\n')}\n`, stderr: '' };
     }
 
     if (options.matrix) {
-      return { code: 0, stdout: `${JSON.stringify(createProviderMatrix(options), null, 2)}\n`, stderr: "" };
+      return {
+        code: 0,
+        stdout: `${JSON.stringify(createProviderMatrix(options), null, 2)}\n`,
+        stderr: '',
+      };
     }
 
     if (options.compatibility) {
-      return { code: 0, stdout: `${JSON.stringify(createProviderCompatibilityCliReport(options), null, 2)}\n`, stderr: "" };
+      return {
+        code: 0,
+        stdout: `${JSON.stringify(createProviderCompatibilityCliReport(options), null, 2)}\n`,
+        stderr: '',
+      };
     }
 
     if (options.writeMatrixPath) {
       writeGeneratedFile(
         options.writeMatrixPath,
         `${JSON.stringify(createProviderMatrix(options), null, 2)}\n`,
-        Boolean(options.force)
+        Boolean(options.force),
       );
-      return { code: 0, stdout: `Created Mobigent provider matrix at ${options.writeMatrixPath}\n`, stderr: "" };
+      return {
+        code: 0,
+        stdout: `Created Mobigent provider matrix at ${options.writeMatrixPath}\n`,
+        stderr: '',
+      };
     }
 
     if (options.writeCompatibilityPath) {
       writeGeneratedFile(
         options.writeCompatibilityPath,
         `${JSON.stringify(createProviderCompatibilityCliReport(options), null, 2)}\n`,
-        Boolean(options.force)
+        Boolean(options.force),
       );
       return {
         code: 0,
         stdout: `Created Mobigent provider compatibility report at ${options.writeCompatibilityPath}\n`,
-        stderr: ""
+        stderr: '',
       };
     }
 
     if (options.setupPlan) {
-      return { code: 0, stdout: `${JSON.stringify(createProviderSetupPlanFromCli(options), null, 2)}\n`, stderr: "" };
+      return {
+        code: 0,
+        stdout: `${JSON.stringify(createProviderSetupPlanFromCli(options), null, 2)}\n`,
+        stderr: '',
+      };
     }
 
     if (options.writeSetupPlanPath) {
       writeGeneratedFile(
         options.writeSetupPlanPath,
         `${JSON.stringify(createProviderSetupPlanFromCli(options), null, 2)}\n`,
-        Boolean(options.force)
+        Boolean(options.force),
       );
-      return { code: 0, stdout: `Created Mobigent provider setup plan at ${options.writeSetupPlanPath}\n`, stderr: "" };
+      return {
+        code: 0,
+        stdout: `Created Mobigent provider setup plan at ${options.writeSetupPlanPath}\n`,
+        stderr: '',
+      };
     }
 
     if (options.validateSetupPlanPath) {
       const report = validateProviderSetupPlanFile(options.validateSetupPlanPath);
       return {
-        code: report.status === "fail" ? 1 : 0,
+        code: report.status === 'fail' ? 1 : 0,
         stdout: `${formatProviderSetupPlanValidation(report)}\n`,
-        stderr: ""
+        stderr: '',
       };
     }
 
     if (options.runtimeConfig) {
       const report = diagnoseMobigentProviderRuntimeConfig({
         env: options.env,
-        kind: options.provider && options.provider !== "mcp-stdio" ? (options.provider as never) : undefined,
+        kind:
+          options.provider && options.provider !== 'mcp-stdio'
+            ? (options.provider as never)
+            : undefined,
         baseUrl: options.baseUrl,
         auth: options.auth,
         apiKey: options.env?.MOBIGENT_HTTP_API_KEY,
-        agentId: options.agentId
+        agentId: options.agentId,
       });
       const stdout =
-        options.format === "json"
+        options.format === 'json'
           ? `${JSON.stringify(report, null, 2)}\n`
           : formatMobigentProviderRuntimeConfigReport(report);
-      return { code: report.status === "fail" ? 1 : 0, stdout, stderr: "" };
+      return { code: report.status === 'fail' ? 1 : 0, stdout, stderr: '' };
     }
 
     if (options.recommendPresets) {
-      return { code: 0, stdout: `${JSON.stringify({ presets: listProviderRecommendationPresets() }, null, 2)}\n`, stderr: "" };
+      return {
+        code: 0,
+        stdout: `${JSON.stringify({ presets: listProviderRecommendationPresets() }, null, 2)}\n`,
+        stderr: '',
+      };
     }
 
     if (options.recommend) {
-      return { code: 0, stdout: `${JSON.stringify(createProviderRecommendationReport(options), null, 2)}\n`, stderr: "" };
+      return {
+        code: 0,
+        stdout: `${JSON.stringify(createProviderRecommendationReport(options), null, 2)}\n`,
+        stderr: '',
+      };
     }
 
     const provider = createProviderFromCli(options);
     if (options.validate) {
       const report = validateProviderSetup(provider);
       const stdout =
-        options.format === "guide"
+        options.format === 'guide'
           ? `${formatProviderSetupValidation(report)}\n`
           : `${JSON.stringify(report, null, 2)}\n`;
-      return { code: report.status === "fail" ? 1 : 0, stdout, stderr: "" };
+      return { code: report.status === 'fail' ? 1 : 0, stdout, stderr: '' };
     }
 
     const stdout =
-      options.format === "guide"
+      options.format === 'guide'
         ? `${createProviderGuide(provider)}\n`
-        : options.format === "runtime-env"
+        : options.format === 'runtime-env'
           ? `${createRuntimeEnv(provider, options)}\n`
-          : options.format === "bundle"
+          : options.format === 'bundle'
             ? `${JSON.stringify(createProviderBundle(provider), null, 2)}\n`
-        : `${stringifyProviderSetup(provider)}\n`;
+            : `${stringifyProviderSetup(provider)}\n`;
 
-    return { code: 0, stdout, stderr: "" };
+    return { code: 0, stdout, stderr: '' };
   } catch (error) {
     return {
       code: 1,
-      stdout: "",
-      stderr: `${error instanceof Error ? error.message : String(error)}\n\n${helpText()}`
+      stdout: '',
+      stderr: `${error instanceof Error ? error.message : String(error)}\n\n${helpText()}`,
     };
   }
 }
@@ -294,142 +325,155 @@ export function main() {
 
 function parseArgs(argv: string[]): CliOptions {
   const options: CliOptions = {
-    provider: "mcp-stdio",
-    command: "mobigent-mcp",
+    provider: 'mcp-stdio',
+    command: 'mobigent-mcp',
     args: [],
     env: {},
-    format: "json"
+    format: 'json',
   };
 
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
 
     switch (arg) {
-      case "--help":
-      case "-h":
+      case '--help':
+      case '-h':
         options.help = true;
         break;
-      case "--list":
+      case '--list':
         options.list = true;
         break;
-      case "--matrix":
+      case '--matrix':
         options.matrix = true;
         break;
-      case "--compatibility":
+      case '--compatibility':
         options.compatibility = true;
         break;
-      case "--write-matrix":
+      case '--write-matrix':
         options.writeMatrixPath = readValue(argv, index, arg);
         index += 1;
         break;
-      case "--write-compatibility":
+      case '--write-compatibility':
         options.writeCompatibilityPath = readValue(argv, index, arg);
         index += 1;
         break;
-      case "--setup-plan": {
+      case '--setup-plan': {
         const useCase = readValue(argv, index, arg);
         if (!isProviderRecommendationUseCase(useCase)) {
-          throw new Error(`--setup-plan must be one of: ${listProviderRecommendationPresets().map((preset) => preset.id).join(", ")}.`);
+          throw new Error(
+            `--setup-plan must be one of: ${listProviderRecommendationPresets()
+              .map((preset) => preset.id)
+              .join(', ')}.`,
+          );
         }
         options.setupPlan = useCase;
         index += 1;
         break;
       }
-      case "--write-setup-plan":
+      case '--write-setup-plan':
         options.writeSetupPlanPath = readValue(argv, index, arg);
         index += 1;
         break;
-      case "--validate-setup-plan":
+      case '--validate-setup-plan':
         options.validateSetupPlanPath = readValue(argv, index, arg);
         index += 1;
         break;
-      case "--runtime-config":
+      case '--runtime-config':
         options.runtimeConfig = true;
         break;
-      case "--recommend-presets":
+      case '--recommend-presets':
         options.recommendPresets = true;
         break;
-      case "--recommend": {
+      case '--recommend': {
         const useCase = readValue(argv, index, arg);
         if (!isProviderRecommendationUseCase(useCase)) {
-          throw new Error(`--recommend must be one of: ${listProviderRecommendationPresets().map((preset) => preset.id).join(", ")}.`);
+          throw new Error(
+            `--recommend must be one of: ${listProviderRecommendationPresets()
+              .map((preset) => preset.id)
+              .join(', ')}.`,
+          );
         }
         options.recommend = useCase;
         index += 1;
         break;
       }
-      case "--query":
+      case '--query':
         options.query = readValue(argv, index, arg);
         index += 1;
         break;
-      case "--limit": {
+      case '--limit': {
         const limit = Number.parseInt(readValue(argv, index, arg), 10);
         if (!Number.isFinite(limit) || limit < 1) {
-          throw new Error("--limit must be a positive integer.");
+          throw new Error('--limit must be a positive integer.');
         }
         options.limit = limit;
         index += 1;
         break;
       }
-      case "--force":
+      case '--force':
         options.force = true;
         break;
-      case "--provider":
-      case "-p":
+      case '--provider':
+      case '-p':
         options.provider = readValue(argv, index, arg);
         index += 1;
         break;
-      case "--command":
+      case '--command':
         options.command = readValue(argv, index, arg);
         index += 1;
         break;
-      case "--arg":
+      case '--arg':
         options.args?.push(readValue(argv, index, arg));
         index += 1;
         break;
-      case "--env": {
-        const [key, ...valueParts] = readValue(argv, index, arg).split("=");
+      case '--env': {
+        const [key, ...valueParts] = readValue(argv, index, arg).split('=');
         if (!key || valueParts.length === 0) {
-          throw new Error("--env must use KEY=value format.");
+          throw new Error('--env must use KEY=value format.');
         }
         options.env = {
           ...options.env,
-          [key]: valueParts.join("=")
+          [key]: valueParts.join('='),
         };
         index += 1;
         break;
       }
-      case "--base-url":
+      case '--base-url':
         options.baseUrl = readValue(argv, index, arg);
         index += 1;
         break;
-      case "--schema-path":
+      case '--schema-path':
         options.schemaPath = readValue(argv, index, arg);
         index += 1;
         break;
-      case "--auth": {
+      case '--auth': {
         const auth = readValue(argv, index, arg);
-        if (!["none", "bearer", "api-key"].includes(auth)) {
-          throw new Error("--auth must be one of: none, bearer, api-key.");
+        if (!['none', 'bearer', 'api-key'].includes(auth)) {
+          throw new Error('--auth must be one of: none, bearer, api-key.');
         }
-        options.auth = auth as OpenApiOptions["auth"];
+        options.auth = auth as OpenApiOptions['auth'];
         index += 1;
         break;
       }
-      case "--agent-id":
+      case '--agent-id':
         options.agentId = readValue(argv, index, arg);
         index += 1;
         break;
-      case "--format": {
+      case '--format': {
         const format = readValue(argv, index, arg);
-        if (format !== "json" && format !== "guide" && format !== "runtime-env" && format !== "bundle") {
-          throw new Error("--format must be json, guide, runtime-env, or bundle.");
+        if (
+          format !== 'json' &&
+          format !== 'guide' &&
+          format !== 'runtime-env' &&
+          format !== 'bundle'
+        ) {
+          throw new Error('--format must be json, guide, runtime-env, or bundle.');
         }
         options.format = format;
         index += 1;
         break;
       }
-      case "--validate":
+      case '--validate':
         options.validate = true;
         break;
       default:
@@ -444,89 +488,89 @@ function createProviderFromCli(options: CliOptions): ProviderDescriptor {
   const mcp: McpStdioOptions = {
     command: options.command,
     args: options.args,
-    env: options.env
+    env: options.env,
   };
 
   switch (options.provider) {
-    case "mcp-stdio":
+    case 'mcp-stdio':
       return createMcpStdioProvider(mcp);
-    case "claude-desktop":
+    case 'claude-desktop':
       return createClaudeDesktopProvider(mcp);
-    case "cursor":
+    case 'cursor':
       return createCursorProvider(mcp);
-    case "vscode":
+    case 'vscode':
       return createVsCodeProvider(mcp);
-    case "openapi":
+    case 'openapi':
       return createOpenApiProvider(readOpenApiOptions(options));
-    case "chatgpt-actions":
+    case 'chatgpt-actions':
       return createChatGptActionsProvider(readOpenApiOptions(options));
-    case "openai-responses":
+    case 'openai-responses':
       return createOpenAiResponsesProvider(readHttpAgentOptions(options));
-    case "azure-openai":
+    case 'azure-openai':
       return createAzureOpenAiProvider(readHttpAgentOptions(options));
-    case "openai-compatible":
+    case 'openai-compatible':
       return createOpenAiCompatibleProvider(readHttpAgentOptions(options));
-    case "openrouter":
+    case 'openrouter':
       return createOpenRouterProvider(readHttpAgentOptions(options));
-    case "litellm":
+    case 'litellm':
       return createLiteLlmProvider(readHttpAgentOptions(options));
-    case "ollama":
+    case 'ollama':
       return createOllamaProvider(readHttpAgentOptions(options));
-    case "lm-studio":
+    case 'lm-studio':
       return createLmStudioProvider(readHttpAgentOptions(options));
-    case "groq":
+    case 'groq':
       return createGroqProvider(readHttpAgentOptions(options));
-    case "perplexity":
+    case 'perplexity':
       return createPerplexityProvider(readHttpAgentOptions(options));
-    case "xai-grok":
+    case 'xai-grok':
       return createXaiGrokProvider(readHttpAgentOptions(options));
-    case "deepseek":
+    case 'deepseek':
       return createDeepSeekProvider(readHttpAgentOptions(options));
-    case "together-ai":
+    case 'together-ai':
       return createTogetherAiProvider(readHttpAgentOptions(options));
-    case "fireworks-ai":
+    case 'fireworks-ai':
       return createFireworksAiProvider(readHttpAgentOptions(options));
-    case "qwen-dashscope":
+    case 'qwen-dashscope':
       return createQwenDashScopeProvider(readHttpAgentOptions(options));
-    case "nvidia-nim":
+    case 'nvidia-nim':
       return createNvidiaNimProvider(readHttpAgentOptions(options));
-    case "cloudflare-ai-gateway":
+    case 'cloudflare-ai-gateway':
       return createCloudflareAiGatewayProvider(readHttpAgentOptions(options));
-    case "mistral":
+    case 'mistral':
       return createMistralProvider(readHttpAgentOptions(options));
-    case "cohere":
+    case 'cohere':
       return createCohereProvider(readHttpAgentOptions(options));
-    case "anthropic-tool-use":
+    case 'anthropic-tool-use':
       return createAnthropicToolUseProvider(readHttpAgentOptions(options));
-    case "google-gemini":
+    case 'google-gemini':
       return createGoogleGeminiProvider(readHttpAgentOptions(options));
-    case "google-vertex-ai":
+    case 'google-vertex-ai':
       return createGoogleVertexAiProvider(readHttpAgentOptions(options));
-    case "aws-bedrock-converse":
+    case 'aws-bedrock-converse':
       return createAwsBedrockConverseProvider(readHttpAgentOptions(options));
-    case "vercel-ai-sdk":
+    case 'vercel-ai-sdk':
       return createVercelAiSdkProvider(readHttpAgentOptions(options));
-    case "langchain":
+    case 'langchain':
       return createLangChainProvider(readHttpAgentOptions(options));
-    case "llamaindex":
+    case 'llamaindex':
       return createLlamaIndexProvider(readHttpAgentOptions(options));
-    case "mastra":
+    case 'mastra':
       return createMastraProvider(readHttpAgentOptions(options));
-    case "semantic-kernel":
+    case 'semantic-kernel':
       return createSemanticKernelProvider(readHttpAgentOptions(options));
-    case "crewai":
+    case 'crewai':
       return createCrewAiProvider(readHttpAgentOptions(options));
-    case "autogen":
+    case 'autogen':
       return createAutoGenProvider(readHttpAgentOptions(options));
-    case "haystack":
+    case 'haystack':
       return createHaystackProvider(readHttpAgentOptions(options));
-    case "generic-agent":
+    case 'generic-agent':
       return createGenericAgentProvider({
         mcp,
-        openApi: options.baseUrl ? readOpenApiOptions(options) : undefined
+        openApi: options.baseUrl ? readOpenApiOptions(options) : undefined,
       });
     default:
-      throw new Error(`Unsupported provider: ${options.provider ?? ""}`);
+      throw new Error(`Unsupported provider: ${options.provider ?? ''}`);
   }
 }
 
@@ -535,7 +579,7 @@ function createProviderMatrix(options: CliOptions): ProviderMatrix {
 
   return {
     summary: summarizeProviderCatalog(providers),
-    providers: providers.map((provider) => createProviderMatrixEntry(provider, options, baseUrl))
+    providers: providers.map((provider) => createProviderMatrixEntry(provider, options, baseUrl)),
   };
 }
 
@@ -545,38 +589,38 @@ function createProviderCompatibilityCliReport(options: CliOptions) {
 }
 
 function createProviderCatalogFromCli(options: CliOptions) {
-  const baseUrl = options.baseUrl ?? "http://localhost:8788";
+  const baseUrl = options.baseUrl ?? 'http://localhost:8788';
   const providers = createProviderCatalog({
     mcp: {
       command: options.command,
       args: options.args,
-      env: options.env
+      env: options.env,
     },
     openApi: {
       baseUrl,
       schemaPath: options.schemaPath,
-      auth: options.auth
-    }
+      auth: options.auth,
+    },
   });
 
   return { baseUrl, providers };
 }
 
 function createProviderRecommendationReport(options: CliOptions): ProviderRecommendationCliReport {
-  const useCase = options.recommend ?? "runtime-agent";
+  const useCase = options.recommend ?? 'runtime-agent';
   const preset = getProviderRecommendationPreset(useCase);
-  const baseUrl = options.baseUrl ?? "http://localhost:8788";
+  const baseUrl = options.baseUrl ?? 'http://localhost:8788';
   const providers = createProviderCatalog({
     mcp: {
       command: options.command,
       args: options.args,
-      env: options.env
+      env: options.env,
     },
     openApi: {
       baseUrl,
       schemaPath: options.schemaPath,
-      auth: options.auth
-    }
+      auth: options.auth,
+    },
   });
 
   return {
@@ -585,29 +629,29 @@ function createProviderRecommendationReport(options: CliOptions): ProviderRecomm
     recommendations: recommendProviders(providers, {
       useCase,
       query: options.query,
-      limit: options.limit
+      limit: options.limit,
     }).map((recommendation) => ({
       ...createProviderMatrixEntry(recommendation.provider, options, baseUrl),
       score: recommendation.score,
-      reasons: recommendation.reasons
-    }))
+      reasons: recommendation.reasons,
+    })),
   };
 }
 
 function createProviderSetupPlanFromCli(options: CliOptions) {
-  const useCase = options.setupPlan ?? "runtime-agent";
-  const baseUrl = options.baseUrl ?? "http://localhost:8788";
+  const useCase = options.setupPlan ?? 'runtime-agent';
+  const baseUrl = options.baseUrl ?? 'http://localhost:8788';
   const providers = createProviderCatalog({
     mcp: {
       command: options.command,
       args: options.args,
-      env: options.env
+      env: options.env,
     },
     openApi: {
       baseUrl,
       schemaPath: options.schemaPath,
-      auth: options.auth
-    }
+      auth: options.auth,
+    },
   });
 
   return createProviderSetupPlan(providers, {
@@ -616,19 +660,21 @@ function createProviderSetupPlanFromCli(options: CliOptions) {
     limit: options.limit,
     runtimeEnv: {
       baseUrl,
-      agentId: options.agentId
-    }
+      agentId: options.agentId,
+    },
   });
 }
 
 function validateProviderSetupPlanFile(path: string) {
   try {
-    return validateProviderSetupPlan(JSON.parse(readFileSync(path, "utf8")));
+    return validateProviderSetupPlan(JSON.parse(readFileSync(path, 'utf8')));
   } catch (error) {
     return {
       ok: false,
-      status: "fail" as const,
-      errors: [`Could not read or parse provider setup plan JSON: ${error instanceof Error ? error.message : String(error)}`]
+      status: 'fail' as const,
+      errors: [
+        `Could not read or parse provider setup plan JSON: ${error instanceof Error ? error.message : String(error)}`,
+      ],
     };
   }
 }
@@ -637,7 +683,11 @@ function isProviderRecommendationUseCase(value: string): value is ProviderRecomm
   return listProviderRecommendationPresets().some((preset) => preset.id === value);
 }
 
-function createProviderMatrixEntry(provider: ProviderDescriptor, options: CliOptions, baseUrl: string): ProviderMatrixEntry {
+function createProviderMatrixEntry(
+  provider: ProviderDescriptor,
+  options: CliOptions,
+  baseUrl: string,
+): ProviderMatrixEntry {
   const profile = getProviderIntegrationProfile(provider);
 
   return {
@@ -651,37 +701,42 @@ function createProviderMatrixEntry(provider: ProviderDescriptor, options: CliOpt
     dynamicTools: provider.capabilities.supportsDynamicTools,
     requiresPublicUrl: provider.capabilities.requiresPublicUrl,
     productionNotes: profile.productionNotes,
-    setupCommand: createProviderSetupCommand(provider.id, options, baseUrl)
+    setupCommand: createProviderSetupCommand(provider.id, options, baseUrl),
   };
 }
 
 function createProviderSetupCommand(providerId: string, options: CliOptions, baseUrl: string) {
-  const args = ["mobigent-provider", "--provider", providerId];
+  const args = ['mobigent-provider', '--provider', providerId];
 
   if (isMcpProvider(providerId)) {
-    args.push("--command", shellQuote(options.command ?? "mobigent-mcp"));
+    args.push('--command', shellQuote(options.command ?? 'mobigent-mcp'));
     for (const arg of options.args ?? []) {
-      args.push("--arg", shellQuote(arg));
+      args.push('--arg', shellQuote(arg));
     }
     for (const [key, value] of Object.entries(options.env ?? {})) {
-      args.push("--env", shellQuote(`${key}=${value}`));
+      args.push('--env', shellQuote(`${key}=${value}`));
     }
   } else {
-    args.push("--base-url", shellQuote(baseUrl));
+    args.push('--base-url', shellQuote(baseUrl));
     if (options.auth) {
-      args.push("--auth", options.auth);
+      args.push('--auth', options.auth);
     }
   }
 
   if (isRuntimeProvider(providerId)) {
-    args.push("--format", "runtime-env");
+    args.push('--format', 'runtime-env');
   }
 
-  return args.join(" ");
+  return args.join(' ');
 }
 
 function isMcpProvider(providerId: string) {
-  return providerId === "mcp-stdio" || providerId === "claude-desktop" || providerId === "cursor" || providerId === "vscode";
+  return (
+    providerId === 'mcp-stdio' ||
+    providerId === 'claude-desktop' ||
+    providerId === 'cursor' ||
+    providerId === 'vscode'
+  );
 }
 
 function readOpenApiOptions(options: CliOptions): OpenApiOptions {
@@ -692,63 +747,63 @@ function readOpenApiOptions(options: CliOptions): OpenApiOptions {
   return {
     baseUrl: options.baseUrl,
     schemaPath: options.schemaPath,
-    auth: options.auth
+    auth: options.auth,
   };
 }
 
 function readHttpAgentOptions(options: CliOptions) {
   return {
     ...readOpenApiOptions(options),
-    agentId: options.agentId
+    agentId: options.agentId,
   };
 }
 
 function createRuntimeEnv(provider: ProviderDescriptor, options: CliOptions) {
   try {
     return stringifyProviderRuntimeEnv(provider, {
-      baseUrl: options.baseUrl ?? "http://localhost:8788",
-      agentId: options.agentId
+      baseUrl: options.baseUrl ?? 'http://localhost:8788',
+      agentId: options.agentId,
     });
   } catch (_error) {
-    throw new Error("--format runtime-env is only available for HTTP runtime providers.");
+    throw new Error('--format runtime-env is only available for HTTP runtime providers.');
   }
 }
 
 function isRuntimeProvider(providerId: string) {
   return [
-    "openai-responses",
-    "azure-openai",
-    "openai-compatible",
-    "openrouter",
-    "litellm",
-    "ollama",
-    "lm-studio",
-    "groq",
-    "perplexity",
-    "xai-grok",
-    "deepseek",
-    "together-ai",
-    "fireworks-ai",
-    "mistral",
-    "cohere",
-    "anthropic-tool-use",
-    "google-gemini",
-    "aws-bedrock-converse",
-    "vercel-ai-sdk",
-    "langchain",
-    "llamaindex",
-    "mastra",
-    "semantic-kernel",
-    "crewai",
-    "autogen",
-    "haystack",
-    "generic-agent"
+    'openai-responses',
+    'azure-openai',
+    'openai-compatible',
+    'openrouter',
+    'litellm',
+    'ollama',
+    'lm-studio',
+    'groq',
+    'perplexity',
+    'xai-grok',
+    'deepseek',
+    'together-ai',
+    'fireworks-ai',
+    'mistral',
+    'cohere',
+    'anthropic-tool-use',
+    'google-gemini',
+    'aws-bedrock-converse',
+    'vercel-ai-sdk',
+    'langchain',
+    'llamaindex',
+    'mastra',
+    'semantic-kernel',
+    'crewai',
+    'autogen',
+    'haystack',
+    'generic-agent',
   ].includes(providerId);
 }
 
 function readValue(argv: string[], index: number, option: string) {
   const value = argv[index + 1];
-  if (!value || value.startsWith("--")) {
+  if (!value || value.startsWith('--')) {
     throw new Error(`${option} requires a value.`);
   }
   return value;
@@ -760,7 +815,7 @@ function writeGeneratedFile(path: string, contents: string, force: boolean) {
   }
 
   mkdirSync(dirname(path), { recursive: true });
-  writeFileSync(path, contents, "utf8");
+  writeFileSync(path, contents, 'utf8');
 }
 
 function helpText() {
@@ -847,7 +902,10 @@ function shellQuote(value: string) {
 }
 
 function isMainModule() {
-  return Boolean(process.argv[1]) && realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
+  return (
+    Boolean(process.argv[1]) &&
+    realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url))
+  );
 }
 
 if (isMainModule()) {

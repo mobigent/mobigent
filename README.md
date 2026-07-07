@@ -28,13 +28,13 @@ That is the normal integration. No app-side init command is required.
 Create one Mobigent file in your app:
 
 ```ts
-import { createApp, type AppFunctions } from "@mobigent/app";
+import { createApp, type AppFunctions } from '@mobigent/app';
 
 export const appFunctions = {
   expense: {
     list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
+    create: async (input) => createExpense(input),
+  },
 } satisfies AppFunctions;
 
 export type MyAppFunctions = typeof appFunctions;
@@ -45,8 +45,8 @@ export const mobigent = createApp(appFunctions);
 Wrap your app once:
 
 ```tsx
-import { mobigent } from "./mobigent";
-import App from "./App";
+import { mobigent } from './mobigent';
+import App from './App';
 
 export default mobigent.with(App);
 ```
@@ -54,26 +54,26 @@ export default mobigent.with(App);
 Or try it in one file:
 
 ```tsx
-import { withMobigent } from "@mobigent/app";
-import App from "./App";
+import { withMobigent } from '@mobigent/app';
+import App from './App';
 
 export default withMobigent(App, {
   expense: {
     list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
+    create: async (input) => createExpense(input),
+  },
 });
 ```
 
 Plain `list`, `get`, `read`, `fetch`, `search`, and `load` functions are treated as reads. Other plain functions are confirmed writes by default. Use `write()` only when you want schemas or custom approval copy:
 
 ```ts
-import { write } from "@mobigent/app";
+import { write } from '@mobigent/app';
 
 create: write(createExpense, {
-  input: { merchant: "string", amount: "number" },
-  confirm: "Create expense?"
-})
+  input: { merchant: 'string', amount: 'number' },
+  confirm: 'Create expense?',
+});
 ```
 
 ## Backend Code
@@ -81,13 +81,13 @@ create: write(createExpense, {
 Start Mobigent in your backend:
 
 ```ts
-import { startMobigent } from "@mobigent/backend";
-import type { MyAppFunctions } from "../app/mobigent";
+import { startMobigent } from '@mobigent/backend';
+import type { MyAppFunctions } from '../app/mobigent';
 
 const mobigent = await startMobigent();
 const app = mobigent.app<MyAppFunctions>();
 
-await app.expense.create({ merchant: "Coffee", amount: 8 });
+await app.expense.create({ merchant: 'Coffee', amount: 8 });
 await app.expense.list();
 ```
 
@@ -96,12 +96,12 @@ That type import is erased at runtime, so the backend gets autocomplete without 
 If you want backend-friendly helper names, bind them once:
 
 ```ts
-const expenses = mobigent.app("expense", {
-  createExpense: "create",
-  listExpenses: "list"
+const expenses = mobigent.app('expense', {
+  createExpense: 'create',
+  listExpenses: 'list',
 });
 
-await expenses.createExpense({ merchant: "Coffee", amount: 8 });
+await expenses.createExpense({ merchant: 'Coffee', amount: 8 });
 ```
 
 ## Production Config
@@ -141,13 +141,13 @@ npm run demo:app
 Use the same app function object and pass the backend once:
 
 ```ts
-import { startMobigent } from "@mobigent/backend";
-import { createApp } from "@mobigent/app";
-import { expenseFunctions } from "./app-functions";
+import { startMobigent } from '@mobigent/backend';
+import { createApp } from '@mobigent/app';
+import { expenseFunctions } from './app-functions';
 
 const backend = await startMobigent();
 const mobigent = createApp(expenseFunctions, {
-  backend
+  backend,
 });
 
 await mobigent.connect();

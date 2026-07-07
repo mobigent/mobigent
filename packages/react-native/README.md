@@ -16,8 +16,8 @@ If you install this package directly, the simple path is the same:
 const mobigent = createApp({
   expense: {
     list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
+    create: async (input) => createExpense(input),
+  },
 });
 ```
 
@@ -43,13 +43,13 @@ npm install @mobigent/react-native
 Create `src/mobigent.ts`:
 
 ```ts
-import { createApp } from "@mobigent/app";
+import { createApp } from '@mobigent/app';
 
 export const mobigent = createApp({
   expense: {
     list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
+    create: async (input) => createExpense(input),
+  },
 });
 ```
 
@@ -65,12 +65,12 @@ Plain `list`, `get`, `read`, `fetch`, `search`, and `load` functions are treated
 Use `write()` only when you want validation, descriptions, or custom approval copy:
 
 ```ts
-import { write } from "@mobigent/app";
+import { write } from '@mobigent/app';
 
 create: write(createExpense, {
-  input: { merchant: "string", amount: "number" },
-  confirm: "Create expense?"
-})
+  input: { merchant: 'string', amount: 'number' },
+  confirm: 'Create expense?',
+});
 ```
 
 Your backend calls those app functions with short names like:
@@ -85,8 +85,8 @@ Under the hood, Mobigent maps those functions into the exact names and shapes ea
 ## Wrap Your Existing App
 
 ```tsx
-import { mobigent } from "./src/mobigent";
-import App from "./App";
+import { mobigent } from './src/mobigent';
+import App from './App';
 
 export default mobigent.with(App);
 ```
@@ -94,14 +94,14 @@ export default mobigent.with(App);
 Or wrap directly in one file while you are trying the SDK:
 
 ```tsx
-import { withMobigent } from "@mobigent/app";
-import App from "./App";
+import { withMobigent } from '@mobigent/app';
+import App from './App';
 
 export default withMobigent(App, {
   expense: {
     list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
+    create: async (input) => createExpense(input),
+  },
 });
 ```
 
@@ -112,13 +112,13 @@ No app-side init command is required. Write the functions directly in your app c
 For a Node demo, test host, or another non-React runtime, use the same app object:
 
 ```ts
-import { startMobigent } from "@mobigent/backend";
-import { createApp } from "@mobigent/app";
-import { expenseFunctions } from "./app-functions";
+import { startMobigent } from '@mobigent/backend';
+import { createApp } from '@mobigent/app';
+import { expenseFunctions } from './app-functions';
 
 const backend = await startMobigent();
 const mobigent = createApp(expenseFunctions, {
-  backend
+  backend,
 });
 
 const session = await mobigent.connect();
@@ -142,11 +142,11 @@ input: {
 Use `simpleSchema()` when you want the generated JSON Schema directly:
 
 ```ts
-import { simpleSchema } from "@mobigent/react-native";
+import { simpleSchema } from '@mobigent/react-native';
 
 const inputSchema = simpleSchema({
-  merchant: "string",
-  amount: "number"
+  merchant: 'string',
+  amount: 'number',
 });
 ```
 
@@ -157,11 +157,11 @@ Advanced integrations can still pass full JSON Schema, Zod adapters, or lower-le
 Emit app events after important work:
 
 ```ts
-import { emitMobigentEvent } from "@mobigent/react-native";
+import { emitMobigentEvent } from '@mobigent/react-native';
 
 async function saveExpense(input) {
   const expense = await createExpense(input);
-  emitMobigentEvent("expense.created", { id: expense.id });
+  emitMobigentEvent('expense.created', { id: expense.id });
   return expense;
 }
 ```

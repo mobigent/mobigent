@@ -76,7 +76,7 @@ Successful idempotency records are retained for `idempotencyRecordTtlMs` so retr
 const gateway = new BridgeGateway({
   port: 8787,
   idempotencyRecordTtlMs: 5 * 60_000,
-  cleanupIntervalMs: 60_000
+  cleanupIntervalMs: 60_000,
 });
 ```
 
@@ -134,10 +134,10 @@ For stronger multi-provider deployments, bind API keys to agent ids:
 ```ts
 const app = createHttpApp(gateway, {
   agentApiKeys: {
-    "chatgpt-actions": process.env.CHATGPT_ACTIONS_KEY!,
+    'chatgpt-actions': process.env.CHATGPT_ACTIONS_KEY!,
     cursor: process.env.CURSOR_AGENT_KEY!,
-    "openrouter-prod": process.env.OPENROUTER_AGENT_KEY!
-  }
+    'openrouter-prod': process.env.OPENROUTER_AGENT_KEY!,
+  },
 });
 ```
 
@@ -157,7 +157,7 @@ The HTTP app uses permissive CORS by default for local development. Restrict bro
 ```ts
 const app = createHttpApp(gateway, {
   apiKey: process.env.MOBIGENT_HTTP_API_KEY,
-  corsOrigins: ["https://agent.example.com"]
+  corsOrigins: ['https://agent.example.com'],
 });
 ```
 
@@ -173,7 +173,7 @@ The HTTP gateway accepts JSON request bodies up to `1mb` by default. Tune this f
 
 ```ts
 const app = createHttpApp(gateway, {
-  jsonBodyLimit: "256kb"
+  jsonBodyLimit: '256kb',
 });
 ```
 
@@ -198,7 +198,7 @@ In code:
 ```ts
 const gateway = new BridgeGateway({
   port: 8787,
-  allowedAppIds: ["com.example.expenses"]
+  allowedAppIds: ['com.example.expenses'],
 });
 ```
 
@@ -226,26 +226,30 @@ The gateway enforces policy metadata from registered actions and resources:
 
 ```ts
 mobigent.registerAction({
-  name: "delete_expense",
-  description: "Delete an expense.",
-  inputSchema: { type: "object", properties: {} },
+  name: 'delete_expense',
+  description: 'Delete an expense.',
+  inputSchema: { type: 'object', properties: {} },
   policy: {
-    allowedAgents: ["claude-desktop", "cursor"],
+    allowedAgents: ['claude-desktop', 'cursor'],
     rateLimitPerMinute: 5,
     foregroundOnly: true,
-    requiresUser: true
+    requiresUser: true,
   },
-  handler: async () => ({ deleted: true })
+  handler: async () => ({ deleted: true }),
 });
 ```
 
 Direct gateway callers can pass an agent id:
 
 ```ts
-await gateway.callTool("com_example_app.delete_expense", {}, {
-  agentId: "claude-desktop",
-  timeoutMs: 30_000
-});
+await gateway.callTool(
+  'com_example_app.delete_expense',
+  {},
+  {
+    agentId: 'claude-desktop',
+    timeoutMs: 30_000,
+  },
+);
 ```
 
 ## Agent profiles
@@ -256,21 +260,21 @@ Agent profiles are gateway-owned allowlists and guardrails. They are useful when
 const gateway = new BridgeGateway({
   port: 8787,
   agentProfiles: {
-    "chatgpt-actions": {
-      description: "Hosted read-only provider.",
+    'chatgpt-actions': {
+      description: 'Hosted read-only provider.',
       readOnly: true,
-      maxRisk: "low",
-      allowedTools: ["com_example_expenses.*"]
+      maxRisk: 'low',
+      allowedTools: ['com_example_expenses.*'],
     },
     cursor: {
-      allowedTools: ["com_example_expenses.*"],
-      deniedTools: ["com_example_expenses.delete_*"]
+      allowedTools: ['com_example_expenses.*'],
+      deniedTools: ['com_example_expenses.delete_*'],
     },
-    "*": {
+    '*': {
       readOnly: true,
-      maxRisk: "low"
-    }
-  }
+      maxRisk: 'low',
+    },
+  },
 });
 ```
 

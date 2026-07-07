@@ -20,13 +20,13 @@ npm install @mobigent/backend
 Create one small Mobigent file:
 
 ```ts
-import { createApp, type AppFunctions } from "@mobigent/app";
+import { createApp, type AppFunctions } from '@mobigent/app';
 
 export const appFunctions = {
   expense: {
     list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
+    create: async (input) => createExpense(input),
+  },
 } satisfies AppFunctions;
 
 export type MyAppFunctions = typeof appFunctions;
@@ -37,8 +37,8 @@ export const mobigent = createApp(appFunctions);
 Wrap your existing app once:
 
 ```tsx
-import { mobigent } from "./mobigent";
-import App from "./App";
+import { mobigent } from './mobigent';
+import App from './App';
 
 export default mobigent.with(App);
 ```
@@ -46,14 +46,14 @@ export default mobigent.with(App);
 Or try it in one file first:
 
 ```tsx
-import { withMobigent } from "@mobigent/app";
-import App from "./App";
+import { withMobigent } from '@mobigent/app';
+import App from './App';
 
 export default withMobigent(App, {
   expense: {
     list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
+    create: async (input) => createExpense(input),
+  },
 });
 ```
 
@@ -64,15 +64,15 @@ Mobigent treats `list`, `get`, `read`, `fetch`, `search`, and `load` as reads. O
 Use `write()` only when you want input validation or custom approval copy:
 
 ```ts
-import { write } from "@mobigent/app";
+import { write } from '@mobigent/app';
 
 create: write(createExpense, {
   input: {
-    merchant: "string",
-    amount: "number"
+    merchant: 'string',
+    amount: 'number',
   },
-  confirm: "Create expense?"
-})
+  confirm: 'Create expense?',
+});
 ```
 
 ## Backend Code
@@ -80,7 +80,7 @@ create: write(createExpense, {
 Start Mobigent:
 
 ```ts
-import { startMobigent } from "@mobigent/backend";
+import { startMobigent } from '@mobigent/backend';
 
 const mobigent = await startMobigent();
 ```
@@ -99,13 +99,13 @@ EXPO_PUBLIC_MOBIGENT_BACKEND_URL=wss://your-backend.example.com
 Call app-owned functions from backend code. If the backend can import the app function type, use it for typed calls without loading React Native code:
 
 ```ts
-import type { MyAppFunctions } from "../app/mobigent";
+import type { MyAppFunctions } from '../app/mobigent';
 
 const app = mobigent.app<MyAppFunctions>();
 
 await app.expense.create({
-  merchant: "Coffee",
-  amount: 8
+  merchant: 'Coffee',
+  amount: 8,
 });
 
 await app.expense.list();

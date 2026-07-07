@@ -1,4 +1,4 @@
-import type * as ReactNativeRuntime from "react-native";
+import type * as ReactNativeRuntime from 'react-native';
 import {
   composeMobigentCapabilities,
   createMobigentEnvironmentFromExpoConfig,
@@ -21,14 +21,14 @@ import {
   type MobigentModule,
   type MobigentProviderProps,
   type MobigentStatus,
-  type MobigentStatusLevel
-} from "./provider.js";
-import { useEffect, useMemo, type ComponentType, type ReactNode } from "react";
+  type MobigentStatusLevel,
+} from './provider.js';
+import { useEffect, useMemo, type ComponentType, type ReactNode } from 'react';
 
 declare const require: (id: string) => unknown;
 
 function getReactNative() {
-  return require("react-native") as typeof ReactNativeRuntime;
+  return require('react-native') as typeof ReactNativeRuntime;
 }
 
 function getReactNativePlatformOS() {
@@ -60,9 +60,12 @@ export type MobigentAppPreflightOptions = {
   onReport?: (report: MobigentCapabilityDiagnostics) => void;
 };
 
-export type MobigentAppProps = Omit<MobigentProviderProps, "children"> & {
+export type MobigentAppProps = Omit<MobigentProviderProps, 'children'> & {
   children: ReactNode;
-  capabilities?: MobigentCapabilityKit | MobigentCapabilitiesProps | Array<MobigentCapabilityKit | MobigentCapabilitiesProps>;
+  capabilities?:
+    | MobigentCapabilityKit
+    | MobigentCapabilitiesProps
+    | Array<MobigentCapabilityKit | MobigentCapabilitiesProps>;
   modules?: MobigentModule | MobigentModule[];
   capabilityDeps?: readonly unknown[];
   preflight?: boolean | MobigentAppPreflightOptions;
@@ -70,24 +73,24 @@ export type MobigentAppProps = Omit<MobigentProviderProps, "children"> & {
   ConfirmationComponent?: ComponentType<MobigentConfirmationComponentProps>;
 };
 
-export type MobigentAppFactoryOptions = Omit<MobigentAppProps, "children">;
+export type MobigentAppFactoryOptions = Omit<MobigentAppProps, 'children'>;
 
 export type MobigentExpoAppOptions = Omit<
   MobigentAppFactoryOptions,
-  "app" | "appId" | "appName" | "version" | "gateway" | "gatewayUrl" | "authToken" | "enabled"
+  'app' | 'appId' | 'appName' | 'version' | 'gateway' | 'gatewayUrl' | 'authToken' | 'enabled'
 > & {
-  app?: MobigentAppFactoryOptions["app"];
+  app?: MobigentAppFactoryOptions['app'];
   expo?: MobigentExpoConfig;
   env?: MobigentEnvironmentVariables;
-  envPrefix?: MobigentEnvironmentFromEnvOptions["prefix"];
-  fallback?: MobigentEnvironmentFromEnvOptions["fallback"];
+  envPrefix?: MobigentEnvironmentFromEnvOptions['prefix'];
+  fallback?: MobigentEnvironmentFromEnvOptions['fallback'];
 };
 
 export type MobigentAppRootProps = {
   children: ReactNode;
-  capabilities?: MobigentAppProps["capabilities"];
-  modules?: MobigentAppProps["modules"];
-} & Partial<Omit<MobigentAppProps, "children" | "capabilities" | "modules">>;
+  capabilities?: MobigentAppProps['capabilities'];
+  modules?: MobigentAppProps['modules'];
+} & Partial<Omit<MobigentAppProps, 'children' | 'capabilities' | 'modules'>>;
 
 export type AgentAppProps = MobigentAppProps;
 export type AgentAppFactoryOptions = MobigentAppFactoryOptions;
@@ -104,7 +107,7 @@ export function createMobigentApp(options: MobigentAppFactoryOptions): MobigentA
   const appOptions: MobigentAppFactoryOptions = {
     reconnect: { enabled: true, maxAttempts: 20 },
     heartbeat: true,
-    ...options
+    ...options,
   };
 
   function MobigentRoot({ children, capabilities, ...runtimeOptions }: MobigentAppRootProps) {
@@ -123,7 +126,7 @@ export function createMobigentApp(options: MobigentAppFactoryOptions): MobigentA
   return {
     Root: MobigentRoot,
     Provider: MobigentRoot,
-    options: appOptions
+    options: appOptions,
   };
 }
 
@@ -139,13 +142,13 @@ export function createMobigentExpoApp({
     ...createMobigentEnvironmentFromEnv({
       env,
       prefix: envPrefix,
-      fallback: createMobigentExpoEnvironmentFallback(expo, fallback)
+      fallback: createMobigentExpoEnvironmentFallback(expo, fallback),
     }),
     app: app ?? resolveMobigentExpoAppIdentity(expo),
     reconnect: options.reconnect ?? { enabled: true, maxAttempts: 20 },
     heartbeat: options.heartbeat ?? true,
     preflight: options.preflight ?? true,
-    ...options
+    ...options,
   });
 }
 
@@ -170,7 +173,7 @@ export function MobigentApp({
         ? createMobigentAppPreflight({
             ...providerProps,
             capabilities,
-            modules
+            modules,
           })
         : undefined,
     [
@@ -181,14 +184,17 @@ export function MobigentApp({
       providerProps.version,
       capabilities,
       modules,
-      preflight
-    ]
+      preflight,
+    ],
   );
-  const CapabilityMount = isCapabilityKit(normalizedCapabilities) ? normalizedCapabilities.Component : undefined;
-  const capabilityProps = normalizedCapabilities && !isCapabilityKit(normalizedCapabilities)
-    ? withMobigentCapabilityDeps(normalizedCapabilities, capabilityDeps)
+  const CapabilityMount = isCapabilityKit(normalizedCapabilities)
+    ? normalizedCapabilities.Component
     : undefined;
-  const confirmationProps = typeof confirmationModal === "object" ? confirmationModal : {};
+  const capabilityProps =
+    normalizedCapabilities && !isCapabilityKit(normalizedCapabilities)
+      ? withMobigentCapabilityDeps(normalizedCapabilities, capabilityDeps)
+      : undefined;
+  const confirmationProps = typeof confirmationModal === 'object' ? confirmationModal : {};
   const enabled = providerProps.enabled ?? true;
   const resolvedProviderProps =
     providerProps.gatewayUrl || providerProps.gateway
@@ -201,8 +207,8 @@ export function MobigentApp({
     }
   }, [preflightOptions, preflightReport]);
 
-  if (preflightOptions.throwOnFailure && preflightReport?.status === "fail") {
-    throw new Error(`Mobigent app preflight failed: ${preflightReport.errors.join("; ")}`);
+  if (preflightOptions.throwOnFailure && preflightReport?.status === 'fail') {
+    throw new Error(`Mobigent app preflight failed: ${preflightReport.errors.join('; ')}`);
   }
 
   return (
@@ -218,22 +224,30 @@ export function MobigentApp({
 export const AgentApp = MobigentApp;
 
 export function createMobigentAppPreflight(
-  options: Pick<MobigentAppProps, "app" | "appId" | "appName" | "version" | "capabilities" | "modules">
+  options: Pick<
+    MobigentAppProps,
+    'app' | 'appId' | 'appName' | 'version' | 'capabilities' | 'modules'
+  >,
 ): MobigentCapabilityDiagnostics {
-  const normalizedCapabilities = normalizeMobigentAppCapabilities(options.capabilities, options.modules);
-  const app = options.app ?? (options.appId && options.appName
-    ? { id: options.appId, name: options.appName, version: options.version }
-    : undefined);
+  const normalizedCapabilities = normalizeMobigentAppCapabilities(
+    options.capabilities,
+    options.modules,
+  );
+  const app =
+    options.app ??
+    (options.appId && options.appName
+      ? { id: options.appId, name: options.appName, version: options.version }
+      : undefined);
 
   return diagnoseMobigentCapabilities(normalizedCapabilities, {
     app,
-    version: app?.version ?? options.version
+    version: app?.version ?? options.version,
   });
 }
 
 export function MobigentConfirmationModal({
-  approveLabel = "Approve",
-  rejectLabel = "Reject"
+  approveLabel = 'Approve',
+  rejectLabel = 'Reject',
 }: MobigentConfirmationModalProps) {
   const { Button, Modal, Text, View } = getReactNative();
   const { request, approve, reject } = useMobigentConfirmation();
@@ -243,7 +257,9 @@ export function MobigentConfirmationModal({
       <View style={styles.backdrop}>
         <View style={styles.sheet}>
           <Text style={styles.title}>
-            {request?.action.confirmation?.title ?? request?.action.description ?? "Approve action?"}
+            {request?.action.confirmation?.title ??
+              request?.action.description ??
+              'Approve action?'}
           </Text>
           {request?.action.confirmation?.message ? (
             <Text style={styles.message}>{request.action.confirmation.message}</Text>
@@ -259,19 +275,17 @@ export function MobigentConfirmationModal({
   );
 }
 
-export function MobigentStatusBadge({
-  status,
-  showCount = true,
-  label
-}: MobigentStatusBadgeProps) {
+export function MobigentStatusBadge({ status, showCount = true, label }: MobigentStatusBadgeProps) {
   const { Text, View } = getReactNative();
   const currentStatus = status ?? useMobigentStatus();
   const tone = statusBadgeTone[currentStatus.level];
   const text = label ?? currentStatus.label;
-  const count = showCount ? ` · ${currentStatus.capabilityCount}` : "";
+  const count = showCount ? ` · ${currentStatus.capabilityCount}` : '';
 
   return (
-    <View style={[styles.statusBadge, { borderColor: tone.border, backgroundColor: tone.background }]}>
+    <View
+      style={[styles.statusBadge, { borderColor: tone.border, backgroundColor: tone.background }]}
+    >
       <View style={[styles.statusDot, { backgroundColor: tone.dot }]} />
       <Text style={[styles.statusText, { color: tone.text }]}>
         {text}
@@ -282,9 +296,9 @@ export function MobigentStatusBadge({
 }
 
 export function MobigentDiagnosticsPanel({
-  title = "Agent bridge",
+  title = 'Agent bridge',
   showControls = true,
-  showIssues = true
+  showIssues = true,
 }: MobigentDiagnosticsPanelProps) {
   const { Button, Text, View } = getReactNative();
   const diagnostics = useMobigentDiagnostics();
@@ -321,7 +335,7 @@ export function MobigentDiagnosticsPanel({
       ) : null}
       {showControls ? (
         <View style={styles.diagnosticsActions}>
-          <Button title={connected ? "Disconnect" : "Connect"} onPress={primaryAction} />
+          <Button title={connected ? 'Disconnect' : 'Connect'} onPress={primaryAction} />
         </View>
       ) : null}
     </View>
@@ -340,14 +354,14 @@ function DiagnosticsMetric({ label, value }: { label: string; value: number }) {
 }
 
 function isCapabilityKit(
-  capabilities: MobigentCapabilityKit | MobigentCapabilitiesProps | undefined
+  capabilities: MobigentCapabilityKit | MobigentCapabilitiesProps | undefined,
 ): capabilities is MobigentCapabilityKit {
-  return Boolean(capabilities && "Component" in capabilities && "useRegister" in capabilities);
+  return Boolean(capabilities && 'Component' in capabilities && 'useRegister' in capabilities);
 }
 
 function normalizeMobigentAppCapabilities(
-  capabilities: MobigentAppProps["capabilities"],
-  modules: MobigentAppProps["modules"]
+  capabilities: MobigentAppProps['capabilities'],
+  modules: MobigentAppProps['modules'],
 ) {
   const sources = [...toOptionalCapabilityArray(capabilities), ...toOptionalModuleArray(modules)];
 
@@ -363,8 +377,8 @@ function normalizeMobigentAppCapabilities(
 }
 
 function mergeMobigentAppCapabilities(
-  base: MobigentAppProps["capabilities"],
-  override: MobigentAppProps["capabilities"]
+  base: MobigentAppProps['capabilities'],
+  override: MobigentAppProps['capabilities'],
 ) {
   if (!base) {
     return override;
@@ -377,13 +391,13 @@ function mergeMobigentAppCapabilities(
   return [...toCapabilityArray(base), ...toCapabilityArray(override)];
 }
 
-function toCapabilityArray(capabilities: NonNullable<MobigentAppProps["capabilities"]>) {
+function toCapabilityArray(capabilities: NonNullable<MobigentAppProps['capabilities']>) {
   return Array.isArray(capabilities) ? capabilities : [capabilities];
 }
 
 function mergeMobigentAppModules(
-  base: MobigentAppProps["modules"],
-  override: MobigentAppProps["modules"]
+  base: MobigentAppProps['modules'],
+  override: MobigentAppProps['modules'],
 ) {
   if (!base) {
     return override;
@@ -396,21 +410,21 @@ function mergeMobigentAppModules(
   return [...toModuleArray(base), ...toModuleArray(override)];
 }
 
-function toOptionalCapabilityArray(capabilities: MobigentAppProps["capabilities"]) {
+function toOptionalCapabilityArray(capabilities: MobigentAppProps['capabilities']) {
   return capabilities ? toCapabilityArray(capabilities) : [];
 }
 
-function toOptionalModuleArray(modules: MobigentAppProps["modules"]) {
+function toOptionalModuleArray(modules: MobigentAppProps['modules']) {
   return modules ? toModuleArray(modules) : [];
 }
 
-function toModuleArray(modules: NonNullable<MobigentAppProps["modules"]>) {
+function toModuleArray(modules: NonNullable<MobigentAppProps['modules']>) {
   return Array.isArray(modules) ? modules : [modules];
 }
 
 function withMobigentCapabilityDeps(
   capabilities: MobigentCapabilitiesProps,
-  deps: readonly unknown[]
+  deps: readonly unknown[],
 ): MobigentCapabilitiesProps {
   if (deps.length === 0) {
     return capabilities;
@@ -418,19 +432,19 @@ function withMobigentCapabilityDeps(
 
   return {
     ...capabilities,
-    deps: [...(capabilities.deps ?? []), ...deps]
+    deps: [...(capabilities.deps ?? []), ...deps],
   };
 }
 
 function normalizeMobigentAppPreflight(
-  preflight: MobigentAppProps["preflight"]
-): Required<Omit<MobigentAppPreflightOptions, "onReport">> &
-  Pick<MobigentAppPreflightOptions, "onReport"> {
+  preflight: MobigentAppProps['preflight'],
+): Required<Omit<MobigentAppPreflightOptions, 'onReport'>> &
+  Pick<MobigentAppPreflightOptions, 'onReport'> {
   if (preflight === true) {
     return {
       enabled: true,
       throwOnFailure: true,
-      onReport: undefined
+      onReport: undefined,
     };
   }
 
@@ -438,24 +452,24 @@ function normalizeMobigentAppPreflight(
     return {
       enabled: false,
       throwOnFailure: false,
-      onReport: undefined
+      onReport: undefined,
     };
   }
 
   return {
     enabled: preflight.enabled ?? true,
     throwOnFailure: preflight.throwOnFailure ?? true,
-    onReport: preflight.onReport
+    onReport: preflight.onReport,
   };
 }
 
 function createMobigentExpoEnvironmentFallback(
   expo: MobigentExpoConfig | undefined,
-  fallback: MobigentEnvironmentFromEnvOptions["fallback"]
+  fallback: MobigentEnvironmentFromEnvOptions['fallback'],
 ) {
   const expoEnvironment = createMobigentEnvironmentFromExpoConfig(expo, {
     platform: getReactNativePlatformOS(),
-    ...fallback
+    ...fallback,
   });
 
   return {
@@ -470,147 +484,147 @@ function createMobigentExpoEnvironmentFallback(
     port: expoEnvironment.gateway?.port,
     secure: expoEnvironment.gateway?.secure,
     path: expoEnvironment.gateway?.path,
-    deviceHost: expoEnvironment.gateway?.deviceHost
+    deviceHost: expoEnvironment.gateway?.deviceHost,
   };
 }
 
 function resolveMobigentExpoEnvironmentMode(
-  config: ReturnType<typeof createMobigentEnvironmentFromExpoConfig>
+  config: ReturnType<typeof createMobigentEnvironmentFromExpoConfig>,
 ): MobigentEnvironmentMode | undefined {
   if (config.enabled === false) {
-    return "disabled";
+    return 'disabled';
   }
   if (config.gatewayUrl) {
     return undefined;
   }
-  if (config.gateway?.target === "device" || config.gateway?.deviceHost) {
-    return "device";
+  if (config.gateway?.target === 'device' || config.gateway?.deviceHost) {
+    return 'device';
   }
   if (config.gateway?.host && config.gateway.secure) {
-    return "hosted";
+    return 'hosted';
   }
-  return "local";
+  return 'local';
 }
 
 const styles = {
   backdrop: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.35)",
-    padding: 24
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    padding: 24,
   },
   sheet: {
-    width: "100%",
+    width: '100%',
     maxWidth: 420,
     borderRadius: 8,
-    backgroundColor: "white",
-    padding: 18
+    backgroundColor: 'white',
+    padding: 18,
   },
   title: {
     fontSize: 18,
-    fontWeight: "600",
-    color: "#111827"
+    fontWeight: '600',
+    color: '#111827',
   },
   message: {
     marginTop: 8,
     fontSize: 14,
-    color: "#374151"
+    color: '#374151',
   },
   payload: {
     marginTop: 12,
     padding: 12,
     borderRadius: 6,
-    backgroundColor: "#f3f4f6",
-    color: "#111827",
-    fontFamily: "Courier"
+    backgroundColor: '#f3f4f6',
+    color: '#111827',
+    fontFamily: 'Courier',
   },
   actions: {
     marginTop: 16,
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 12
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 12,
   },
   statusBadge: {
-    alignSelf: "flex-start",
+    alignSelf: 'flex-start',
     minHeight: 28,
     borderWidth: 1,
     borderRadius: 999,
     paddingHorizontal: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   statusDot: {
     width: 8,
     height: 8,
-    borderRadius: 999
+    borderRadius: 999,
   },
   statusText: {
     fontSize: 12,
-    fontWeight: "600"
+    fontWeight: '600',
   },
   diagnosticsPanel: {
     borderWidth: 1,
-    borderColor: "#e5e7eb",
+    borderColor: '#e5e7eb',
     borderRadius: 8,
-    backgroundColor: "#ffffff",
+    backgroundColor: '#ffffff',
     padding: 14,
-    gap: 12
+    gap: 12,
   },
   diagnosticsHeader: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    gap: 12
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 12,
   },
   diagnosticsTitleGroup: {
-    flexShrink: 1
+    flexShrink: 1,
   },
   diagnosticsTitle: {
     fontSize: 16,
-    fontWeight: "700",
-    color: "#111827"
+    fontWeight: '700',
+    color: '#111827',
   },
   diagnosticsSubtitle: {
     marginTop: 2,
     fontSize: 12,
-    color: "#6b7280"
+    color: '#6b7280',
   },
   diagnosticsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
   },
   metric: {
     minWidth: 82,
     borderWidth: 1,
-    borderColor: "#e5e7eb",
+    borderColor: '#e5e7eb',
     borderRadius: 6,
     paddingVertical: 8,
     paddingHorizontal: 10,
-    backgroundColor: "#f9fafb"
+    backgroundColor: '#f9fafb',
   },
   metricValue: {
     fontSize: 18,
-    fontWeight: "700",
-    color: "#111827"
+    fontWeight: '700',
+    color: '#111827',
   },
   metricLabel: {
     marginTop: 2,
     fontSize: 11,
-    color: "#6b7280"
+    color: '#6b7280',
   },
   issueList: {
-    gap: 6
+    gap: 6,
   },
   issueText: {
     fontSize: 12,
-    color: "#92400e"
+    color: '#92400e',
   },
   diagnosticsActions: {
-    alignSelf: "flex-start"
-  }
+    alignSelf: 'flex-start',
+  },
 } as const;
 
 const statusBadgeTone: Record<
@@ -623,33 +637,33 @@ const statusBadgeTone: Record<
   }
 > = {
   ready: {
-    background: "#ecfdf5",
-    border: "#a7f3d0",
-    dot: "#059669",
-    text: "#065f46"
+    background: '#ecfdf5',
+    border: '#a7f3d0',
+    dot: '#059669',
+    text: '#065f46',
   },
   connecting: {
-    background: "#eff6ff",
-    border: "#bfdbfe",
-    dot: "#2563eb",
-    text: "#1e40af"
+    background: '#eff6ff',
+    border: '#bfdbfe',
+    dot: '#2563eb',
+    text: '#1e40af',
   },
   attention: {
-    background: "#fffbeb",
-    border: "#fde68a",
-    dot: "#d97706",
-    text: "#92400e"
+    background: '#fffbeb',
+    border: '#fde68a',
+    dot: '#d97706',
+    text: '#92400e',
   },
   offline: {
-    background: "#f9fafb",
-    border: "#d1d5db",
-    dot: "#6b7280",
-    text: "#374151"
+    background: '#f9fafb',
+    border: '#d1d5db',
+    dot: '#6b7280',
+    text: '#374151',
   },
   disabled: {
-    background: "#f3f4f6",
-    border: "#d1d5db",
-    dot: "#9ca3af",
-    text: "#4b5563"
-  }
+    background: '#f3f4f6',
+    border: '#d1d5db',
+    dot: '#9ca3af',
+    text: '#4b5563',
+  },
 };

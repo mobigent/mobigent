@@ -27,3 +27,49 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run verify
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run test:coverage
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            coverage/
+            .coverage_report/
+          retention-days: 7
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t mobigent-gateway:local .
+      - run: |
+          docker run -d --name mobigent-ci -p 18788:8788 mobigent-gateway:local
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:18788/health && break
+            sleep 1
+          done
+          curl -sf http://localhost:18788/health
+          curl -sf http://localhost:18788/metrics/prometheus
+          docker rm -f mobigent-ci
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm run lint

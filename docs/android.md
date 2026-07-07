@@ -113,12 +113,12 @@ npm install @mobigent/backend
 ```
 
 ```ts
-import { startMobigent } from "@mobigent/backend";
+import { startMobigent } from '@mobigent/backend';
 
-const mobigent = await startMobigent("com.example.expenses");
-const expenses = mobigent.app("expense");
+const mobigent = await startMobigent('com.example.expenses');
+const expenses = mobigent.app('expense');
 
-await expenses.create({ merchant: "Coffee", amount: 8 });
+await expenses.create({ merchant: 'Coffee', amount: 8 });
 ```
 
 Then run the Android app and connect the client:

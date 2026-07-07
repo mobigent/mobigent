@@ -10,8 +10,8 @@ export {
   type MobigentSimpleFeature,
   type MobigentSimpleFunctionMap,
   type MobigentSimpleResourceOptions,
-  type MobigentSimpleSchema
-} from "@mobigent/app/simple";
+  type MobigentSimpleSchema,
+} from '@mobigent/app/simple';
 export {
   createMobigentBackend,
   inferMobigentAppIdentity,
@@ -29,6 +29,6 @@ export {
   type MobigentAgentOptions,
   type MobigentBackend,
   type MobigentBackendCompatibility,
-  type MobigentBackendOptions
-} from "@mobigent/backend";
-export { runMobigentCli } from "./cli.js";
+  type MobigentBackendOptions,
+} from '@mobigent/backend';
+export { runMobigentCli } from './cli.js';

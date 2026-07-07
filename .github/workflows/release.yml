@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - "v*.*.*"
+      - 'v*.*.*'
 
 permissions:
   contents: write
@@ -34,7 +34,7 @@ jobs:
       - uses: android-actions/setup-android@v3
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: "8.10.2"
+          gradle-version: '8.10.2'
       - name: Verify Android library
         run: gradle -p packages/android test
 
@@ -93,7 +93,7 @@ jobs:
           node-version: 24
           package-manager-cache: false
           registry-url: https://npm.pkg.github.com
-          scope: "@mobigent"
+          scope: '@mobigent'
       - run: npm ci
       - run: npm run build:sdk
       - name: Publish GitHub Packages

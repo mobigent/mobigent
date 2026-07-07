@@ -13,18 +13,45 @@ Hosted providers such as ChatGPT Actions need a public HTTPS URL for the HTTP AP
 ## Environment
 
 ```bash
-MOBIGENT_WS_PORT=8787
-MOBIGENT_HTTP_PORT=8788
+# Required in production
+MOBIGENT_ENV=production
 MOBIGENT_AUTH_TOKEN=app-session-secret
 MOBIGENT_HTTP_API_KEY=agent-http-secret
+
+# Strongly recommended
 MOBIGENT_ALLOWED_APP_IDS=com.example.app
 MOBIGENT_MANIFEST_SIGNING_SECRET=manifest-secret
-MOBIGENT_AUDIT_LOG_PATH=/data/mobigent-audit.jsonl
 MOBIGENT_HTTP_CORS_ORIGINS=https://your-admin.example.com
 MOBIGENT_HTTP_JSON_LIMIT=256kb
+
+# Endpoint policy (production defaults shown)
+MOBIGENT_HEALTH_ENDPOINT=public
+MOBIGENT_READY_ENDPOINT=public
+MOBIGENT_CONFIG_ENDPOINT=protected
+MOBIGENT_OPENAPI_ENDPOINT=protected
+
+# Inspector (disabled by default in production)
+MOBIGENT_INSPECTOR=disabled
+
+# State management
+MOBIGENT_AUDIT_LOG_PATH=/data/mobigent-audit.jsonl
 MOBIGENT_IDEMPOTENCY_RECORD_TTL_MS=300000
 MOBIGENT_CLEANUP_INTERVAL_MS=60000
+
+# Logging
+MOBIGENT_LOG_LEVEL=info
+
+# Optional: per-agent API keys (JSON object)
+MOBIGENT_HTTP_AGENT_API_KEYS={"agent-claude":"key-1","agent-gpt":"key-2"}
+
+# Optional: agent profiles (JSON object)
+MOBIGENT_AGENT_PROFILES={"agent-claude":{"readOnly":false,"maxRisk":"medium"}}
+
+# Optional: strict production mode (fail on missing safety controls)
+MOBIGENT_STRICT_PRODUCTION=true
 ```
+
+Production mode (`MOBIGENT_ENV=production`) validates that critical security controls are configured at startup. Set `MOBIGENT_STRICT_PRODUCTION=false` to use warnings instead of fatal errors during gradual rollout.
 
 Start the gateway:
 
@@ -104,6 +131,12 @@ Before exposing a gateway to real users:
 - use idempotency keys for write calls
 - use request ids to correlate provider, gateway, and app logs
 
-## Scaling Notes
+## Further Reading
 
-The current gateway keeps connected sessions in memory. For early production, run one gateway per environment or tenant and keep mobile apps sticky to that gateway. A future distributed gateway can add shared session routing and durable tool registry storage without changing the SDK wire contract.
+- [Security & Threat Model](./security.md) — auth, threat model, security controls
+- [Observability Guide](./observability.md) — structured logging, OpenTelemetry, dashboards, alerts
+- [Operations Runbook](./operations.md) — startup checks, common failures, secret rotation, drain
+- [Scaling & Deployment](./scaling.md) — horizontal scaling, Kubernetes, load balancing
+- [Compatibility Policy](./compatibility-policy.md) — supported runtimes, breaking change process
+- [Release Checklist](./release-checklist.md) — release process and gates
+- [Threat Model](./threat-model.md) — assets, trust boundaries, abuse cases, controls

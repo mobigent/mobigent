@@ -11,13 +11,13 @@ npm install @mobigent/app
 Then expose normal app functions and create one app SDK object:
 
 ```ts
-import { createApp, type AppFunctions } from "@mobigent/app";
+import { createApp, type AppFunctions } from '@mobigent/app';
 
 export const appFunctions = {
   expense: {
     list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
+    create: async (input) => createExpense(input),
+  },
 } satisfies AppFunctions;
 
 export type MyAppFunctions = typeof appFunctions;
@@ -39,8 +39,8 @@ Mobigent treats `list`, `get`, `read`, `fetch`, `search`, and `load` as reads. O
 Wrap the app once:
 
 ```tsx
-import { mobigent } from "./mobigent/expenses";
-import App from "./App";
+import { mobigent } from './mobigent/expenses';
+import App from './App';
 
 export default mobigent.with(App);
 ```
@@ -48,26 +48,26 @@ export default mobigent.with(App);
 For the fastest existing-app trial, wrap directly:
 
 ```tsx
-import { withMobigent } from "@mobigent/app";
-import App from "./App";
+import { withMobigent } from '@mobigent/app';
+import App from './App';
 
 export default withMobigent(App, {
   expense: {
     list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
+    create: async (input) => createExpense(input),
+  },
 });
 ```
 
 For non-React hosts and local demos, give the app object the backend once, then connect with no arguments:
 
 ```ts
-import { startMobigent } from "@mobigent/backend";
-import { createApp } from "@mobigent/app";
+import { startMobigent } from '@mobigent/backend';
+import { createApp } from '@mobigent/app';
 
 const backend = await startMobigent();
 const mobigent = createApp(appFunctions, {
-  backend
+  backend,
 });
 
 await mobigent.connect();

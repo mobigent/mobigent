@@ -11,10 +11,10 @@ import {
   ShieldCheck,
   Smartphone,
   Terminal,
-  Workflow
-} from "lucide-react";
-import { createRoot } from "react-dom/client";
-import "./styles.css";
+  Workflow,
+} from 'lucide-react';
+import { createRoot } from 'react-dom/client';
+import './styles.css';
 
 const existingAppInstallCode = `npm install @mobigent/app
 npm install @mobigent/backend`;
@@ -287,137 +287,212 @@ client.confirmationHandler { request ->
 client.connect()`;
 
 const nativeLifecycle = [
-  ["1. Create a client", "Give Mobigent the app functions. Local simulator/emulator URLs are the SDK defaults."],
-  ["2. Expose app functions", "Group functions with client.functions(\"expense\"), then use write for changes, read for app data, and screen for UI context."],
-  ["3. Add confirmations", "Mark risky actions and let the native app render the approval UI."],
-  ["4. Connect", "The SDK connects to the backend and exposes those functions."],
-  ["5. Emit events", "Send app events such as expense.created or sync.failed back to the agent."]
+  [
+    '1. Create a client',
+    'Give Mobigent the app functions. Local simulator/emulator URLs are the SDK defaults.',
+  ],
+  [
+    '2. Expose app functions',
+    'Group functions with client.functions("expense"), then use write for changes, read for app data, and screen for UI context.',
+  ],
+  ['3. Add confirmations', 'Mark risky actions and let the native app render the approval UI.'],
+  ['4. Connect', 'The SDK connects to the backend and exposes those functions.'],
+  ['5. Emit events', 'Send app events such as expense.created or sync.failed back to the agent.'],
 ];
 
 const nativeUrls = [
-  ["iOS simulator default", "ws://localhost:8787"],
-  ["Android emulator default", "ws://10.0.2.2:8787"],
-  ["Physical device override", "ws://YOUR_MAC_LAN_IP:8787"],
-  ["Hosted backend override", "wss://backend.example.com"]
+  ['iOS simulator default', 'ws://localhost:8787'],
+  ['Android emulator default', 'ws://10.0.2.2:8787'],
+  ['Physical device override', 'ws://YOUR_MAC_LAN_IP:8787'],
+  ['Hosted backend override', 'wss://backend.example.com'],
 ];
 
 const firstRunChecks = [
-  ["Install", "Add the app package to React Native and the backend package to your server."],
-  ["Expose", "`createApp(functions)` turns real app functions into typed agent-callable APIs."],
-  ["Connect", "Use local defaults first; set env config for production instead of threading ids through code."],
-  ["Call", "`mobigent.app<MyAppFunctions>()` gives the backend typed calls without loading mobile code."],
-  ["Approve", "Risky actions pause inside the app before handlers run."],
-  ["Audit", "Calls, approvals, denials, errors, and events appear in `/audit`."]
+  ['Install', 'Add the app package to React Native and the backend package to your server.'],
+  ['Expose', '`createApp(functions)` turns real app functions into typed agent-callable APIs.'],
+  [
+    'Connect',
+    'Use local defaults first; set env config for production instead of threading ids through code.',
+  ],
+  [
+    'Call',
+    '`mobigent.app<MyAppFunctions>()` gives the backend typed calls without loading mobile code.',
+  ],
+  ['Approve', 'Risky actions pause inside the app before handlers run.'],
+  ['Audit', 'Calls, approvals, denials, errors, and events appear in `/audit`.'],
 ];
 
 const model = [
-  ["App package", "Lives inside the mobile app and exposes real app functions."],
-  ["Backend package", "Runs the agent-facing service, waits for the app, and gives agents a clean callable API."],
-  ["Agent", "Calls typed functions and receives typed results instead of touching the UI."],
-  ["User", "Approves risky actions inside the app before handlers run."]
+  ['App package', 'Lives inside the mobile app and exposes real app functions.'],
+  [
+    'Backend package',
+    'Runs the agent-facing service, waits for the app, and gives agents a clean callable API.',
+  ],
+  ['Agent', 'Calls typed functions and receives typed results instead of touching the UI.'],
+  ['User', 'Approves risky actions inside the app before handlers run.'],
 ];
 
 const functionKinds = [
-  ["Actions", "Write or command operations", "create expense, submit order, update profile"],
-  ["Resources", "Read-only app data", "list expenses, get active workspace, read cart"],
-  ["Surfaces", "Screen-aware context", "current route, focused record, visible component"],
-  ["Events", "App-to-agent signals", "expense.created, sync.failed, user.selected"],
-  ["Confirmations", "User approval gates", "medium or high risk writes"]
+  ['Actions', 'Write or command operations', 'create expense, submit order, update profile'],
+  ['Resources', 'Read-only app data', 'list expenses, get active workspace, read cart'],
+  ['Surfaces', 'Screen-aware context', 'current route, focused record, visible component'],
+  ['Events', 'App-to-agent signals', 'expense.created, sync.failed, user.selected'],
+  ['Confirmations', 'User approval gates', 'medium or high risk writes'],
 ];
 
 const packages = [
-  ["mobigent", "Friendly CLI", "One command for starters, app function setup, backend setup, and agent setup."],
-  ["create-mobigent-app", "Starter generator", "Creates a runnable app with backend, inspector, visible state, and an agent playground."],
-  ["@mobigent/app", "App-side SDK", "Expo/React Native roots, modules, hooks, UI helpers, confirmation flow."],
-  ["@mobigent/backend", "Backend SDK", "One function starts the backend, exposes agent setup, waits for app readiness, and routes calls."],
-  ["Mobigent iOS", "Swift package", "Native iOS client with actions, resources, components, confirmations, reconnect, heartbeat, and events."],
-  ["Mobigent Android", "Kotlin library", "Native Android client with local emulator-friendly defaults and the same app function model."]
+  [
+    'mobigent',
+    'Friendly CLI',
+    'One command for starters, app function setup, backend setup, and agent setup.',
+  ],
+  [
+    'create-mobigent-app',
+    'Starter generator',
+    'Creates a runnable app with backend, inspector, visible state, and an agent playground.',
+  ],
+  [
+    '@mobigent/app',
+    'App-side SDK',
+    'Expo/React Native roots, modules, hooks, UI helpers, confirmation flow.',
+  ],
+  [
+    '@mobigent/backend',
+    'Backend SDK',
+    'One function starts the backend, exposes agent setup, waits for app readiness, and routes calls.',
+  ],
+  [
+    'Mobigent iOS',
+    'Swift package',
+    'Native iOS client with actions, resources, components, confirmations, reconnect, heartbeat, and events.',
+  ],
+  [
+    'Mobigent Android',
+    'Kotlin library',
+    'Native Android client with local emulator-friendly defaults and the same app function model.',
+  ],
 ];
 
 const reactNativeApis = [
-  ["createApp()", "Creates one app SDK object from app functions and optional backend settings."],
-  ["read()", "Exposes read-only app data to agents."],
-  ["write()", "Exposes a confirmed app action with plain input fields."],
-  ["screen()", "Exposes screen-aware app behavior when agents need to focus UI."],
-  ["mobigent.with()", "Wraps the existing React Native app in one normal function call."],
-  ["mobigent.connect()", "Starts a non-React host or local demo after setup."],
-  ["mobigent.emit()", "Queues or sends app events without touching the lower-level client."],
-  ["backend", "Accepts the backend object so the app does not know transport details."],
-  ["backendUrl", "Advanced fallback for physical phones or hosted `wss://` backend URLs."],
-  ["useMobigentStatus()", "Reads app readiness for badges, diagnostics, and debugging."],
-  ["MobigentStatusBadge", "Optional UI component for local development visibility."]
+  ['createApp()', 'Creates one app SDK object from app functions and optional backend settings.'],
+  ['read()', 'Exposes read-only app data to agents.'],
+  ['write()', 'Exposes a confirmed app action with plain input fields.'],
+  ['screen()', 'Exposes screen-aware app behavior when agents need to focus UI.'],
+  ['mobigent.with()', 'Wraps the existing React Native app in one normal function call.'],
+  ['mobigent.connect()', 'Starts a non-React host or local demo after setup.'],
+  ['mobigent.emit()', 'Queues or sends app events without touching the lower-level client.'],
+  ['backend', 'Accepts the backend object so the app does not know transport details.'],
+  ['backendUrl', 'Advanced fallback for physical phones or hosted `wss://` backend URLs.'],
+  ['useMobigentStatus()', 'Reads app readiness for badges, diagnostics, and debugging.'],
+  ['MobigentStatusBadge', 'Optional UI component for local development visibility.'],
 ];
 
 const nativeApis = [
-  ["iOS MobigentClient", "Swift client for registering app functions, connecting, emitting events, and reading diagnostics."],
-  ["Android MobigentClient.Builder", "Kotlin builder for app identity, local defaults, reconnect, heartbeat, and transport setup."],
-  ["MobigentSchema", "Shared native schema builders for string, number, boolean, object, array, and enum."],
-  ["confirmation handler", "Native callback hook so the host app renders its own approval UI."]
+  [
+    'iOS MobigentClient',
+    'Swift client for registering app functions, connecting, emitting events, and reading diagnostics.',
+  ],
+  [
+    'Android MobigentClient.Builder',
+    'Kotlin builder for app identity, local defaults, reconnect, heartbeat, and transport setup.',
+  ],
+  [
+    'MobigentSchema',
+    'Shared native schema builders for string, number, boolean, object, array, and enum.',
+  ],
+  ['confirmation handler', 'Native callback hook so the host app renders its own approval UI.'],
 ];
 
 const backendApis = [
-  ["startMobigent()", "Starts the backend service with local defaults."],
-  ["waitForApp()", "Optional health gate when startup should wait for a connected app."],
-  ["app<MyAppFunctions>()", "Creates typed backend calls from the same plain function shape the app exposes."],
-  ["functions", "Dynamic fallback for app function calls when the backend cannot import the shared shape."],
-  ["use()", "Also supports helper aliasing when backend code wants different function names."],
-  ["call()", "Makes a quick one-off app function call by name."],
-  ["fn()", "Creates a reusable backend function wrapper for repeated calls."],
-  ["connect.chatgpt()", "Connects ChatGPT, Claude, or OpenAI after the app loop works."]
+  ['startMobigent()', 'Starts the backend service with local defaults.'],
+  ['waitForApp()', 'Optional health gate when startup should wait for a connected app.'],
+  [
+    'app<MyAppFunctions>()',
+    'Creates typed backend calls from the same plain function shape the app exposes.',
+  ],
+  [
+    'functions',
+    'Dynamic fallback for app function calls when the backend cannot import the shared shape.',
+  ],
+  ['use()', 'Also supports helper aliasing when backend code wants different function names.'],
+  ['call()', 'Makes a quick one-off app function call by name.'],
+  ['fn()', 'Creates a reusable backend function wrapper for repeated calls.'],
+  ['connect.chatgpt()', 'Connects ChatGPT, Claude, or OpenAI after the app loop works.'],
 ];
 
 const backendRuntime = [
-  ["App delivery", "Keeps mobile app sessions ready and retries when needed."],
-  ["Function routing", "Maps backend calls such as `app.expense.create()` to the right app-owned handler."],
-  ["Readiness", "Waits for connected apps before the backend or agent flow calls app functions."],
-  ["Validation", "Checks input and output shapes before results leave the app boundary."],
-  ["Approvals", "Pauses risky writes inside the app until the user confirms."],
-  ["Agent setup", "Generates provider setup after the app/backend loop works."],
-  ["Inspector", "Shows connected apps, functions, metrics, and audit events during development."],
-  ["Audit", "Records calls, approvals, denials, errors, and app events for debugging."]
+  ['App delivery', 'Keeps mobile app sessions ready and retries when needed.'],
+  [
+    'Function routing',
+    'Maps backend calls such as `app.expense.create()` to the right app-owned handler.',
+  ],
+  ['Readiness', 'Waits for connected apps before the backend or agent flow calls app functions.'],
+  ['Validation', 'Checks input and output shapes before results leave the app boundary.'],
+  ['Approvals', 'Pauses risky writes inside the app until the user confirms.'],
+  ['Agent setup', 'Generates provider setup after the app/backend loop works.'],
+  ['Inspector', 'Shows connected apps, functions, metrics, and audit events during development.'],
+  ['Audit', 'Records calls, approvals, denials, errors, and app events for debugging.'],
 ];
 
 const providers = [
-  "ChatGPT Actions",
-  "OpenAI Responses",
-  "Claude Desktop",
-  "Cursor",
-  "Local agent clients",
-  "Anthropic",
-  "Gemini",
-  "AWS Bedrock",
-  "Vercel AI SDK",
-  "LangChain",
-  "OpenRouter",
-  "Ollama",
-  "LM Studio",
-  "Groq",
-  "Mistral",
-  "Cohere"
+  'ChatGPT Actions',
+  'OpenAI Responses',
+  'Claude Desktop',
+  'Cursor',
+  'Local agent clients',
+  'Anthropic',
+  'Gemini',
+  'AWS Bedrock',
+  'Vercel AI SDK',
+  'LangChain',
+  'OpenRouter',
+  'Ollama',
+  'LM Studio',
+  'Groq',
+  'Mistral',
+  'Cohere',
 ];
 
 const safety = [
-  ["Input validation", "Every action receives JSON validated by the declared schema."],
-  ["In-app approval", "Sensitive calls pause inside the app until the user confirms."],
-  ["Agent scoping", "Agent profiles hide or block functions per provider."],
-  ["Rate limits", "Per-agent and per-function limits reduce accidental loops."],
-  ["Idempotency", "Safe retries avoid running the same write twice."],
-  ["Audit logs", "Calls, approvals, denials, and failures can be traced."]
+  ['Input validation', 'Every action receives JSON validated by the declared schema.'],
+  ['In-app approval', 'Sensitive calls pause inside the app until the user confirms.'],
+  ['Agent scoping', 'Agent profiles hide or block functions per provider.'],
+  ['Rate limits', 'Per-agent and per-function limits reduce accidental loops.'],
+  ['Idempotency', 'Safe retries avoid running the same write twice.'],
+  ['Audit logs', 'Calls, approvals, denials, and failures can be traced.'],
 ];
 
 const developerExperience = [
-  ["Inspector", "Open the inspector during development to see connected apps, functions, metrics, and audit events."],
-  ["Security doctor", "Run `--security-doctor` before sharing a hosted backend to catch unsafe transport and missing approval UI."],
-  ["Schema adapters", "Use Zod, TypeBox-style JSON Schema, or the built-in helpers without changing app code shape."],
-  ["Native assistant bridges", "Generate App Intents and Android App Actions plans from the same app function definitions."]
+  [
+    'Inspector',
+    'Open the inspector during development to see connected apps, functions, metrics, and audit events.',
+  ],
+  [
+    'Security doctor',
+    'Run `--security-doctor` before sharing a hosted backend to catch unsafe transport and missing approval UI.',
+  ],
+  [
+    'Schema adapters',
+    'Use Zod, TypeBox-style JSON Schema, or the built-in helpers without changing app code shape.',
+  ],
+  [
+    'Native assistant bridges',
+    'Generate App Intents and Android App Actions plans from the same app function definitions.',
+  ],
 ];
 
 const productionBackend = [
-  ["Auth", "Use app session auth plus HTTP API keys or per-agent keys before exposing a hosted backend."],
-  ["Deploy", "Run Mobigent behind HTTPS/WSS with the included Dockerfile or your Node platform."],
-  ["Observe", "Use `/health`, `/ready`, `/metrics`, `/metrics/prometheus`, `/apps`, and `/audit`."],
-  ["Restrict", "Set allowed app ids, signed app definitions, CORS origins, JSON limits, and agent profiles."],
-  ["Retry safely", "Forward request ids and idempotency keys from provider calls."]
+  [
+    'Auth',
+    'Use app session auth plus HTTP API keys or per-agent keys before exposing a hosted backend.',
+  ],
+  ['Deploy', 'Run Mobigent behind HTTPS/WSS with the included Dockerfile or your Node platform.'],
+  ['Observe', 'Use `/health`, `/ready`, `/metrics`, `/metrics/prometheus`, `/apps`, and `/audit`.'],
+  [
+    'Restrict',
+    'Set allowed app ids, signed app definitions, CORS origins, JSON limits, and agent profiles.',
+  ],
+  ['Retry safely', 'Forward request ids and idempotency keys from provider calls.'],
 ];
 
 function Docs() {
@@ -451,15 +526,18 @@ function Docs() {
           </div>
           <h1>Everything you need to make a mobile app agent-ready.</h1>
           <p>
-            Mobigent lets a mobile app expose real app functions to AI agents through two normal packages.
-            The app owns the behavior, the backend calls it, and the SDK handles the delivery details.
+            Mobigent lets a mobile app expose real app functions to AI agents through two normal
+            packages. The app owns the behavior, the backend calls it, and the SDK handles the
+            delivery details.
           </p>
         </div>
       </section>
 
       <section className="section docsBlock">
         <div className="sectionHeader compact">
-          <span className="eyebrow"><Workflow size={15} /> Mental model</span>
+          <span className="eyebrow">
+            <Workflow size={15} /> Mental model
+          </span>
           <h2>Four pieces, one clean contract.</h2>
         </div>
         <div className="tableGrid">
@@ -471,7 +549,9 @@ function Docs() {
 
       <section className="section docsBlock">
         <div className="sectionHeader compact">
-          <span className="eyebrow"><Rocket size={15} /> First five minutes</span>
+          <span className="eyebrow">
+            <Rocket size={15} /> First five minutes
+          </span>
           <h2>A good first run should feel like one click.</h2>
         </div>
         <div className="codeGrid three">
@@ -488,9 +568,14 @@ function Docs() {
 
       <section id="quickstart" className="section codeSection">
         <div className="sectionHeader compact">
-          <span className="eyebrow"><Rocket size={15} /> Quickstart</span>
+          <span className="eyebrow">
+            <Rocket size={15} /> Quickstart
+          </span>
           <h2>Install two packages, expose one app function.</h2>
-          <p>Use this path for the first integration. After it works, add more features by product area.</p>
+          <p>
+            Use this path for the first integration. After it works, add more features by product
+            area.
+          </p>
         </div>
         <div className="codeGrid docsCodeGrid">
           <Code title="1. Install packages" code={existingAppInstallCode} />
@@ -504,27 +589,41 @@ function Docs() {
 
       <section className="section docsBlock">
         <div className="sectionHeader compact">
-          <span className="eyebrow"><Smartphone size={15} /> Existing app path</span>
+          <span className="eyebrow">
+            <Smartphone size={15} /> Existing app path
+          </span>
           <h2>No generator. No copied config. Just app code and backend code.</h2>
           <p>
-            In a real React Native app, write Mobigent beside the functions you already own. The sample generator is only for runnable demos.
+            In a real React Native app, write Mobigent beside the functions you already own. The
+            sample generator is only for runnable demos.
           </p>
         </div>
         <div className="codeGrid two">
           <Code title="The whole adoption shape" code={existingAppRecipeCode} />
           <div className="apiList endpointList">
             <Row title="Developer chooses" text="The small set of app functions agents may call." />
-            <Row title="SDK handles" text="Delivery, discovery, validation, approvals, retries, events, inspector, and agent setup." />
-            <Row title="Read more" text="Open docs/existing-react-native-app.md for the copy-paste existing-app recipe." />
+            <Row
+              title="SDK handles"
+              text="Delivery, discovery, validation, approvals, retries, events, inspector, and agent setup."
+            />
+            <Row
+              title="Read more"
+              text="Open docs/existing-react-native-app.md for the copy-paste existing-app recipe."
+            />
           </div>
         </div>
       </section>
 
       <section className="section codeSection">
         <div className="sectionHeader compact">
-          <span className="eyebrow"><Terminal size={15} /> Backend usage</span>
+          <span className="eyebrow">
+            <Terminal size={15} /> Backend usage
+          </span>
           <h2>Call app functions like backend functions.</h2>
-          <p>Start Mobigent in your server, wait for the app, then call app-owned functions from the clean package API.</p>
+          <p>
+            Start Mobigent in your server, wait for the app, then call app-owned functions from the
+            clean package API.
+          </p>
         </div>
         <div className="codeGrid two">
           <Code title="Backend SDK" code={backendCode} />
@@ -539,15 +638,22 @@ function Docs() {
 
       <section id="sdk" className="section docsBlock">
         <div className="sectionHeader">
-          <span className="eyebrow"><Code2 size={15} /> SDK surface</span>
+          <span className="eyebrow">
+            <Code2 size={15} /> SDK surface
+          </span>
           <h2>What Mobigent exposes.</h2>
-          <p>The day-one SDK surface is small on purpose: declare functions in the app, run one backend helper, then connect agents after the app loop works.</p>
+          <p>
+            The day-one SDK surface is small on purpose: declare functions in the app, run one
+            backend helper, then connect agents after the app loop works.
+          </p>
         </div>
 
         <div className="docsGrid packageGrid">
           {packages.map(([name, label, text]) => (
             <article className="docCard" key={name}>
-              <div className="icon"><Terminal /></div>
+              <div className="icon">
+                <Terminal />
+              </div>
               <h3>{name}</h3>
               <strong className="cardKicker">{label}</strong>
               <p>{text}</p>
@@ -558,9 +664,14 @@ function Docs() {
 
       <section className="section docsBlock">
         <div className="sectionHeader compact">
-          <span className="eyebrow"><Smartphone size={15} /> Native SDKs</span>
+          <span className="eyebrow">
+            <Smartphone size={15} /> Native SDKs
+          </span>
           <h2>iOS and Android use the same app function contract.</h2>
-          <p>Native apps do not need React Native. They register the same actions, resources, components, confirmations, events, and schemas directly from Swift or Kotlin.</p>
+          <p>
+            Native apps do not need React Native. They register the same actions, resources,
+            components, confirmations, events, and schemas directly from Swift or Kotlin.
+          </p>
         </div>
         <div className="apiList">
           {nativeApis.map(([name, text]) => (
@@ -571,9 +682,14 @@ function Docs() {
 
       <section id="native" className="section codeSection">
         <div className="sectionHeader">
-          <span className="eyebrow"><Smartphone size={15} /> Native quickstart</span>
+          <span className="eyebrow">
+            <Smartphone size={15} /> Native quickstart
+          </span>
           <h2>Drop Mobigent into a native app and expose real app behavior.</h2>
-          <p>Start with one read resource and one confirmed write action. Once the app connects, the backend makes those functions available to agent runtimes.</p>
+          <p>
+            Start with one read resource and one confirmed write action. Once the app connects, the
+            backend makes those functions available to agent runtimes.
+          </p>
         </div>
         <div className="codeGrid two nativeCodeGrid">
           <Code title="iOS install" code={iosInstallCode} />
@@ -587,7 +703,9 @@ function Docs() {
 
       <section className="section docsBlock">
         <div className="sectionHeader compact">
-          <span className="eyebrow"><Workflow size={15} /> Native lifecycle</span>
+          <span className="eyebrow">
+            <Workflow size={15} /> Native lifecycle
+          </span>
           <h2>What happens at runtime.</h2>
         </div>
         <div className="tableGrid nativeLifecycleGrid">
@@ -604,7 +722,9 @@ function Docs() {
 
       <section className="section docsBlock">
         <div className="sectionHeader compact">
-          <span className="eyebrow"><Smartphone size={15} /> App function types</span>
+          <span className="eyebrow">
+            <Smartphone size={15} /> App function types
+          </span>
           <h2>Build a stable interface over real app behavior.</h2>
         </div>
         <div className="tableGrid threeCol">
@@ -620,7 +740,9 @@ function Docs() {
 
       <section className="section docsBlock">
         <div className="sectionHeader compact">
-          <span className="eyebrow"><Smartphone size={15} /> React Native API</span>
+          <span className="eyebrow">
+            <Smartphone size={15} /> React Native API
+          </span>
           <h2>The APIs you will use most.</h2>
         </div>
         <div className="apiList">
@@ -632,7 +754,9 @@ function Docs() {
 
       <section className="section codeSection">
         <div className="sectionHeader compact">
-          <span className="eyebrow"><ShieldCheck size={15} /> Developer workflow</span>
+          <span className="eyebrow">
+            <ShieldCheck size={15} /> Developer workflow
+          </span>
           <h2>Build, inspect, and harden before you connect a real agent.</h2>
         </div>
         <div className="tableGrid nativeLifecycleGrid">
@@ -649,9 +773,14 @@ function Docs() {
 
       <section className="section codeSection">
         <div className="sectionHeader compact">
-          <span className="eyebrow"><Network size={15} /> Backend</span>
+          <span className="eyebrow">
+            <Network size={15} /> Backend
+          </span>
           <h2>The backend package owns the hard parts.</h2>
-          <p>Use the backend SDK in Node. Most apps should start with `startMobigent()` and let the SDK run the service.</p>
+          <p>
+            Use the backend SDK in Node. Most apps should start with `startMobigent()` and let the
+            SDK run the service.
+          </p>
         </div>
         <div className="codeGrid three">
           <Code title="Backend SDK" code={backendCode} />
@@ -667,9 +796,14 @@ function Docs() {
 
       <section id="production" className="section docsBlock">
         <div className="sectionHeader compact">
-          <span className="eyebrow"><Network size={15} /> Hosted backend</span>
+          <span className="eyebrow">
+            <Network size={15} /> Hosted backend
+          </span>
           <h2>Ship Mobigent like backend infrastructure.</h2>
-          <p>Put the backend behind HTTPS/WSS, require auth, and monitor readiness before agent startup.</p>
+          <p>
+            Put the backend behind HTTPS/WSS, require auth, and monitor readiness before agent
+            startup.
+          </p>
         </div>
         <div className="apiList">
           {productionBackend.map(([name, text]) => (
@@ -680,15 +814,23 @@ function Docs() {
 
       <section id="providers" className="section docsBlock">
         <div className="sectionHeader">
-          <span className="eyebrow"><KeyRound size={15} /> Agent setup</span>
+          <span className="eyebrow">
+            <KeyRound size={15} /> Agent setup
+          </span>
           <h2>Use the same app functions from many agent runtimes.</h2>
-          <p>The backend package gives you connect helpers for ChatGPT, Claude, OpenAI, and other agent runtimes. Public hosted agents need a public backend URL; local agents can use localhost.</p>
+          <p>
+            The backend package gives you connect helpers for ChatGPT, Claude, OpenAI, and other
+            agent runtimes. Public hosted agents need a public backend URL; local agents can use
+            localhost.
+          </p>
         </div>
         <div className="codeGrid two">
           <Code title="ChatGPT Actions helper" code={providerCode} />
           <div className="tagCloud" aria-label="Supported providers">
             {providers.map((provider) => (
-              <span key={provider}><Check size={14} /> {provider}</span>
+              <span key={provider}>
+                <Check size={14} /> {provider}
+              </span>
             ))}
           </div>
         </div>
@@ -696,16 +838,21 @@ function Docs() {
 
       <section id="security" className="section security">
         <div>
-          <span className="eyebrow"><Lock size={15} /> Security model</span>
+          <span className="eyebrow">
+            <Lock size={15} /> Security model
+          </span>
           <h2>The app stays in charge. Agents only get declared app functions.</h2>
           <p>
-            Start read-only, add one approved write action, then expand by feature module. Keep high-risk work behind confirmation and agent-specific policies.
+            Start read-only, add one approved write action, then expand by feature module. Keep
+            high-risk work behind confirmation and agent-specific policies.
           </p>
         </div>
         <div className="securityList">
           {safety.map(([title, text]) => (
             <article className="securityItem" key={title}>
-              <div className="icon"><ShieldCheck /></div>
+              <div className="icon">
+                <ShieldCheck />
+              </div>
               <div>
                 <h3>{title}</h3>
                 <p>{text}</p>
@@ -718,7 +865,10 @@ function Docs() {
       <section className="section finalCta">
         <div className="launchCard">
           <strong>Recommended first build</strong>
-          <p>Expose one read function and one confirmed write function from real app logic. Then connect one agent and test the full loop.</p>
+          <p>
+            Expose one read function and one confirmed write function from real app logic. Then
+            connect one agent and test the full loop.
+          </p>
           <a className="primaryButton" href="https://github.com/mobigent/mobigent">
             Open the repo
             <ArrowRight size={17} />
@@ -747,4 +897,4 @@ function Code({ title, code }: { title: string; code: string }) {
   );
 }
 
-createRoot(document.getElementById("root")!).render(<Docs />);
+createRoot(document.getElementById('root')!).render(<Docs />);

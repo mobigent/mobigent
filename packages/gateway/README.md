@@ -10,11 +10,11 @@ The gateway accepts app SDK connections over WebSocket and exposes registered ap
 - an MCP stdio server for MCP-compatible agents
 
 ```ts
-import { BridgeGateway, createHttpApp } from "@mobigent/gateway";
+import { BridgeGateway, createHttpApp } from '@mobigent/gateway';
 
 const gateway = new BridgeGateway({
   port: 8787,
-  auditLogPath: "./mobigent-audit.jsonl"
+  auditLogPath: './mobigent-audit.jsonl',
 });
 gateway.start();
 ```
@@ -74,11 +74,11 @@ The gateway enforces app-declared capability policies:
 HTTP calls can pass `x-mobigent-agent`, `x-mobigent-request-id`, `x-mobigent-idempotency-key`, and `x-mobigent-timeout-ms`. Direct gateway calls can pass the same intent in code:
 
 ```ts
-await gateway.callTool("com_example_app.create_expense", input, {
-  agentId: "claude-desktop",
-  idempotencyKey: "expense-create-123",
-  requestId: "provider-call-123",
-  timeoutMs: 30_000
+await gateway.callTool('com_example_app.create_expense', input, {
+  agentId: 'claude-desktop',
+  idempotencyKey: 'expense-create-123',
+  requestId: 'provider-call-123',
+  timeoutMs: 30_000,
 });
 ```
 
@@ -90,7 +90,7 @@ Successful idempotency records are retained for `idempotencyRecordTtlMs` so retr
 const gateway = new BridgeGateway({
   port: 8787,
   idempotencyRecordTtlMs: 5 * 60_000,
-  cleanupIntervalMs: 60_000
+  cleanupIntervalMs: 60_000,
 });
 ```
 
@@ -124,20 +124,20 @@ Gateway-owned agent profiles are useful when app manifests are broad but individ
 const gateway = new BridgeGateway({
   port: 8787,
   agentProfiles: {
-    "chatgpt-actions": {
+    'chatgpt-actions': {
       readOnly: true,
-      maxRisk: "low",
-      allowedTools: ["com_example_expenses.*"]
+      maxRisk: 'low',
+      allowedTools: ['com_example_expenses.*'],
     },
     cursor: {
-      allowedTools: ["com_example_expenses.*"],
-      deniedTools: ["com_example_expenses.delete_*"]
+      allowedTools: ['com_example_expenses.*'],
+      deniedTools: ['com_example_expenses.delete_*'],
     },
-    "*": {
+    '*': {
       readOnly: true,
-      maxRisk: "low"
-    }
-  }
+      maxRisk: 'low',
+    },
+  },
 });
 ```
 
@@ -162,9 +162,9 @@ For multi-provider gateways, bind keys to trusted agent ids:
 ```ts
 const app = createHttpApp(gateway, {
   agentApiKeys: {
-    "chatgpt-actions": process.env.CHATGPT_ACTIONS_KEY!,
-    cursor: process.env.CURSOR_AGENT_KEY!
-  }
+    'chatgpt-actions': process.env.CHATGPT_ACTIONS_KEY!,
+    cursor: process.env.CURSOR_AGENT_KEY!,
+  },
 });
 ```
 
@@ -183,7 +183,7 @@ By default, the HTTP app uses permissive CORS for local development. Restrict br
 ```ts
 const app = createHttpApp(gateway, {
   apiKey: process.env.MOBIGENT_HTTP_API_KEY,
-  corsOrigins: ["https://agent.example.com"]
+  corsOrigins: ['https://agent.example.com'],
 });
 ```
 
@@ -199,7 +199,7 @@ The HTTP gateway accepts JSON request bodies up to `1mb` by default. Tune this l
 
 ```ts
 const app = createHttpApp(gateway, {
-  jsonBodyLimit: "256kb"
+  jsonBodyLimit: '256kb',
 });
 ```
 
@@ -218,7 +218,7 @@ Set `manifestSigningSecret` in code, or `MOBIGENT_MANIFEST_SIGNING_SECRET` for `
 ```ts
 const gateway = new BridgeGateway({
   port: 8787,
-  manifestSigningSecret: process.env.MOBIGENT_MANIFEST_SIGNING_SECRET
+  manifestSigningSecret: process.env.MOBIGENT_MANIFEST_SIGNING_SECRET,
 });
 ```
 
@@ -233,7 +233,7 @@ Limit the gateway to known app ids:
 ```ts
 const gateway = new BridgeGateway({
   port: 8787,
-  allowedAppIds: ["com.example.expenses"]
+  allowedAppIds: ['com.example.expenses'],
 });
 ```
 
@@ -274,7 +274,7 @@ Add app-specific keys:
 ```ts
 const gateway = new BridgeGateway({
   port: 8787,
-  auditRedactKeys: ["email", "ssn", "cardNumber"]
+  auditRedactKeys: ['email', 'ssn', 'cardNumber'],
 });
 ```
 

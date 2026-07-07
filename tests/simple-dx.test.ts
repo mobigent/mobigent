@@ -1,15 +1,15 @@
-import assert from "node:assert/strict";
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-import test from "node:test";
-import WebSocket from "ws";
+import assert from 'node:assert/strict';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import test from 'node:test';
+import WebSocket from 'ws';
 import {
   formatMobigentAppConfigModule,
   inferMobigentAppIdentity,
   startMobigent,
-  startMobigentBackend
-} from "@mobigent/backend";
+  startMobigentBackend,
+} from '@mobigent/backend';
 import type {
   AppFunction,
   AppFunctionInfo,
@@ -20,24 +20,17 @@ import type {
   BackendOptions,
   BackendStatus,
   CallOptions,
-  CallResult
-} from "@mobigent/backend";
-import { createMobigentBackendFiles, runMobigentBackendCli } from "@mobigent/backend/cli";
-import {
-  action,
-  createApp,
-  emitMobigentEvent,
-  read,
-  withMobigent,
-  write
-} from "@mobigent/app";
+  CallResult,
+} from '@mobigent/backend';
+import { createMobigentBackendFiles, runMobigentBackendCli } from '@mobigent/backend/cli';
+import { action, createApp, emitMobigentEvent, read, withMobigent, write } from '@mobigent/app';
 import type {
   AppConnection,
   AppFunctionMap,
   AppFunctions,
   AppOptions,
-  MobigentApp
-} from "@mobigent/app";
+  MobigentApp,
+} from '@mobigent/app';
 import {
   connectMobigent,
   defineFunctions,
@@ -45,10 +38,10 @@ import {
   defineMobigentConfig,
   feature,
   setupMobigent,
-  simpleSchema
-} from "@mobigent/app/app";
-import type { MobigentSocketFactory } from "@mobigent/react-native";
-import { createApp as createReactNativeApp, mobigent } from "@mobigent/react-native";
+  simpleSchema,
+} from '@mobigent/app/app';
+import type { MobigentSocketFactory } from '@mobigent/react-native';
+import { createApp as createReactNativeApp, mobigent } from '@mobigent/react-native';
 
 const createNodeSocket: MobigentSocketFactory = (url) => new WebSocket(url);
 type PublicAppTypeAliasesCompile = [
@@ -56,7 +49,7 @@ type PublicAppTypeAliasesCompile = [
   AppFunctionMap,
   AppOptions,
   AppConnection,
-  MobigentApp
+  MobigentApp,
 ];
 type PublicBackendTypeAliasesCompile = [
   Backend,
@@ -68,232 +61,232 @@ type PublicBackendTypeAliasesCompile = [
   BackendAppFunctions,
   AppSession,
   CallOptions,
-  CallResult
+  CallResult,
 ];
 const publicTypeAliasesCompile = null as unknown as {
   app: PublicAppTypeAliasesCompile;
   backend: PublicBackendTypeAliasesCompile;
 };
 
-test("simple React Native feature API creates agent-ready capabilities without schema ceremony", async () => {
-  assert.equal(typeof publicTypeAliasesCompile, "object");
+test('simple React Native feature API creates agent-ready capabilities without schema ceremony', async () => {
+  assert.equal(typeof publicTypeAliasesCompile, 'object');
 
-  const expenses = feature("expense")
-    .read("list", async () => ({ items: [] }), {
+  const expenses = feature('expense')
+    .read('list', async () => ({ items: [] }), {
       output: {
-        items: ["object"]
-      }
+        items: ['object'],
+      },
     })
-    .write("create", async (input) => ({ id: "EXP-1", ...input }), {
+    .write('create', async (input) => ({ id: 'EXP-1', ...input }), {
       input: {
-        merchant: "string",
-        amount: "number"
+        merchant: 'string',
+        amount: 'number',
       },
       output: {
-        id: "string",
-        merchant: "string",
-        amount: "number"
-      }
+        id: 'string',
+        merchant: 'string',
+        amount: 'number',
+      },
     });
 
-  assert.equal(expenses.resources[0].name, "expense_list");
-  assert.equal(expenses.actions[0].name, "expense_create");
+  assert.equal(expenses.resources[0].name, 'expense_list');
+  assert.equal(expenses.actions[0].name, 'expense_create');
   assert.equal(expenses.actions[0].confirmation?.required, true);
-  assert.deepEqual(expenses.actions[0].inputSchema?.required, ["merchant", "amount"]);
-  assert.equal(expenses.actions[0].inputSchema?.properties?.merchant.type, "string");
+  assert.deepEqual(expenses.actions[0].inputSchema?.required, ['merchant', 'amount']);
+  assert.equal(expenses.actions[0].inputSchema?.properties?.merchant.type, 'string');
 });
 
-test("plain object feature API exposes normal app functions with less ceremony", () => {
-  const expenses = feature("expense", {
+test('plain object feature API exposes normal app functions with less ceremony', () => {
+  const expenses = feature('expense', {
     list: read(async () => ({ items: [] }), {
       output: {
-        items: ["object"]
-      }
+        items: ['object'],
+      },
     }),
-    create: write(async (input) => ({ id: "EXP-1", ...input }), {
+    create: write(async (input) => ({ id: 'EXP-1', ...input }), {
       input: {
-        merchant: "string",
-        amount: "number"
-      }
+        merchant: 'string',
+        amount: 'number',
+      },
     }),
     archive: action(async (input) => ({ archived: input.id }), {
       input: {
-        id: "string"
+        id: 'string',
       },
-      confirm: "Archive expense?"
-    })
+      confirm: 'Archive expense?',
+    }),
   });
 
-  assert.equal(expenses.resources[0].name, "expense_list");
-  assert.equal(expenses.actions[0].name, "expense_create");
+  assert.equal(expenses.resources[0].name, 'expense_list');
+  assert.equal(expenses.actions[0].name, 'expense_create');
   assert.equal(expenses.actions[0].confirmation?.required, true);
-  assert.equal(expenses.actions[1].name, "expense_archive");
-  assert.equal(expenses.actions[1].confirmation?.title, "Archive expense?");
+  assert.equal(expenses.actions[1].name, 'expense_archive');
+  assert.equal(expenses.actions[1].confirmation?.title, 'Archive expense?');
 });
 
-test("plain object feature API accepts real functions without wrappers", async () => {
-  const expenses = feature("expense", {
-    list: async () => ({ items: [{ id: "EXP-1" }] }),
-    create: async (input) => ({ id: "EXP-2", ...input })
+test('plain object feature API accepts real functions without wrappers', async () => {
+  const expenses = feature('expense', {
+    list: async () => ({ items: [{ id: 'EXP-1' }] }),
+    create: async (input) => ({ id: 'EXP-2', ...input }),
   });
 
-  assert.equal(expenses.resources[0].name, "expense_list");
-  assert.equal(expenses.actions[0].name, "expense_create");
+  assert.equal(expenses.resources[0].name, 'expense_list');
+  assert.equal(expenses.actions[0].name, 'expense_create');
   assert.equal(expenses.actions[0].confirmation?.required, true);
-  assert.deepEqual(await expenses.resources[0].read(), { items: [{ id: "EXP-1" }] });
-  assert.deepEqual(await expenses.actions[0].handler({ merchant: "Coffee" }), {
-    id: "EXP-2",
-    merchant: "Coffee"
+  assert.deepEqual(await expenses.resources[0].read(), { items: [{ id: 'EXP-1' }] });
+  assert.deepEqual(await expenses.actions[0].handler({ merchant: 'Coffee' }), {
+    id: 'EXP-2',
+    merchant: 'Coffee',
   });
 });
 
-test("defineMobigent maps product areas to features for one-line app wrapping", () => {
+test('defineMobigent maps product areas to features for one-line app wrapping', () => {
   const features = defineMobigent({
     expense: {
       list: async () => ({ items: [] }),
-      create: async () => ({ ok: true })
+      create: async () => ({ ok: true }),
     },
     task: {
-      list: async () => ({ items: [] })
-    }
+      list: async () => ({ items: [] }),
+    },
   });
 
   assert.equal(features.length, 2);
-  assert.equal(features[0].namespace, "expense");
-  assert.equal(features[0].actions[0].name, "expense_create");
-  assert.equal(features[1].resources[0].name, "task_list");
+  assert.equal(features[0].namespace, 'expense');
+  assert.equal(features[0].actions[0].name, 'expense_create');
+  assert.equal(features[1].resources[0].name, 'task_list');
 });
 
-test("createApp accepts app functions directly for the lowest ceremony path", () => {
+test('createApp accepts app functions directly for the lowest ceremony path', () => {
   const appFunctions = {
     expense: {
       list: async () => ({ items: [] }),
-      create: async () => ({ ok: true })
-    }
+      create: async () => ({ ok: true }),
+    },
   };
 
   const features = defineFunctions(appFunctions);
   const app = createApp({ functions: appFunctions });
 
-  assert.equal(features[0].namespace, "expense");
-  assert.equal(features[0].actions[0].name, "expense_create");
-  assert.equal(app.options.capabilities[0]?.namespace, "expense");
-  assert.equal(app.options.capabilities[0]?.actions[0]?.name, "expense_create");
+  assert.equal(features[0].namespace, 'expense');
+  assert.equal(features[0].actions[0].name, 'expense_create');
+  assert.equal(app.options.capabilities[0]?.namespace, 'expense');
+  assert.equal(app.options.capabilities[0]?.actions[0]?.name, 'expense_create');
 });
 
-test("app package createApp accepts a plain function map with no wrapper key", () => {
+test('app package createApp accepts a plain function map with no wrapper key', () => {
   const app = createApp({
     expense: {
       list: async () => ({ items: [] }),
-      create: async (input) => ({ id: "EXP-PLAIN", ...input })
-    }
+      create: async (input) => ({ id: 'EXP-PLAIN', ...input }),
+    },
   });
 
   assert.equal(app.options.appId, undefined);
-  assert.equal(app.options.capabilities[0]?.namespace, "expense");
-  assert.equal(app.options.capabilities[0]?.resources[0]?.name, "expense_list");
-  assert.equal(app.options.capabilities[0]?.actions[0]?.name, "expense_create");
+  assert.equal(app.options.capabilities[0]?.namespace, 'expense');
+  assert.equal(app.options.capabilities[0]?.resources[0]?.name, 'expense_list');
+  assert.equal(app.options.capabilities[0]?.actions[0]?.name, 'expense_create');
 });
 
-test("app package createApp reads production identity from public environment config", () => {
+test('app package createApp reads production identity from public environment config', () => {
   const originalEnv = snapshotMobigentEnv();
-  process.env.EXPO_PUBLIC_MOBIGENT_APP_ID = "com.example.envapp";
-  process.env.EXPO_PUBLIC_MOBIGENT_APP_NAME = "Env App";
-  process.env.EXPO_PUBLIC_MOBIGENT_CONNECTION_URL = "wss://mobigent.example.com";
-  process.env.EXPO_PUBLIC_MOBIGENT_AUTH_TOKEN = "env-token";
+  process.env.EXPO_PUBLIC_MOBIGENT_APP_ID = 'com.example.envapp';
+  process.env.EXPO_PUBLIC_MOBIGENT_APP_NAME = 'Env App';
+  process.env.EXPO_PUBLIC_MOBIGENT_CONNECTION_URL = 'wss://mobigent.example.com';
+  process.env.EXPO_PUBLIC_MOBIGENT_AUTH_TOKEN = 'env-token';
 
   try {
     const app = createApp({
       expense: {
-        list: async () => ({ items: [] })
-      }
+        list: async () => ({ items: [] }),
+      },
     });
 
-    assert.equal(app.options.appId, "com.example.envapp");
-    assert.equal(app.options.appName, "Env App");
-    assert.equal(app.options.gatewayUrl, "wss://mobigent.example.com");
-    assert.equal(app.options.authToken, "env-token");
+    assert.equal(app.options.appId, 'com.example.envapp');
+    assert.equal(app.options.appName, 'Env App');
+    assert.equal(app.options.gatewayUrl, 'wss://mobigent.example.com');
+    assert.equal(app.options.authToken, 'env-token');
   } finally {
     restoreMobigentEnv(originalEnv);
   }
 });
 
-test("app package createApp accepts short production env aliases and infers app name", () => {
+test('app package createApp accepts short production env aliases and infers app name', () => {
   const originalEnv = snapshotMobigentEnv();
-  process.env.EXPO_PUBLIC_MOBIGENT_APP = "com.example.travel.wallet";
-  process.env.EXPO_PUBLIC_MOBIGENT_BACKEND_URL = "wss://mobigent.example.com";
-  process.env.EXPO_PUBLIC_MOBIGENT_TOKEN = "short-token";
+  process.env.EXPO_PUBLIC_MOBIGENT_APP = 'com.example.travel.wallet';
+  process.env.EXPO_PUBLIC_MOBIGENT_BACKEND_URL = 'wss://mobigent.example.com';
+  process.env.EXPO_PUBLIC_MOBIGENT_TOKEN = 'short-token';
 
   try {
     const app = createApp({
       expense: {
-        list: async () => ({ items: [] })
-      }
+        list: async () => ({ items: [] }),
+      },
     });
 
-    assert.equal(app.options.appId, "com.example.travel.wallet");
-    assert.equal(app.options.appName, "Wallet");
-    assert.equal(app.options.gatewayUrl, "wss://mobigent.example.com");
-    assert.equal(app.options.authToken, "short-token");
+    assert.equal(app.options.appId, 'com.example.travel.wallet');
+    assert.equal(app.options.appName, 'Wallet');
+    assert.equal(app.options.gatewayUrl, 'wss://mobigent.example.com');
+    assert.equal(app.options.authToken, 'short-token');
   } finally {
     restoreMobigentEnv(originalEnv);
   }
 });
 
-test("app package createApp accepts a plain function map with identity options", () => {
+test('app package createApp accepts a plain function map with identity options', () => {
   const app = createApp(
     {
       expense: {
-        list: async () => ({ items: [] })
-      }
+        list: async () => ({ items: [] }),
+      },
     },
     {
-      appName: "Plain Expenses",
-      connection: "ws://localhost:8787"
-    }
+      appName: 'Plain Expenses',
+      connection: 'ws://localhost:8787',
+    },
   );
 
-  assert.equal(app.options.appName, "Plain Expenses");
-  assert.equal(app.options.gatewayUrl, "ws://localhost:8787");
-  assert.equal(app.options.capabilities[0]?.namespace, "expense");
+  assert.equal(app.options.appName, 'Plain Expenses');
+  assert.equal(app.options.gatewayUrl, 'ws://localhost:8787');
+  assert.equal(app.options.capabilities[0]?.namespace, 'expense');
 });
 
-test("createApp accepts an app id and functions as the shortest app path", () => {
-  const app = createApp("com.example.shortapp", {
+test('createApp accepts an app id and functions as the shortest app path', () => {
+  const app = createApp('com.example.shortapp', {
     expense: {
       list: async () => ({ items: [] }),
-      create: async (input) => ({ id: "EXP-SHORT", ...input })
-    }
+      create: async (input) => ({ id: 'EXP-SHORT', ...input }),
+    },
   });
 
-  assert.equal(app.options.appId, "com.example.shortapp");
-  assert.equal(app.options.capabilities[0]?.namespace, "expense");
-  assert.equal(app.options.capabilities[0]?.resources[0]?.name, "expense_list");
-  assert.equal(app.options.capabilities[0]?.actions[0]?.name, "expense_create");
+  assert.equal(app.options.appId, 'com.example.shortapp');
+  assert.equal(app.options.capabilities[0]?.namespace, 'expense');
+  assert.equal(app.options.capabilities[0]?.resources[0]?.name, 'expense_list');
+  assert.equal(app.options.capabilities[0]?.actions[0]?.name, 'expense_create');
 });
 
-test("React Native package createApp also accepts the short app id path", () => {
-  const app = createReactNativeApp("com.example.rnshort", {
+test('React Native package createApp also accepts the short app id path', () => {
+  const app = createReactNativeApp('com.example.rnshort', {
     expense: {
       list: async () => ({ items: [] }),
-      create: async (input) => ({ id: "EXP-RN", ...input })
-    }
+      create: async (input) => ({ id: 'EXP-RN', ...input }),
+    },
   });
 
-  assert.equal(app.options.appId, "com.example.rnshort");
-  assert.equal(app.options.capabilities[0]?.namespace, "expense");
-  assert.equal(app.options.capabilities[0]?.actions[0]?.name, "expense_create");
+  assert.equal(app.options.appId, 'com.example.rnshort');
+  assert.equal(app.options.capabilities[0]?.namespace, 'expense');
+  assert.equal(app.options.capabilities[0]?.actions[0]?.name, 'expense_create');
 });
 
-test("createApp accepts a friendly connection target instead of generated app config", async () => {
+test('createApp accepts a friendly connection target instead of generated app config', async () => {
   const app = createApp({
-    appId: "com.example.expenses",
-    connection: { host: "192.168.1.20" },
+    appId: 'com.example.expenses',
+    connection: { host: '192.168.1.20' },
     functions: {
       expense: {
-        list: read(async () => ({ items: [] }))
-      }
-    }
+        list: read(async () => ({ items: [] })),
+      },
+    },
   });
   const configured: unknown[] = [];
   const client = {
@@ -304,63 +297,63 @@ test("createApp accepts a friendly connection target instead of generated app co
     disconnect() {},
     registerAction() {},
     registerResource() {},
-    registerComponent() {}
+    registerComponent() {},
   };
 
-  assert.equal(app.options.gatewayUrl, "ws://192.168.1.20:8787");
+  assert.equal(app.options.gatewayUrl, 'ws://192.168.1.20:8787');
   await connectMobigent(client, app.options.capabilities[0], {
-    appId: "com.example.expenses",
-    connection: { host: "192.168.1.20" }
+    appId: 'com.example.expenses',
+    connection: { host: '192.168.1.20' },
   });
 
-  assert.equal((configured[0] as { gatewayUrl?: string }).gatewayUrl, "ws://192.168.1.20:8787");
+  assert.equal((configured[0] as { gatewayUrl?: string }).gatewayUrl, 'ws://192.168.1.20:8787');
 });
 
-test("createApp accepts a hosted backend URL directly", () => {
+test('createApp accepts a hosted backend URL directly', () => {
   const app = createApp({
-    appId: "com.example.hosted",
-    backendUrl: "wss://mobigent.example.com",
+    appId: 'com.example.hosted',
+    backendUrl: 'wss://mobigent.example.com',
     functions: {
       expense: {
-        list: read(async () => ({ items: [] }))
-      }
-    }
+        list: read(async () => ({ items: [] })),
+      },
+    },
   });
 
-  assert.equal(app.options.gatewayUrl, "wss://mobigent.example.com");
+  assert.equal(app.options.gatewayUrl, 'wss://mobigent.example.com');
 });
 
-test("app package accepts backendUrl as the product-facing connection option", () => {
+test('app package accepts backendUrl as the product-facing connection option', () => {
   const app = createApp(
     {
       expense: {
-        list: async () => ({ items: [] })
-      }
+        list: async () => ({ items: [] }),
+      },
     },
     {
-      appName: "Backend URL App",
-      backendUrl: "wss://backend.example.com"
-    }
+      appName: 'Backend URL App',
+      backendUrl: 'wss://backend.example.com',
+    },
   );
 
-  assert.equal(app.options.appName, "Backend URL App");
-  assert.equal(app.options.gatewayUrl, "wss://backend.example.com");
+  assert.equal(app.options.appName, 'Backend URL App');
+  assert.equal(app.options.gatewayUrl, 'wss://backend.example.com');
 });
 
-test("simple schema helper accepts plain field maps", () => {
+test('simple schema helper accepts plain field maps', () => {
   const input = simpleSchema({
-    userId: "string",
-    count: "integer",
-    tags: ["string"]
+    userId: 'string',
+    count: 'integer',
+    tags: ['string'],
   });
 
-  assert.equal(input.type, "object");
-  assert.deepEqual(input.required, ["userId", "count", "tags"]);
-  assert.equal(input.properties?.tags.type, "array");
+  assert.equal(input.type, 'object');
+  assert.deepEqual(input.required, ['userId', 'count', 'tags']);
+  assert.equal(input.properties?.tags.type, 'array');
 });
 
-test("app setup accepts features directly for the shortest React Native path", () => {
-  const expenses = feature("expense").write("create", async () => ({ ok: true }));
+test('app setup accepts features directly for the shortest React Native path', () => {
+  const expenses = feature('expense').write('create', async () => ({ ok: true }));
   const app = setupMobigent(expenses);
 
   assert.deepEqual(app.options.capabilities, [expenses]);
@@ -368,296 +361,334 @@ test("app setup accepts features directly for the shortest React Native path", (
   assert.equal(app.options.heartbeat, true);
 });
 
-test("withMobigent wraps an existing React Native app with one normal function call", () => {
-  const expenses = feature("expense").write("create", async () => ({ ok: true }));
+test('withMobigent wraps an existing React Native app with one normal function call', () => {
+  const expenses = feature('expense').write('create', async () => ({ ok: true }));
   function ExistingApp() {
     return null;
   }
 
   const WrappedApp = withMobigent(ExistingApp, expenses);
 
-  assert.equal(typeof WrappedApp, "function");
-  assert.equal(WrappedApp.displayName, "withMobigent(ExistingApp)");
+  assert.equal(typeof WrappedApp, 'function');
+  assert.equal(WrappedApp.displayName, 'withMobigent(ExistingApp)');
 });
 
-test("app package withMobigent accepts app id and functions directly", () => {
+test('app package withMobigent accepts app id and functions directly', () => {
   function ExistingApp() {
     return null;
   }
 
-  const WrappedApp = withMobigent(ExistingApp, "com.example.directwrap", {
+  const WrappedApp = withMobigent(ExistingApp, 'com.example.directwrap', {
     expense: {
       list: async () => ({ items: [] }),
-      create: async (input) => ({ id: "EXP-WRAP", ...input })
-    }
+      create: async (input) => ({ id: 'EXP-WRAP', ...input }),
+    },
   });
 
-  assert.equal(typeof WrappedApp, "function");
-  assert.equal(WrappedApp.displayName, "withMobigent(ExistingApp)");
+  assert.equal(typeof WrappedApp, 'function');
+  assert.equal(WrappedApp.displayName, 'withMobigent(ExistingApp)');
 });
 
-test("simple event helper hides the low-level singleton from app feature files", () => {
-  const sentOrQueued = emitMobigentEvent("expense.created", { id: "EXP-1" });
+test('simple event helper hides the low-level singleton from app feature files', () => {
+  const sentOrQueued = emitMobigentEvent('expense.created', { id: 'EXP-1' });
 
-  assert.equal(typeof sentOrQueued, "boolean");
+  assert.equal(typeof sentOrQueued, 'boolean');
 });
 
-test("backend helper starts HTTP, OpenAPI, and inspector endpoints from one function", async () => {
+test('backend helper starts HTTP, OpenAPI, and inspector endpoints from one function', async () => {
   const backend = await startMobigentBackend({
     wsPort: 18987,
     httpPort: 18988,
-    appToken: "dev-token",
-    silent: true
+    appToken: 'dev-token',
+    silent: true,
   });
 
   try {
-    const health = await fetch(`${backend.apiUrl}/health`).then((response) => response.json() as Promise<{ ok: boolean }>);
-    assert.equal(health.ok, true);
-    assert.equal(backend.connection.connectionUrl, "ws://localhost:18987");
-    assert.equal(backend.appConnectionUrl, "ws://localhost:18987");
-    assert.equal(backend.agentUrl, "http://localhost:18988");
-    assert.equal(backend.openApiUrl, "http://localhost:18988/openapi.json");
-    assert.equal(backend.apiUrl, "http://localhost:18988");
-    assert.equal(backend.inspectorUrl, "http://localhost:18988/inspect");
-    assert.equal(backend.openApiUrl, "http://localhost:18988/openapi.json");
-    assert.deepEqual(
-      Object.keys(backend).filter((key) => ["gateway", "urls", "defaultApp", "functions", "tools"].includes(key)),
-      []
+    const health = await fetch(`${backend.apiUrl}/health`).then(
+      (response) => response.json() as Promise<{ ok: boolean }>,
     );
-    assert.equal(typeof (backend as unknown as { functions: unknown }).functions, "function");
-    assert.equal(backend.advanced.urls.websocket, "ws://localhost:18987");
+    assert.equal(health.ok, true);
+    assert.equal(backend.connection.connectionUrl, 'ws://localhost:18987');
+    assert.equal(backend.appConnectionUrl, 'ws://localhost:18987');
+    assert.equal(backend.agentUrl, 'http://localhost:18988');
+    assert.equal(backend.openApiUrl, 'http://localhost:18988/openapi.json');
+    assert.equal(backend.apiUrl, 'http://localhost:18988');
+    assert.equal(backend.inspectorUrl, 'http://localhost:18988/inspect');
+    assert.equal(backend.openApiUrl, 'http://localhost:18988/openapi.json');
+    assert.deepEqual(
+      Object.keys(backend).filter((key) =>
+        ['gateway', 'urls', 'defaultApp', 'functions', 'tools'].includes(key),
+      ),
+      [],
+    );
+    assert.equal(typeof (backend as unknown as { functions: unknown }).functions, 'function');
+    assert.equal(backend.advanced.urls.websocket, 'ws://localhost:18987');
     assert.equal(backend.advanced.urls.http, backend.apiUrl);
-    assert.match(backend.advanced.copyAppConfig(), new RegExp(backend.connection.appId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    assert.match(
+      backend.advanced.copyAppConfig(),
+      new RegExp(backend.connection.appId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
+    );
     assert.deepEqual(backend.client(), backend.connection);
     assert.deepEqual(backend.forApp(), backend.connection);
-    assert.deepEqual(backend.client("com.example.client", "Client App"), {
-      appId: "com.example.client",
-      appName: "Client App",
-      backendUrl: "ws://localhost:18987",
-      connectionUrl: "ws://localhost:18987",
-      authToken: "dev-token",
-      version: undefined
+    assert.deepEqual(backend.client('com.example.client', 'Client App'), {
+      appId: 'com.example.client',
+      appName: 'Client App',
+      backendUrl: 'ws://localhost:18987',
+      connectionUrl: 'ws://localhost:18987',
+      authToken: 'dev-token',
+      version: undefined,
     });
-    assert.deepEqual(backend.forApp("com.example.client", "Client App"), {
-      appId: "com.example.client",
-      appName: "Client App",
-      backendUrl: "ws://localhost:18987",
-      connectionUrl: "ws://localhost:18987",
-      authToken: "dev-token",
-      version: undefined
+    assert.deepEqual(backend.forApp('com.example.client', 'Client App'), {
+      appId: 'com.example.client',
+      appName: 'Client App',
+      backendUrl: 'ws://localhost:18987',
+      connectionUrl: 'ws://localhost:18987',
+      authToken: 'dev-token',
+      version: undefined,
     });
-    assert.deepEqual(backend.client({ appId: "com.example.client", appName: "Client App" }), {
-      appId: "com.example.client",
-      appName: "Client App",
-      backendUrl: "ws://localhost:18987",
-      connectionUrl: "ws://localhost:18987",
-      authToken: "dev-token",
-      version: undefined
+    assert.deepEqual(backend.client({ appId: 'com.example.client', appName: 'Client App' }), {
+      appId: 'com.example.client',
+      appName: 'Client App',
+      backendUrl: 'ws://localhost:18987',
+      connectionUrl: 'ws://localhost:18987',
+      authToken: 'dev-token',
+      version: undefined,
     });
-    assert.deepEqual(backend.app({ appId: "com.example.app", appName: "Example App" }), {
-      appId: "com.example.app",
-      appName: "Example App",
-      backendUrl: "ws://localhost:18987",
-      connectionUrl: "ws://localhost:18987",
-      authToken: "dev-token",
-      version: undefined
+    assert.deepEqual(backend.app({ appId: 'com.example.app', appName: 'Example App' }), {
+      appId: 'com.example.app',
+      appName: 'Example App',
+      backendUrl: 'ws://localhost:18987',
+      connectionUrl: 'ws://localhost:18987',
+      authToken: 'dev-token',
+      version: undefined,
     });
-    assert.deepEqual(backend.client({ appId: "com.example.hosted", appName: "Hosted App", backendUrl: "wss://backend.example.com" }), {
-      appId: "com.example.hosted",
-      appName: "Hosted App",
-      backendUrl: "wss://backend.example.com",
-      connectionUrl: "wss://backend.example.com",
-      authToken: "dev-token",
-      version: undefined
-    });
-    assert.match(
-      backend.advanced.appConfigModule({ appId: "com.example.app", appName: "Example App" }),
-      /export const mobigentConfig = defineMobigentConfig/
+    assert.deepEqual(
+      backend.client({
+        appId: 'com.example.hosted',
+        appName: 'Hosted App',
+        backendUrl: 'wss://backend.example.com',
+      }),
+      {
+        appId: 'com.example.hosted',
+        appName: 'Hosted App',
+        backendUrl: 'wss://backend.example.com',
+        connectionUrl: 'wss://backend.example.com',
+        authToken: 'dev-token',
+        version: undefined,
+      },
     );
-    assert.equal(backend.agent("chatgpt").provider.id, "chatgpt-actions");
-    assert.equal(backend.agent("chatgpt").endpoints.openApi, "http://localhost:18988/openapi.json");
-    assert.equal(backend.agent("claude").provider.id, "claude-desktop");
-    assert.equal(backend.setup("chatgpt").provider.id, "chatgpt-actions");
-    assert.equal(backend.setup.chatgpt().endpoints.openApi, "http://localhost:18988/openapi.json");
-    assert.equal(backend.setup.claude().provider.id, "claude-desktop");
-    assert.equal(backend.setup.openai({ agentId: "openai-prod" }).runtimeEnv?.MOBIGENT_AGENT_ID, "openai-prod");
-    assert.ok(backend.setup.all().some((agent) => agent.provider.id === "openai-responses"));
-    assert.equal(backend.connect("chatgpt").provider.id, "chatgpt-actions");
-    assert.equal(backend.connect.chatgpt().endpoints.openApi, "http://localhost:18988/openapi.json");
-    assert.equal(backend.connect.claude().provider.id, "claude-desktop");
-    assert.equal(backend.connect.openai({ agentId: "openai-prod" }).runtimeEnv?.MOBIGENT_AGENT_ID, "openai-prod");
-    assert.ok(backend.connect.all().some((agent) => agent.provider.id === "openai-responses"));
-    assert.equal(backend.chatgpt().provider.id, "chatgpt-actions");
-    assert.equal(backend.chatgpt().endpoints.openApi, "http://localhost:18988/openapi.json");
-    assert.equal(backend.claude().provider.id, "claude-desktop");
-    assert.equal(backend.openai({ agentId: "openai-prod" }).runtimeEnv?.MOBIGENT_AGENT_ID, "openai-prod");
-    assert.ok(backend.agents().some((agent) => agent.provider.id === "openai-responses"));
+    assert.match(
+      backend.advanced.appConfigModule({ appId: 'com.example.app', appName: 'Example App' }),
+      /export const mobigentConfig = defineMobigentConfig/,
+    );
+    assert.equal(backend.agent('chatgpt').provider.id, 'chatgpt-actions');
+    assert.equal(backend.agent('chatgpt').endpoints.openApi, 'http://localhost:18988/openapi.json');
+    assert.equal(backend.agent('claude').provider.id, 'claude-desktop');
+    assert.equal(backend.setup('chatgpt').provider.id, 'chatgpt-actions');
+    assert.equal(backend.setup.chatgpt().endpoints.openApi, 'http://localhost:18988/openapi.json');
+    assert.equal(backend.setup.claude().provider.id, 'claude-desktop');
+    assert.equal(
+      backend.setup.openai({ agentId: 'openai-prod' }).runtimeEnv?.MOBIGENT_AGENT_ID,
+      'openai-prod',
+    );
+    assert.ok(backend.setup.all().some((agent) => agent.provider.id === 'openai-responses'));
+    assert.equal(backend.connect('chatgpt').provider.id, 'chatgpt-actions');
+    assert.equal(
+      backend.connect.chatgpt().endpoints.openApi,
+      'http://localhost:18988/openapi.json',
+    );
+    assert.equal(backend.connect.claude().provider.id, 'claude-desktop');
+    assert.equal(
+      backend.connect.openai({ agentId: 'openai-prod' }).runtimeEnv?.MOBIGENT_AGENT_ID,
+      'openai-prod',
+    );
+    assert.ok(backend.connect.all().some((agent) => agent.provider.id === 'openai-responses'));
+    assert.equal(backend.chatgpt().provider.id, 'chatgpt-actions');
+    assert.equal(backend.chatgpt().endpoints.openApi, 'http://localhost:18988/openapi.json');
+    assert.equal(backend.claude().provider.id, 'claude-desktop');
+    assert.equal(
+      backend.openai({ agentId: 'openai-prod' }).runtimeEnv?.MOBIGENT_AGENT_ID,
+      'openai-prod',
+    );
+    assert.ok(backend.agents().some((agent) => agent.provider.id === 'openai-responses'));
     await assert.rejects(
       backend.ready({ minFunctions: 1, timeoutMs: 5, intervalMs: 1 }),
-      /waiting for 1 connected app\(s\) and 1 exposed function\(s\)/
+      /waiting for 1 connected app\(s\) and 1 exposed function\(s\)/,
     );
   } finally {
     await backend.stop();
   }
 });
 
-test("backend SDK exposes app functions without tool vocabulary", async () => {
+test('backend SDK exposes app functions without tool vocabulary', async () => {
   const backend = await startMobigentBackend({
     wsPort: 18998,
     httpPort: 18999,
     app: {
-      id: "com.example.functions",
-      name: "Function App"
+      id: 'com.example.functions',
+      name: 'Function App',
     },
-    silent: true
+    silent: true,
   });
   const expensesState: unknown[] = [];
-  const expenses = feature("expense")
-    .write("create", async (input) => {
-      const expense = { id: "EXP-1", ...input };
+  const expenses = feature('expense')
+    .write('create', async (input) => {
+      const expense = { id: 'EXP-1', ...input };
       expensesState.push(expense);
       return expense;
     })
-    .read("list", async () => ({ items: expensesState }));
+    .read('list', async () => ({ items: expensesState }));
 
   try {
     const connection = await connectMobigent(expenses, {
       config: backend.client(),
-      createSocket: createNodeSocket
+      createSocket: createNodeSocket,
     });
 
     try {
       await backend.waitForApp({ minFunctions: 1 });
-      assert.equal(backend.listFunctions()[0]?.name, "com_example_functions.expense_create");
-      assert.equal(backend.listFunctions()[0]?.name, "com_example_functions.expense_create");
-      assert.equal(backend.resolveFunctionName("expense.create"), "com_example_functions.expense_create");
-      assert.deepEqual(await backend.call("expense.create", { merchant: "Cafe" }), {
-        id: "EXP-1",
-        merchant: "Cafe"
+      assert.equal(backend.listFunctions()[0]?.name, 'com_example_functions.expense_create');
+      assert.equal(backend.listFunctions()[0]?.name, 'com_example_functions.expense_create');
+      assert.equal(
+        backend.resolveFunctionName('expense.create'),
+        'com_example_functions.expense_create',
+      );
+      assert.deepEqual(await backend.call('expense.create', { merchant: 'Cafe' }), {
+        id: 'EXP-1',
+        merchant: 'Cafe',
       });
 
-      const createExpense = backend.fn("expense.create");
-      assert.deepEqual(await createExpense({ merchant: "Airport Taxi" }), {
-        id: "EXP-1",
-        merchant: "Airport Taxi"
+      const createExpense = backend.fn('expense.create');
+      assert.deepEqual(await createExpense({ merchant: 'Airport Taxi' }), {
+        id: 'EXP-1',
+        merchant: 'Airport Taxi',
       });
 
-      assert.deepEqual(await backend.use("expense").create({ merchant: "Bookshop" }), {
-        id: "EXP-1",
-        merchant: "Bookshop"
+      assert.deepEqual(await backend.use('expense').create({ merchant: 'Bookshop' }), {
+        id: 'EXP-1',
+        merchant: 'Bookshop',
       });
 
-      assert.deepEqual(await backend.app.expense.create({ merchant: "Juice Bar" }), {
-        id: "EXP-1",
-        merchant: "Juice Bar"
+      assert.deepEqual(await backend.app.expense.create({ merchant: 'Juice Bar' }), {
+        id: 'EXP-1',
+        merchant: 'Juice Bar',
       });
 
-      assert.deepEqual(await backend.use("expense").create({ merchant: "Pizzeria" }), {
-        id: "EXP-1",
-        merchant: "Pizzeria"
+      assert.deepEqual(await backend.use('expense').create({ merchant: 'Pizzeria' }), {
+        id: 'EXP-1',
+        merchant: 'Pizzeria',
       });
 
       const expenseHelpers = backend.use({
-        createExpense: "expense.create",
-        listExpenses: "expense.list"
+        createExpense: 'expense.create',
+        listExpenses: 'expense.list',
       });
 
-      assert.deepEqual(await expenseHelpers.createExpense({ merchant: "Deli" }), {
-        id: "EXP-1",
-        merchant: "Deli"
+      assert.deepEqual(await expenseHelpers.createExpense({ merchant: 'Deli' }), {
+        id: 'EXP-1',
+        merchant: 'Deli',
       });
 
-      const namedExpenses = backend.use("expense", {
-        createExpense: "create",
-        listExpenses: "list"
+      const namedExpenses = backend.use('expense', {
+        createExpense: 'create',
+        listExpenses: 'list',
       });
-      assert.deepEqual(await namedExpenses.createExpense({ merchant: "Market" }), {
-        id: "EXP-1",
-        merchant: "Market"
-      });
-
-      const appNamedExpenses = backend.app("expense", {
-        createExpense: "create",
-        listExpenses: "list"
-      });
-      assert.deepEqual(await appNamedExpenses.createExpense({ merchant: "Gift Shop" }), {
-        id: "EXP-1",
-        merchant: "Gift Shop"
+      assert.deepEqual(await namedExpenses.createExpense({ merchant: 'Market' }), {
+        id: 'EXP-1',
+        merchant: 'Market',
       });
 
-      const directExpenses = backend.use("expense", ["create", "list"] as const);
-      assert.deepEqual(await directExpenses.create({ merchant: "Grocer" }), {
-        id: "EXP-1",
-        merchant: "Grocer"
+      const appNamedExpenses = backend.app('expense', {
+        createExpense: 'create',
+        listExpenses: 'list',
+      });
+      assert.deepEqual(await appNamedExpenses.createExpense({ merchant: 'Gift Shop' }), {
+        id: 'EXP-1',
+        merchant: 'Gift Shop',
       });
 
-      const appDirectExpenses = backend.app("expense", ["create", "list"] as const);
-      assert.deepEqual(await appDirectExpenses.create({ merchant: "Pharmacy" }), {
-        id: "EXP-1",
-        merchant: "Pharmacy"
+      const directExpenses = backend.use('expense', ['create', 'list'] as const);
+      assert.deepEqual(await directExpenses.create({ merchant: 'Grocer' }), {
+        id: 'EXP-1',
+        merchant: 'Grocer',
+      });
+
+      const appDirectExpenses = backend.app('expense', ['create', 'list'] as const);
+      assert.deepEqual(await appDirectExpenses.create({ merchant: 'Pharmacy' }), {
+        id: 'EXP-1',
+        merchant: 'Pharmacy',
       });
 
       const appFunctions = {
         expense: {
-          create: async (input: { merchant: string }) => ({ id: "EXP-1", merchant: input.merchant }),
-          list: async () => ({ items: [] as Array<{ id: string; merchant: string }> })
-        }
+          create: async (input: { merchant: string }) => ({
+            id: 'EXP-1',
+            merchant: input.merchant,
+          }),
+          list: async () => ({ items: [] as Array<{ id: string; merchant: string }> }),
+        },
       };
       const typedApp: BackendAppFunctions<typeof appFunctions> = backend.use(appFunctions);
-      const typedAppFromAppAccessor: BackendAppFunctions<typeof appFunctions> = backend.app(appFunctions);
+      const typedAppFromAppAccessor: BackendAppFunctions<typeof appFunctions> =
+        backend.app(appFunctions);
       const legacyFunctions = backend as unknown as { functions: typeof backend.use };
       const typedFromFunctionsAccessor = legacyFunctions.functions(appFunctions);
       const typeOnlyApp = backend.use<typeof appFunctions>();
       const typeOnlyAppFromAppAccessor = backend.app<typeof appFunctions>();
       const contractShape: BackendAppFunctionContract = appFunctions;
-      assert.equal(typeof contractShape.expense.create, "function");
-      const typedResult: { id: string; merchant: string } = await typedApp.expense.create({ merchant: "Lunch" });
+      assert.equal(typeof contractShape.expense.create, 'function');
+      const typedResult: { id: string; merchant: string } = await typedApp.expense.create({
+        merchant: 'Lunch',
+      });
       assert.deepEqual(typedResult, {
-        id: "EXP-1",
-        merchant: "Lunch"
+        id: 'EXP-1',
+        merchant: 'Lunch',
       });
-      assert.deepEqual(await typedAppFromAppAccessor.expense.create({ merchant: "Flowers" }), {
-        id: "EXP-1",
-        merchant: "Flowers"
+      assert.deepEqual(await typedAppFromAppAccessor.expense.create({ merchant: 'Flowers' }), {
+        id: 'EXP-1',
+        merchant: 'Flowers',
       });
-      assert.deepEqual(await typedFromFunctionsAccessor.expense.create({ merchant: "Stationery" }), {
-        id: "EXP-1",
-        merchant: "Stationery"
+      assert.deepEqual(
+        await typedFromFunctionsAccessor.expense.create({ merchant: 'Stationery' }),
+        {
+          id: 'EXP-1',
+          merchant: 'Stationery',
+        },
+      );
+      assert.deepEqual(await typeOnlyApp.expense.create({ merchant: 'Bookstore' }), {
+        id: 'EXP-1',
+        merchant: 'Bookstore',
       });
-      assert.deepEqual(await typeOnlyApp.expense.create({ merchant: "Bookstore" }), {
-        id: "EXP-1",
-        merchant: "Bookstore"
-      });
-      assert.deepEqual(await typeOnlyAppFromAppAccessor.expense.create({ merchant: "Hardware" }), {
-        id: "EXP-1",
-        merchant: "Hardware"
+      assert.deepEqual(await typeOnlyAppFromAppAccessor.expense.create({ merchant: 'Hardware' }), {
+        id: 'EXP-1',
+        merchant: 'Hardware',
       });
 
-      const app = backend.feature("expense");
+      const app = backend.feature('expense');
 
-      assert.deepEqual(await app.create({ merchant: "Bakery" }), {
-        id: "EXP-1",
-        merchant: "Bakery"
+      assert.deepEqual(await app.create({ merchant: 'Bakery' }), {
+        id: 'EXP-1',
+        merchant: 'Bakery',
       });
       assert.deepEqual(await app.list(), {
         items: [
-          { id: "EXP-1", merchant: "Cafe" },
-          { id: "EXP-1", merchant: "Airport Taxi" },
-          { id: "EXP-1", merchant: "Bookshop" },
-          { id: "EXP-1", merchant: "Juice Bar" },
-          { id: "EXP-1", merchant: "Pizzeria" },
-          { id: "EXP-1", merchant: "Deli" },
-          { id: "EXP-1", merchant: "Market" },
-          { id: "EXP-1", merchant: "Gift Shop" },
-          { id: "EXP-1", merchant: "Grocer" },
-          { id: "EXP-1", merchant: "Pharmacy" },
-          { id: "EXP-1", merchant: "Lunch" },
-          { id: "EXP-1", merchant: "Flowers" },
-          { id: "EXP-1", merchant: "Stationery" },
-          { id: "EXP-1", merchant: "Bookstore" },
-          { id: "EXP-1", merchant: "Hardware" },
-          { id: "EXP-1", merchant: "Bakery" }
-        ]
+          { id: 'EXP-1', merchant: 'Cafe' },
+          { id: 'EXP-1', merchant: 'Airport Taxi' },
+          { id: 'EXP-1', merchant: 'Bookshop' },
+          { id: 'EXP-1', merchant: 'Juice Bar' },
+          { id: 'EXP-1', merchant: 'Pizzeria' },
+          { id: 'EXP-1', merchant: 'Deli' },
+          { id: 'EXP-1', merchant: 'Market' },
+          { id: 'EXP-1', merchant: 'Gift Shop' },
+          { id: 'EXP-1', merchant: 'Grocer' },
+          { id: 'EXP-1', merchant: 'Pharmacy' },
+          { id: 'EXP-1', merchant: 'Lunch' },
+          { id: 'EXP-1', merchant: 'Flowers' },
+          { id: 'EXP-1', merchant: 'Stationery' },
+          { id: 'EXP-1', merchant: 'Bookstore' },
+          { id: 'EXP-1', merchant: 'Hardware' },
+          { id: 'EXP-1', merchant: 'Bakery' },
+        ],
       });
     } finally {
       connection.disconnect();
@@ -667,68 +698,71 @@ test("backend SDK exposes app functions without tool vocabulary", async () => {
   }
 });
 
-test("backend startup logs use app and agent product language", async () => {
+test('backend startup logs use app and agent product language', async () => {
   const logs: string[] = [];
   const originalLog = console.log;
   let backend: Awaited<ReturnType<typeof startMobigentBackend>> | undefined;
   console.log = (...args: unknown[]) => {
-    logs.push(args.map(String).join(" "));
+    logs.push(args.map(String).join(' '));
   };
 
   try {
     backend = await startMobigentBackend({
       wsPort: 19017,
-      httpPort: 19018
+      httpPort: 19018,
     });
 
-    assert.ok(logs.some((line) => line.includes("Mobigent backend ready")));
-    assert.ok(logs.some((line) => line.includes("App connection: ws://localhost:19017")));
-    assert.ok(logs.some((line) => line.includes("Agent API: http://localhost:19018")));
-    assert.ok(logs.some((line) => line.includes("Inspector: http://localhost:19018/inspect")));
-    assert.equal(logs.some((line) => /App WebSocket|Agent HTTP/.test(line)), false);
+    assert.ok(logs.some((line) => line.includes('Mobigent backend ready')));
+    assert.ok(logs.some((line) => line.includes('App connection: ws://localhost:19017')));
+    assert.ok(logs.some((line) => line.includes('Agent API: http://localhost:19018')));
+    assert.ok(logs.some((line) => line.includes('Inspector: http://localhost:19018/inspect')));
+    assert.equal(
+      logs.some((line) => /App WebSocket|Agent HTTP/.test(line)),
+      false,
+    );
   } finally {
     console.log = originalLog;
     await backend?.stop();
   }
 });
 
-test("app package connects to a backend object without connection URL ceremony", async () => {
-  const backend = await startMobigent("com.example.backendtarget", "Backend Target App", {
+test('app package connects to a backend object without connection URL ceremony', async () => {
+  const backend = await startMobigent('com.example.backendtarget', 'Backend Target App', {
     wsPort: 19011,
     httpPort: 19012,
-    silent: true
+    silent: true,
   });
   const app = createApp({
-    appId: "com.example.backendtarget",
+    appId: 'com.example.backendtarget',
     functions: {
       expense: {
-        create: write(async (input) => ({ id: "EXP-BACKEND", ...input }), {
+        create: write(async (input) => ({ id: 'EXP-BACKEND', ...input }), {
           input: {
-            merchant: "string"
+            merchant: 'string',
           },
-          confirm: true
-        })
-      }
+          confirm: true,
+        }),
+      },
     },
     createSocket: createNodeSocket,
-    confirm: async () => true
+    confirm: async () => true,
   });
 
   try {
-    assert.equal(backend.connection.appId, "com.example.backendtarget");
-    assert.equal(backend.connection.connectionUrl, "ws://localhost:19011");
+    assert.equal(backend.connection.appId, 'com.example.backendtarget');
+    assert.equal(backend.connection.connectionUrl, 'ws://localhost:19011');
 
     const connection = await app.connect(backend);
 
     try {
       await backend.waitForApp({ minFunctions: 1 });
-      assert.deepEqual(await backend.app.expense.create({ merchant: "Tea" }), {
-        id: "EXP-BACKEND",
-        merchant: "Tea"
+      assert.deepEqual(await backend.app.expense.create({ merchant: 'Tea' }), {
+        id: 'EXP-BACKEND',
+        merchant: 'Tea',
       });
-      assert.deepEqual(await backend.use("expense").create({ merchant: "Coffee" }), {
-        id: "EXP-BACKEND",
-        merchant: "Coffee"
+      assert.deepEqual(await backend.use('expense').create({ merchant: 'Coffee' }), {
+        id: 'EXP-BACKEND',
+        merchant: 'Coffee',
       });
     } finally {
       connection.disconnect();
@@ -738,39 +772,39 @@ test("app package connects to a backend object without connection URL ceremony",
   }
 });
 
-test("app package keeps backend.forApp() compatibility for explicit settings", async () => {
-  const backend = await startMobigent("com.example.forapp", "For App", {
+test('app package keeps backend.forApp() compatibility for explicit settings', async () => {
+  const backend = await startMobigent('com.example.forapp', 'For App', {
     wsPort: 19031,
     httpPort: 19032,
-    silent: true
+    silent: true,
   });
   const app = createApp(
     {
       expense: {
-        create: write(async (input) => ({ id: "EXP-FORAPP", ...input }), {
-          confirm: true
-        })
-      }
+        create: write(async (input) => ({ id: 'EXP-FORAPP', ...input }), {
+          confirm: true,
+        }),
+      },
     },
     {
       backend: backend.forApp(),
       createSocket: createNodeSocket,
-      confirm: async () => true
-    }
+      confirm: async () => true,
+    },
   );
 
   try {
-    assert.equal(app.options.appId, "com.example.forapp");
-    assert.equal(app.options.appName, "For App");
-    assert.equal(app.options.gatewayUrl, "ws://localhost:19031");
+    assert.equal(app.options.appId, 'com.example.forapp');
+    assert.equal(app.options.appName, 'For App');
+    assert.equal(app.options.gatewayUrl, 'ws://localhost:19031');
 
     const connection = await app.connect();
 
     try {
       await backend.waitForApp({ minFunctions: 1 });
-      assert.deepEqual(await backend.use("expense").create({ merchant: "Notebook" }), {
-        id: "EXP-FORAPP",
-        merchant: "Notebook"
+      assert.deepEqual(await backend.use('expense').create({ merchant: 'Notebook' }), {
+        id: 'EXP-FORAPP',
+        merchant: 'Notebook',
       });
     } finally {
       connection.disconnect();
@@ -780,20 +814,20 @@ test("app package keeps backend.forApp() compatibility for explicit settings", a
   }
 });
 
-test("app package accepts backend appConnectionUrl as a friendly connection target", async () => {
-  const backend = await startMobigent("com.example.connectionalias", "Connection Alias App", {
+test('app package accepts backend appConnectionUrl as a friendly connection target', async () => {
+  const backend = await startMobigent('com.example.connectionalias', 'Connection Alias App', {
     wsPort: 19019,
     httpPort: 19020,
-    silent: true
+    silent: true,
   });
   const app = createApp({
-    appId: "com.example.connectionalias",
+    appId: 'com.example.connectionalias',
     functions: {
       expense: {
-        list: async () => ({ items: [{ id: "EXP-ALIAS" }] })
-      }
+        list: async () => ({ items: [{ id: 'EXP-ALIAS' }] }),
+      },
     },
-    createSocket: createNodeSocket
+    createSocket: createNodeSocket,
   });
 
   try {
@@ -802,7 +836,7 @@ test("app package accepts backend appConnectionUrl as a friendly connection targ
     try {
       await backend.waitForApp({ minFunctions: 1 });
       assert.deepEqual(await backend.app.expense.list(), {
-        items: [{ id: "EXP-ALIAS" }]
+        items: [{ id: 'EXP-ALIAS' }],
       });
     } finally {
       connection.disconnect();
@@ -812,21 +846,25 @@ test("app package accepts backend appConnectionUrl as a friendly connection targ
   }
 });
 
-test("app package connects with the backend object directly", async () => {
-  const backend = await startMobigent("com.example.backendobject", "Backend Object App", {
+test('app package connects with the backend object directly', async () => {
+  const backend = await startMobigent('com.example.backendobject', 'Backend Object App', {
     wsPort: 19029,
     httpPort: 19030,
-    silent: true
+    silent: true,
   });
-  const backendSource: AppOptions["backend"] = backend;
-  const app = createApp("com.example.backendobject", {
-    expense: {
-      list: async () => ({ items: [{ id: "EXP-BACKEND-OBJECT" }] })
-    }
-  }, {
-    backend: backendSource,
-    createSocket: createNodeSocket
-  });
+  const backendSource: AppOptions['backend'] = backend;
+  const app = createApp(
+    'com.example.backendobject',
+    {
+      expense: {
+        list: async () => ({ items: [{ id: 'EXP-BACKEND-OBJECT' }] }),
+      },
+    },
+    {
+      backend: backendSource,
+      createSocket: createNodeSocket,
+    },
+  );
 
   try {
     const connection = await app.connect();
@@ -834,7 +872,7 @@ test("app package connects with the backend object directly", async () => {
     try {
       await backend.waitForApp({ minFunctions: 1 });
       assert.deepEqual(await backend.app.expense.list(), {
-        items: [{ id: "EXP-BACKEND-OBJECT" }]
+        items: [{ id: 'EXP-BACKEND-OBJECT' }],
       });
     } finally {
       connection.disconnect();
@@ -844,35 +882,35 @@ test("app package connects with the backend object directly", async () => {
   }
 });
 
-test("app package infers identity and connection from a backend object", async () => {
-  const backend = await startMobigent("com.example.inferbackend", "Infer Backend App", {
+test('app package infers identity and connection from a backend object', async () => {
+  const backend = await startMobigent('com.example.inferbackend', 'Infer Backend App', {
     wsPort: 19033,
     httpPort: 19034,
-    silent: true
+    silent: true,
   });
   const app = createApp(
     {
       expense: {
-        list: async () => ({ items: [{ id: "EXP-INFER-BACKEND" }] })
-      }
+        list: async () => ({ items: [{ id: 'EXP-INFER-BACKEND' }] }),
+      },
     },
     {
       backend,
-      createSocket: createNodeSocket
-    }
+      createSocket: createNodeSocket,
+    },
   );
 
   try {
-    assert.equal(app.options.appId, "com.example.inferbackend");
-    assert.equal(app.options.appName, "Infer Backend App");
-    assert.equal(app.options.gatewayUrl, "ws://localhost:19033");
+    assert.equal(app.options.appId, 'com.example.inferbackend');
+    assert.equal(app.options.appName, 'Infer Backend App');
+    assert.equal(app.options.gatewayUrl, 'ws://localhost:19033');
 
     const connection = await app.connect();
 
     try {
       await backend.waitForApp({ minFunctions: 1 });
-      assert.deepEqual(await backend.use("expense").list(), {
-        items: [{ id: "EXP-INFER-BACKEND" }]
+      assert.deepEqual(await backend.use('expense').list(), {
+        items: [{ id: 'EXP-INFER-BACKEND' }],
       });
     } finally {
       connection.disconnect();
@@ -882,19 +920,23 @@ test("app package infers identity and connection from a backend object", async (
   }
 });
 
-test("app package connect accepts the backend object directly", async () => {
-  const backend = await startMobigent("com.example.connectbackend", "Connect Backend App", {
+test('app package connect accepts the backend object directly', async () => {
+  const backend = await startMobigent('com.example.connectbackend', 'Connect Backend App', {
     wsPort: 19031,
     httpPort: 19032,
-    silent: true
+    silent: true,
   });
-  const app = createApp("com.example.connectbackend", {
-    expense: {
-      list: async () => ({ items: [{ id: "EXP-CONNECT-BACKEND" }] })
-    }
-  }, {
-    createSocket: createNodeSocket
-  });
+  const app = createApp(
+    'com.example.connectbackend',
+    {
+      expense: {
+        list: async () => ({ items: [{ id: 'EXP-CONNECT-BACKEND' }] }),
+      },
+    },
+    {
+      createSocket: createNodeSocket,
+    },
+  );
 
   try {
     const connection = await app.connect(backend);
@@ -902,7 +944,7 @@ test("app package connect accepts the backend object directly", async () => {
     try {
       await backend.waitForApp({ minFunctions: 1 });
       assert.deepEqual(await backend.app.expense.list(), {
-        items: [{ id: "EXP-CONNECT-BACKEND" }]
+        items: [{ id: 'EXP-CONNECT-BACKEND' }],
       });
     } finally {
       connection.disconnect();
@@ -912,19 +954,19 @@ test("app package connect accepts the backend object directly", async () => {
   }
 });
 
-test("app package connects with backend appClient settings", async () => {
-  const backend = await startMobigent("com.example.appclient", "App Client App", {
+test('app package connects with backend appClient settings', async () => {
+  const backend = await startMobigent('com.example.appclient', 'App Client App', {
     wsPort: 19021,
     httpPort: 19022,
-    silent: true
+    silent: true,
   });
   const app = createApp({
     functions: {
       expense: {
-        list: async () => ({ items: [{ id: "EXP-CLIENT" }] })
-      }
+        list: async () => ({ items: [{ id: 'EXP-CLIENT' }] }),
+      },
     },
-    createSocket: createNodeSocket
+    createSocket: createNodeSocket,
   });
 
   try {
@@ -934,7 +976,7 @@ test("app package connects with backend appClient settings", async () => {
     try {
       await backend.waitForApp({ minFunctions: 1 });
       assert.deepEqual(await backend.app.expense.list(), {
-        items: [{ id: "EXP-CLIENT" }]
+        items: [{ id: 'EXP-CLIENT' }],
       });
     } finally {
       connection.disconnect();
@@ -944,19 +986,19 @@ test("app package connects with backend appClient settings", async () => {
   }
 });
 
-test("app package connects with backend pairing settings", async () => {
-  const backend = await startMobigent("com.example.pairing", "Pairing App", {
+test('app package connects with backend pairing settings', async () => {
+  const backend = await startMobigent('com.example.pairing', 'Pairing App', {
     wsPort: 19023,
     httpPort: 19024,
-    silent: true
+    silent: true,
   });
   const app = createApp({
     functions: {
       expense: {
-        list: async () => ({ items: [{ id: "EXP-PAIRING" }] })
-      }
+        list: async () => ({ items: [{ id: 'EXP-PAIRING' }] }),
+      },
     },
-    createSocket: createNodeSocket
+    createSocket: createNodeSocket,
   });
 
   try {
@@ -966,7 +1008,7 @@ test("app package connects with backend pairing settings", async () => {
     try {
       await backend.waitForApp({ minFunctions: 1 });
       assert.deepEqual(await backend.app.expense.list(), {
-        items: [{ id: "EXP-PAIRING" }]
+        items: [{ id: 'EXP-PAIRING' }],
       });
     } finally {
       connection.disconnect();
@@ -976,20 +1018,20 @@ test("app package connects with backend pairing settings", async () => {
   }
 });
 
-test("app package accepts backend pairing as a named setup option", async () => {
-  const backend = await startMobigent("com.example.namedpairing", "Named Pairing App", {
+test('app package accepts backend pairing as a named setup option', async () => {
+  const backend = await startMobigent('com.example.namedpairing', 'Named Pairing App', {
     wsPort: 19025,
     httpPort: 19026,
-    silent: true
+    silent: true,
   });
   const app = createApp({
     pairing: backend.pairing(),
     functions: {
       expense: {
-        list: async () => ({ items: [{ id: "EXP-NAMED-PAIRING" }] })
-      }
+        list: async () => ({ items: [{ id: 'EXP-NAMED-PAIRING' }] }),
+      },
     },
-    createSocket: createNodeSocket
+    createSocket: createNodeSocket,
   });
 
   try {
@@ -998,7 +1040,7 @@ test("app package accepts backend pairing as a named setup option", async () => 
     try {
       await backend.waitForApp({ minFunctions: 1 });
       assert.deepEqual(await backend.app.expense.list(), {
-        items: [{ id: "EXP-NAMED-PAIRING" }]
+        items: [{ id: 'EXP-NAMED-PAIRING' }],
       });
     } finally {
       connection.disconnect();
@@ -1008,31 +1050,35 @@ test("app package accepts backend pairing as a named setup option", async () => 
   }
 });
 
-test("app and backend packages expose a plain app settings handoff", async () => {
-  const backend = await startMobigent("com.example.appsettings", "App Settings App", {
+test('app and backend packages expose a plain app settings handoff', async () => {
+  const backend = await startMobigent('com.example.appsettings', 'App Settings App', {
     wsPort: 19027,
     httpPort: 19028,
-    silent: true
+    silent: true,
   });
-  const appSettings: AppOptions["backend"] = backend.appSettings();
-  const app = createApp("com.example.appsettings", {
-    expense: {
-      list: async () => ({ items: [{ id: "EXP-SETTINGS" }] })
-    }
-  }, {
-    backend: appSettings,
-    createSocket: createNodeSocket
-  });
+  const appSettings: AppOptions['backend'] = backend.appSettings();
+  const app = createApp(
+    'com.example.appsettings',
+    {
+      expense: {
+        list: async () => ({ items: [{ id: 'EXP-SETTINGS' }] }),
+      },
+    },
+    {
+      backend: appSettings,
+      createSocket: createNodeSocket,
+    },
+  );
 
   try {
     assert.deepEqual(backend.appSettings(), backend.connection);
-    assert.deepEqual(backend.appSettings("com.example.other", "Other App"), {
-      appId: "com.example.other",
-      appName: "Other App",
-      backendUrl: "ws://localhost:19027",
-      connectionUrl: "ws://localhost:19027",
+    assert.deepEqual(backend.appSettings('com.example.other', 'Other App'), {
+      appId: 'com.example.other',
+      appName: 'Other App',
+      backendUrl: 'ws://localhost:19027',
+      connectionUrl: 'ws://localhost:19027',
       authToken: undefined,
-      version: undefined
+      version: undefined,
     });
 
     const connection = await app.connect();
@@ -1040,7 +1086,7 @@ test("app and backend packages expose a plain app settings handoff", async () =>
     try {
       await backend.waitForApp({ minFunctions: 1 });
       assert.deepEqual(await backend.app.expense.list(), {
-        items: [{ id: "EXP-SETTINGS" }]
+        items: [{ id: 'EXP-SETTINGS' }],
       });
     } finally {
       connection.disconnect();
@@ -1050,38 +1096,38 @@ test("app and backend packages expose a plain app settings handoff", async () =>
   }
 });
 
-test("app and backend SDKs can pair with matching string app identity", async () => {
+test('app and backend SDKs can pair with matching string app identity', async () => {
   const previousWsPort = process.env.MOBIGENT_WS_PORT;
   const previousHttpPort = process.env.MOBIGENT_HTTP_PORT;
-  process.env.MOBIGENT_WS_PORT = "19015";
-  process.env.MOBIGENT_HTTP_PORT = "19016";
+  process.env.MOBIGENT_WS_PORT = '19015';
+  process.env.MOBIGENT_HTTP_PORT = '19016';
 
-  const backend = await startMobigent("com.example.stringpair", "String Pair App");
+  const backend = await startMobigent('com.example.stringpair', 'String Pair App');
   const app = createApp(
-    "com.example.stringpair",
+    'com.example.stringpair',
     {
       expense: {
-        create: write(async (input) => ({ id: "EXP-STRING", ...input }), {
+        create: write(async (input) => ({ id: 'EXP-STRING', ...input }), {
           input: {
-            merchant: "string"
+            merchant: 'string',
           },
-          confirm: true
-        })
-      }
+          confirm: true,
+        }),
+      },
     },
     {
       createSocket: createNodeSocket,
-      confirm: async () => true
-    }
+      confirm: async () => true,
+    },
   );
 
   try {
     const connection = await app.connect(backend);
 
     try {
-      assert.deepEqual(await backend.app.expense.create({ merchant: "Noodles" }), {
-        id: "EXP-STRING",
-        merchant: "Noodles"
+      assert.deepEqual(await backend.app.expense.create({ merchant: 'Noodles' }), {
+        id: 'EXP-STRING',
+        merchant: 'Noodles',
       });
     } finally {
       connection.disconnect();
@@ -1101,54 +1147,54 @@ test("app and backend SDKs can pair with matching string app identity", async ()
   }
 });
 
-test("backend app functions wait for the app connection automatically", async () => {
-  const expenses = feature("expense").write(
-    "create",
+test('backend app functions wait for the app connection automatically', async () => {
+  const expenses = feature('expense').write(
+    'create',
     async (input) => ({
-      id: "EXP-AUTO",
+      id: 'EXP-AUTO',
       merchant: String(input.merchant),
-      amount: Number(input.amount)
+      amount: Number(input.amount),
     }),
     {
       input: {
-        merchant: "string",
-        amount: "number"
+        merchant: 'string',
+        amount: 'number',
       },
-      confirm: true
-    }
+      confirm: true,
+    },
   );
-  const backend = await startMobigent("com.example.autowait", "Auto Wait App", {
+  const backend = await startMobigent('com.example.autowait', 'Auto Wait App', {
     wsPort: 19007,
     httpPort: 19008,
-    silent: true
+    silent: true,
   });
   let connection: { disconnect(): void } | undefined;
   let connectionPromise: Promise<{ disconnect(): void }> | undefined;
 
   try {
-    const createExpense = backend.feature("expense").create({
-      merchant: "Train Station",
-      amount: 19.5
+    const createExpense = backend.feature('expense').create({
+      merchant: 'Train Station',
+      amount: 19.5,
     });
 
     setTimeout(() => {
       connectionPromise = connectMobigent(expenses, {
         config: backend.client(),
         createSocket: createNodeSocket,
-        confirm: async () => true
+        confirm: async () => true,
       });
     }, 20);
 
     assert.deepEqual(await createExpense, {
-      id: "EXP-AUTO",
-      merchant: "Train Station",
-      amount: 19.5
+      id: 'EXP-AUTO',
+      merchant: 'Train Station',
+      amount: 19.5,
     });
     connection = await connectionPromise;
 
     await assert.rejects(
-      backend.call("expense.missing", {}, { waitTimeoutMs: 20, waitIntervalMs: 5 }),
-      /waiting for app function expense\.missing/
+      backend.call('expense.missing', {}, { waitTimeoutMs: 20, waitIntervalMs: 5 }),
+      /waiting for app function expense\.missing/,
     );
   } finally {
     connection?.disconnect();
@@ -1156,64 +1202,64 @@ test("backend app functions wait for the app connection automatically", async ()
   }
 });
 
-test("backend SDK can start with one app identity and normal backend options", async () => {
-  const backend = await startMobigent("com.example.simple", {
-    appName: "Simple App",
+test('backend SDK can start with one app identity and normal backend options', async () => {
+  const backend = await startMobigent('com.example.simple', {
+    appName: 'Simple App',
     wsPort: 18991,
     httpPort: 18992,
-    appToken: "dev-token",
-    silent: true
+    appToken: 'dev-token',
+    silent: true,
   });
 
   try {
     assert.deepEqual(backend.connection, {
-      appId: "com.example.simple",
-      appName: "Simple App",
-      backendUrl: "ws://localhost:18991",
-      connectionUrl: "ws://localhost:18991",
-      authToken: "dev-token",
-      version: undefined
+      appId: 'com.example.simple',
+      appName: 'Simple App',
+      backendUrl: 'ws://localhost:18991',
+      connectionUrl: 'ws://localhost:18991',
+      authToken: 'dev-token',
+      version: undefined,
     });
     assert.match(backend.advanced.copyAppConfig(), /com.example.simple/);
-    assert.match(backend.advanced.appConfigCode ?? "", /defineMobigentConfig/);
+    assert.match(backend.advanced.appConfigCode ?? '', /defineMobigentConfig/);
   } finally {
     await backend.stop();
   }
 });
 
-test("backend SDK can pair with an app using only a top-level app id", async () => {
-  const backend = await startMobigent("com.example.minimal", undefined, {
+test('backend SDK can pair with an app using only a top-level app id', async () => {
+  const backend = await startMobigent('com.example.minimal', undefined, {
     wsPort: 19009,
     httpPort: 19010,
-    silent: true
+    silent: true,
   });
 
   try {
     assert.deepEqual(backend.connection, {
-      appId: "com.example.minimal",
-      appName: "Minimal",
-      backendUrl: "ws://localhost:19009",
-      connectionUrl: "ws://localhost:19009",
+      appId: 'com.example.minimal',
+      appName: 'Minimal',
+      backendUrl: 'ws://localhost:19009',
+      connectionUrl: 'ws://localhost:19009',
       authToken: undefined,
-      version: undefined
+      version: undefined,
     });
   } finally {
     await backend.stop();
   }
 });
 
-test("backend SDK can start from just an app id string", async () => {
+test('backend SDK can start from just an app id string', async () => {
   const previousWsPort = process.env.MOBIGENT_WS_PORT;
   const previousHttpPort = process.env.MOBIGENT_HTTP_PORT;
-  process.env.MOBIGENT_WS_PORT = "19013";
-  process.env.MOBIGENT_HTTP_PORT = "19014";
+  process.env.MOBIGENT_WS_PORT = '19013';
+  process.env.MOBIGENT_HTTP_PORT = '19014';
 
-  const backend = await startMobigent("com.example.stringapp", "String App");
+  const backend = await startMobigent('com.example.stringapp', 'String App');
 
   try {
-    assert.equal(backend.connection.appId, "com.example.stringapp");
-    assert.equal(backend.connection.appName, "String App");
-    assert.equal(backend.inspectorUrl, "http://localhost:19014/inspect");
+    assert.equal(backend.connection.appId, 'com.example.stringapp');
+    assert.equal(backend.connection.appName, 'String App');
+    assert.equal(backend.inspectorUrl, 'http://localhost:19014/inspect');
   } finally {
     await backend.stop();
     if (previousWsPort === undefined) {
@@ -1229,34 +1275,38 @@ test("backend SDK can start from just an app id string", async () => {
   }
 });
 
-test("backend SDK uses the app package local identity when no app config is passed", async () => {
-  const dir = await mkdtemp(join(tmpdir(), "mobigent-infer-sdk-"));
+test('backend SDK uses the app package local identity when no app config is passed', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'mobigent-infer-sdk-'));
   const previousCwd = process.cwd();
 
   try {
-    await writeFile(join(dir, "package.json"), JSON.stringify({ name: "@acme/travel-wallet" }), "utf8");
+    await writeFile(
+      join(dir, 'package.json'),
+      JSON.stringify({ name: '@acme/travel-wallet' }),
+      'utf8',
+    );
     process.chdir(dir);
 
     const inferred = inferMobigentAppIdentity();
     assert.deepEqual(inferred, {
-      appId: "app.acme.travel.wallet",
-      appName: "Travel Wallet"
+      appId: 'app.acme.travel.wallet',
+      appName: 'Travel Wallet',
     });
 
     const backend = await startMobigent({
       wsPort: 18995,
       httpPort: 18996,
-      silent: true
+      silent: true,
     });
 
     try {
       assert.deepEqual(backend.connection, {
-        appId: "app.mobigent.local",
-        appName: "Mobigent App",
-        backendUrl: "ws://localhost:18995",
-        connectionUrl: "ws://localhost:18995",
+        appId: 'app.mobigent.local',
+        appName: 'Mobigent App',
+        backendUrl: 'ws://localhost:18995',
+        connectionUrl: 'ws://localhost:18995',
         authToken: undefined,
-        version: undefined
+        version: undefined,
       });
       assert.match(backend.advanced.copyAppConfig(), /Mobigent App/);
     } finally {
@@ -1268,25 +1318,25 @@ test("backend SDK uses the app package local identity when no app config is pass
   }
 });
 
-test("backend SDK accepts short app env alias and infers app name", async () => {
+test('backend SDK accepts short app env alias and infers app name', async () => {
   const originalEnv = snapshotMobigentEnv();
-  process.env.MOBIGENT_APP = "com.example.travel.wallet";
-  process.env.MOBIGENT_APP_VERSION = "2.0.0";
+  process.env.MOBIGENT_APP = 'com.example.travel.wallet';
+  process.env.MOBIGENT_APP_VERSION = '2.0.0';
 
   const backend = await startMobigent({
     wsPort: 19043,
     httpPort: 19044,
-    silent: true
+    silent: true,
   });
 
   try {
     assert.deepEqual(backend.connection, {
-      appId: "com.example.travel.wallet",
-      appName: "Wallet",
-      backendUrl: "ws://localhost:19043",
-      connectionUrl: "ws://localhost:19043",
+      appId: 'com.example.travel.wallet',
+      appName: 'Wallet',
+      backendUrl: 'ws://localhost:19043',
+      connectionUrl: 'ws://localhost:19043',
       authToken: undefined,
-      version: "2.0.0"
+      version: '2.0.0',
     });
   } finally {
     await backend.stop();
@@ -1294,33 +1344,33 @@ test("backend SDK accepts short app env alias and infers app name", async () => 
   }
 });
 
-test("backend SDK writes app config when appDir is provided", async () => {
-  const dir = await mkdtemp(join(tmpdir(), "mobigent-backend-appdir-"));
-  const appDir = join(dir, "mobile-app");
+test('backend SDK writes app config when appDir is provided', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'mobigent-backend-appdir-'));
+  const appDir = join(dir, 'mobile-app');
 
   try {
     const backend = await startMobigent({
       wsPort: 19001,
       httpPort: 19002,
-      appToken: "dev-token",
+      appToken: 'dev-token',
       appDir,
       app: {
-        id: "com.example.mobile",
-        name: "Mobile App"
+        id: 'com.example.mobile',
+        name: 'Mobile App',
       },
-      silent: true
+      silent: true,
     });
 
     try {
-      assert.equal(backend.advanced.appConfigPath, join(appDir, "mobigent.app.json"));
+      assert.equal(backend.advanced.appConfigPath, join(appDir, 'mobigent.app.json'));
       assert.equal(backend.advanced.appConfigModulePath, undefined);
-      const config = JSON.parse(await readFile(join(appDir, "mobigent.app.json"), "utf8"));
+      const config = JSON.parse(await readFile(join(appDir, 'mobigent.app.json'), 'utf8'));
       assert.deepEqual(config, {
-        appId: "com.example.mobile",
-        appName: "Mobile App",
-        backendUrl: "ws://localhost:19001",
-        connectionUrl: "ws://localhost:19001",
-        authToken: "dev-token"
+        appId: 'com.example.mobile',
+        appName: 'Mobile App',
+        backendUrl: 'ws://localhost:19001',
+        connectionUrl: 'ws://localhost:19001',
+        authToken: 'dev-token',
       });
     } finally {
       await backend.stop();
@@ -1330,33 +1380,37 @@ test("backend SDK writes app config when appDir is provided", async () => {
   }
 });
 
-test("backend SDK infers default app identity from appDir", async () => {
-  const dir = await mkdtemp(join(tmpdir(), "mobigent-backend-appdir-identity-"));
-  const appDir = join(dir, "apps", "travel-wallet-mobile");
+test('backend SDK infers default app identity from appDir', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'mobigent-backend-appdir-identity-'));
+  const appDir = join(dir, 'apps', 'travel-wallet-mobile');
 
   try {
     await mkdir(appDir, { recursive: true });
-    await writeFile(join(appDir, "package.json"), JSON.stringify({ name: "@acme/travel-wallet-mobile" }), "utf8");
+    await writeFile(
+      join(appDir, 'package.json'),
+      JSON.stringify({ name: '@acme/travel-wallet-mobile' }),
+      'utf8',
+    );
 
     const backend = await startMobigent({
       wsPort: 19003,
       httpPort: 19004,
       appDir,
-      silent: true
+      silent: true,
     });
 
     try {
       assert.deepEqual(backend.connection, {
-        appId: "app.acme.travel.wallet.mobile",
-        appName: "Travel Wallet Mobile",
-        backendUrl: "ws://localhost:19003",
-        connectionUrl: "ws://localhost:19003",
+        appId: 'app.acme.travel.wallet.mobile',
+        appName: 'Travel Wallet Mobile',
+        backendUrl: 'ws://localhost:19003',
+        connectionUrl: 'ws://localhost:19003',
         authToken: undefined,
-        version: undefined
+        version: undefined,
       });
-      const config = JSON.parse(await readFile(join(appDir, "mobigent.app.json"), "utf8"));
-      assert.equal(config.appId, "app.acme.travel.wallet.mobile");
-      assert.equal(config.appName, "Travel Wallet Mobile");
+      const config = JSON.parse(await readFile(join(appDir, 'mobigent.app.json'), 'utf8'));
+      assert.equal(config.appId, 'app.acme.travel.wallet.mobile');
+      assert.equal(config.appName, 'Travel Wallet Mobile');
     } finally {
       await backend.stop();
     }
@@ -1365,27 +1419,27 @@ test("backend SDK infers default app identity from appDir", async () => {
   }
 });
 
-test("backend SDK writes React Native app config module when requested", async () => {
-  const dir = await mkdtemp(join(tmpdir(), "mobigent-backend-app-config-module-"));
-  const appDir = join(dir, "mobile-app");
+test('backend SDK writes React Native app config module when requested', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'mobigent-backend-app-config-module-'));
+  const appDir = join(dir, 'mobile-app');
 
   try {
     const backend = await startMobigent({
       wsPort: 19005,
       httpPort: 19006,
       appDir,
-      appConfigModuleFile: join("src", "mobigent-config.ts"),
+      appConfigModuleFile: join('src', 'mobigent-config.ts'),
       app: {
-        id: "com.example.mobile",
-        name: "Mobile App"
+        id: 'com.example.mobile',
+        name: 'Mobile App',
       },
-      silent: true
+      silent: true,
     });
 
     try {
-      assert.equal(backend.advanced.appConfigPath, join(appDir, "mobigent.app.json"));
-      assert.equal(backend.advanced.appConfigModulePath, join(appDir, "src", "mobigent-config.ts"));
-      const configModule = await readFile(join(appDir, "src", "mobigent-config.ts"), "utf8");
+      assert.equal(backend.advanced.appConfigPath, join(appDir, 'mobigent.app.json'));
+      assert.equal(backend.advanced.appConfigModulePath, join(appDir, 'src', 'mobigent-config.ts'));
+      const configModule = await readFile(join(appDir, 'src', 'mobigent-config.ts'), 'utf8');
       assert.match(configModule, /defineMobigentConfig/);
       assert.match(configModule, /com\.example\.mobile/);
     } finally {
@@ -1396,132 +1450,160 @@ test("backend SDK writes React Native app config module when requested", async (
   }
 });
 
-test("backend init helper creates a simple server entrypoint", () => {
+test('backend init helper creates a simple server entrypoint', () => {
   const files = createMobigentBackendFiles({
-    appId: "com.example.app",
-    appName: "Example App",
-    outDir: "src",
-    fileName: "mobigent.ts",
-    envFile: ".env.mobigent",
-    configFile: "mobigent.app.json",
-    connectionUrl: "ws://localhost:8787",
-    authToken: "dev-token",
+    appId: 'com.example.app',
+    appName: 'Example App',
+    outDir: 'src',
+    fileName: 'mobigent.ts',
+    envFile: '.env.mobigent',
+    configFile: 'mobigent.app.json',
+    connectionUrl: 'ws://localhost:8787',
+    authToken: 'dev-token',
     force: false,
-    dryRun: true
+    dryRun: true,
   });
 
-  assert.deepEqual(files.map((file) => file.path), ["src/mobigent.ts", ".env.mobigent"]);
-  assert.match(files[0]?.contents ?? "", /startMobigent/);
-  assert.match(files[0]?.contents ?? "", /startMobigent\("com\.example\.app", \{/);
-  assert.doesNotMatch(files[0]?.contents ?? "", /startMobigent\("com\.example\.app", "Example App"/);
-  assert.doesNotMatch(files[0]?.contents ?? "", /defaultApp/);
-  assert.doesNotMatch(files[0]?.contents ?? "", /export const mobigentConfig/);
-  assert.match(files[0]?.contents ?? "", /export const waitForApp = mobigent\.waitForApp/);
-  assert.match(files[0]?.contents ?? "", /export const app = mobigent\.app\(\)/);
-  assert.doesNotMatch(files[0]?.contents ?? "", /export const app = mobigent\.use\(\)/);
-  assert.match(files[0]?.contents ?? "", /export const use = mobigent\.use/);
-  assert.match(files[0]?.contents ?? "", /export const call = mobigent\.call/);
-  assert.match(files[0]?.contents ?? "", /export const listFunctions = mobigent\.listFunctions/);
-  assert.match(files[0]?.contents ?? "", /export const fn = mobigent\.fn/);
-  assert.match(files[0]?.contents ?? "", /mobigent\.inspectorUrl/);
-  assert.match(files[0]?.contents ?? "", /mobigent\.openApiUrl/);
-  assert.doesNotMatch(files[0]?.contents ?? "", /export const functions|mobigent\.functions|mobigent\.app\.|callApp|appFunction|appFunctions|mobigent\.appFunction/);
-  assert.doesNotMatch(files[0]?.contents ?? "", /copyAppConfig|mobigent\.urls|mobigent\.feature|appConfigPath|appConfigModulePath|Copy this/);
-  assert.match(files[1]?.contents ?? "", /# MOBIGENT_AUTH_TOKEN=replace-me/);
-  assert.equal(files.some((file) => file.path === "mobigent.app.json"), false);
+  assert.deepEqual(
+    files.map((file) => file.path),
+    ['src/mobigent.ts', '.env.mobigent'],
+  );
+  assert.match(files[0]?.contents ?? '', /startMobigent/);
+  assert.match(files[0]?.contents ?? '', /startMobigent\("com\.example\.app", \{/);
+  assert.doesNotMatch(
+    files[0]?.contents ?? '',
+    /startMobigent\("com\.example\.app", "Example App"/,
+  );
+  assert.doesNotMatch(files[0]?.contents ?? '', /defaultApp/);
+  assert.doesNotMatch(files[0]?.contents ?? '', /export const mobigentConfig/);
+  assert.match(files[0]?.contents ?? '', /export const waitForApp = mobigent\.waitForApp/);
+  assert.match(files[0]?.contents ?? '', /export const app = mobigent\.app\(\)/);
+  assert.doesNotMatch(files[0]?.contents ?? '', /export const app = mobigent\.use\(\)/);
+  assert.match(files[0]?.contents ?? '', /export const use = mobigent\.use/);
+  assert.match(files[0]?.contents ?? '', /export const call = mobigent\.call/);
+  assert.match(files[0]?.contents ?? '', /export const listFunctions = mobigent\.listFunctions/);
+  assert.match(files[0]?.contents ?? '', /export const fn = mobigent\.fn/);
+  assert.match(files[0]?.contents ?? '', /mobigent\.inspectorUrl/);
+  assert.match(files[0]?.contents ?? '', /mobigent\.openApiUrl/);
+  assert.doesNotMatch(
+    files[0]?.contents ?? '',
+    /export const functions|mobigent\.functions|mobigent\.app\.|callApp|appFunction|appFunctions|mobigent\.appFunction/,
+  );
+  assert.doesNotMatch(
+    files[0]?.contents ?? '',
+    /copyAppConfig|mobigent\.urls|mobigent\.feature|appConfigPath|appConfigModulePath|Copy this/,
+  );
+  assert.match(files[1]?.contents ?? '', /# MOBIGENT_AUTH_TOKEN=replace-me/);
+  assert.equal(
+    files.some((file) => file.path === 'mobigent.app.json'),
+    false,
+  );
 });
 
-test("backend init helper bakes appDir into generated backend code", () => {
+test('backend init helper bakes appDir into generated backend code', () => {
   const files = createMobigentBackendFiles({
-    appId: "com.example.app",
-    appName: "Example App",
-    outDir: "src",
-    fileName: "mobigent.ts",
-    envFile: ".env.mobigent",
-    configFile: "mobigent.app.json",
-    appDir: "../mobile-app",
-    connectionUrl: "ws://localhost:8787",
-    authToken: "dev-token",
+    appId: 'com.example.app',
+    appName: 'Example App',
+    outDir: 'src',
+    fileName: 'mobigent.ts',
+    envFile: '.env.mobigent',
+    configFile: 'mobigent.app.json',
+    appDir: '../mobile-app',
+    connectionUrl: 'ws://localhost:8787',
+    authToken: 'dev-token',
     force: false,
-    dryRun: true
+    dryRun: true,
   });
 
-  const backendFile = files.find((file) => file.path === "src/mobigent.ts")?.contents ?? "";
+  const backendFile = files.find((file) => file.path === 'src/mobigent.ts')?.contents ?? '';
 
-  assert.deepEqual(files.map((file) => file.path), [
-    "src/mobigent.ts",
-    ".env.mobigent",
-    "../mobile-app/mobigent.app.json",
-    "../mobile-app/src/mobigent-config.ts"
-  ]);
+  assert.deepEqual(
+    files.map((file) => file.path),
+    [
+      'src/mobigent.ts',
+      '.env.mobigent',
+      '../mobile-app/mobigent.app.json',
+      '../mobile-app/src/mobigent-config.ts',
+    ],
+  );
   assert.match(backendFile, /appDir: "\.\.\/mobile-app"/);
   assert.match(backendFile, /appConfigModuleFile: "src\/mobigent-config\.ts"/);
   assert.doesNotMatch(backendFile, /app: \{/);
   assert.doesNotMatch(backendFile, /appConfigPath|appConfigModulePath|mobigent\.feature/);
-  assert.match(files.find((file) => file.path === "../mobile-app/src/mobigent-config.ts")?.contents ?? "", /defineMobigentConfig/);
+  assert.match(
+    files.find((file) => file.path === '../mobile-app/src/mobigent-config.ts')?.contents ?? '',
+    /defineMobigentConfig/,
+  );
 });
 
-test("backend init CLI infers app identity and prints the short app init command", async () => {
-  const dir = await mkdtemp(join(tmpdir(), "mobigent-backend-cli-"));
+test('backend init CLI infers app identity and prints the short app init command', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'mobigent-backend-cli-'));
   const previousCwd = process.cwd();
-  let stdout = "";
-  let stderr = "";
+  let stdout = '';
+  let stderr = '';
 
   try {
     await writeFile(
-      join(dir, "package.json"),
-      JSON.stringify({ name: "@example/expense-hub" }),
-      "utf8"
+      join(dir, 'package.json'),
+      JSON.stringify({ name: '@example/expense-hub' }),
+      'utf8',
     );
     process.chdir(dir);
     const code = runMobigentBackendCli(
-      ["--dry-run"],
+      ['--dry-run'],
       { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
-      { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
+      { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream,
     );
 
     assert.equal(code, 0, stderr);
     const files = JSON.parse(stdout).files as Array<{ path: string; contents: string }>;
-    assert.deepEqual(files.map((file) => file.path), ["src/mobigent.ts", ".env.mobigent"]);
+    assert.deepEqual(
+      files.map((file) => file.path),
+      ['src/mobigent.ts', '.env.mobigent'],
+    );
     assert.match(
-      files.find((file) => file.path === "src/mobigent.ts")?.contents ?? "",
-      /startMobigent\("app\.example\.expense\.hub", \{/
+      files.find((file) => file.path === 'src/mobigent.ts')?.contents ?? '',
+      /startMobigent\("app\.example\.expense\.hub", \{/,
     );
     assert.doesNotMatch(
-      files.find((file) => file.path === "src/mobigent.ts")?.contents ?? "",
-      /startMobigent\("app\.example\.expense\.hub", "Expense Hub"/
+      files.find((file) => file.path === 'src/mobigent.ts')?.contents ?? '',
+      /startMobigent\("app\.example\.expense\.hub", "Expense Hub"/,
     );
-    assert.equal(files.some((file) => file.path === "mobigent.app.json"), false);
+    assert.equal(
+      files.some((file) => file.path === 'mobigent.app.json'),
+      false,
+    );
 
-    const inferredAppDir = join(dir, "apps", "wallet-mobile");
+    const inferredAppDir = join(dir, 'apps', 'wallet-mobile');
     await mkdir(inferredAppDir, { recursive: true });
     await writeFile(
-      join(inferredAppDir, "package.json"),
-      JSON.stringify({ name: "@example/wallet-mobile" }),
-      "utf8"
+      join(inferredAppDir, 'package.json'),
+      JSON.stringify({ name: '@example/wallet-mobile' }),
+      'utf8',
     );
 
-    stdout = "";
-    stderr = "";
+    stdout = '';
+    stderr = '';
     const appDirDryRunCode = runMobigentBackendCli(
-      ["--app-dir", inferredAppDir, "--dry-run"],
+      ['--app-dir', inferredAppDir, '--dry-run'],
       { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
-      { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
+      { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream,
     );
     assert.equal(appDirDryRunCode, 0, stderr);
     const appDirFiles = JSON.parse(stdout).files as Array<{ path: string; contents: string }>;
     const appDirConfig = JSON.parse(
-      appDirFiles.find((file) => file.path === join(inferredAppDir, "mobigent.app.json"))?.contents ?? "{}"
+      appDirFiles.find((file) => file.path === join(inferredAppDir, 'mobigent.app.json'))
+        ?.contents ?? '{}',
     );
-    assert.equal(appDirConfig.appId, "app.example.wallet.mobile");
-    assert.equal(appDirConfig.appName, "Wallet Mobile");
+    assert.equal(appDirConfig.appId, 'app.example.wallet.mobile');
+    assert.equal(appDirConfig.appName, 'Wallet Mobile');
 
-    stdout = "";
-    stderr = "";
+    stdout = '';
+    stderr = '';
     const writeCode = runMobigentBackendCli(
-      ["--app", "com.example.expense", "--app-name", "Expense App"],
+      ['--app', 'com.example.expense', '--app-name', 'Expense App'],
       { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
-      { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
+      { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream,
     );
     assert.equal(writeCode, 0, stderr);
     assert.match(stdout, /npm install @mobigent\/app/);
@@ -1540,66 +1622,68 @@ test("backend init CLI infers app identity and prints the short app init command
     assert.match(stdout, /npx tsx src\/mobigent\.ts/);
     assert.doesNotMatch(stdout, /--config/);
     assert.doesNotMatch(stdout, /--env-file/);
-    const generatedBackend = await readFile(join(dir, "src", "mobigent.ts"), "utf8");
+    const generatedBackend = await readFile(join(dir, 'src', 'mobigent.ts'), 'utf8');
     assert.match(generatedBackend, /startMobigent\("com\.example\.expense", \{/);
     assert.doesNotMatch(generatedBackend, /startMobigent\("com\.example\.expense", "Expense App"/);
     assert.doesNotMatch(generatedBackend, /appId: "com\.example\.expense"/);
     assert.doesNotMatch(generatedBackend, /appName: "Expense App"/);
     assert.doesNotMatch(generatedBackend, /app: \{/);
-    await assert.rejects(readFile(join(dir, "mobigent.app.json"), "utf8"), /ENOENT/);
+    await assert.rejects(readFile(join(dir, 'mobigent.app.json'), 'utf8'), /ENOENT/);
 
-    const appDir = join(dir, "mobile-app");
-    stdout = "";
-    stderr = "";
+    const appDir = join(dir, 'mobile-app');
+    stdout = '';
+    stderr = '';
     const appDirCode = runMobigentBackendCli(
-      ["--app", "com.example.mobile", "--app-name", "Mobile App", "--app-dir", appDir, "--force"],
+      ['--app', 'com.example.mobile', '--app-name', 'Mobile App', '--app-dir', appDir, '--force'],
       { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
-      { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
+      { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream,
     );
     assert.equal(appDirCode, 0, stderr);
     assert.match(stdout, /mobile-app.*mobigent\.app\.json/);
-    assert.match(await readFile(join(appDir, "mobigent.app.json"), "utf8"), /Mobile App/);
+    assert.match(await readFile(join(appDir, 'mobigent.app.json'), 'utf8'), /Mobile App/);
   } finally {
     process.chdir(previousCwd);
     await rm(dir, { force: true, recursive: true });
   }
 });
 
-test("backend CLI prints agent setup without a separate provider command", () => {
-  let stdout = "";
-  let stderr = "";
+test('backend CLI prints agent setup without a separate provider command', () => {
+  let stdout = '';
+  let stderr = '';
   const chatgptCode = runMobigentBackendCli(
-    ["agent", "chatgpt", "--base-url", "https://example.test"],
+    ['agent', 'chatgpt', '--base-url', 'https://example.test'],
     { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
-    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
+    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream,
   );
 
   assert.equal(chatgptCode, 0, stderr);
   assert.match(stdout, /ChatGPT Actions/);
   assert.match(stdout, /https:\/\/example\.test\/openapi\.json/);
 
-  stdout = "";
-  stderr = "";
+  stdout = '';
+  stderr = '';
   const claudeCode = runMobigentBackendCli(
-    ["agent", "claude", "--format", "json"],
+    ['agent', 'claude', '--format', 'json'],
     { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
-    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
+    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream,
   );
 
   assert.equal(claudeCode, 0, stderr);
-  assert.equal(JSON.parse(stdout).provider.id, "claude-desktop");
+  assert.equal(JSON.parse(stdout).provider.id, 'claude-desktop');
 });
 
-test("app config helpers create typed copy-paste app config", () => {
+test('app config helpers create typed copy-paste app config', () => {
   const config = defineMobigentConfig({
-    appId: "com.example.app",
-    appName: "Example App",
-    connectionUrl: "ws://localhost:8787",
-    authToken: "dev-token"
+    appId: 'com.example.app',
+    appName: 'Example App',
+    connectionUrl: 'ws://localhost:8787',
+    authToken: 'dev-token',
   });
 
-  assert.equal(config.appId, "com.example.app");
-  assert.equal(formatMobigentAppConfigModule(config), `import { defineMobigentConfig } from "@mobigent/app/app";
+  assert.equal(config.appId, 'com.example.app');
+  assert.equal(
+    formatMobigentAppConfigModule(config),
+    `import { defineMobigentConfig } from "@mobigent/app/app";
 
 export const mobigentConfig = defineMobigentConfig({
   "appId": "com.example.app",
@@ -1607,128 +1691,141 @@ export const mobigentConfig = defineMobigentConfig({
   "connectionUrl": "ws://localhost:8787",
   "authToken": "dev-token"
 });
-`);
-  assert.throws(() => formatMobigentAppConfigModule(config, { exportName: "not valid" }), /Invalid/);
+`,
+  );
+  assert.throws(
+    () => formatMobigentAppConfigModule(config, { exportName: 'not valid' }),
+    /Invalid/,
+  );
 });
 
-test("existing app DX connects simple app features to backend calls end to end", async () => {
+test('existing app DX connects simple app features to backend calls end to end', async () => {
   const created: Array<{ id: string; merchant: string; amount: number }> = [];
-  const expenses = feature("expense")
-    .read("list", async () => ({ items: created }), {
-      output: { items: ["object"] }
+  const expenses = feature('expense')
+    .read('list', async () => ({ items: created }), {
+      output: { items: ['object'] },
     })
     .write(
-      "create",
+      'create',
       async (input) => {
         const expense = {
           id: `EXP-${created.length + 1}`,
           merchant: String(input.merchant),
-          amount: Number(input.amount)
+          amount: Number(input.amount),
         };
         created.push(expense);
         return expense;
       },
       {
         input: {
-          merchant: "string",
-          amount: "number"
+          merchant: 'string',
+          amount: 'number',
         },
         output: {
-          id: "string",
-          merchant: "string",
-          amount: "number"
+          id: 'string',
+          merchant: 'string',
+          amount: 'number',
         },
-        confirm: true
-      }
+        confirm: true,
+      },
     );
 
   const backend = await startMobigentBackend({
     wsPort: 18989,
     httpPort: 18990,
-    silent: true
+    silent: true,
   });
   let mobigentConnection: { disconnect(): void } | undefined;
 
   try {
     mobigentConnection = await connectMobigent(mobigent, {
       config: backend.app({
-        appId: "com.example.existing",
-        appName: "Existing App"
+        appId: 'com.example.existing',
+        appName: 'Existing App',
       }),
       features: expenses,
       createSocket: createNodeSocket,
-      confirm: async () => true
+      confirm: async () => true,
     });
 
     const status = await backend.waitForApp();
     assert.equal(status.appsWithFunctions, 1);
     assert.equal(status.functions, 2);
 
-    assert.equal(backend.resolveFunctionName("expense.create"), "com_example_existing.expense_create");
+    assert.equal(
+      backend.resolveFunctionName('expense.create'),
+      'com_example_existing.expense_create',
+    );
 
-    const result = await backend.call("expense.create", {
-      merchant: "Airport Taxi",
-      amount: 42.25
+    const result = await backend.call('expense.create', {
+      merchant: 'Airport Taxi',
+      amount: 42.25,
     });
 
     assert.deepEqual(result, {
-      id: "EXP-1",
-      merchant: "Airport Taxi",
-      amount: 42.25
+      id: 'EXP-1',
+      merchant: 'Airport Taxi',
+      amount: 42.25,
     });
-    assert.deepEqual(await backend.call("expense.list"), {
-      items: [result]
+    assert.deepEqual(await backend.call('expense.list'), {
+      items: [result],
     });
 
     const backendExpenses = backend.use({
-      createExpense: "expense.create",
-      listExpenses: "expense.list"
+      createExpense: 'expense.create',
+      listExpenses: 'expense.list',
     });
-    assert.deepEqual(await backendExpenses.createExpense({
-      merchant: "Bakery",
-      amount: 12
-    }), {
-      id: "EXP-2",
-      merchant: "Bakery",
-      amount: 12
-    });
+    assert.deepEqual(
+      await backendExpenses.createExpense({
+        merchant: 'Bakery',
+        amount: 12,
+      }),
+      {
+        id: 'EXP-2',
+        merchant: 'Bakery',
+        amount: 12,
+      },
+    );
     assert.deepEqual(await backendExpenses.listExpenses(), {
       items: [
         result,
         {
-          id: "EXP-2",
-          merchant: "Bakery",
-          amount: 12
-        }
-      ]
+          id: 'EXP-2',
+          merchant: 'Bakery',
+          amount: 12,
+        },
+      ],
     });
 
-    const cleanBackendExpenses = backend.use("expense", {
-      createExpense: "create",
-      listExpenses: "list"
+    const cleanBackendExpenses = backend.use('expense', {
+      createExpense: 'create',
+      listExpenses: 'list',
     });
-    assert.deepEqual(await cleanBackendExpenses.createExpense({
-      merchant: "Bookshop",
-      amount: 18
-    }), {
-      id: "EXP-3",
-      merchant: "Bookshop",
-      amount: 18
-    });
+    assert.deepEqual(
+      await cleanBackendExpenses.createExpense({
+        merchant: 'Bookshop',
+        amount: 18,
+      }),
+      {
+        id: 'EXP-3',
+        merchant: 'Bookshop',
+        amount: 18,
+      },
+    );
     assert.deepEqual(await cleanBackendExpenses.listExpenses(), {
       items: [
         result,
         {
-          id: "EXP-2",
-          merchant: "Bakery",
-          amount: 12
+          id: 'EXP-2',
+          merchant: 'Bakery',
+          amount: 12,
         },
         {
-          id: "EXP-3",
-          merchant: "Bookshop",
-          amount: 18
-        }
-      ]
+          id: 'EXP-3',
+          merchant: 'Bookshop',
+          amount: 18,
+        },
+      ],
     });
   } finally {
     mobigentConnection?.disconnect();
@@ -1736,32 +1833,32 @@ test("existing app DX connects simple app features to backend calls end to end",
   }
 });
 
-test("existing app DX can connect without passing the singleton client manually", async () => {
+test('existing app DX can connect without passing the singleton client manually', async () => {
   const created: Array<{ id: string; merchant: string; amount: number }> = [];
-  const expenses = feature("expense").write(
-    "create",
+  const expenses = feature('expense').write(
+    'create',
     async (input) => {
       const expense = {
         id: `EXP-${created.length + 1}`,
         merchant: String(input.merchant),
-        amount: Number(input.amount)
+        amount: Number(input.amount),
       };
       created.push(expense);
       return expense;
     },
     {
       input: {
-        merchant: "string",
-        amount: "number"
+        merchant: 'string',
+        amount: 'number',
       },
-      confirm: true
-    }
+      confirm: true,
+    },
   );
 
-  const backend = await startMobigent("com.example.onecall", "One Call App", {
+  const backend = await startMobigent('com.example.onecall', 'One Call App', {
     wsPort: 18993,
     httpPort: 18994,
-    silent: true
+    silent: true,
   });
   let mobigentConnection: { disconnect(): void } | undefined;
 
@@ -1769,46 +1866,51 @@ test("existing app DX can connect without passing the singleton client manually"
     mobigentConnection = await connectMobigent(expenses, {
       config: backend.client(),
       createSocket: createNodeSocket,
-      confirm: async () => true
+      confirm: async () => true,
     });
 
-    await waitFor(() => backend.listFunctions().some((fn) => fn.name === "com_example_onecall.expense_create"));
+    await waitFor(() =>
+      backend.listFunctions().some((fn) => fn.name === 'com_example_onecall.expense_create'),
+    );
 
-    assert.deepEqual(await backend.call("expense.create", {
-      merchant: "Airport Taxi",
-      amount: 42.25
-    }), {
-      id: "EXP-1",
-      merchant: "Airport Taxi",
-      amount: 42.25
-    });
+    assert.deepEqual(
+      await backend.call('expense.create', {
+        merchant: 'Airport Taxi',
+        amount: 42.25,
+      }),
+      {
+        id: 'EXP-1',
+        merchant: 'Airport Taxi',
+        amount: 42.25,
+      },
+    );
   } finally {
     mobigentConnection?.disconnect();
     await backend.stop();
   }
 });
 
-test("existing app DX can connect with only features for local demos", async () => {
-  const expenses = feature("expense").write(
-    "create",
+test('existing app DX can connect with only features for local demos', async () => {
+  const expenses = feature('expense').write(
+    'create',
     async (input) => ({
-      id: "EXP-LOCAL",
+      id: 'EXP-LOCAL',
       merchant: String(input.merchant),
-      amount: Number(input.amount)
+      amount: Number(input.amount),
     }),
     {
       input: {
-        merchant: "string",
-        amount: "number"
+        merchant: 'string',
+        amount: 'number',
       },
-      confirm: true
-    }
+      confirm: true,
+    },
   );
 
   const backend = await startMobigent({
     wsPort: 18997,
     httpPort: 18998,
-    silent: true
+    silent: true,
   });
   let mobigentConnection: { disconnect(): void } | undefined;
 
@@ -1816,66 +1918,73 @@ test("existing app DX can connect with only features for local demos", async () 
     mobigentConnection = await connectMobigent(expenses, {
       connectionUrl: backend.connection.connectionUrl,
       createSocket: createNodeSocket,
-      confirm: async () => true
+      confirm: async () => true,
     });
 
-    await waitFor(() => backend.listFunctions().some((fn) => fn.name === "app_mobigent_local.expense_create"));
+    await waitFor(() =>
+      backend.listFunctions().some((fn) => fn.name === 'app_mobigent_local.expense_create'),
+    );
 
-    assert.deepEqual(await backend.call("expense.create", {
-      merchant: "Airport Taxi",
-      amount: 42.25
-    }), {
-      id: "EXP-LOCAL",
-      merchant: "Airport Taxi",
-      amount: 42.25
-    });
+    assert.deepEqual(
+      await backend.call('expense.create', {
+        merchant: 'Airport Taxi',
+        amount: 42.25,
+      }),
+      {
+        id: 'EXP-LOCAL',
+        merchant: 'Airport Taxi',
+        amount: 42.25,
+      },
+    );
   } finally {
     mobigentConnection?.disconnect();
     await backend.stop();
   }
 });
 
-test("app and backend can pair from environment config while code stays no-argument", async () => {
+test('app and backend can pair from environment config while code stays no-argument', async () => {
   const originalEnv = snapshotMobigentEnv();
-  process.env.MOBIGENT_APP_ID = "com.example.envpair";
-  process.env.MOBIGENT_APP_NAME = "Env Pair";
-  process.env.EXPO_PUBLIC_MOBIGENT_APP_ID = "com.example.envpair";
-  process.env.EXPO_PUBLIC_MOBIGENT_APP_NAME = "Env Pair";
+  process.env.MOBIGENT_APP_ID = 'com.example.envpair';
+  process.env.MOBIGENT_APP_NAME = 'Env Pair';
+  process.env.EXPO_PUBLIC_MOBIGENT_APP_ID = 'com.example.envpair';
+  process.env.EXPO_PUBLIC_MOBIGENT_APP_NAME = 'Env Pair';
   let backend: Awaited<ReturnType<typeof startMobigent>> | undefined;
 
   try {
     backend = await startMobigent({
       wsPort: 19041,
       httpPort: 19042,
-      silent: true
+      silent: true,
     });
     const app = createApp(
       {
         expense: {
-          create: write(async (input) => ({ id: "EXP-ENV", ...input }), {
+          create: write(async (input) => ({ id: 'EXP-ENV', ...input }), {
             input: {
-              merchant: "string"
+              merchant: 'string',
             },
-            confirm: true
-          })
-        }
+            confirm: true,
+          }),
+        },
       },
       {
         createSocket: createNodeSocket,
-        confirm: async () => true
-      }
+        confirm: async () => true,
+      },
     );
 
-    assert.equal(backend.connection.appId, "com.example.envpair");
-    assert.equal(app.options.appId, "com.example.envpair");
+    assert.equal(backend.connection.appId, 'com.example.envpair');
+    assert.equal(app.options.appId, 'com.example.envpair');
 
     const connection = await app.connect({ appConnectionUrl: backend.appConnectionUrl });
 
     try {
-      await waitFor(() => backend.listFunctions().some((fn) => fn.name === "com_example_envpair.expense_create"));
-      assert.deepEqual(await backend.use("expense").create({ merchant: "Tea" }), {
-        id: "EXP-ENV",
-        merchant: "Tea"
+      await waitFor(() =>
+        backend.listFunctions().some((fn) => fn.name === 'com_example_envpair.expense_create'),
+      );
+      assert.deepEqual(await backend.use('expense').create({ merchant: 'Tea' }), {
+        id: 'EXP-ENV',
+        merchant: 'Tea',
       });
     } finally {
       connection.disconnect();
@@ -1902,7 +2011,7 @@ function snapshotMobigentEnv() {
     EXPO_PUBLIC_MOBIGENT_TOKEN: process.env.EXPO_PUBLIC_MOBIGENT_TOKEN,
     EXPO_PUBLIC_MOBIGENT_CONNECTION_URL: process.env.EXPO_PUBLIC_MOBIGENT_CONNECTION_URL,
     EXPO_PUBLIC_MOBIGENT_GATEWAY_URL: process.env.EXPO_PUBLIC_MOBIGENT_GATEWAY_URL,
-    EXPO_PUBLIC_MOBIGENT_AUTH_TOKEN: process.env.EXPO_PUBLIC_MOBIGENT_AUTH_TOKEN
+    EXPO_PUBLIC_MOBIGENT_AUTH_TOKEN: process.env.EXPO_PUBLIC_MOBIGENT_AUTH_TOKEN,
   };
 }
 
@@ -1924,5 +2033,5 @@ async function waitFor(predicate: () => boolean, timeoutMs = 1_000) {
     }
     await new Promise((resolve) => setTimeout(resolve, 10));
   }
-  throw new Error("Timed out waiting for condition.");
+  throw new Error('Timed out waiting for condition.');
 }

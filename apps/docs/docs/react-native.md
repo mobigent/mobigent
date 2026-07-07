@@ -19,13 +19,13 @@ For a first local run, you do not need an app id. Production apps can keep the s
 ## 2. Expose App Functions
 
 ```ts
-import { createApp, type AppFunctions } from "@mobigent/app";
+import { createApp, type AppFunctions } from '@mobigent/app';
 
 export const appFunctions = {
   expense: {
     list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
+    create: async (input) => createExpense(input),
+  },
 } satisfies AppFunctions;
 
 export type MyAppFunctions = typeof appFunctions;
@@ -45,8 +45,8 @@ EXPO_PUBLIC_MOBIGENT_BACKEND_URL=wss://your-backend.example.com
 ## 3. Wrap The App
 
 ```tsx
-import { mobigent } from "./mobigent";
-import App from "./App";
+import { mobigent } from './mobigent';
+import App from './App';
 
 export default mobigent.with(App);
 ```
@@ -54,14 +54,14 @@ export default mobigent.with(App);
 Or wrap directly in one file while you are trying the SDK:
 
 ```tsx
-import { withMobigent } from "@mobigent/app";
-import App from "./App";
+import { withMobigent } from '@mobigent/app';
+import App from './App';
 
 export default withMobigent(App, {
   expense: {
     list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
+    create: async (input) => createExpense(input),
+  },
 });
 ```
 
@@ -74,16 +74,16 @@ No app-side init command is required. Starter generation is only for demos.
 For multiple app areas in one file, use the same plain object shape:
 
 ```ts
-import { createApp } from "@mobigent/app";
+import { createApp } from '@mobigent/app';
 
 export const mobigent = createApp({
   expense: {
     list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
+    create: async (input) => createExpense(input),
   },
   task: {
-    list: async () => ({ items: await listTasks() })
-  }
+    list: async () => ({ items: await listTasks() }),
+  },
 });
 ```
 
@@ -96,7 +96,7 @@ npm install @mobigent/backend
 ```
 
 ```ts
-import { startMobigent } from "@mobigent/backend";
+import { startMobigent } from '@mobigent/backend';
 
 const mobigent = await startMobigent();
 ```
@@ -106,22 +106,22 @@ Backend function calls wait for the app automatically. For production, set `MOBI
 Your backend can call app namespaces directly. If you can import the app function type, use it for typed backend calls without loading React Native code:
 
 ```ts
-import type { MyAppFunctions } from "../app/mobigent";
+import type { MyAppFunctions } from '../app/mobigent';
 
 const app = mobigent.app<MyAppFunctions>();
 
-await app.expense.create({ merchant: "Coffee", amount: 8 });
+await app.expense.create({ merchant: 'Coffee', amount: 8 });
 ```
 
 If the backend cannot share that type, bind backend-friendly helper names once:
 
 ```ts
-const expenses = mobigent.app("expense", {
-  createExpense: "create",
-  listExpenses: "list"
+const expenses = mobigent.app('expense', {
+  createExpense: 'create',
+  listExpenses: 'list',
 });
 
-await expenses.createExpense({ merchant: "Coffee", amount: 8 });
+await expenses.createExpense({ merchant: 'Coffee', amount: 8 });
 ```
 
 ## Non-React Host Or Demo
@@ -129,17 +129,16 @@ await expenses.createExpense({ merchant: "Coffee", amount: 8 });
 If you are running a local demo, test host, or another runtime where you are using the singleton `mobigent` client directly:
 
 ```ts
-import { startMobigent } from "@mobigent/backend";
-import { createApp } from "@mobigent/app";
-import { expenseFunctions } from "./app-functions";
+import { startMobigent } from '@mobigent/backend';
+import { createApp } from '@mobigent/app';
+import { expenseFunctions } from './app-functions';
 
 const backend = await startMobigent();
 const mobigent = createApp(expenseFunctions, {
-  backend
+  backend,
 });
 
 const session = await mobigent.connect();
-
 ```
 
 That one call makes the functions available to the backend and returns a `disconnect()` helper.

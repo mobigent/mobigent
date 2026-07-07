@@ -1,6 +1,6 @@
-import { BridgeGateway, createHttpApp } from "@mobigent/gateway";
-import { mobigent } from "@mobigent/react-native";
-import { createNodeSocket } from "./nodeSocket.js";
+import { BridgeGateway, createHttpApp } from '@mobigent/gateway';
+import { mobigent } from '@mobigent/react-native';
+import { createNodeSocket } from './nodeSocket.js';
 
 type Expense = {
   id: string;
@@ -14,85 +14,85 @@ gateway.start();
 
 const app = createHttpApp(gateway);
 const server = app.listen(8788, () => {
-  console.log("Mobigent HTTP API listening on http://localhost:8788");
+  console.log('Mobigent HTTP API listening on http://localhost:8788');
 });
 
 const expenses: Expense[] = [
   {
-    id: "EXP-1001",
+    id: 'EXP-1001',
     amount: 18.75,
-    merchant: "Blue Bottle",
-    category: "Meals"
-  }
+    merchant: 'Blue Bottle',
+    category: 'Meals',
+  },
 ];
 
 mobigent.configure({
-  appId: "com.mobigent.expenses",
-  appName: "Mobigent Expenses",
-  gatewayUrl: "ws://localhost:8787",
+  appId: 'com.mobigent.expenses',
+  appName: 'Mobigent Expenses',
+  gatewayUrl: 'ws://localhost:8787',
   createSocket: createNodeSocket,
   confirm: async ({ action, input }) => {
     console.log(`[app confirmation] ${action.confirmation?.title ?? action.name}`);
     console.log(JSON.stringify(input, null, 2));
     return true;
-  }
+  },
 });
 
 mobigent.registerAction({
-  name: "create_expense",
-  description: "Create a new expense report.",
+  name: 'create_expense',
+  description: 'Create a new expense report.',
   inputSchema: {
-    type: "object",
+    type: 'object',
     properties: {
-      amount: { type: "number" },
-      merchant: { type: "string" },
-      category: { type: "string" }
+      amount: { type: 'number' },
+      merchant: { type: 'string' },
+      category: { type: 'string' },
     },
-    required: ["amount", "merchant"]
+    required: ['amount', 'merchant'],
   },
   confirmation: {
     required: true,
-    title: "Create expense?",
-    risk: "medium"
+    title: 'Create expense?',
+    risk: 'medium',
   },
   policy: {
     requiresUser: true,
-    foregroundOnly: true
+    foregroundOnly: true,
   },
   handler: async (input) => {
     const expense = {
       id: `EXP-${1001 + expenses.length}`,
       amount: Number(input.amount),
       merchant: String(input.merchant),
-      category: input.category ? String(input.category) : undefined
+      category: input.category ? String(input.category) : undefined,
     };
 
     expenses.push(expense);
     return expense;
-  }
+  },
 });
 
 mobigent.registerResource({
-  name: "expenses",
-  description: "Current list of expense reports.",
+  name: 'expenses',
+  description: 'Current list of expense reports.',
   policy: {
-    readOnly: true
+    readOnly: true,
   },
-  read: async () => ({ expenses })
+  read: async () => ({ expenses }),
 });
 
 mobigent.registerComponent({
-  name: "expense_detail",
-  description: "Expense detail screen.",
+  name: 'expense_detail',
+  description: 'Expense detail screen.',
   propsSchema: {
-    type: "object",
+    type: 'object',
     properties: {
-      expenseId: { type: "string" }
+      expenseId: { type: 'string' },
     },
-    required: ["expenseId"]
+    required: ['expenseId'],
   },
   policy: {
-    foregroundOnly: true
+    foregroundOnly: true,
   },
   focus: async (props) => {
     const expense = expenses.find((item) => item.id === props.expenseId);
@@ -102,49 +102,49 @@ mobigent.registerComponent({
 
     return {
       focused: true,
-      screen: "expense_detail",
-      expense
+      screen: 'expense_detail',
+      expense,
     };
-  }
+  },
 });
 
 await mobigent.connect();
 await new Promise((resolve) => setTimeout(resolve, 100));
 
-const listResponse = await fetch("http://localhost:8788/tools");
-console.log("[http] tools");
+const listResponse = await fetch('http://localhost:8788/tools');
+console.log('[http] tools');
 console.log(JSON.stringify(await listResponse.json(), null, 2));
 
 const callResponse = await fetch(
-  "http://localhost:8788/tools/com_mobigent_expenses.create_expense/call",
+  'http://localhost:8788/tools/com_mobigent_expenses.create_expense/call',
   {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "content-type": "application/json"
+      'content-type': 'application/json',
     },
     body: JSON.stringify({
       amount: 42.25,
-      merchant: "Airport Taxi",
-      category: "Travel"
-    })
-  }
+      merchant: 'Airport Taxi',
+      category: 'Travel',
+    }),
+  },
 );
-console.log("[http] create_expense");
+console.log('[http] create_expense');
 console.log(JSON.stringify(await callResponse.json(), null, 2));
 
 const focusResponse = await fetch(
-  "http://localhost:8788/tools/com_mobigent_expenses.show_expense_detail/call",
+  'http://localhost:8788/tools/com_mobigent_expenses.show_expense_detail/call',
   {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "content-type": "application/json"
+      'content-type': 'application/json',
     },
     body: JSON.stringify({
-      expenseId: "EXP-1001"
-    })
-  }
+      expenseId: 'EXP-1001',
+    }),
+  },
 );
-console.log("[http] show_expense_detail");
+console.log('[http] show_expense_detail');
 console.log(JSON.stringify(await focusResponse.json(), null, 2));
 
 mobigent.disconnect();

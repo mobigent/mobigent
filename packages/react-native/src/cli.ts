@@ -1,17 +1,17 @@
 #!/usr/bin/env node
-import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
-import { basename, dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-import { validateCapabilityManifest, type CapabilityManifest } from "@mobigent/core";
-import { createMobigentGatewayUrl } from "./gatewayUrl.js";
+import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
+import { basename, dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { validateCapabilityManifest, type CapabilityManifest } from '@mobigent/core';
+import { createMobigentGatewayUrl } from './gatewayUrl.js';
 import {
   createAndroidAppActionsPlan,
   createAppleAppIntentsPlan,
   renderAndroidAppActionsXml,
-  renderAppleAppIntentsSwift
-} from "./platformActions.js";
+  renderAppleAppIntentsSwift,
+} from './platformActions.js';
 
-const defaultAppConfigFile = "mobigent.app.json";
+const defaultAppConfigFile = 'mobigent.app.json';
 
 export type ReactNativeInitCliOptions = {
   appId: string;
@@ -29,7 +29,7 @@ export type ReactNativeInitCliOptions = {
   securityDoctor?: boolean;
   manifest: boolean;
   contract: boolean;
-  platformActions?: "json" | "ios-swift" | "android-xml";
+  platformActions?: 'json' | 'ios-swift' | 'android-xml';
   featureOnly?: boolean;
   customConfirmation: boolean;
   envTemplate?: boolean;
@@ -61,22 +61,22 @@ export type ReactNativeAppConfigFile = {
 
 export type ReactNativeDoctorCheck = {
   name: string;
-  status: "pass" | "warn" | "fail";
+  status: 'pass' | 'warn' | 'fail';
   message: string;
 };
 
 export type ReactNativeDoctorReport = {
-  status: "pass" | "warn" | "fail";
+  status: 'pass' | 'warn' | 'fail';
   outDir: string;
   checks: ReactNativeDoctorCheck[];
 };
 
 export type ReactNativeSecurityDoctorReport = ReactNativeDoctorReport & {
-  kind: "mobigent.react-native.security-doctor";
+  kind: 'mobigent.react-native.security-doctor';
 };
 
 export type ReactNativeIntegrationManifest = {
-  kind: "mobigent.react-native.integration";
+  kind: 'mobigent.react-native.integration';
   app: {
     id: string;
     name: string;
@@ -111,23 +111,25 @@ export type ReactNativeIntegrationManifest = {
 };
 
 export type ReactNativeCapabilityContract = CapabilityManifest & {
-  kind: "mobigent.react-native.capability-contract";
+  kind: 'mobigent.react-native.capability-contract';
 };
 
 export type ReactNativeContractValidationReport = {
-  status: "pass" | "fail";
+  status: 'pass' | 'fail';
   path: string;
   errors: string[];
 };
 
 export type ReactNativeIntegrationManifestValidationReport = {
-  status: "pass" | "fail";
+  status: 'pass' | 'fail';
   path: string;
   errors: string[];
 };
 
-export function createReactNativeStarterFiles(options: ReactNativeInitCliOptions): ReactNativeGeneratedFile[] {
-  assertIdentifier("feature", options.feature);
+export function createReactNativeStarterFiles(
+  options: ReactNativeInitCliOptions,
+): ReactNativeGeneratedFile[] {
+  assertIdentifier('feature', options.feature);
 
   if (options.featureOnly) {
     return createReactNativeFeatureFiles(options);
@@ -135,28 +137,28 @@ export function createReactNativeStarterFiles(options: ReactNativeInitCliOptions
 
   const files: ReactNativeGeneratedFile[] = [
     {
-      path: join(options.outDir, "mobigent.tsx"),
+      path: join(options.outDir, 'mobigent.tsx'),
       contents: createMobigentRootFile(options),
-      updateExisting: (contents) => addFeatureToMobigentRoot(contents, options.feature)
+      updateExisting: (contents) => addFeatureToMobigentRoot(contents, options.feature),
     },
     {
-      path: join(options.outDir, "mobigent-functions", `${options.feature}.ts`),
+      path: join(options.outDir, 'mobigent-functions', `${options.feature}.ts`),
       contents: createFunctionsFile(options.feature),
-      preserveExisting: true
-    }
+      preserveExisting: true,
+    },
   ];
 
   if (options.customConfirmation) {
     files.push({
-      path: join(options.outDir, "mobigent-confirmation.tsx"),
-      contents: createConfirmationFile()
+      path: join(options.outDir, 'mobigent-confirmation.tsx'),
+      contents: createConfirmationFile(),
     });
   }
 
   if (options.expoRouter) {
     files.push({
-      path: join("app", "_layout.tsx"),
-      contents: createExpoRouterLayoutFile(options)
+      path: join('app', '_layout.tsx'),
+      contents: createExpoRouterLayoutFile(options),
     });
   }
 
@@ -164,28 +166,32 @@ export function createReactNativeStarterFiles(options: ReactNativeInitCliOptions
 }
 
 export function createReactNativeFeatureFiles(
-  options: Pick<ReactNativeInitCliOptions, "feature" | "outDir">
+  options: Pick<ReactNativeInitCliOptions, 'feature' | 'outDir'>,
 ): ReactNativeGeneratedFile[] {
-  assertIdentifier("feature", options.feature);
+  assertIdentifier('feature', options.feature);
 
   return [
     {
-      path: join(options.outDir, "mobigent-functions", `${options.feature}.ts`),
-      contents: createFunctionsFile(options.feature)
-    }
+      path: join(options.outDir, 'mobigent-functions', `${options.feature}.ts`),
+      contents: createFunctionsFile(options.feature),
+    },
   ];
 }
 
-export function validateReactNativeCapabilityContractFile(path: string): ReactNativeContractValidationReport {
+export function validateReactNativeCapabilityContractFile(
+  path: string,
+): ReactNativeContractValidationReport {
   let parsed: unknown;
 
   try {
-    parsed = JSON.parse(readFileSync(path, "utf8"));
+    parsed = JSON.parse(readFileSync(path, 'utf8'));
   } catch (error) {
     return {
-      status: "fail",
+      status: 'fail',
       path,
-      errors: [`Could not read or parse contract JSON: ${error instanceof Error ? error.message : String(error)}`]
+      errors: [
+        `Could not read or parse contract JSON: ${error instanceof Error ? error.message : String(error)}`,
+      ],
     };
   }
 
@@ -193,29 +199,31 @@ export function validateReactNativeCapabilityContractFile(path: string): ReactNa
 
   return result.ok
     ? {
-        status: "pass",
+        status: 'pass',
         path,
-        errors: []
+        errors: [],
       }
     : {
-        status: "fail",
+        status: 'fail',
         path,
-        errors: result.errors
+        errors: result.errors,
       };
 }
 
 export function validateReactNativeIntegrationManifestFile(
-  path: string
+  path: string,
 ): ReactNativeIntegrationManifestValidationReport {
   let parsed: unknown;
 
   try {
-    parsed = JSON.parse(readFileSync(path, "utf8"));
+    parsed = JSON.parse(readFileSync(path, 'utf8'));
   } catch (error) {
     return {
-      status: "fail",
+      status: 'fail',
       path,
-      errors: [`Could not read or parse integration manifest JSON: ${error instanceof Error ? error.message : String(error)}`]
+      errors: [
+        `Could not read or parse integration manifest JSON: ${error instanceof Error ? error.message : String(error)}`,
+      ],
     };
   }
 
@@ -223,107 +231,109 @@ export function validateReactNativeIntegrationManifestFile(
 
   return errors.length === 0
     ? {
-        status: "pass",
+        status: 'pass',
         path,
-        errors: []
+        errors: [],
       }
     : {
-        status: "fail",
+        status: 'fail',
         path,
-        errors
+        errors,
       };
 }
 
-export function createReactNativeCapabilityContract(options: ReactNativeInitCliOptions): ReactNativeCapabilityContract {
-  assertIdentifier("feature", options.feature);
+export function createReactNativeCapabilityContract(
+  options: ReactNativeInitCliOptions,
+): ReactNativeCapabilityContract {
+  assertIdentifier('feature', options.feature);
 
   return {
-    kind: "mobigent.react-native.capability-contract",
+    kind: 'mobigent.react-native.capability-contract',
     appId: options.appId,
     appName: options.appName,
-    sdk: "react-native",
-    version: options.appVersion ?? "0.1.15",
+    sdk: 'react-native',
+    version: options.appVersion ?? '0.1.15',
     actions: [
       {
         name: `${options.feature}_create`,
         description: `Create a ${options.feature}.`,
         inputSchema: {
-          type: "object",
+          type: 'object',
           properties: {
             title: {
-              type: "string",
-              description: "Human-readable title."
-            }
+              type: 'string',
+              description: 'Human-readable title.',
+            },
           },
-          required: ["title"]
+          required: ['title'],
         },
         confirmation: {
           required: true,
-          risk: "medium"
-        }
-      }
+          risk: 'medium',
+        },
+      },
     ],
     resources: [
       {
         name: `${options.feature}_list`,
         description: `List ${options.feature} records.`,
         outputSchema: {
-          type: "object",
+          type: 'object',
           properties: {
             items: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
-                properties: {}
-              }
-            }
+                type: 'object',
+                properties: {},
+              },
+            },
           },
-          required: ["items"]
+          required: ['items'],
         },
         policy: {
-          readOnly: true
-        }
-      }
+          readOnly: true,
+        },
+      },
     ],
-    components: []
+    components: [],
   };
 }
 
 export function createReactNativeIntegrationManifest(
-  options: ReactNativeInitCliOptions
+  options: ReactNativeInitCliOptions,
 ): ReactNativeIntegrationManifest {
-  assertIdentifier("feature", options.feature);
+  assertIdentifier('feature', options.feature);
 
-  const root = join(options.outDir, "mobigent.tsx");
-  const featureFile = join(options.outDir, "mobigent-functions", `${options.feature}.ts`);
-  const confirmationFile = join(options.outDir, "mobigent-confirmation.tsx");
-  const appVersion = options.appVersion ? ` --app-version ${shellQuote(options.appVersion)}` : "";
-  const customConfirmation = options.customConfirmation ? " --custom-confirmation" : "";
-  const command = "mobigent app";
-  const expo = options.expo ? " --expo" : "";
+  const root = join(options.outDir, 'mobigent.tsx');
+  const featureFile = join(options.outDir, 'mobigent-functions', `${options.feature}.ts`);
+  const confirmationFile = join(options.outDir, 'mobigent-confirmation.tsx');
+  const appVersion = options.appVersion ? ` --app-version ${shellQuote(options.appVersion)}` : '';
+  const customConfirmation = options.customConfirmation ? ' --custom-confirmation' : '';
+  const command = 'mobigent app';
+  const expo = options.expo ? ' --expo' : '';
   const baseCommand =
     `${command} --app-id ${shellQuote(options.appId)} --app-name ${shellQuote(options.appName)}` +
     `${appVersion} --feature ${shellQuote(options.feature)} --out-dir ${shellQuote(options.outDir)}${customConfirmation}${expo}`;
 
   return {
-    kind: "mobigent.react-native.integration",
+    kind: 'mobigent.react-native.integration',
     app: {
       id: options.appId,
       name: options.appName,
-      version: options.appVersion
+      version: options.appVersion,
     },
     feature: options.feature,
     gatewayUrl: options.gatewayUrl ?? createMobigentGatewayUrl(),
     files: {
       root,
       feature: featureFile,
-      ...(options.customConfirmation ? { confirmation: confirmationFile } : {})
+      ...(options.customConfirmation ? { confirmation: confirmationFile } : {}),
     },
     capabilities: {
       actions: [`${options.feature}_create`],
       resources: [`${options.feature}_list`],
       components: [],
-      events: [`${options.feature}.created`]
+      events: [`${options.feature}.created`],
     },
     modules: [
       {
@@ -333,86 +343,93 @@ export function createReactNativeIntegrationManifest(
         file: featureFile,
         actions: [`${options.feature}_create`],
         resources: [`${options.feature}_list`],
-        components: []
-      }
+        components: [],
+      },
     ],
     commands: {
       generate: baseCommand,
-      doctor: `${baseCommand} --doctor`
-    }
+      doctor: `${baseCommand} --doctor`,
+    },
   };
 }
 
-export function createReactNativeDoctorReport(options: ReactNativeInitCliOptions): ReactNativeDoctorReport {
+export function createReactNativeDoctorReport(
+  options: ReactNativeInitCliOptions,
+): ReactNativeDoctorReport {
   const checks: ReactNativeDoctorCheck[] = [];
-  const appRoot = options.appRoot ?? ".";
-  const rootPath = join(options.outDir, "mobigent.tsx");
-  const featurePath = join(options.outDir, "mobigent-functions", `${options.feature}.ts`);
-  const packageJsonPath = join(appRoot, "package.json");
+  const appRoot = options.appRoot ?? '.';
+  const rootPath = join(options.outDir, 'mobigent.tsx');
+  const featurePath = join(options.outDir, 'mobigent-functions', `${options.feature}.ts`);
+  const packageJsonPath = join(appRoot, 'package.json');
   const gatewayUrl = options.gatewayUrl ?? createMobigentGatewayUrl();
 
   pushCheck(
     checks,
     Boolean(options.appId && options.appName),
-    "app_identity",
-    "App identity is configured.",
-    "Pass --app-id and --app-name so the mobile manifest is identifiable."
+    'app_identity',
+    'App identity is configured.',
+    'Pass --app-id and --app-name so the mobile manifest is identifiable.',
   );
 
   try {
-    assertIdentifier("feature", options.feature);
+    assertIdentifier('feature', options.feature);
     checks.push({
-      name: "feature_name",
-      status: "pass",
-      message: `Feature namespace "${options.feature}" is valid.`
+      name: 'feature_name',
+      status: 'pass',
+      message: `Feature namespace "${options.feature}" is valid.`,
     });
   } catch (error) {
     checks.push({
-      name: "feature_name",
-      status: "fail",
-      message: error instanceof Error ? error.message : String(error)
+      name: 'feature_name',
+      status: 'fail',
+      message: error instanceof Error ? error.message : String(error),
     });
   }
 
   pushCheck(
     checks,
     isWebSocketUrl(gatewayUrl),
-    "gateway_url",
+    'gateway_url',
     `Gateway URL looks valid: ${gatewayUrl}`,
-    `Gateway URL should use ws:// or wss://, received ${gatewayUrl}.`
+    `Gateway URL should use ws:// or wss://, received ${gatewayUrl}.`,
   );
 
   pushPackageJsonCheck(checks, packageJsonPath);
 
-  pushFileCheck(checks, rootPath, "root_file", (contents) =>
-    (contents.includes("createApp") || contents.includes("setupMobigent")) && contents.includes("MobigentRoot")
-      ? "Root file exports a MobigentRoot with simple app functions."
-      : "Root file exists but does not look like the standard MobigentRoot scaffold."
+  pushFileCheck(checks, rootPath, 'root_file', (contents) =>
+    (contents.includes('createApp') || contents.includes('setupMobigent')) &&
+    contents.includes('MobigentRoot')
+      ? 'Root file exports a MobigentRoot with simple app functions.'
+      : 'Root file exists but does not look like the standard MobigentRoot scaffold.',
   );
-  pushFileCheck(checks, featurePath, "feature_file", (contents) =>
+  pushFileCheck(checks, featurePath, 'feature_file', (contents) =>
     contents.includes(`export const ${options.feature}Functions`) &&
     contents.includes(`${options.feature}: {`) &&
-    contents.includes("write(")
+    contents.includes('write(')
       ? `Function file exposes ${options.feature}Functions with simple read()/write() functions.`
-      : "Function file exists but does not look like the standard functions scaffold."
+      : 'Function file exists but does not look like the standard functions scaffold.',
   );
   if (options.customConfirmation) {
-    pushFileCheck(checks, join(options.outDir, "mobigent-confirmation.tsx"), "confirmation_file", (contents) =>
-      contents.includes("MobigentAgentApproval") && contents.includes("useMobigentConfirmation")
-        ? "Confirmation file exposes an editable MobigentAgentApproval component."
-        : "Confirmation file exists but does not look like the standard custom confirmation scaffold."
+    pushFileCheck(
+      checks,
+      join(options.outDir, 'mobigent-confirmation.tsx'),
+      'confirmation_file',
+      (contents) =>
+        contents.includes('MobigentAgentApproval') && contents.includes('useMobigentConfirmation')
+          ? 'Confirmation file exposes an editable MobigentAgentApproval component.'
+          : 'Confirmation file exists but does not look like the standard custom confirmation scaffold.',
     );
   }
 
   return {
     status: summarizeChecks(checks),
     outDir: options.outDir,
-    checks
+    checks,
   };
 }
 
 export function createReactNativeSecurityDoctorReport(
-  options: ReactNativeInitCliOptions
+  options: ReactNativeInitCliOptions,
 ): ReactNativeSecurityDoctorReport {
   const checks: ReactNativeDoctorCheck[] = [];
   const gatewayUrl = options.gatewayUrl ?? createMobigentGatewayUrl();
@@ -421,41 +438,43 @@ export function createReactNativeSecurityDoctorReport(
   pushCheck(
     checks,
     isSecureOrLocalWebSocketUrl(gatewayUrl),
-    "gateway_transport",
+    'gateway_transport',
     `Gateway transport is acceptable for development or production: ${gatewayUrl}`,
-    `Use wss:// for hosted gateways. ws:// is only acceptable for localhost, simulator, or emulator hosts.`
+    `Use wss:// for hosted gateways. ws:// is only acceptable for localhost, simulator, or emulator hosts.`,
   );
 
-  const riskyActions = contract.actions.filter((action) => (action.confirmation?.risk ?? "low") !== "low");
+  const riskyActions = contract.actions.filter(
+    (action) => (action.confirmation?.risk ?? 'low') !== 'low',
+  );
   pushCheck(
     checks,
     riskyActions.every((action) => action.confirmation?.required),
-    "risky_action_confirmation",
-    "All medium/high risk actions require confirmation.",
-    "Every medium/high risk action should set confirmation.required=true."
+    'risky_action_confirmation',
+    'All medium/high risk actions require confirmation.',
+    'Every medium/high risk action should set confirmation.required=true.',
   );
 
   pushCheck(
     checks,
     options.customConfirmation,
-    "host_approval_ui",
-    "Custom confirmation UI is requested for host-owned approvals.",
-    "Use --custom-confirmation or wire your own on-device approval UI before shipping write actions."
+    'host_approval_ui',
+    'Custom confirmation UI is requested for host-owned approvals.',
+    'Use --custom-confirmation or wire your own on-device approval UI before shipping write actions.',
   );
 
   pushCheck(
     checks,
     Boolean(options.appId && options.appName),
-    "app_identity",
-    "App identity is stable and visible in manifests.",
-    "Pass --app-id and --app-name before sharing contracts with agents."
+    'app_identity',
+    'App identity is stable and visible in manifests.',
+    'Pass --app-id and --app-name before sharing contracts with agents.',
   );
 
   return {
-    kind: "mobigent.react-native.security-doctor",
+    kind: 'mobigent.react-native.security-doctor',
     status: summarizeChecks(checks),
     outDir: options.outDir,
-    checks
+    checks,
   };
 }
 
@@ -463,7 +482,7 @@ export function runReactNativeInitCli(
   argv = process.argv.slice(2),
   output = process.stdout,
   errorOutput = process.stderr,
-  commandName = basename(process.argv[1] ?? "mobigent-rn-init")
+  commandName = basename(process.argv[1] ?? 'mobigent-rn-init'),
 ) {
   try {
     const normalized = normalizeMobigentCommand(argv, commandName);
@@ -477,25 +496,25 @@ export function runReactNativeInitCli(
     if (options.doctor) {
       const report = createReactNativeDoctorReport(options);
       output.write(`${formatDoctorReport(report)}\n`);
-      return report.status === "fail" ? 1 : 0;
+      return report.status === 'fail' ? 1 : 0;
     }
 
     if (options.securityDoctor) {
       const report = createReactNativeSecurityDoctorReport(options);
       output.write(`${formatSecurityDoctorReport(report)}\n`);
-      return report.status === "fail" ? 1 : 0;
+      return report.status === 'fail' ? 1 : 0;
     }
 
     if (options.validateContractPath) {
       const report = validateReactNativeCapabilityContractFile(options.validateContractPath);
       output.write(`${formatContractValidationReport(report)}\n`);
-      return report.status === "fail" ? 1 : 0;
+      return report.status === 'fail' ? 1 : 0;
     }
 
     if (options.validateManifestPath) {
       const report = validateReactNativeIntegrationManifestFile(options.validateManifestPath);
       output.write(`${formatIntegrationManifestValidationReport(report)}\n`);
-      return report.status === "fail" ? 1 : 0;
+      return report.status === 'fail' ? 1 : 0;
     }
 
     if (options.manifest) {
@@ -507,9 +526,9 @@ export function runReactNativeInitCli(
       writeGeneratedFile(
         {
           path: options.writeManifestPath,
-          contents: `${JSON.stringify(createReactNativeIntegrationManifest(options), null, 2)}\n`
+          contents: `${JSON.stringify(createReactNativeIntegrationManifest(options), null, 2)}\n`,
         },
-        options.force
+        options.force,
       );
       output.write(`Created Mobigent integration manifest at ${options.writeManifestPath}\n`);
       return 0;
@@ -525,12 +544,12 @@ export function runReactNativeInitCli(
       const iosPlan = createAppleAppIntentsPlan(contract);
       const androidPlan = createAndroidAppActionsPlan(contract);
       const result =
-        options.platformActions === "ios-swift"
+        options.platformActions === 'ios-swift'
           ? renderAppleAppIntentsSwift(iosPlan)
-          : options.platformActions === "android-xml"
+          : options.platformActions === 'android-xml'
             ? renderAndroidAppActionsXml(androidPlan)
             : JSON.stringify({ ios: iosPlan, android: androidPlan }, null, 2);
-      output.write(`${result}${result.endsWith("\n") ? "" : "\n"}`);
+      output.write(`${result}${result.endsWith('\n') ? '' : '\n'}`);
       return 0;
     }
 
@@ -538,9 +557,9 @@ export function runReactNativeInitCli(
       writeGeneratedFile(
         {
           path: options.writeContractPath,
-          contents: `${JSON.stringify(createReactNativeCapabilityContract(options), null, 2)}\n`
+          contents: `${JSON.stringify(createReactNativeCapabilityContract(options), null, 2)}\n`,
         },
-        options.force
+        options.force,
       );
       output.write(`Created Mobigent capability contract at ${options.writeContractPath}\n`);
       return 0;
@@ -555,11 +574,13 @@ export function runReactNativeInitCli(
       writeGeneratedFile(
         {
           path: options.writeEnvPath,
-          contents: createReactNativeEnvTemplate(options)
+          contents: createReactNativeEnvTemplate(options),
         },
-        options.force
+        options.force,
       );
-      output.write(`Created Mobigent React Native environment template at ${options.writeEnvPath}\n`);
+      output.write(
+        `Created Mobigent React Native environment template at ${options.writeEnvPath}\n`,
+      );
       return 0;
     }
 
@@ -583,31 +604,31 @@ export function runReactNativeInitCli(
 }
 
 function normalizeMobigentCommand(argv: string[], commandName: string) {
-  if (commandName !== "mobigent") {
+  if (commandName !== 'mobigent') {
     return { argv, commandName };
   }
 
   const [command, ...rest] = argv;
-  if (!command || command.startsWith("-")) {
+  if (!command || command.startsWith('-')) {
     return { argv, commandName };
   }
 
   switch (command) {
-    case "init":
+    case 'init':
       return { argv: rest, commandName };
-    case "doctor":
-      return { argv: ["--doctor", ...rest], commandName };
-    case "security-doctor":
-      return { argv: ["--security-doctor", ...rest], commandName };
-    case "manifest":
-      return { argv: ["--manifest", ...rest], commandName };
-    case "contract":
-      return { argv: ["--contract", ...rest], commandName };
-    case "env":
-    case "env-template":
-      return { argv: ["--env-template", ...rest], commandName };
-    case "help":
-      return { argv: ["--help"], commandName };
+    case 'doctor':
+      return { argv: ['--doctor', ...rest], commandName };
+    case 'security-doctor':
+      return { argv: ['--security-doctor', ...rest], commandName };
+    case 'manifest':
+      return { argv: ['--manifest', ...rest], commandName };
+    case 'contract':
+      return { argv: ['--contract', ...rest], commandName };
+    case 'env':
+    case 'env-template':
+      return { argv: ['--env-template', ...rest], commandName };
+    case 'help':
+      return { argv: ['--help'], commandName };
     default:
       throw new Error(`Unknown mobigent command ${command}\n\n${helpText()}`);
   }
@@ -615,13 +636,13 @@ function normalizeMobigentCommand(argv: string[], commandName: string) {
 
 function parseArgs(
   argv: string[],
-  defaults: Pick<ReactNativeInitCliOptions, "expo"> = { expo: false }
+  defaults: Pick<ReactNativeInitCliOptions, 'expo'> = { expo: false },
 ): ReactNativeInitCliOptions & { help?: boolean } {
   const options: ReactNativeInitCliOptions & { help?: boolean } = {
-    appId: "",
-    appName: "",
-    feature: "expense",
-    outDir: "src",
+    appId: '',
+    appName: '',
+    feature: 'expense',
+    outDir: 'src',
     dryRun: false,
     force: false,
     doctor: false,
@@ -632,14 +653,14 @@ function parseArgs(
     customConfirmation: false,
     envTemplate: false,
     expo: defaults.expo,
-    expoRouter: false
+    expoRouter: false,
   };
 
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     const next = () => {
       const value = argv[index + 1];
-      if (!value || value.startsWith("--")) {
+      if (!value || value.startsWith('--')) {
         throw new Error(`Missing value for ${arg}`);
       }
       index += 1;
@@ -647,92 +668,92 @@ function parseArgs(
     };
 
     switch (arg) {
-      case "--app-id":
+      case '--app-id':
         options.appId = next();
         break;
-      case "--app-name":
+      case '--app-name':
         options.appName = next();
         break;
-      case "--app-version":
+      case '--app-version':
         options.appVersion = next();
         break;
-      case "--config":
+      case '--config':
         options.configPath = next();
         break;
-      case "--backend-dir":
+      case '--backend-dir':
         options.backendDir = next();
         break;
-      case "--feature":
+      case '--feature':
         options.feature = next();
         break;
-      case "--app-root":
+      case '--app-root':
         options.appRoot = next();
         break;
-      case "--out-dir":
+      case '--out-dir':
         options.outDir = next();
         break;
-      case "--gateway-url":
+      case '--gateway-url':
         options.gatewayUrl = next();
         break;
-      case "--custom-confirmation":
+      case '--custom-confirmation':
         options.customConfirmation = true;
         break;
-      case "--expo":
+      case '--expo':
         options.expo = true;
         break;
-      case "--react-native":
-      case "--bare":
+      case '--react-native':
+      case '--bare':
         options.expo = false;
         options.expoRouter = false;
         break;
-      case "--expo-router":
+      case '--expo-router':
         options.expo = true;
         options.expoRouter = true;
         break;
-      case "--feature-only":
+      case '--feature-only':
         options.featureOnly = true;
         break;
-      case "--dry-run":
+      case '--dry-run':
         options.dryRun = true;
         break;
-      case "--force":
+      case '--force':
         options.force = true;
         break;
-      case "--doctor":
+      case '--doctor':
         options.doctor = true;
         break;
-      case "--security-doctor":
+      case '--security-doctor':
         options.securityDoctor = true;
         break;
-      case "--manifest":
+      case '--manifest':
         options.manifest = true;
         break;
-      case "--write-manifest":
+      case '--write-manifest':
         options.writeManifestPath = next();
         break;
-      case "--validate-manifest":
+      case '--validate-manifest':
         options.validateManifestPath = next();
         break;
-      case "--contract":
+      case '--contract':
         options.contract = true;
         break;
-      case "--platform-actions":
+      case '--platform-actions':
         options.platformActions = readPlatformActionsFormat(next());
         break;
-      case "--write-contract":
+      case '--write-contract':
         options.writeContractPath = next();
         break;
-      case "--validate-contract":
+      case '--validate-contract':
         options.validateContractPath = next();
         break;
-      case "--env-template":
+      case '--env-template':
         options.envTemplate = true;
         break;
-      case "--write-env":
+      case '--write-env':
         options.writeEnvPath = next();
         break;
-      case "--help":
-      case "-h":
+      case '--help':
+      case '-h':
         options.help = true;
         break;
       default:
@@ -745,7 +766,10 @@ function parseArgs(
   }
 
   if (!options.configPath) {
-    options.configPath = findDefaultReactNativeAppConfig(options.appRoot ?? process.cwd(), options.backendDir);
+    options.configPath = findDefaultReactNativeAppConfig(
+      options.appRoot ?? process.cwd(),
+      options.backendDir,
+    );
   }
 
   if (options.configPath) {
@@ -779,8 +803,8 @@ function parseArgs(
     (!options.appId || !options.appName)
   ) {
     throw new Error(
-      "--app-id and --app-name are required for --manifest, --write-manifest, --contract, --write-contract, --security-doctor, and --platform-actions.\n\n" +
-        helpText()
+      '--app-id and --app-name are required for --manifest, --write-manifest, --contract, --write-contract, --security-doctor, and --platform-actions.\n\n' +
+        helpText(),
     );
   }
 
@@ -794,10 +818,10 @@ function createMobigentRootFile(options: ReactNativeInitCliOptions) {
 
   const confirmationImport = options.customConfirmation
     ? `import { MobigentAgentApproval } from "./mobigent-confirmation";\n`
-    : "";
+    : '';
   const createAppCall = createMobigentCreateAppCall(options);
 
-return `import type { ComponentType, ReactNode } from "react";
+  return `import type { ComponentType, ReactNode } from "react";
 import { createApp, type MobigentAppRootProps } from "@mobigent/app";
 import { ${options.feature}Functions } from "./mobigent-functions/${options.feature}";
 ${confirmationImport}
@@ -822,10 +846,10 @@ export function withMobigentApp<P extends object>(App: ComponentType<P>) {
 function createMobigentExpoRootFile(options: ReactNativeInitCliOptions) {
   const confirmationImport = options.customConfirmation
     ? `import { MobigentAgentApproval } from "./mobigent-confirmation";\n`
-    : "";
+    : '';
   const createAppCall = createMobigentCreateAppCall(options);
 
-return `import type { ComponentType, ReactNode } from "react";
+  return `import type { ComponentType, ReactNode } from "react";
 import { createApp, type MobigentAppRootProps } from "@mobigent/app";
 import { ${options.feature}Functions } from "./mobigent-functions/${options.feature}";
 ${confirmationImport}
@@ -855,12 +879,13 @@ function createMobigentCreateAppCall(options: ReactNativeInitCliOptions) {
     return `${base})`;
   }
 
-  return `${base}, {\n${optionLines.map((line) => `  ${line}`).join(",\n")}\n})`;
+  return `${base}, {\n${optionLines.map((line) => `  ${line}`).join(',\n')}\n})`;
 }
 
 function createMobigentCreateAppOptionLines(options: ReactNativeInitCliOptions) {
   const lines: string[] = [];
-  const connectionUrl = options.appConfig?.connectionUrl ?? options.appConfig?.gatewayUrl ?? options.gatewayUrl;
+  const connectionUrl =
+    options.appConfig?.connectionUrl ?? options.appConfig?.gatewayUrl ?? options.gatewayUrl;
   const appName = options.appName || options.appConfig?.appName;
   const version = options.appVersion ?? options.appConfig?.version;
   const authToken = options.appConfig?.authToken;
@@ -882,14 +907,14 @@ function createMobigentCreateAppOptionLines(options: ReactNativeInitCliOptions) 
   }
 
   if (options.customConfirmation) {
-    lines.push("ConfirmationComponent: MobigentAgentApproval");
+    lines.push('ConfirmationComponent: MobigentAgentApproval');
   }
 
   return lines;
 }
 
 function createExpoRouterLayoutFile(options: ReactNativeInitCliOptions) {
-  const rootImport = createRelativeImportPath("app", join(options.outDir, "mobigent"));
+  const rootImport = createRelativeImportPath('app', join(options.outDir, 'mobigent'));
 
   return `import { Stack } from "expo-router";
 import { MobigentRoot } from "${rootImport}";
@@ -913,10 +938,10 @@ function createRelativeImportPath(fromDir: string, toPathWithoutExtension: strin
     toSegments.shift();
   }
 
-  const segments = [...fromSegments.map(() => ".."), ...toSegments];
-  const relativePath = segments.length > 0 ? segments.join("/") : ".";
+  const segments = [...fromSegments.map(() => '..'), ...toSegments];
+  const relativePath = segments.length > 0 ? segments.join('/') : '.';
 
-  return relativePath.startsWith(".") ? relativePath : `./${relativePath}`;
+  return relativePath.startsWith('.') ? relativePath : `./${relativePath}`;
 }
 
 function createMobigentConfigFile(options: ReactNativeInitCliOptions) {
@@ -936,7 +961,7 @@ export const mobigentConfig = defineMobigentConfig({
     process.env.EXPO_PUBLIC_MOBIGENT_URL ??
     process.env.EXPO_PUBLIC_MOBIGENT_CONNECTION_URL ??
     process.env.EXPO_PUBLIC_MOBIGENT_GATEWAY_URL ??
-    ${JSON.stringify(options.gatewayUrl ?? "ws://localhost:8787")}${options.appVersion ? `,\n  version: ${JSON.stringify(options.appVersion)}` : ""}
+    ${JSON.stringify(options.gatewayUrl ?? 'ws://localhost:8787')}${options.appVersion ? `,\n  version: ${JSON.stringify(options.appVersion)}` : ''}
 });
 `;
 }
@@ -945,9 +970,11 @@ function readReactNativeAppConfig(path: string): ReactNativeAppConfigFile {
   let parsed: unknown;
 
   try {
-    parsed = JSON.parse(readFileSync(path, "utf8"));
+    parsed = JSON.parse(readFileSync(path, 'utf8'));
   } catch (error) {
-    throw new Error(`Could not read Mobigent config from ${path}: ${error instanceof Error ? error.message : String(error)}`);
+    throw new Error(
+      `Could not read Mobigent config from ${path}: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 
   if (!isReactNativeAppConfig(parsed)) {
@@ -957,7 +984,10 @@ function readReactNativeAppConfig(path: string): ReactNativeAppConfigFile {
   return parsed;
 }
 
-function findDefaultReactNativeAppConfig(startDir = process.cwd(), backendDir?: string): string | undefined {
+function findDefaultReactNativeAppConfig(
+  startDir = process.cwd(),
+  backendDir?: string,
+): string | undefined {
   if (backendDir) {
     const candidate = join(backendDir, defaultAppConfigFile);
     if (existsSync(candidate)) {
@@ -989,7 +1019,7 @@ function findDefaultReactNativeAppConfig(startDir = process.cwd(), backendDir?: 
 
 function findSiblingBackendConfig(dir: string) {
   const parent = dirname(dir);
-  const siblingNames = ["backend", "server", "api", "agent-server", "mobigent-backend"];
+  const siblingNames = ['backend', 'server', 'api', 'agent-server', 'mobigent-backend'];
 
   for (const siblingName of siblingNames) {
     const candidate = join(parent, siblingName, defaultAppConfigFile);
@@ -1001,12 +1031,14 @@ function findSiblingBackendConfig(dir: string) {
   return undefined;
 }
 
-export function inferReactNativeAppIdentity(startDir = process.cwd()): Pick<ReactNativeInitCliOptions, "appId" | "appName"> {
+export function inferReactNativeAppIdentity(
+  startDir = process.cwd(),
+): Pick<ReactNativeInitCliOptions, 'appId' | 'appName'> {
   const projectName = findReactNativeProjectName(startDir);
 
   return {
     appId: inferReactNativeAppId(projectName),
-    appName: inferReactNativeAppName(projectName)
+    appName: inferReactNativeAppName(projectName),
   };
 }
 
@@ -1014,11 +1046,11 @@ function findReactNativeProjectName(startDir: string): string {
   let dir = startDir;
 
   while (true) {
-    const packageJsonPath = join(dir, "package.json");
+    const packageJsonPath = join(dir, 'package.json');
     if (existsSync(packageJsonPath)) {
       try {
-        const parsed = JSON.parse(readFileSync(packageJsonPath, "utf8")) as { name?: unknown };
-        if (typeof parsed.name === "string" && parsed.name.trim()) {
+        const parsed = JSON.parse(readFileSync(packageJsonPath, 'utf8')) as { name?: unknown };
+        if (typeof parsed.name === 'string' && parsed.name.trim()) {
           return parsed.name;
         }
       } catch {
@@ -1033,46 +1065,48 @@ function findReactNativeProjectName(startDir: string): string {
     dir = parent;
   }
 
-  return basename(startDir) || "mobigent-app";
+  return basename(startDir) || 'mobigent-app';
 }
 
 function inferReactNativeAppId(projectName: string): string {
-  const withoutNpmScope = projectName.replace(/^@/, "");
+  const withoutNpmScope = projectName.replace(/^@/, '');
   const segments = withoutNpmScope
     .split(/[/.]+/)
     .flatMap((segment) => segment.split(/[-_\s]+/))
-    .map((segment) => segment.toLowerCase().replace(/[^a-z0-9]+/g, ""))
+    .map((segment) => segment.toLowerCase().replace(/[^a-z0-9]+/g, ''))
     .filter(Boolean);
 
-  return ["app", ...(segments.length > 0 ? segments : ["mobigent"])].join(".");
+  return ['app', ...(segments.length > 0 ? segments : ['mobigent'])].join('.');
 }
 
 function inferReactNativeAppName(projectName: string): string {
   const name = projectName
-    .replace(/^@[^/]+\//, "")
-    .replace(/[-_.]+/g, " ")
+    .replace(/^@[^/]+\//, '')
+    .replace(/[-_.]+/g, ' ')
     .trim();
 
-  return (name || "Mobigent App").replace(/\b\w/g, (letter) => letter.toUpperCase());
+  return (name || 'Mobigent App').replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function isReactNativeAppConfig(value: unknown): value is ReactNativeAppConfigFile {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
     return false;
   }
 
   const config = value as Record<string, unknown>;
   return (
-    typeof config.appId === "string" &&
-    typeof config.appName === "string" &&
-    (typeof config.connectionUrl === "string" || typeof config.gatewayUrl === "string") &&
-    (config.version === undefined || typeof config.version === "string") &&
-    (config.authToken === undefined || typeof config.authToken === "string")
+    typeof config.appId === 'string' &&
+    typeof config.appName === 'string' &&
+    (typeof config.connectionUrl === 'string' || typeof config.gatewayUrl === 'string') &&
+    (config.version === undefined || typeof config.version === 'string') &&
+    (config.authToken === undefined || typeof config.authToken === 'string')
   );
 }
 
-export function createReactNativeEnvTemplate(options: Pick<ReactNativeInitCliOptions, "gatewayUrl"> = {}) {
-  const gatewayUrl = options.gatewayUrl ?? "ws://localhost:8787";
+export function createReactNativeEnvTemplate(
+  options: Pick<ReactNativeInitCliOptions, 'gatewayUrl'> = {},
+) {
+  const gatewayUrl = options.gatewayUrl ?? 'ws://localhost:8787';
 
   return `# Mobigent React Native environment
 # Mobigent reads MOBIGENT_*, EXPO_PUBLIC_MOBIGENT_*, and REACT_NATIVE_MOBIGENT_*.
@@ -1219,9 +1253,9 @@ export const ${feature}Functions = {
 function writeGeneratedFile(file: ReactNativeGeneratedFile, force: boolean) {
   if (!force && existsSync(file.path)) {
     if (file.updateExisting) {
-      const nextContents = file.updateExisting(readFileSync(file.path, "utf8"));
+      const nextContents = file.updateExisting(readFileSync(file.path, 'utf8'));
       if (nextContents !== undefined) {
-        writeFileSync(file.path, nextContents, "utf8");
+        writeFileSync(file.path, nextContents, 'utf8');
         return;
       }
     }
@@ -1233,7 +1267,7 @@ function writeGeneratedFile(file: ReactNativeGeneratedFile, force: boolean) {
   }
 
   mkdirSync(dirname(file.path), { recursive: true });
-  writeFileSync(file.path, file.contents, "utf8");
+  writeFileSync(file.path, file.contents, 'utf8');
 }
 
 function toPublicGeneratedFiles(files: ReactNativeGeneratedFile[]) {
@@ -1251,45 +1285,51 @@ function addFeatureToMobigentRoot(contents: string, feature: string) {
   }
 
   const importLine = `import { ${functionsBinding} } from "./mobigent-functions/${feature}";`;
-  const lines = contents.split("\n");
+  const lines = contents.split('\n');
   const lastFeatureImportIndex = findLastFeatureImportIndex(lines);
-  const fallbackImportIndex = lines.findIndex((line) => line.includes("@mobigent/app") || line.includes("@mobigent/react-native"));
-  const insertIndex = lastFeatureImportIndex >= 0 ? lastFeatureImportIndex + 1 : fallbackImportIndex + 1;
+  const fallbackImportIndex = lines.findIndex(
+    (line) => line.includes('@mobigent/app') || line.includes('@mobigent/react-native'),
+  );
+  const insertIndex =
+    lastFeatureImportIndex >= 0 ? lastFeatureImportIndex + 1 : fallbackImportIndex + 1;
 
   if (insertIndex <= 0) {
     return undefined;
   }
 
   lines.splice(insertIndex, 0, importLine);
-  const withImport = lines.join("\n");
+  const withImport = lines.join('\n');
 
   if (/functions:\s*{/.test(withImport)) {
     return withImport.replace(/functions:\s*{([^}]*)}/s, (_match, rawFunctions: string) => {
       const existingFunctions = rawFunctions
-        .split(",")
+        .split(',')
         .map((item) => item.trim())
         .filter(Boolean);
       const functions = [...existingFunctions, `...${functionsBinding}`];
-      return `functions: { ${functions.join(", ")} }`;
+      return `functions: { ${functions.join(', ')} }`;
     });
   }
 
   if (/createApp\(\s*["'][^"']+["']\s*,\s*{/.test(withImport)) {
-    return withImport.replace(/createApp\((\s*["'][^"']+["']\s*,\s*){([^}]*)}/s, (_match, prefix: string, rawFunctions: string) => {
-      const existingFunctions = rawFunctions
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean);
-      const functions = [...existingFunctions, `...${functionsBinding}`];
-      return `createApp(${prefix}{ ${functions.join(", ")} }`;
-    });
+    return withImport.replace(
+      /createApp\((\s*["'][^"']+["']\s*,\s*){([^}]*)}/s,
+      (_match, prefix: string, rawFunctions: string) => {
+        const existingFunctions = rawFunctions
+          .split(',')
+          .map((item) => item.trim())
+          .filter(Boolean);
+        const functions = [...existingFunctions, `...${functionsBinding}`];
+        return `createApp(${prefix}{ ${functions.join(', ')} }`;
+      },
+    );
   }
 
   return undefined;
 }
 
 function escapeRegExp(value: string) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function findLastFeatureImportIndex(lines: string[]) {
@@ -1305,16 +1345,16 @@ function findLastFeatureImportIndex(lines: string[]) {
 function formatCreatedFilesMessage(options: ReactNativeInitCliOptions) {
   if (options.featureOnly) {
     return (
-      `Created Mobigent React Native app functions ${options.feature} in ${join(options.outDir, "mobigent-functions")}.\n` +
+      `Created Mobigent React Native app functions ${options.feature} in ${join(options.outDir, 'mobigent-functions')}.\n` +
       `Use it as an explicit feature object, or prefer createApp(functions) for new app code.\n`
     );
   }
 
   return (
-    `Created Mobigent ${options.expo ? "Expo" : "React Native"} starter in ${options.outDir}\n` +
+    `Created Mobigent ${options.expo ? 'Expo' : 'React Native'} starter in ${options.outDir}\n` +
     (options.expoRouter
-      ? `Expo Router layout created at ${join("app", "_layout.tsx")}.\n`
-      : `Wrap your app with MobigentRoot from ${join(options.outDir, "mobigent.tsx")}.\n`)
+      ? `Expo Router layout created at ${join('app', '_layout.tsx')}.\n`
+      : `Wrap your app with MobigentRoot from ${join(options.outDir, 'mobigent.tsx')}.\n`)
   );
 }
 
@@ -1323,12 +1363,12 @@ function pushCheck(
   condition: boolean,
   name: string,
   passMessage: string,
-  failMessage: string
+  failMessage: string,
 ) {
   checks.push({
     name,
-    status: condition ? "pass" : "fail",
-    message: condition ? passMessage : failMessage
+    status: condition ? 'pass' : 'fail',
+    message: condition ? passMessage : failMessage,
   });
 }
 
@@ -1336,53 +1376,53 @@ function pushFileCheck(
   checks: ReactNativeDoctorCheck[],
   path: string,
   name: string,
-  inspect: (contents: string) => string
+  inspect: (contents: string) => string,
 ) {
   if (!existsSync(path)) {
     checks.push({
       name,
-      status: "warn",
-      message: `${path} does not exist yet. Create it manually with createApp(functions). For a complete demo, run mobigent new my-demo --install.`
+      status: 'warn',
+      message: `${path} does not exist yet. Create it manually with createApp(functions). For a complete demo, run mobigent new my-demo --install.`,
     });
     return;
   }
 
-  const contents = readFileSync(path, "utf8");
+  const contents = readFileSync(path, 'utf8');
   const message = inspect(contents);
   checks.push({
     name,
-    status: message.includes("does not look") ? "warn" : "pass",
-    message
+    status: message.includes('does not look') ? 'warn' : 'pass',
+    message,
   });
 }
 
 function pushPackageJsonCheck(checks: ReactNativeDoctorCheck[], path: string) {
   if (!existsSync(path)) {
     checks.push({
-      name: "package_json",
-      status: "warn",
-      message: `${path} does not exist. Run doctor from the app root or pass --app-root.`
+      name: 'package_json',
+      status: 'warn',
+      message: `${path} does not exist. Run doctor from the app root or pass --app-root.`,
     });
     return;
   }
 
   let parsed: unknown;
   try {
-    parsed = JSON.parse(readFileSync(path, "utf8"));
+    parsed = JSON.parse(readFileSync(path, 'utf8'));
   } catch (error) {
     checks.push({
-      name: "package_json",
-      status: "fail",
-      message: `Could not parse ${path}: ${error instanceof Error ? error.message : String(error)}`
+      name: 'package_json',
+      status: 'fail',
+      message: `Could not parse ${path}: ${error instanceof Error ? error.message : String(error)}`,
     });
     return;
   }
 
   if (!isPackageJson(parsed)) {
     checks.push({
-      name: "package_json",
-      status: "fail",
-      message: `${path} is not a valid package.json object.`
+      name: 'package_json',
+      status: 'fail',
+      message: `${path} is not a valid package.json object.`,
     });
     return;
   }
@@ -1390,27 +1430,29 @@ function pushPackageJsonCheck(checks: ReactNativeDoctorCheck[], path: string) {
   const dependencies = {
     ...parsed.dependencies,
     ...parsed.devDependencies,
-    ...parsed.peerDependencies
+    ...parsed.peerDependencies,
   };
-  const hasMobigent = Boolean(dependencies["@mobigent/app"] || dependencies["@mobigent/react-native"]);
-  const packageName = dependencies["@mobigent/app"] ? "@mobigent/app" : "@mobigent/react-native";
-  const hasReactNative = Boolean(dependencies["react-native"] || dependencies["expo"]);
+  const hasMobigent = Boolean(
+    dependencies['@mobigent/app'] || dependencies['@mobigent/react-native'],
+  );
+  const packageName = dependencies['@mobigent/app'] ? '@mobigent/app' : '@mobigent/react-native';
+  const hasReactNative = Boolean(dependencies['react-native'] || dependencies['expo']);
 
   if (!hasMobigent) {
     checks.push({
-      name: "package_json",
-      status: "warn",
-      message: `${path} is missing @mobigent/app. Install it before running the app.`
+      name: 'package_json',
+      status: 'warn',
+      message: `${path} is missing @mobigent/app. Install it before running the app.`,
     });
     return;
   }
 
   checks.push({
-    name: "package_json",
-    status: hasReactNative ? "pass" : "warn",
+    name: 'package_json',
+    status: hasReactNative ? 'pass' : 'warn',
     message: hasReactNative
       ? `${path} includes ${packageName} and a React Native runtime dependency.`
-      : `${path} includes ${packageName} but does not list react-native or expo.`
+      : `${path} includes ${packageName} but does not list react-native or expo.`,
   });
 }
 
@@ -1418,59 +1460,59 @@ function validateReactNativeIntegrationManifest(value: unknown) {
   const errors: string[] = [];
 
   if (!isRecord(value)) {
-    return ["Integration manifest must be a JSON object."];
+    return ['Integration manifest must be a JSON object.'];
   }
 
-  if (value.kind !== "mobigent.react-native.integration") {
+  if (value.kind !== 'mobigent.react-native.integration') {
     errors.push('kind must be "mobigent.react-native.integration".');
   }
 
   if (!isRecord(value.app)) {
-    errors.push("app must be an object.");
+    errors.push('app must be an object.');
   } else {
     if (!isNonEmptyString(value.app.id)) {
-      errors.push("app.id must be a non-empty string.");
+      errors.push('app.id must be a non-empty string.');
     }
     if (!isNonEmptyString(value.app.name)) {
-      errors.push("app.name must be a non-empty string.");
+      errors.push('app.name must be a non-empty string.');
     }
-    if (value.app.version !== undefined && typeof value.app.version !== "string") {
-      errors.push("app.version must be a string when present.");
+    if (value.app.version !== undefined && typeof value.app.version !== 'string') {
+      errors.push('app.version must be a string when present.');
     }
   }
 
   if (!isNonEmptyString(value.feature)) {
-    errors.push("feature must be a non-empty string.");
+    errors.push('feature must be a non-empty string.');
   } else {
     try {
-      assertIdentifier("feature", value.feature);
+      assertIdentifier('feature', value.feature);
     } catch (error) {
       errors.push(error instanceof Error ? error.message : String(error));
     }
   }
 
   if (!isNonEmptyString(value.gatewayUrl) || !isWebSocketUrl(value.gatewayUrl)) {
-    errors.push("gatewayUrl must be a ws:// or wss:// URL.");
+    errors.push('gatewayUrl must be a ws:// or wss:// URL.');
   }
 
   if (!isRecord(value.files)) {
-    errors.push("files must be an object.");
+    errors.push('files must be an object.');
   } else {
     if (!isNonEmptyString(value.files.root)) {
-      errors.push("files.root must be a non-empty string.");
+      errors.push('files.root must be a non-empty string.');
     }
     if (!isNonEmptyString(value.files.feature)) {
-      errors.push("files.feature must be a non-empty string.");
+      errors.push('files.feature must be a non-empty string.');
     }
     if (value.files.confirmation !== undefined && !isNonEmptyString(value.files.confirmation)) {
-      errors.push("files.confirmation must be a non-empty string when present.");
+      errors.push('files.confirmation must be a non-empty string when present.');
     }
   }
 
   if (!isRecord(value.capabilities)) {
-    errors.push("capabilities must be an object.");
+    errors.push('capabilities must be an object.');
   } else {
-    for (const key of ["actions", "resources", "components", "events"] as const) {
+    for (const key of ['actions', 'resources', 'components', 'events'] as const) {
       if (!isStringArray(value.capabilities[key])) {
         errors.push(`capabilities.${key} must be an array of strings.`);
       }
@@ -1478,19 +1520,19 @@ function validateReactNativeIntegrationManifest(value: unknown) {
   }
 
   if (!Array.isArray(value.modules)) {
-    errors.push("modules must be an array.");
+    errors.push('modules must be an array.');
   } else {
     value.modules.forEach((module, index) => {
       if (!isRecord(module)) {
         errors.push(`modules.${index} must be an object.`);
         return;
       }
-      for (const key of ["id", "name", "feature", "file"] as const) {
+      for (const key of ['id', 'name', 'feature', 'file'] as const) {
         if (!isNonEmptyString(module[key])) {
           errors.push(`modules.${index}.${key} must be a non-empty string.`);
         }
       }
-      for (const key of ["actions", "resources", "components"] as const) {
+      for (const key of ['actions', 'resources', 'components'] as const) {
         if (!isStringArray(module[key])) {
           errors.push(`modules.${index}.${key} must be an array of strings.`);
         }
@@ -1499,13 +1541,13 @@ function validateReactNativeIntegrationManifest(value: unknown) {
   }
 
   if (!isRecord(value.commands)) {
-    errors.push("commands must be an object.");
+    errors.push('commands must be an object.');
   } else {
     if (!isNonEmptyString(value.commands.generate)) {
-      errors.push("commands.generate must be a non-empty string.");
+      errors.push('commands.generate must be a non-empty string.');
     }
     if (!isNonEmptyString(value.commands.doctor)) {
-      errors.push("commands.doctor must be a non-empty string.");
+      errors.push('commands.doctor must be a non-empty string.');
     }
   }
 
@@ -1517,31 +1559,31 @@ function isPackageJson(value: unknown): value is {
   devDependencies?: Record<string, string>;
   peerDependencies?: Record<string, string>;
 } {
-  return Boolean(value && typeof value === "object" && !Array.isArray(value));
+  return Boolean(value && typeof value === 'object' && !Array.isArray(value));
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value && typeof value === "object" && !Array.isArray(value));
+  return Boolean(value && typeof value === 'object' && !Array.isArray(value));
 }
 
 function isNonEmptyString(value: unknown): value is string {
-  return typeof value === "string" && value.trim().length > 0;
+  return typeof value === 'string' && value.trim().length > 0;
 }
 
 function isStringArray(value: unknown): value is string[] {
-  return Array.isArray(value) && value.every((item) => typeof item === "string");
+  return Array.isArray(value) && value.every((item) => typeof item === 'string');
 }
 
-function summarizeChecks(checks: ReactNativeDoctorCheck[]): ReactNativeDoctorReport["status"] {
-  if (checks.some((check) => check.status === "fail")) {
-    return "fail";
+function summarizeChecks(checks: ReactNativeDoctorCheck[]): ReactNativeDoctorReport['status'] {
+  if (checks.some((check) => check.status === 'fail')) {
+    return 'fail';
   }
 
-  if (checks.some((check) => check.status === "warn")) {
-    return "warn";
+  if (checks.some((check) => check.status === 'warn')) {
+    return 'warn';
   }
 
-  return "pass";
+  return 'pass';
 }
 
 function formatDoctorReport(report: ReactNativeDoctorReport) {
@@ -1549,7 +1591,7 @@ function formatDoctorReport(report: ReactNativeDoctorReport) {
   for (const check of report.checks) {
     lines.push(`${check.status.toUpperCase()} ${check.name}: ${check.message}`);
   }
-  return lines.join("\n");
+  return lines.join('\n');
 }
 
 function formatSecurityDoctorReport(report: ReactNativeSecurityDoctorReport) {
@@ -1557,7 +1599,7 @@ function formatSecurityDoctorReport(report: ReactNativeSecurityDoctorReport) {
   for (const check of report.checks) {
     lines.push(`${check.status.toUpperCase()} ${check.name}: ${check.message}`);
   }
-  return lines.join("\n");
+  return lines.join('\n');
 }
 
 function formatContractValidationReport(report: ReactNativeContractValidationReport) {
@@ -1566,22 +1608,24 @@ function formatContractValidationReport(report: ReactNativeContractValidationRep
   for (const error of report.errors) {
     lines.push(`ERROR ${error}`);
   }
-  return lines.join("\n");
+  return lines.join('\n');
 }
 
-function formatIntegrationManifestValidationReport(report: ReactNativeIntegrationManifestValidationReport) {
+function formatIntegrationManifestValidationReport(
+  report: ReactNativeIntegrationManifestValidationReport,
+) {
   const lines = [`Mobigent React Native integration manifest: ${report.status.toUpperCase()}`];
   lines.push(`PATH ${report.path}`);
   for (const error of report.errors) {
     lines.push(`ERROR ${error}`);
   }
-  return lines.join("\n");
+  return lines.join('\n');
 }
 
 function isWebSocketUrl(value: string) {
   try {
     const url = new URL(value);
-    return url.protocol === "ws:" || url.protocol === "wss:";
+    return url.protocol === 'ws:' || url.protocol === 'wss:';
   } catch {
     return false;
   }
@@ -1590,24 +1634,24 @@ function isWebSocketUrl(value: string) {
 function isSecureOrLocalWebSocketUrl(value: string) {
   try {
     const url = new URL(value);
-    if (url.protocol === "wss:") {
+    if (url.protocol === 'wss:') {
       return true;
     }
     return (
-      url.protocol === "ws:" &&
-      ["localhost", "127.0.0.1", "10.0.2.2", "0.0.0.0", "::1", "[::1]"].includes(url.hostname)
+      url.protocol === 'ws:' &&
+      ['localhost', '127.0.0.1', '10.0.2.2', '0.0.0.0', '::1', '[::1]'].includes(url.hostname)
     );
   } catch {
     return false;
   }
 }
 
-function readPlatformActionsFormat(value: string): ReactNativeInitCliOptions["platformActions"] {
-  if (value === "json" || value === "ios-swift" || value === "android-xml") {
+function readPlatformActionsFormat(value: string): ReactNativeInitCliOptions['platformActions'] {
+  if (value === 'json' || value === 'ios-swift' || value === 'android-xml') {
     return value;
   }
 
-  throw new Error("--platform-actions must be one of: json, ios-swift, android-xml.");
+  throw new Error('--platform-actions must be one of: json, ios-swift, android-xml.');
 }
 
 function shellQuote(value: string) {
@@ -1620,7 +1664,9 @@ function shellQuote(value: string) {
 
 function assertIdentifier(label: string, value: string) {
   if (!/^[a-zA-Z][a-zA-Z0-9_]*$/.test(value)) {
-    throw new Error(`Invalid ${label} "${value}". Use letters, numbers, and underscores, starting with a letter.`);
+    throw new Error(
+      `Invalid ${label} "${value}". Use letters, numbers, and underscores, starting with a letter.`,
+    );
   }
 }
 
@@ -1688,7 +1734,10 @@ Options:
 }
 
 function isMainModule() {
-  return Boolean(process.argv[1]) && realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
+  return (
+    Boolean(process.argv[1]) &&
+    realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url))
+  );
 }
 
 if (isMainModule()) {

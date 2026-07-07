@@ -32,7 +32,7 @@ The gateway can require HMAC-SHA256 signatures before it accepts a capability ma
 ```ts
 const gateway = new BridgeGateway({
   port: 8787,
-  manifestSigningSecret: process.env.MOBIGENT_MANIFEST_SIGNING_SECRET
+  manifestSigningSecret: process.env.MOBIGENT_MANIFEST_SIGNING_SECRET,
 });
 ```
 
@@ -46,14 +46,14 @@ React Native apps provide a signer callback:
 
 ```ts
 mobigent.configure({
-  appId: "com.example.expenses",
-  appName: "Example Expenses",
-  gatewayUrl: "wss://gateway.example.com",
+  appId: 'com.example.expenses',
+  appName: 'Example Expenses',
+  gatewayUrl: 'wss://gateway.example.com',
   signManifest: async (manifest) => ({
-    alg: "hmac-sha256",
-    keyId: "mobile-prod",
-    signature: await signManifestWithYourCrypto(manifest)
-  })
+    alg: 'hmac-sha256',
+    keyId: 'mobile-prod',
+    signature: await signManifestWithYourCrypto(manifest),
+  }),
 });
 ```
 
@@ -66,7 +66,7 @@ Use `allowedAppIds` when the gateway should only accept known apps:
 ```ts
 const gateway = new BridgeGateway({
   port: 8787,
-  allowedAppIds: ["com.example.expenses", "com.example.crm"]
+  allowedAppIds: ['com.example.expenses', 'com.example.crm'],
 });
 ```
 
@@ -86,16 +86,16 @@ Use agent profiles when provider permissions should be controlled by the gateway
 const gateway = new BridgeGateway({
   port: 8787,
   agentProfiles: {
-    "chatgpt-actions": {
+    'chatgpt-actions': {
       readOnly: true,
-      maxRisk: "low",
-      allowedTools: ["com_example_expenses.*"]
+      maxRisk: 'low',
+      allowedTools: ['com_example_expenses.*'],
     },
-    "*": {
+    '*': {
       readOnly: true,
-      maxRisk: "low"
-    }
-  }
+      maxRisk: 'low',
+    },
+  },
 });
 ```
 
@@ -115,9 +115,9 @@ Use per-agent keys when multiple providers share one public gateway:
 ```ts
 const app = createHttpApp(gateway, {
   agentApiKeys: {
-    "chatgpt-actions": process.env.CHATGPT_ACTIONS_KEY!,
-    cursor: process.env.CURSOR_AGENT_KEY!
-  }
+    'chatgpt-actions': process.env.CHATGPT_ACTIONS_KEY!,
+    cursor: process.env.CURSOR_AGENT_KEY!,
+  },
 });
 ```
 
@@ -137,7 +137,7 @@ By default, CORS is permissive for local development. Restrict browser origins w
 ```ts
 const app = createHttpApp(gateway, {
   apiKey: process.env.MOBIGENT_HTTP_API_KEY,
-  corsOrigins: ["https://agent.example.com"]
+  corsOrigins: ['https://agent.example.com'],
 });
 ```
 
@@ -153,7 +153,7 @@ Keep agent-facing payloads bounded with the default `1mb` JSON body limit, or se
 
 ```ts
 const app = createHttpApp(gateway, {
-  jsonBodyLimit: "256kb"
+  jsonBodyLimit: '256kb',
 });
 ```
 
@@ -174,7 +174,7 @@ Add your own keys:
 ```ts
 const gateway = new BridgeGateway({
   port: 8787,
-  auditRedactKeys: ["email", "ssn", "cardNumber"]
+  auditRedactKeys: ['email', 'ssn', 'cardNumber'],
 });
 ```
 

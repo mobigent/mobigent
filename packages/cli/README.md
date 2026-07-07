@@ -19,20 +19,23 @@ The runtime SDKs are still the two normal packages:
 This package also re-exports backend helpers and lightweight app-function builders for experiments or tiny demos:
 
 ```ts
-import { startMobigent, write } from "mobigent";
-import { createApp } from "@mobigent/app";
+import { startMobigent, write } from 'mobigent';
+import { createApp } from '@mobigent/app';
 
 const backend = await startMobigent();
-const app = createApp({
-  expense: {
-    list: async () => ({ items: await listExpenses() }),
-    create: write(createExpense, {
-      input: { merchant: "string", amount: "number" }
-    })
-  }
-}, {
-  backend
-});
+const app = createApp(
+  {
+    expense: {
+      list: async () => ({ items: await listExpenses() }),
+      create: write(createExpense, {
+        input: { merchant: 'string', amount: 'number' },
+      }),
+    },
+  },
+  {
+    backend,
+  },
+);
 ```
 
 For production apps, the split packages keep ownership clear: `@mobigent/app` in the app and `@mobigent/backend` in the backend. App-side and backend scaffolding are optional; the normal SDK path is `npm install @mobigent/app`, `npm install @mobigent/backend`, `createApp(functions).with(App)`, and `startMobigent()`. Add a stable app id on both sides when you move beyond local development.

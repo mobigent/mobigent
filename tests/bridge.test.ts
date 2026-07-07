@@ -1,21 +1,26 @@
-import assert from "node:assert/strict";
-import { createHmac } from "node:crypto";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-import test from "node:test";
-import WebSocket from "ws";
-import { z } from "zod";
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
-import { BridgeGateway, createHttpApp, createMcpServer, createOpenApiSpec } from "@mobigent/gateway";
+import assert from 'node:assert/strict';
+import { createHmac } from 'node:crypto';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import test from 'node:test';
+import WebSocket from 'ws';
+import { z } from 'zod';
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
+import {
+  BridgeGateway,
+  createHttpApp,
+  createMcpServer,
+  createOpenApiSpec,
+} from '@mobigent/gateway';
 import {
   canonicalJson,
   validateCapabilityManifest,
   validateJsonSchema,
   type BridgeMessage,
-  type CapabilityManifest
-} from "@mobigent/core";
+  type CapabilityManifest,
+} from '@mobigent/core';
 import {
   createAnthropicToolUseProvider,
   createAutoGenProvider,
@@ -97,9 +102,9 @@ import {
   toVercelAiSdkTools,
   validateProviderSetup,
   validateProviderSetupPlan,
-  watchMobigentProviderRuntime
-} from "@mobigent/providers";
-import { runProviderCli } from "../packages/providers/src/cli.js";
+  watchMobigentProviderRuntime,
+} from '@mobigent/providers';
+import { runProviderCli } from '../packages/providers/src/cli.js';
 import type {
   AgentAppFactoryOptions,
   AgentAppProps,
@@ -110,13 +115,8 @@ import type {
   MobigentConfirmationComponentProps,
   MobigentDiagnosticsPanelProps,
   MobigentExpoAppOptions,
-  MobigentStatusBadgeProps
-} from "../packages/react-native/src/ConfirmationModal.js";
-import {
-  MobigentStatusBadge,
-  createAgentApp,
-  createAgentExpoApp
-} from "../packages/react-native/src/ConfirmationModal.js";
+  MobigentStatusBadgeProps,
+} from '../packages/react-native/src/ConfirmationModal.js';
 import {
   createReactNativeCapabilityContract,
   createReactNativeEnvTemplate,
@@ -128,9 +128,9 @@ import {
   inferReactNativeAppIdentity,
   runReactNativeInitCli,
   validateReactNativeCapabilityContractFile,
-  validateReactNativeIntegrationManifestFile
-} from "../packages/react-native/src/cli.js";
-import withMobigentExpoConfig from "../packages/react-native/src/expo.js";
+  validateReactNativeIntegrationManifestFile,
+} from '../packages/react-native/src/cli.js';
+import withMobigentExpoConfig from '../packages/react-native/src/expo.js';
 import {
   applyAgentPolicy,
   applyMobigentPolicy,
@@ -235,12 +235,12 @@ import {
   useMobigentModuleDefinition,
   useMobigentModules,
   useMobigentSurface,
-  useMobigentResource
-} from "@mobigent/react-native";
+  useMobigentResource,
+} from '@mobigent/react-native';
 
 const createNodeSocket: MobigentSocketFactory = (url) => new WebSocket(url);
 
-test("React Native package exposes mobigent as primary singleton with legacy alias", () => {
+test('React Native package exposes mobigent as primary singleton with legacy alias', () => {
   assert.equal(mobigent, intentBridge);
 });
 
@@ -263,13 +263,13 @@ class MockMobigentSocket implements MobigentSocket {
     this.emitClose();
   }
 
-  on(event: "open" | "error" | "message" | "close", listener: (...args: unknown[]) => void) {
+  on(event: 'open' | 'error' | 'message' | 'close', listener: (...args: unknown[]) => void) {
     const listeners = this.listeners.get(event) ?? new Set<(...args: unknown[]) => void>();
     listeners.add(listener);
     this.listeners.set(event, listeners);
   }
 
-  once(event: "open" | "error", listener: (...args: unknown[]) => void) {
+  once(event: 'open' | 'error', listener: (...args: unknown[]) => void) {
     const listeners = this.onceListeners.get(event) ?? new Set<(...args: unknown[]) => void>();
     listeners.add(listener);
     this.onceListeners.set(event, listeners);
@@ -277,19 +277,19 @@ class MockMobigentSocket implements MobigentSocket {
 
   emitOpen() {
     this.readyState = 1;
-    this.emit("open");
+    this.emit('open');
   }
 
-  emitError(error: unknown = new Error("socket failed")) {
-    this.emit("error", error);
+  emitError(error: unknown = new Error('socket failed')) {
+    this.emit('error', error);
   }
 
   emitClose() {
-    this.emit("close");
+    this.emit('close');
   }
 
   emitMessage(data: string) {
-    this.emit("message", data);
+    this.emit('message', data);
   }
 
   private emit(event: string, ...args: unknown[]) {
@@ -312,22 +312,25 @@ async function waitFor(predicate: () => boolean, timeoutMs = 1_000) {
     }
     await delay(10);
   }
-  throw new Error("Timed out waiting for condition.");
+  throw new Error('Timed out waiting for condition.');
 }
 
 async function readStreamUntil(
   reader: ReadableStreamDefaultReader<Uint8Array>,
   needle: string,
-  timeoutMs = 1_000
+  timeoutMs = 1_000,
 ) {
   const decoder = new TextDecoder();
   const deadline = Date.now() + timeoutMs;
-  let buffer = "";
+  let buffer = '';
 
   while (Date.now() < deadline) {
     const remainingMs = deadline - Date.now();
     const timeout = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error(`Timed out waiting for stream data containing ${needle}.`)), remainingMs);
+      setTimeout(
+        () => reject(new Error(`Timed out waiting for stream data containing ${needle}.`)),
+        remainingMs,
+      );
     });
     const result = await Promise.race([reader.read(), timeout]);
     if (result.done) {
@@ -344,12 +347,12 @@ async function readStreamUntil(
 
 function signManifest(manifest: CapabilityManifest, secret: string) {
   return {
-    alg: "hmac-sha256" as const,
-    signature: createHmac("sha256", secret).update(canonicalJson(manifest)).digest("hex")
+    alg: 'hmac-sha256' as const,
+    signature: createHmac('sha256', secret).update(canonicalJson(manifest)).digest('hex'),
   };
 }
 
-test("gateway discovers app capabilities and routes action/resource calls", async () => {
+test('gateway discovers app capabilities and routes action/resource calls', async () => {
   const port = 18_787;
   const gateway = new BridgeGateway(port);
   const bridge = new Mobigent();
@@ -358,46 +361,46 @@ test("gateway discovers app capabilities and routes action/resource calls", asyn
   gateway.start();
 
   bridge.configure({
-    appId: "com.mobigent.test",
-    appName: "Mobigent Test",
+    appId: 'com.mobigent.test',
+    appName: 'Mobigent Test',
     gatewayUrl: `ws://localhost:${port}`,
     createSocket: createNodeSocket,
-    confirm: async () => true
+    confirm: async () => true,
   });
 
   bridge.registerAction({
-    name: "create_expense",
-    description: "Create a test expense.",
+    name: 'create_expense',
+    description: 'Create a test expense.',
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
-        merchant: { type: "string" },
-        amount: { type: "number" }
+        merchant: { type: 'string' },
+        amount: { type: 'number' },
       },
-      required: ["merchant", "amount"]
+      required: ['merchant', 'amount'],
     },
     confirmation: {
       required: true,
-      risk: "medium"
+      risk: 'medium',
     },
     handler: async (input) => {
       const expense = {
         id: `EXP-${created.length + 1}`,
         merchant: String(input.merchant),
-        amount: Number(input.amount)
+        amount: Number(input.amount),
       };
       created.push(expense);
       return expense;
-    }
+    },
   });
 
   bridge.registerResource({
-    name: "expenses",
-    description: "Read test expenses.",
+    name: 'expenses',
+    description: 'Read test expenses.',
     policy: {
-      readOnly: true
+      readOnly: true,
     },
-    read: async () => ({ expenses: created })
+    read: async () => ({ expenses: created }),
   });
 
   try {
@@ -405,30 +408,30 @@ test("gateway discovers app capabilities and routes action/resource calls", asyn
     await delay(50);
 
     const tools = gateway.listTools();
-    assert.deepEqual(
-      tools.map((tool) => tool.name).sort(),
-      ["com_mobigent_test.create_expense", "com_mobigent_test.get_expenses"]
-    );
+    assert.deepEqual(tools.map((tool) => tool.name).sort(), [
+      'com_mobigent_test.create_expense',
+      'com_mobigent_test.get_expenses',
+    ]);
 
-    const createdExpense = await gateway.callTool("com_mobigent_test.create_expense", {
-      merchant: "Uber",
-      amount: 28.5
+    const createdExpense = await gateway.callTool('com_mobigent_test.create_expense', {
+      merchant: 'Uber',
+      amount: 28.5,
     });
     assert.deepEqual(createdExpense, {
-      id: "EXP-1",
-      merchant: "Uber",
-      amount: 28.5
+      id: 'EXP-1',
+      merchant: 'Uber',
+      amount: 28.5,
     });
 
-    const readResult = await gateway.callTool("com_mobigent_test.get_expenses", {});
+    const readResult = await gateway.callTool('com_mobigent_test.get_expenses', {});
     assert.deepEqual(readResult, {
       expenses: [
         {
-          id: "EXP-1",
-          merchant: "Uber",
-          amount: 28.5
-        }
-      ]
+          id: 'EXP-1',
+          merchant: 'Uber',
+          amount: 28.5,
+        },
+      ],
     });
   } finally {
     bridge.disconnect();
@@ -436,7 +439,7 @@ test("gateway discovers app capabilities and routes action/resource calls", asyn
   }
 });
 
-test("gateway exposes app components as focusable tools", async () => {
+test('gateway exposes app components as focusable tools', async () => {
   const port = 18_812;
   const gateway = new BridgeGateway(port);
   const bridge = new Mobigent();
@@ -445,29 +448,29 @@ test("gateway exposes app components as focusable tools", async () => {
   gateway.start();
 
   bridge.configure({
-    appId: "com.mobigent.components",
-    appName: "Component App",
+    appId: 'com.mobigent.components',
+    appName: 'Component App',
     gatewayUrl: `ws://localhost:${port}`,
-    createSocket: createNodeSocket
+    createSocket: createNodeSocket,
   });
 
   bridge.registerComponent({
-    name: "expense_detail",
-    description: "Expense detail screen.",
+    name: 'expense_detail',
+    description: 'Expense detail screen.',
     propsSchema: {
-      type: "object",
+      type: 'object',
       properties: {
-        expenseId: { type: "string" }
+        expenseId: { type: 'string' },
       },
-      required: ["expenseId"]
+      required: ['expenseId'],
     },
     policy: {
-      foregroundOnly: true
+      foregroundOnly: true,
     },
     focus: async (props) => {
       focused.push({ expenseId: String(props.expenseId) });
-      return { focused: true, screen: "expense_detail", expenseId: props.expenseId };
-    }
+      return { focused: true, screen: 'expense_detail', expenseId: props.expenseId };
+    },
   });
 
   try {
@@ -476,30 +479,30 @@ test("gateway exposes app components as focusable tools", async () => {
 
     assert.deepEqual(
       gateway.listTools().map((tool) => tool.name),
-      ["com_mobigent_components.show_expense_detail"]
+      ['com_mobigent_components.show_expense_detail'],
     );
 
     await assert.rejects(
-      () => gateway.callTool("com_mobigent_components.show_expense_detail", {}),
-      /Invalid component props/
+      () => gateway.callTool('com_mobigent_components.show_expense_detail', {}),
+      /Invalid component props/,
     );
 
-    const result = await gateway.callTool("com_mobigent_components.show_expense_detail", {
-      expenseId: "EXP-1001"
+    const result = await gateway.callTool('com_mobigent_components.show_expense_detail', {
+      expenseId: 'EXP-1001',
     });
     assert.deepEqual(result, {
       focused: true,
-      screen: "expense_detail",
-      expenseId: "EXP-1001"
+      screen: 'expense_detail',
+      expenseId: 'EXP-1001',
     });
-    assert.deepEqual(focused, [{ expenseId: "EXP-1001" }]);
+    assert.deepEqual(focused, [{ expenseId: 'EXP-1001' }]);
   } finally {
     bridge.disconnect();
     gateway.stop();
   }
 });
 
-test("SDK unregisters capabilities and refreshes gateway tools", async () => {
+test('SDK unregisters capabilities and refreshes gateway tools', async () => {
   const port = 18_813;
   const gateway = new BridgeGateway(port);
   const bridge = new Mobigent();
@@ -507,27 +510,27 @@ test("SDK unregisters capabilities and refreshes gateway tools", async () => {
   gateway.start();
 
   bridge.configure({
-    appId: "com.mobigent.lifecycle",
-    appName: "Lifecycle App",
+    appId: 'com.mobigent.lifecycle',
+    appName: 'Lifecycle App',
     gatewayUrl: `ws://localhost:${port}`,
-    createSocket: createNodeSocket
+    createSocket: createNodeSocket,
   });
 
   bridge.registerAction({
-    name: "temporary_action",
-    description: "Temporary action.",
-    inputSchema: { type: "object", properties: {} },
-    handler: async () => ({ ok: true })
+    name: 'temporary_action',
+    description: 'Temporary action.',
+    inputSchema: { type: 'object', properties: {} },
+    handler: async () => ({ ok: true }),
   });
   bridge.registerResource({
-    name: "temporary_resource",
-    description: "Temporary resource.",
-    read: async () => ({ ok: true })
+    name: 'temporary_resource',
+    description: 'Temporary resource.',
+    read: async () => ({ ok: true }),
   });
   bridge.registerComponent({
-    name: "temporary_screen",
-    description: "Temporary screen.",
-    focus: async () => ({ focused: true })
+    name: 'temporary_screen',
+    description: 'Temporary screen.',
+    focus: async () => ({ focused: true }),
   });
 
   try {
@@ -535,18 +538,21 @@ test("SDK unregisters capabilities and refreshes gateway tools", async () => {
     await delay(50);
 
     assert.deepEqual(
-      gateway.listTools().map((tool) => tool.name).sort(),
+      gateway
+        .listTools()
+        .map((tool) => tool.name)
+        .sort(),
       [
-        "com_mobigent_lifecycle.get_temporary_resource",
-        "com_mobigent_lifecycle.show_temporary_screen",
-        "com_mobigent_lifecycle.temporary_action"
-      ]
+        'com_mobigent_lifecycle.get_temporary_resource',
+        'com_mobigent_lifecycle.show_temporary_screen',
+        'com_mobigent_lifecycle.temporary_action',
+      ],
     );
 
-    assert.equal(bridge.unregisterAction("temporary_action"), true);
-    assert.equal(bridge.unregisterResource("temporary_resource"), true);
-    assert.equal(bridge.unregisterComponent("temporary_screen"), true);
-    assert.equal(bridge.unregisterAction("missing_action"), false);
+    assert.equal(bridge.unregisterAction('temporary_action'), true);
+    assert.equal(bridge.unregisterResource('temporary_resource'), true);
+    assert.equal(bridge.unregisterComponent('temporary_screen'), true);
+    assert.equal(bridge.unregisterAction('missing_action'), false);
     await delay(50);
 
     assert.deepEqual(gateway.listTools(), []);
@@ -556,79 +562,82 @@ test("SDK unregisters capabilities and refreshes gateway tools", async () => {
   }
 });
 
-test("SDK rejects invalid capability names", () => {
+test('SDK rejects invalid capability names', () => {
   const bridge = new Mobigent();
 
   assert.throws(
     () =>
       bridge.registerAction({
-        name: "bad-name",
-        description: "Invalid action.",
+        name: 'bad-name',
+        description: 'Invalid action.',
         inputSchema: {
-          type: "object",
-          properties: {}
+          type: 'object',
+          properties: {},
         },
-        handler: async () => ({ ok: true })
+        handler: async () => ({ ok: true }),
       }),
-    /Invalid capability name/
+    /Invalid capability name/,
   );
 });
 
-test("SDK rejects duplicate capability names across registrations", () => {
+test('SDK rejects duplicate capability names across registrations', () => {
   const bridge = new Mobigent();
   bridge.configure({
-    appId: "com.mobigent.duplicates",
-    appName: "Duplicates App",
-    gatewayUrl: "ws://localhost:0",
-    createSocket: createNodeSocket
+    appId: 'com.mobigent.duplicates',
+    appName: 'Duplicates App',
+    gatewayUrl: 'ws://localhost:0',
+    createSocket: createNodeSocket,
   });
 
   bridge.registerAction({
-    name: "shared_name",
-    description: "Original action.",
-    inputSchema: { type: "object", properties: {} },
-    handler: async () => ({ ok: true })
+    name: 'shared_name',
+    description: 'Original action.',
+    inputSchema: { type: 'object', properties: {} },
+    handler: async () => ({ ok: true }),
   });
 
   assert.throws(
     () =>
       bridge.registerAction({
-        name: "shared_name",
-        description: "Duplicate action.",
-        inputSchema: { type: "object", properties: {} },
-        handler: async () => ({ ok: true })
+        name: 'shared_name',
+        description: 'Duplicate action.',
+        inputSchema: { type: 'object', properties: {} },
+        handler: async () => ({ ok: true }),
       }),
-    /Duplicate capability name/
+    /Duplicate capability name/,
   );
   assert.throws(
     () =>
       bridge.registerResource({
-        name: "shared_name",
-        description: "Duplicate resource.",
-        read: async () => ({ ok: true })
+        name: 'shared_name',
+        description: 'Duplicate resource.',
+        read: async () => ({ ok: true }),
       }),
-    /Duplicate capability name/
+    /Duplicate capability name/,
   );
   assert.throws(
     () =>
       bridge.registerComponent({
-        name: "shared_name",
-        description: "Duplicate component.",
-        focus: async () => ({ focused: true })
+        name: 'shared_name',
+        description: 'Duplicate component.',
+        focus: async () => ({ focused: true }),
       }),
-    /Duplicate capability name/
+    /Duplicate capability name/,
   );
 
-  assert.equal(bridge.unregisterAction("shared_name"), true);
+  assert.equal(bridge.unregisterAction('shared_name'), true);
   bridge.registerResource({
-    name: "shared_name",
-    description: "Registered after cleanup.",
-    read: async () => ({ ok: true })
+    name: 'shared_name',
+    description: 'Registered after cleanup.',
+    read: async () => ({ ok: true }),
   });
-  assert.deepEqual(bridge.getManifest().resources.map((resource) => resource.name), ["shared_name"]);
+  assert.deepEqual(
+    bridge.getManifest().resources.map((resource) => resource.name),
+    ['shared_name'],
+  );
 });
 
-test("SDK validates action input against declared schema before running handler", async () => {
+test('SDK validates action input against declared schema before running handler', async () => {
   const port = 18_801;
   const gateway = new BridgeGateway(port);
   const bridge = new Mobigent();
@@ -637,28 +646,28 @@ test("SDK validates action input against declared schema before running handler"
   gateway.start();
 
   bridge.configure({
-    appId: "com.mobigent.validation",
-    appName: "Validation App",
+    appId: 'com.mobigent.validation',
+    appName: 'Validation App',
     gatewayUrl: `ws://localhost:${port}`,
-    createSocket: createNodeSocket
+    createSocket: createNodeSocket,
   });
 
   bridge.registerAction({
-    name: "create_expense",
-    description: "Create a validated expense.",
+    name: 'create_expense',
+    description: 'Create a validated expense.',
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
-        amount: { type: "number" },
-        merchant: { type: "string" },
-        reimbursable: { type: "boolean" }
+        amount: { type: 'number' },
+        merchant: { type: 'string' },
+        reimbursable: { type: 'boolean' },
       },
-      required: ["amount", "merchant"]
+      required: ['amount', 'merchant'],
     },
     handler: async () => {
       handlerCalls += 1;
       return { ok: true };
-    }
+    },
   });
 
   try {
@@ -667,19 +676,19 @@ test("SDK validates action input against declared schema before running handler"
 
     await assert.rejects(
       () =>
-        gateway.callTool("com_mobigent_validation.create_expense", {
-          amount: "28.50",
-          reimbursable: "yes"
+        gateway.callTool('com_mobigent_validation.create_expense', {
+          amount: '28.50',
+          reimbursable: 'yes',
         }),
-      /Invalid action input/
+      /Invalid action input/,
     );
 
     assert.equal(handlerCalls, 0);
 
-    const result = await gateway.callTool("com_mobigent_validation.create_expense", {
+    const result = await gateway.callTool('com_mobigent_validation.create_expense', {
       amount: 28.5,
-      merchant: "Uber",
-      reimbursable: true
+      merchant: 'Uber',
+      reimbursable: true,
     });
     assert.deepEqual(result, { ok: true });
     assert.equal(handlerCalls, 1);
@@ -689,7 +698,7 @@ test("SDK validates action input against declared schema before running handler"
   }
 });
 
-test("SDK validates action output against declared schema before returning to agents", async () => {
+test('SDK validates action output against declared schema before returning to agents', async () => {
   const port = 18_823;
   const gateway = new BridgeGateway(port);
   const bridge = new Mobigent();
@@ -697,53 +706,53 @@ test("SDK validates action output against declared schema before returning to ag
   gateway.start();
 
   bridge.configure({
-    appId: "com.mobigent.action_output",
-    appName: "Action Output App",
+    appId: 'com.mobigent.action_output',
+    appName: 'Action Output App',
     gatewayUrl: `ws://localhost:${port}`,
-    createSocket: createNodeSocket
+    createSocket: createNodeSocket,
   });
 
   bridge.registerAction({
-    name: "valid_action",
-    description: "Return valid output.",
-    inputSchema: { type: "object", properties: {} },
+    name: 'valid_action',
+    description: 'Return valid output.',
+    inputSchema: { type: 'object', properties: {} },
     outputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
-        id: { type: "string" },
-        ok: { type: "boolean" }
+        id: { type: 'string' },
+        ok: { type: 'boolean' },
       },
-      required: ["id", "ok"]
+      required: ['id', 'ok'],
     },
-    handler: async () => ({ id: "ACT-1", ok: true })
+    handler: async () => ({ id: 'ACT-1', ok: true }),
   });
 
   bridge.registerAction({
-    name: "invalid_action",
-    description: "Return invalid output.",
-    inputSchema: { type: "object", properties: {} },
+    name: 'invalid_action',
+    description: 'Return invalid output.',
+    inputSchema: { type: 'object', properties: {} },
     outputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
-        id: { type: "string" },
-        ok: { type: "boolean" }
+        id: { type: 'string' },
+        ok: { type: 'boolean' },
       },
-      required: ["id", "ok"]
+      required: ['id', 'ok'],
     },
-    handler: async () => ({ id: "ACT-2", ok: "yes" })
+    handler: async () => ({ id: 'ACT-2', ok: 'yes' }),
   });
 
   try {
     await bridge.connect();
     await delay(50);
 
-    assert.deepEqual(await gateway.callTool("com_mobigent_action_output.valid_action", {}), {
-      id: "ACT-1",
-      ok: true
+    assert.deepEqual(await gateway.callTool('com_mobigent_action_output.valid_action', {}), {
+      id: 'ACT-1',
+      ok: true,
     });
     await assert.rejects(
-      () => gateway.callTool("com_mobigent_action_output.invalid_action", {}),
-      /Invalid action output: \$\.ok must be boolean/
+      () => gateway.callTool('com_mobigent_action_output.invalid_action', {}),
+      /Invalid action output: \$\.ok must be boolean/,
     );
   } finally {
     bridge.disconnect();
@@ -751,7 +760,7 @@ test("SDK validates action output against declared schema before returning to ag
   }
 });
 
-test("SDK validates resource output against declared schema before returning to agents", async () => {
+test('SDK validates resource output against declared schema before returning to agents', async () => {
   const port = 18_822;
   const gateway = new BridgeGateway(port);
   const bridge = new Mobigent();
@@ -759,60 +768,60 @@ test("SDK validates resource output against declared schema before returning to 
   gateway.start();
 
   bridge.configure({
-    appId: "com.mobigent.resource_validation",
-    appName: "Resource Validation App",
+    appId: 'com.mobigent.resource_validation',
+    appName: 'Resource Validation App',
     gatewayUrl: `ws://localhost:${port}`,
-    createSocket: createNodeSocket
+    createSocket: createNodeSocket,
   });
 
   bridge.registerResource({
-    name: "valid_expenses",
-    description: "Valid expenses.",
+    name: 'valid_expenses',
+    description: 'Valid expenses.',
     outputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
         expenses: {
-          type: "array",
+          type: 'array',
           items: {
-            type: "object",
+            type: 'object',
             properties: {
-              id: { type: "string" },
-              amount: { type: "number" }
+              id: { type: 'string' },
+              amount: { type: 'number' },
             },
-            required: ["id", "amount"]
-          }
-        }
+            required: ['id', 'amount'],
+          },
+        },
       },
-      required: ["expenses"]
+      required: ['expenses'],
     },
     read: async () => ({
-      expenses: [{ id: "EXP-1", amount: 12.5 }]
-    })
+      expenses: [{ id: 'EXP-1', amount: 12.5 }],
+    }),
   });
 
   bridge.registerResource({
-    name: "invalid_expenses",
-    description: "Invalid expenses.",
+    name: 'invalid_expenses',
+    description: 'Invalid expenses.',
     outputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
         expenses: {
-          type: "array",
+          type: 'array',
           items: {
-            type: "object",
+            type: 'object',
             properties: {
-              id: { type: "string" },
-              amount: { type: "number" }
+              id: { type: 'string' },
+              amount: { type: 'number' },
             },
-            required: ["id", "amount"]
-          }
-        }
+            required: ['id', 'amount'],
+          },
+        },
       },
-      required: ["expenses"]
+      required: ['expenses'],
     },
     read: async () => ({
-      expenses: [{ id: "EXP-2", amount: "12.5" }]
-    })
+      expenses: [{ id: 'EXP-2', amount: '12.5' }],
+    }),
   });
 
   try {
@@ -820,14 +829,14 @@ test("SDK validates resource output against declared schema before returning to 
     await delay(50);
 
     assert.deepEqual(
-      await gateway.callTool("com_mobigent_resource_validation.get_valid_expenses", {}),
+      await gateway.callTool('com_mobigent_resource_validation.get_valid_expenses', {}),
       {
-        expenses: [{ id: "EXP-1", amount: 12.5 }]
-      }
+        expenses: [{ id: 'EXP-1', amount: 12.5 }],
+      },
     );
     await assert.rejects(
-      () => gateway.callTool("com_mobigent_resource_validation.get_invalid_expenses", {}),
-      /Invalid resource output: \$\.expenses\[0\]\.amount must be number/
+      () => gateway.callTool('com_mobigent_resource_validation.get_invalid_expenses', {}),
+      /Invalid resource output: \$\.expenses\[0\]\.amount must be number/,
     );
   } finally {
     bridge.disconnect();
@@ -835,7 +844,7 @@ test("SDK validates resource output against declared schema before returning to 
   }
 });
 
-test("SDK publishes connection state changes", async () => {
+test('SDK publishes connection state changes', async () => {
   const port = 18_799;
   const gateway = new BridgeGateway(port);
   const bridge = new Mobigent();
@@ -845,10 +854,10 @@ test("SDK publishes connection state changes", async () => {
   bridge.subscribeConnection((state) => states.push(state));
 
   bridge.configure({
-    appId: "com.mobigent.state",
-    appName: "State App",
+    appId: 'com.mobigent.state',
+    appName: 'State App',
     gatewayUrl: `ws://localhost:${port}`,
-    createSocket: createNodeSocket
+    createSocket: createNodeSocket,
   });
 
   try {
@@ -857,13 +866,13 @@ test("SDK publishes connection state changes", async () => {
     bridge.disconnect();
     await delay(20);
 
-    assert.deepEqual(states, ["idle", "connecting", "connected", "disconnected"]);
+    assert.deepEqual(states, ['idle', 'connecting', 'connected', 'disconnected']);
   } finally {
     gateway.stop();
   }
 });
 
-test("SDK reconnects with exponential backoff and stops after max attempts", async () => {
+test('SDK reconnects with exponential backoff and stops after max attempts', async () => {
   const bridge = new Mobigent();
   const states: string[] = [];
   const sockets: MockMobigentSocket[] = [];
@@ -871,16 +880,16 @@ test("SDK reconnects with exponential backoff and stops after max attempts", asy
 
   bridge.subscribeConnection((state) => states.push(state));
   bridge.configure({
-    appId: "com.mobigent.reconnect",
-    appName: "Reconnect App",
-    gatewayUrl: "ws://localhost:19999",
+    appId: 'com.mobigent.reconnect',
+    appName: 'Reconnect App',
+    gatewayUrl: 'ws://localhost:19999',
     reconnect: {
       enabled: true,
       maxAttempts: 2,
       delayMs: 10,
       maxDelayMs: 25,
       backoffFactor: 2,
-      jitterRatio: 0
+      jitterRatio: 0,
     },
     createSocket: () => {
       const socket = new MockMobigentSocket();
@@ -891,76 +900,78 @@ test("SDK reconnects with exponential backoff and stops after max attempts", asy
           socket.emitOpen();
           return;
         }
-        socket.emitError(new Error("offline"));
+        socket.emitError(new Error('offline'));
       }, 0);
       return socket;
-    }
+    },
   });
 
   try {
     await bridge.connect();
     sockets[0]?.emitClose();
-    await waitFor(() => bridge.getConnectionState() === "disconnected");
+    await waitFor(() => bridge.getConnectionState() === 'disconnected');
 
     assert.equal(sockets.length, 3);
     assert.ok(createdAt[1]! - createdAt[0]! >= 8);
     assert.ok(createdAt[2]! - createdAt[1]! >= 18);
-    assert.deepEqual(states, ["idle", "connecting", "connected", "reconnecting", "disconnected"]);
+    assert.deepEqual(states, ['idle', 'connecting', 'connected', 'reconnecting', 'disconnected']);
   } finally {
     bridge.disconnect();
   }
 });
 
-test("SDK heartbeat closes stale sockets so reconnect can recover", async () => {
+test('SDK heartbeat closes stale sockets so reconnect can recover', async () => {
   const bridge = new Mobigent();
   const socket = new MockMobigentSocket();
 
   bridge.configure({
-    appId: "com.mobigent.heartbeat",
-    appName: "Heartbeat App",
-    gatewayUrl: "ws://localhost:19999",
+    appId: 'com.mobigent.heartbeat',
+    appName: 'Heartbeat App',
+    gatewayUrl: 'ws://localhost:19999',
     heartbeat: {
       enabled: true,
       intervalMs: 10,
-      timeoutMs: 10
+      timeoutMs: 10,
     },
     createSocket: () => {
       setTimeout(() => socket.emitOpen(), 0);
       return socket;
-    }
+    },
   });
 
   try {
     await bridge.connect();
-    await waitFor(() => socket.sent.some((message) => JSON.parse(message).type === "ping"));
-    await waitFor(() => bridge.getConnectionState() === "disconnected");
+    await waitFor(() => socket.sent.some((message) => JSON.parse(message).type === 'ping'));
+    await waitFor(() => bridge.getConnectionState() === 'disconnected');
 
-    const ping = socket.sent.map((message) => JSON.parse(message)).find((message) => message.type === "ping");
-    assert.equal(typeof ping.id, "string");
+    const ping = socket.sent
+      .map((message) => JSON.parse(message))
+      .find((message) => message.type === 'ping');
+    assert.equal(typeof ping.id, 'string');
     assert.equal(socket.readyState, 3);
   } finally {
     bridge.disconnect();
   }
 });
 
-test("SDK queues app events while disconnected and flushes them on connect", async () => {
+test('SDK queues app events while disconnected and flushes them on connect', async () => {
   const bridge = new Mobigent();
   const socket = new MockMobigentSocket();
 
   bridge.configure({
-    appId: "com.mobigent.event_queue",
-    appName: "Event Queue App",
-    gatewayUrl: "ws://localhost:19998",
+    appId: 'com.mobigent.event_queue',
+    appName: 'Event Queue App',
+    gatewayUrl: 'ws://localhost:19998',
     eventQueue: {
       enabled: true,
-      maxSize: 2
+      maxSize: 2,
     },
-    createSocket: () => socket
+    createSocket: () => socket,
   });
 
-  assert.equal(bridge.emit("dropped.event", { order: 1 }), true);
-  assert.equal(bridge.emit("kept.event.one", { order: 2 }), true);
-  assert.equal(bridge.emit("kept.event.two", { order: 3 }), true);
+  assert.equal(bridge.emit('dropped.event', { order: 1 }), true);
+  assert.equal(bridge.emit('kept.event.one', { order: 2 }), true);
+  assert.equal(bridge.emit('kept.event.two', { order: 3 }), true);
   assert.equal(bridge.getQueuedEventCount(), 2);
 
   const connecting = bridge.connect();
@@ -969,68 +980,71 @@ test("SDK queues app events while disconnected and flushes them on connect", asy
 
   const events = socket.sent
     .map((message) => JSON.parse(message) as { type: string; name?: string; payload?: JsonObject })
-    .filter((message) => message.type === "event");
+    .filter((message) => message.type === 'event');
   assert.deepEqual(
     events.map((event) => event.name),
-    ["kept.event.one", "kept.event.two"]
+    ['kept.event.one', 'kept.event.two'],
   );
-  assert.deepEqual(events.map((event) => event.payload?.order), [2, 3]);
+  assert.deepEqual(
+    events.map((event) => event.payload?.order),
+    [2, 3],
+  );
   assert.equal(bridge.getQueuedEventCount(), 0);
 });
 
-test("SDK reports unqueued app events when event queue is disabled", () => {
+test('SDK reports unqueued app events when event queue is disabled', () => {
   const bridge = new Mobigent();
 
   bridge.configure({
-    appId: "com.mobigent.no_event_queue",
-    appName: "No Event Queue App",
-    gatewayUrl: "ws://localhost:19997"
+    appId: 'com.mobigent.no_event_queue',
+    appName: 'No Event Queue App',
+    gatewayUrl: 'ws://localhost:19997',
   });
 
-  assert.equal(bridge.emit("offline.event", { ok: true }), false);
+  assert.equal(bridge.emit('offline.event', { ok: true }), false);
   assert.equal(bridge.getQueuedEventCount(), 0);
 });
 
-test("React Native package exports React-first integration helpers", () => {
-  assert.equal(typeof MobigentAction, "function");
-  assert.equal(typeof MobigentCapabilities, "function");
-  assert.equal(typeof MobigentComponent, "function");
-  assert.equal(typeof createMobigentGatewayUrl, "function");
-  assert.equal(typeof createMobigentGatewayUrlForPlatform, "function");
-  assert.equal(typeof createMobigentEnvironment, "function");
-  assert.equal(typeof createMobigentEnvironmentFromExpoConfig, "function");
-  assert.equal(typeof createMobigentEnvironmentFromEnv, "function");
-  assert.equal(typeof createMobigentCapabilityRegistry, "function");
+test('React Native package exports React-first integration helpers', () => {
+  assert.equal(typeof MobigentAction, 'function');
+  assert.equal(typeof MobigentCapabilities, 'function');
+  assert.equal(typeof MobigentComponent, 'function');
+  assert.equal(typeof createMobigentGatewayUrl, 'function');
+  assert.equal(typeof createMobigentGatewayUrlForPlatform, 'function');
+  assert.equal(typeof createMobigentEnvironment, 'function');
+  assert.equal(typeof createMobigentEnvironmentFromExpoConfig, 'function');
+  assert.equal(typeof createMobigentEnvironmentFromEnv, 'function');
+  assert.equal(typeof createMobigentCapabilityRegistry, 'function');
   assert.equal(createAgentCapabilities, createMobigentCapabilityRegistry);
   assert.equal(createAgentEnvironment, createMobigentEnvironment);
   assert.equal(createAgentEnvironmentFromEnv, createMobigentEnvironmentFromEnv);
   assert.equal(createAgentEnvironmentFromExpoConfig, createMobigentEnvironmentFromExpoConfig);
   assert.equal(createAgentPolicy, createMobigentPolicy);
   assert.equal(applyAgentPolicy, applyMobigentPolicy);
-  assert.equal(typeof applyMobigentPolicy, "function");
-  assert.equal(typeof createMobigentPolicy, "function");
-  assert.equal(typeof createMobigentStatus, "function");
+  assert.equal(typeof applyMobigentPolicy, 'function');
+  assert.equal(typeof createMobigentPolicy, 'function');
+  assert.equal(typeof createMobigentStatus, 'function');
   assert.equal(composeAgentCapabilities, composeMobigentCapabilities);
-  assert.equal(typeof composeMobigentCapabilities, "function");
-  assert.equal(typeof diagnoseMobigentCapabilities, "function");
-  assert.equal(typeof formatMobigentCapabilityDiagnostics, "function");
-  assert.equal(typeof createMobigentFeature, "function");
+  assert.equal(typeof composeMobigentCapabilities, 'function');
+  assert.equal(typeof diagnoseMobigentCapabilities, 'function');
+  assert.equal(typeof formatMobigentCapabilityDiagnostics, 'function');
+  assert.equal(typeof createMobigentFeature, 'function');
   assert.equal(createAgentFeature, createMobigentFeature);
-  assert.equal(typeof createAgentModule, "function");
-  assert.equal(typeof resolveMobigentProviderGatewayUrl, "function");
+  assert.equal(typeof createAgentModule, 'function');
+  assert.equal(typeof resolveMobigentProviderGatewayUrl, 'function');
   assert.equal(defineAgentAction, defineMobigentAction);
   assert.equal(defineAgentCapabilities, defineMobigentCapabilities);
   assert.equal(defineAgentComponent, defineMobigentComponent);
   assert.equal(defineAgentFeature, defineMobigentFeature);
   assert.equal(defineAgentResource, defineMobigentResource);
-  assert.equal(typeof defineMobigentAction, "function");
-  assert.equal(typeof defineMobigentCapabilities, "function");
-  assert.equal(typeof defineMobigentComponent, "function");
-  assert.equal(typeof defineMobigentFeature, "function");
-  assert.equal(typeof defineMobigentResource, "function");
-  assert.equal(typeof formatMobigentDiagnostics, "function");
-  assert.equal(typeof resolveMobigentAppIdentity, "function");
-  assert.equal(typeof useAgent, "function");
+  assert.equal(typeof defineMobigentAction, 'function');
+  assert.equal(typeof defineMobigentCapabilities, 'function');
+  assert.equal(typeof defineMobigentComponent, 'function');
+  assert.equal(typeof defineMobigentFeature, 'function');
+  assert.equal(typeof defineMobigentResource, 'function');
+  assert.equal(typeof formatMobigentDiagnostics, 'function');
+  assert.equal(typeof resolveMobigentAppIdentity, 'function');
+  assert.equal(typeof useAgent, 'function');
   assert.equal(AgentAction, MobigentAction);
   assert.equal(AgentResource, MobigentResource);
   assert.equal(AgentComponent, MobigentComponent);
@@ -1041,33 +1055,33 @@ test("React Native package exports React-first integration helpers", () => {
   assert.equal(useAgentComponent, useMobigentComponent);
   assert.equal(useAgentEvent, useMobigentEvent);
   assert.equal(useAgentModule, useMobigentModules);
-  assert.equal(typeof useAgentScreen, "function");
-  assert.equal(typeof useMobigentAction, "function");
-  assert.equal(typeof useMobigentCapabilities, "function");
-  assert.equal(typeof useMobigentConnection, "function");
-  assert.equal(typeof useMobigentConnectionState, "function");
-  assert.equal(typeof useMobigentConnected, "function");
-  assert.equal(typeof useMobigentDiagnostics, "function");
-  assert.equal(typeof useMobigentStatus, "function");
-  assert.equal(typeof useMobigentCapabilityDefinition, "function");
-  assert.equal(typeof useMobigentResource, "function");
-  assert.equal(typeof useMobigentComponent, "function");
-  assert.equal(typeof useMobigentEvent, "function");
-  assert.equal(typeof useMobigentModuleDefinition, "function");
-  assert.equal(typeof MobigentModules, "function");
-  assert.equal(typeof useMobigentModules, "function");
-  assert.equal(typeof MobigentSurface, "function");
-  assert.equal(typeof useMobigentSurface, "function");
-  assert.equal(typeof MobigentResource, "function");
+  assert.equal(typeof useAgentScreen, 'function');
+  assert.equal(typeof useMobigentAction, 'function');
+  assert.equal(typeof useMobigentCapabilities, 'function');
+  assert.equal(typeof useMobigentConnection, 'function');
+  assert.equal(typeof useMobigentConnectionState, 'function');
+  assert.equal(typeof useMobigentConnected, 'function');
+  assert.equal(typeof useMobigentDiagnostics, 'function');
+  assert.equal(typeof useMobigentStatus, 'function');
+  assert.equal(typeof useMobigentCapabilityDefinition, 'function');
+  assert.equal(typeof useMobigentResource, 'function');
+  assert.equal(typeof useMobigentComponent, 'function');
+  assert.equal(typeof useMobigentEvent, 'function');
+  assert.equal(typeof useMobigentModuleDefinition, 'function');
+  assert.equal(typeof MobigentModules, 'function');
+  assert.equal(typeof useMobigentModules, 'function');
+  assert.equal(typeof MobigentSurface, 'function');
+  assert.equal(typeof useMobigentSurface, 'function');
+  assert.equal(typeof MobigentResource, 'function');
 
   const hookFirstAction = {
-    name: "profile_refresh",
-    description: "Refresh profile data.",
-    handler: async () => ({ ok: true })
+    name: 'profile_refresh',
+    description: 'Refresh profile data.',
+    handler: async () => ({ ok: true }),
   };
   useMobigentAction satisfies (
     action: typeof hookFirstAction,
-    options?: { enabled?: boolean; deps?: readonly unknown[] }
+    options?: { enabled?: boolean; deps?: readonly unknown[] },
   ) => void;
   type CreateAgentApp = (options: AgentAppFactoryOptions) => {
     Root: unknown;
@@ -1100,664 +1114,682 @@ test("React Native package exports React-first integration helpers", () => {
   const agentSurfaceProps = {} as AgentSurfaceProps;
   agentSurfaceProps satisfies MobigentSurfaceProps;
   const agentScreenOptions = {
-    namespace: "profile",
+    namespace: 'profile',
     actions: [hookFirstAction],
-    deps: ["profile_123"]
+    deps: ['profile_123'],
   } satisfies AgentScreenOptions;
-  assert.equal(agentScreenOptions.namespace, "profile");
+  assert.equal(agentScreenOptions.namespace, 'profile');
   useAgentScreen satisfies (options: AgentScreenOptions) => AgentScreenHookResult;
   useAgentAction satisfies (
     action: typeof hookFirstAction,
-    options?: { enabled?: boolean; deps?: readonly unknown[] }
+    options?: { enabled?: boolean; deps?: readonly unknown[] },
   ) => void;
 
   const hookFirstResource = {
-    name: "profile_current",
-    description: "Current profile.",
-    read: async () => ({ id: "profile_123" })
+    name: 'profile_current',
+    description: 'Current profile.',
+    read: async () => ({ id: 'profile_123' }),
   };
   useMobigentResource satisfies (
     resource: typeof hookFirstResource,
-    options?: { enabled?: boolean; deps?: readonly unknown[] }
+    options?: { enabled?: boolean; deps?: readonly unknown[] },
   ) => void;
   useAgentResource satisfies (
     resource: typeof hookFirstResource,
-    options?: { enabled?: boolean; deps?: readonly unknown[] }
+    options?: { enabled?: boolean; deps?: readonly unknown[] },
   ) => void;
 
   const hookFirstComponent = {
-    name: "profile_screen",
-    description: "Profile screen.",
-    focus: async () => ({ focused: true })
+    name: 'profile_screen',
+    description: 'Profile screen.',
+    focus: async () => ({ focused: true }),
   };
   useMobigentComponent satisfies (
     component: typeof hookFirstComponent,
-    options?: { enabled?: boolean; deps?: readonly unknown[] }
+    options?: { enabled?: boolean; deps?: readonly unknown[] },
   ) => void;
   useAgentComponent satisfies (
     component: typeof hookFirstComponent,
-    options?: { enabled?: boolean; deps?: readonly unknown[] }
+    options?: { enabled?: boolean; deps?: readonly unknown[] },
   ) => void;
 });
 
-test("React Native provider props support production signing and custom transports", () => {
+test('React Native provider props support production signing and custom transports', () => {
   const signer: MobigentManifestSigner = (manifest) => ({
-    alg: "hmac-sha256",
-    keyId: "test",
-    signature: `signed:${manifest.appId}`
+    alg: 'hmac-sha256',
+    keyId: 'test',
+    signature: `signed:${manifest.appId}`,
   });
-  const socketFactory: MobigentProviderProps["createSocket"] = () => new MockMobigentSocket();
+  const socketFactory: MobigentProviderProps['createSocket'] = () => new MockMobigentSocket();
   const props = {
-    appId: "com.mobigent.react_production",
-    appName: "React Production",
-    gatewayUrl: "ws://localhost:8787",
+    appId: 'com.mobigent.react_production',
+    appName: 'React Production',
+    gatewayUrl: 'ws://localhost:8787',
     signManifest: signer,
     createSocket: socketFactory,
     enabled: false,
-    children: null
+    children: null,
   } satisfies MobigentProviderProps;
 
-  assert.equal(typeof props.signManifest, "function");
-  assert.equal(typeof props.createSocket, "function");
+  assert.equal(typeof props.signManifest, 'function');
+  assert.equal(typeof props.createSocket, 'function');
   assert.equal(props.enabled, false);
 });
 
-test("React Native app factory root accepts runtime provider overrides", () => {
+test('React Native app factory root accepts runtime provider overrides', () => {
   const DesignSystemConfirmation = (_props: MobigentConfirmationComponentProps) => null;
   const profileModule = createMobigentModule({
-    id: "com.example.profile",
+    id: 'com.example.profile',
     capabilities: defineMobigentCapabilities({
       resources: [
         defineMobigentResource({
-          name: "profile.current",
-          description: "Read active profile.",
-          read: () => ({ id: "profile_123" })
-        })
-      ]
-    })
+          name: 'profile.current',
+          description: 'Read active profile.',
+          read: () => ({ id: 'profile_123' }),
+        }),
+      ],
+    }),
   });
   const props = {
     children: null,
     enabled: false,
-    gatewayUrl: "wss://gateway.example.com:443",
-    authToken: "test-token",
+    gatewayUrl: 'wss://gateway.example.com:443',
+    authToken: 'test-token',
     modules: [profileModule],
-    capabilityDeps: ["tenant_123"],
+    capabilityDeps: ['tenant_123'],
     preflight: {
       throwOnFailure: true,
       onReport: (report) => {
-        assert.notEqual(report.status, "fail");
-      }
+        assert.notEqual(report.status, 'fail');
+      },
     },
     ConfirmationComponent: DesignSystemConfirmation,
-    confirmationModal: false
+    confirmationModal: false,
   } satisfies MobigentAppRootProps;
 
   assert.equal(props.enabled, false);
-  assert.equal(props.gatewayUrl, "wss://gateway.example.com:443");
-  assert.deepEqual(props.modules?.map((module) => module.id), ["com.example.profile"]);
-  assert.deepEqual(props.capabilityDeps, ["tenant_123"]);
-  assert.equal(typeof props.preflight, "object");
+  assert.equal(props.gatewayUrl, 'wss://gateway.example.com:443');
+  assert.deepEqual(
+    props.modules?.map((module) => module.id),
+    ['com.example.profile'],
+  );
+  assert.deepEqual(props.capabilityDeps, ['tenant_123']);
+  assert.equal(typeof props.preflight, 'object');
   assert.equal(props.ConfirmationComponent, DesignSystemConfirmation);
 
   const preflight = {
     enabled: true,
     throwOnFailure: false,
-    onReport: (report) => assert.ok(report.summary.total >= 0)
+    onReport: (report) => assert.ok(report.summary.total >= 0),
   } satisfies MobigentAppPreflightOptions;
   assert.equal(preflight.enabled, true);
   assert.equal(preflight.throwOnFailure, false);
 });
 
-test("React Native UI exports a default status badge component", () => {
+test('React Native UI exports a default status badge component', () => {
   const props = {
     showCount: false,
     status: {
-      level: "ready",
-      label: "Agent bridge ready",
+      level: 'ready',
+      label: 'Agent bridge ready',
       connected: true,
-      connectionState: "connected",
+      connectionState: 'connected',
       capabilityCount: 3,
       issueCount: 0,
       blockingIssueCount: 0,
-      queuedEventCount: 0
-    }
+      queuedEventCount: 0,
+    },
   } satisfies MobigentStatusBadgeProps;
 
-  assert.equal(props.status.level, "ready");
+  assert.equal(props.status.level, 'ready');
   assert.equal(props.showCount, false);
 
   const panelProps = {
-    title: "Agent support",
+    title: 'Agent support',
     showControls: false,
-    showIssues: true
+    showIssues: true,
   } satisfies MobigentDiagnosticsPanelProps;
-  assert.equal(panelProps.title, "Agent support");
+  assert.equal(panelProps.title, 'Agent support');
   assert.equal(panelProps.showControls, false);
 });
 
-test("React Native provider resolves app identity from standard app object", () => {
+test('React Native provider resolves app identity from standard app object', () => {
   assert.deepEqual(
-    resolveMobigentAppIdentity({ id: "com.mobigent.clean", name: "Clean App", version: "2.0.0" }),
-    { id: "com.mobigent.clean", name: "Clean App", version: "2.0.0" }
+    resolveMobigentAppIdentity({ id: 'com.mobigent.clean', name: 'Clean App', version: '2.0.0' }),
+    { id: 'com.mobigent.clean', name: 'Clean App', version: '2.0.0' },
   );
   assert.deepEqual(
-    resolveMobigentAppIdentity(undefined, "com.mobigent.legacy", "Legacy App", "1.0.0"),
-    { id: "com.mobigent.legacy", name: "Legacy App", version: "1.0.0" }
+    resolveMobigentAppIdentity(undefined, 'com.mobigent.legacy', 'Legacy App', '1.0.0'),
+    { id: 'com.mobigent.legacy', name: 'Legacy App', version: '1.0.0' },
   );
   assert.deepEqual(
-    resolveMobigentAppIdentity({ id: "com.mobigent.app", name: "App Object" }, "ignored", "Ignored", "1.0.0"),
-    { id: "com.mobigent.app", name: "App Object", version: "1.0.0" }
+    resolveMobigentAppIdentity(
+      { id: 'com.mobigent.app', name: 'App Object' },
+      'ignored',
+      'Ignored',
+      '1.0.0',
+    ),
+    { id: 'com.mobigent.app', name: 'App Object', version: '1.0.0' },
   );
   assert.deepEqual(resolveMobigentAppIdentity(), {
-    id: "app.mobigent.local",
-    name: "Mobigent App",
-    version: undefined
+    id: 'app.mobigent.local',
+    name: 'Mobigent App',
+    version: undefined,
   });
-  assert.deepEqual(resolveMobigentAppIdentity(undefined, "missing-name"), {
-    id: "missing-name",
-    name: "Mobigent App",
-    version: undefined
+  assert.deepEqual(resolveMobigentAppIdentity(undefined, 'missing-name'), {
+    id: 'missing-name',
+    name: 'Mobigent App',
+    version: undefined,
   });
 });
 
-test("Expo app factory derives modern defaults from Expo config and public env", () => {
+test('Expo app factory derives modern defaults from Expo config and public env', () => {
   const config = withMobigentExpoConfig(
-    { name: "Expense AI", slug: "expense-ai", extra: { keep: "value" } },
+    { name: 'Expense AI', slug: 'expense-ai', extra: { keep: 'value' } },
     {
       app: {
-        id: "com.example.expense",
-        name: "Expense AI",
-        version: "3.2.1"
+        id: 'com.example.expense',
+        name: 'Expense AI',
+        version: '3.2.1',
       },
-      mode: "hosted",
-      host: "agent.example.com",
-      authToken: "dev-token"
-    }
+      mode: 'hosted',
+      host: 'agent.example.com',
+      authToken: 'dev-token',
+    },
   );
 
   assert.deepEqual(config.extra?.mobigent, {
     app: {
-      id: "com.example.expense",
-      name: "Expense AI",
-      version: "3.2.1"
+      id: 'com.example.expense',
+      name: 'Expense AI',
+      version: '3.2.1',
     },
-    mode: "hosted",
-    host: "agent.example.com",
-    authToken: "dev-token"
+    mode: 'hosted',
+    host: 'agent.example.com',
+    authToken: 'dev-token',
   });
-  assert.equal(config.extra?.keep, "value");
+  assert.equal(config.extra?.keep, 'value');
 
-  assert.deepEqual(
-    resolveMobigentExpoAppIdentity(config),
-    {
-      id: "com.example.expense",
-      name: "Expense AI",
-      version: "3.2.1"
-    }
-  );
+  assert.deepEqual(resolveMobigentExpoAppIdentity(config), {
+    id: 'com.example.expense',
+    name: 'Expense AI',
+    version: '3.2.1',
+  });
   assert.deepEqual(createMobigentEnvironmentFromExpoConfig(config), {
     enabled: true,
     gateway: {
-      host: "agent.example.com",
+      host: 'agent.example.com',
       port: 443,
       secure: true,
-      path: undefined
+      path: undefined,
     },
-    authToken: "dev-token"
+    authToken: 'dev-token',
   });
 
   const options = {
-    expo: { name: "Typed Expo", slug: "typed-expo" },
+    expo: { name: 'Typed Expo', slug: 'typed-expo' },
     env: {
-      EXPO_PUBLIC_MOBIGENT_MODE: "hosted",
-      EXPO_PUBLIC_MOBIGENT_HOST: "agent.example.com",
-      EXPO_PUBLIC_MOBIGENT_AUTH_TOKEN: "dev-token"
+      EXPO_PUBLIC_MOBIGENT_MODE: 'hosted',
+      EXPO_PUBLIC_MOBIGENT_HOST: 'agent.example.com',
+      EXPO_PUBLIC_MOBIGENT_AUTH_TOKEN: 'dev-token',
     },
-    fallback: { mode: "disabled" }
+    fallback: { mode: 'disabled' },
   } satisfies MobigentExpoAppOptions;
-  assert.equal(options.fallback?.mode, "disabled");
-  assert.equal(options.env?.EXPO_PUBLIC_MOBIGENT_HOST, "agent.example.com");
+  assert.equal(options.fallback?.mode, 'disabled');
+  assert.equal(options.env?.EXPO_PUBLIC_MOBIGENT_HOST, 'agent.example.com');
 });
 
-test("React Native diagnostics summarize configuration, capabilities, and warnings", () => {
+test('React Native diagnostics summarize configuration, capabilities, and warnings', () => {
   const bridge = new Mobigent();
   const unconfigured = bridge.getDiagnostics();
 
   assert.equal(unconfigured.configured, false);
-  assert.equal(unconfigured.connectionState, "idle");
+  assert.equal(unconfigured.connectionState, 'idle');
   assert.equal(unconfigured.capabilityCounts.total, 0);
-  assert.equal(unconfigured.issues[0]?.code, "not_configured");
+  assert.equal(unconfigured.issues[0]?.code, 'not_configured');
   assert.match(formatMobigentDiagnostics(unconfigured), /Mobigent app diagnostics: ERROR/);
   assert.match(formatMobigentDiagnostics(unconfigured), /\[ERROR\] not_configured/);
   assert.deepEqual(createMobigentStatus(unconfigured, { enabled: false }), {
-    level: "disabled",
-    label: "Agent bridge disabled",
+    level: 'disabled',
+    label: 'Agent bridge disabled',
     connected: false,
-    connectionState: "idle",
+    connectionState: 'idle',
     capabilityCount: 0,
     issueCount: 1,
     blockingIssueCount: 1,
-    queuedEventCount: 0
+    queuedEventCount: 0,
   });
 
   bridge.configure({
-    appId: "com.mobigent.diagnostics",
-    appName: "Diagnostics App",
-    gatewayUrl: "ws://localhost:19996",
+    appId: 'com.mobigent.diagnostics',
+    appName: 'Diagnostics App',
+    gatewayUrl: 'ws://localhost:19996',
     reconnect: true,
     heartbeat: true,
-    eventQueue: true
+    eventQueue: true,
   });
   bridge.registerAction({
-    name: "create_note",
-    description: "Create a note.",
-    inputSchema: schema.object({ text: schema.string() }, { required: "all" }),
-    handler: () => ({ ok: true })
+    name: 'create_note',
+    description: 'Create a note.',
+    inputSchema: schema.object({ text: schema.string() }, { required: 'all' }),
+    handler: () => ({ ok: true }),
   });
-  bridge.emit("note.created", { id: "note_1" });
+  bridge.emit('note.created', { id: 'note_1' });
 
   const diagnostics = bridge.getDiagnostics();
   assert.equal(diagnostics.configured, true);
-  assert.equal(diagnostics.appId, "com.mobigent.diagnostics");
-  assert.equal(diagnostics.gatewayUrl, "ws://localhost:19996");
+  assert.equal(diagnostics.appId, 'com.mobigent.diagnostics');
+  assert.equal(diagnostics.gatewayUrl, 'ws://localhost:19996');
   assert.equal(diagnostics.capabilityCounts.actions, 1);
   assert.equal(diagnostics.capabilityCounts.total, 1);
   assert.equal(diagnostics.queuedEventCount, 1);
   assert.equal(diagnostics.reconnectEnabled, true);
   assert.equal(diagnostics.heartbeatEnabled, true);
-  assert.ok(diagnostics.issues.some((issue) => issue.code === "not_connected"));
-  assert.ok(diagnostics.issues.some((issue) => issue.code === "queued_events"));
+  assert.ok(diagnostics.issues.some((issue) => issue.code === 'not_connected'));
+  assert.ok(diagnostics.issues.some((issue) => issue.code === 'queued_events'));
   assert.deepEqual(createMobigentStatus(diagnostics), {
-    level: "offline",
-    label: "Agent bridge offline",
+    level: 'offline',
+    label: 'Agent bridge offline',
     connected: false,
-    connectionState: "idle",
+    connectionState: 'idle',
     capabilityCount: 1,
     issueCount: 2,
     blockingIssueCount: 0,
-    queuedEventCount: 1
+    queuedEventCount: 1,
   });
   assert.match(formatMobigentDiagnostics(diagnostics), /Mobigent app diagnostics: OK/);
-  assert.match(formatMobigentDiagnostics(diagnostics), /capabilities: 1 total, 1 actions, 0 resources, 0 components/);
+  assert.match(
+    formatMobigentDiagnostics(diagnostics),
+    /capabilities: 1 total, 1 actions, 0 resources, 0 components/,
+  );
   assert.doesNotMatch(
     formatMobigentDiagnostics(diagnostics, { includeGatewayUrl: false, includeIssues: false }),
-    /gateway:|issues:/
+    /gateway:|issues:/,
   );
 });
 
-test("React Native gateway URL helper handles simulator and device targets", () => {
-  assert.equal(createMobigentGatewayUrl(), "ws://localhost:8787");
+test('React Native gateway URL helper handles simulator and device targets', () => {
+  assert.equal(createMobigentGatewayUrl(), 'ws://localhost:8787');
+  assert.equal(createMobigentGatewayUrl({ target: 'android-emulator' }), 'ws://10.0.2.2:8787');
   assert.equal(
-    createMobigentGatewayUrl({ target: "android-emulator" }),
-    "ws://10.0.2.2:8787"
-  );
-  assert.equal(
-    createMobigentGatewayUrl({ target: "ios-simulator", port: 19000, path: "bridge" }),
-    "ws://localhost:19000/bridge"
+    createMobigentGatewayUrl({ target: 'ios-simulator', port: 19000, path: 'bridge' }),
+    'ws://localhost:19000/bridge',
   );
   assert.equal(
     createMobigentGatewayUrl({
-      target: "device",
-      host: "192.168.1.20",
+      target: 'device',
+      host: '192.168.1.20',
       port: 443,
       secure: true,
-      path: "/mobigent"
+      path: '/mobigent',
     }),
-    "wss://192.168.1.20:443/mobigent"
+    'wss://192.168.1.20:443/mobigent',
+  );
+  assert.equal(createMobigentGatewayUrlForPlatform('android'), 'ws://10.0.2.2:8787');
+  assert.equal(createMobigentGatewayUrlForPlatform('ios', { port: 9000 }), 'ws://localhost:9000');
+  assert.equal(
+    createMobigentGatewayUrlForPlatform('android', { deviceHost: '192.168.1.30' }),
+    'ws://192.168.1.30:8787',
   );
   assert.equal(
-    createMobigentGatewayUrlForPlatform("android"),
-    "ws://10.0.2.2:8787"
+    createMobigentGatewayUrlForPlatform('web', {
+      host: 'gateway.example.com',
+      secure: true,
+      port: 443,
+    }),
+    'wss://gateway.example.com:443',
   );
   assert.equal(
-    createMobigentGatewayUrlForPlatform("ios", { port: 9000 }),
-    "ws://localhost:9000"
+    resolveMobigentProviderGatewayUrl(undefined, { platform: 'android' }),
+    'ws://10.0.2.2:8787',
   );
   assert.equal(
-    createMobigentGatewayUrlForPlatform("android", { deviceHost: "192.168.1.30" }),
-    "ws://192.168.1.30:8787"
+    resolveMobigentProviderGatewayUrl(undefined, { platform: 'ios', port: 9000 }),
+    'ws://localhost:9000',
   );
   assert.equal(
-    createMobigentGatewayUrlForPlatform("web", { host: "gateway.example.com", secure: true, port: 443 }),
-    "wss://gateway.example.com:443"
+    resolveMobigentProviderGatewayUrl('ws://custom.example/bridge', { platform: 'android' }),
+    'ws://custom.example/bridge',
   );
-  assert.equal(
-    resolveMobigentProviderGatewayUrl(undefined, { platform: "android" }),
-    "ws://10.0.2.2:8787"
-  );
-  assert.equal(
-    resolveMobigentProviderGatewayUrl(undefined, { platform: "ios", port: 9000 }),
-    "ws://localhost:9000"
-  );
-  assert.equal(
-    resolveMobigentProviderGatewayUrl("ws://custom.example/bridge", { platform: "android" }),
-    "ws://custom.example/bridge"
-  );
-  assert.deepEqual(createMobigentEnvironment({ mode: "local", platform: "android" }), {
+  assert.deepEqual(createMobigentEnvironment({ mode: 'local', platform: 'android' }), {
     enabled: true,
-    gateway: { platform: "android", port: undefined, secure: undefined, path: undefined },
-    authToken: undefined
+    gateway: { platform: 'android', port: undefined, secure: undefined, path: undefined },
+    authToken: undefined,
   });
-  assert.deepEqual(createMobigentEnvironment({ mode: "device", deviceHost: "192.168.1.30", port: 8787 }), {
-    enabled: true,
-    gateway: {
-      platform: undefined,
-      target: "device",
-      deviceHost: "192.168.1.30",
-      host: undefined,
-      port: 8787,
-      secure: undefined,
-      path: undefined
+  assert.deepEqual(
+    createMobigentEnvironment({ mode: 'device', deviceHost: '192.168.1.30', port: 8787 }),
+    {
+      enabled: true,
+      gateway: {
+        platform: undefined,
+        target: 'device',
+        deviceHost: '192.168.1.30',
+        host: undefined,
+        port: 8787,
+        secure: undefined,
+        path: undefined,
+      },
+      authToken: undefined,
     },
-    authToken: undefined
-  });
-  assert.deepEqual(createMobigentEnvironment({ mode: "hosted", host: "gateway.example.com", authToken: "secret" }), {
-    enabled: true,
-    gateway: { host: "gateway.example.com", port: 443, secure: true, path: undefined },
-    authToken: "secret"
-  });
-  assert.deepEqual(createMobigentEnvironment({ mode: "disabled" }), {
+  );
+  assert.deepEqual(
+    createMobigentEnvironment({ mode: 'hosted', host: 'gateway.example.com', authToken: 'secret' }),
+    {
+      enabled: true,
+      gateway: { host: 'gateway.example.com', port: 443, secure: true, path: undefined },
+      authToken: 'secret',
+    },
+  );
+  assert.deepEqual(createMobigentEnvironment({ mode: 'disabled' }), {
     enabled: false,
-    authToken: undefined
+    authToken: undefined,
   });
-  assert.deepEqual(createMobigentEnvironment({ gatewayUrl: "wss://gateway.example.com/bridge" }), {
+  assert.deepEqual(createMobigentEnvironment({ gatewayUrl: 'wss://gateway.example.com/bridge' }), {
     enabled: true,
-    gatewayUrl: "wss://gateway.example.com/bridge",
-    authToken: undefined
+    gatewayUrl: 'wss://gateway.example.com/bridge',
+    authToken: undefined,
   });
-  assert.deepEqual(createMobigentEnvironment({ backendUrl: "wss://backend.example.com/bridge" }), {
+  assert.deepEqual(createMobigentEnvironment({ backendUrl: 'wss://backend.example.com/bridge' }), {
     enabled: true,
-    gatewayUrl: "wss://backend.example.com/bridge",
-    authToken: undefined
+    gatewayUrl: 'wss://backend.example.com/bridge',
+    authToken: undefined,
   });
   assert.deepEqual(
     createMobigentEnvironmentFromEnv({
       env: {
-        EXPO_PUBLIC_MOBIGENT_BACKEND_URL: "wss://backend.example.com/bridge"
-      }
+        EXPO_PUBLIC_MOBIGENT_BACKEND_URL: 'wss://backend.example.com/bridge',
+      },
     }),
     {
       enabled: true,
-      gatewayUrl: "wss://backend.example.com/bridge",
-      authToken: undefined
-    }
+      gatewayUrl: 'wss://backend.example.com/bridge',
+      authToken: undefined,
+    },
   );
   assert.deepEqual(
     createMobigentEnvironmentFromEnv({
       env: {
-        EXPO_PUBLIC_MOBIGENT_MODE: "hosted",
-        EXPO_PUBLIC_MOBIGENT_HOST: "gateway.example.com",
-        EXPO_PUBLIC_MOBIGENT_AUTH_TOKEN: "secret"
-      }
+        EXPO_PUBLIC_MOBIGENT_MODE: 'hosted',
+        EXPO_PUBLIC_MOBIGENT_HOST: 'gateway.example.com',
+        EXPO_PUBLIC_MOBIGENT_AUTH_TOKEN: 'secret',
+      },
     }),
     {
       enabled: true,
-      gateway: { host: "gateway.example.com", port: 443, secure: true, path: undefined },
-      authToken: "secret"
-    }
+      gateway: { host: 'gateway.example.com', port: 443, secure: true, path: undefined },
+      authToken: 'secret',
+    },
   );
   assert.deepEqual(
     createMobigentEnvironmentFromEnv({
       env: {
-        REACT_NATIVE_MOBIGENT_MODE: "device",
-        REACT_NATIVE_MOBIGENT_DEVICE_HOST: "192.168.1.40",
-        REACT_NATIVE_MOBIGENT_PORT: "9000",
-        REACT_NATIVE_MOBIGENT_PLATFORM: "android"
-      }
+        REACT_NATIVE_MOBIGENT_MODE: 'device',
+        REACT_NATIVE_MOBIGENT_DEVICE_HOST: '192.168.1.40',
+        REACT_NATIVE_MOBIGENT_PORT: '9000',
+        REACT_NATIVE_MOBIGENT_PLATFORM: 'android',
+      },
     }),
     {
       enabled: true,
       gateway: {
-        platform: "android",
-        target: "device",
-        deviceHost: "192.168.1.40",
+        platform: 'android',
+        target: 'device',
+        deviceHost: '192.168.1.40',
         host: undefined,
         port: 9000,
         secure: undefined,
-        path: undefined
+        path: undefined,
       },
-      authToken: undefined
-    }
+      authToken: undefined,
+    },
   );
   assert.deepEqual(
     createMobigentEnvironmentFromEnv({
-      env: { MOBIGENT_ENABLED: "false", MOBIGENT_AUTH_TOKEN: "kept-for-later" },
-      fallback: { mode: "hosted", host: "gateway.example.com" }
+      env: { MOBIGENT_ENABLED: 'false', MOBIGENT_AUTH_TOKEN: 'kept-for-later' },
+      fallback: { mode: 'hosted', host: 'gateway.example.com' },
     }),
     {
       enabled: false,
-      authToken: "kept-for-later"
-    }
+      authToken: 'kept-for-later',
+    },
   );
-  assert.throws(() => createMobigentEnvironment({ mode: "device" }), /requires deviceHost or host/);
-  assert.throws(() => createMobigentEnvironment({ mode: "hosted" }), /requires host, backendUrl, or gatewayUrl/);
+  assert.throws(() => createMobigentEnvironment({ mode: 'device' }), /requires deviceHost or host/);
+  assert.throws(
+    () => createMobigentEnvironment({ mode: 'hosted' }),
+    /requires host, backendUrl, or gatewayUrl/,
+  );
 });
 
-test("React Native capability definition helpers create mountable kits", () => {
-  assert.deepEqual(createMobigentPolicy("read-only"), {
-    policy: { readOnly: true }
+test('React Native capability definition helpers create mountable kits', () => {
+  assert.deepEqual(createMobigentPolicy('read-only'), {
+    policy: { readOnly: true },
   });
   assert.deepEqual(
-    createMobigentPolicy("confirmed", {
-      title: "Approve expense?",
-      allowedAgents: ["finance-agent"],
-      rateLimitPerMinute: 5
+    createMobigentPolicy('confirmed', {
+      title: 'Approve expense?',
+      allowedAgents: ['finance-agent'],
+      rateLimitPerMinute: 5,
     }),
     {
       policy: {
         foregroundOnly: true,
         requiresUser: true,
-        allowedAgents: ["finance-agent"],
-        rateLimitPerMinute: 5
+        allowedAgents: ['finance-agent'],
+        rateLimitPerMinute: 5,
       },
       confirmation: {
         required: true,
-        title: "Approve expense?",
-        risk: "medium"
-      }
-    }
+        title: 'Approve expense?',
+        risk: 'medium',
+      },
+    },
   );
   assert.deepEqual(
-    createMobigentPolicy("destructive", {
-      title: "Delete expense?",
+    createMobigentPolicy('destructive', {
+      title: 'Delete expense?',
       policy: { rateLimitPerMinute: 1 },
-      confirmation: { required: true, risk: "high", message: "This cannot be undone." }
+      confirmation: { required: true, risk: 'high', message: 'This cannot be undone.' },
     }),
     {
       policy: {
         foregroundOnly: true,
         requiresUser: true,
-        rateLimitPerMinute: 1
+        rateLimitPerMinute: 1,
       },
       confirmation: {
         required: true,
-        title: "Delete expense?",
-        risk: "high",
-        message: "This cannot be undone."
-      }
-    }
+        title: 'Delete expense?',
+        risk: 'high',
+        message: 'This cannot be undone.',
+      },
+    },
   );
   const createExpense = defineMobigentAction({
-    name: "expense.create",
-    description: "Create an expense.",
-    inputSchema: schema.object({ merchant: schema.string() }, { required: "all" }),
-    ...createMobigentPolicy("confirmed", { title: "Create expense?" }),
-    handler: () => ({ id: "exp_123" })
+    name: 'expense.create',
+    description: 'Create an expense.',
+    inputSchema: schema.object({ merchant: schema.string() }, { required: 'all' }),
+    ...createMobigentPolicy('confirmed', { title: 'Create expense?' }),
+    handler: () => ({ id: 'exp_123' }),
   });
   const listExpenses = defineMobigentResource({
-    name: "expense.list",
-    description: "List expenses.",
-    read: () => ({ expenses: [] })
+    name: 'expense.list',
+    description: 'List expenses.',
+    read: () => ({ expenses: [] }),
   });
   const expenseDetail = defineMobigentComponent({
-    name: "expense.detail",
-    description: "Focus an expense detail screen.",
-    propsSchema: schema.object({ id: schema.string() }, { required: "all" }),
-    focus: () => ({ focused: true })
+    name: 'expense.detail',
+    description: 'Focus an expense detail screen.',
+    propsSchema: schema.object({ id: schema.string() }, { required: 'all' }),
+    focus: () => ({ focused: true }),
   });
 
   const kit = defineMobigentCapabilities({
     actions: [createExpense],
     resources: [listExpenses],
-    components: [expenseDetail]
+    components: [expenseDetail],
   });
   const settings = defineMobigentCapabilities({
     actions: [
       defineMobigentAction({
-        name: "settings.open",
-        description: "Open settings.",
+        name: 'settings.open',
+        description: 'Open settings.',
         inputSchema: schema.object(),
-        handler: () => ({ opened: true })
-      })
-    ]
+        handler: () => ({ opened: true }),
+      }),
+    ],
   });
   const composed = composeMobigentCapabilities(kit, settings, false, {
     resources: [
       defineMobigentResource({
-        name: "profile.read",
-        description: "Read profile.",
-        read: () => ({ name: "Ada" })
-      })
-    ]
+        name: 'profile.read',
+        description: 'Read profile.',
+        read: () => ({ name: 'Ada' }),
+      }),
+    ],
   });
 
   assert.deepEqual(kit.actions, [createExpense]);
   assert.deepEqual(kit.resources, [listExpenses]);
   assert.deepEqual(kit.components, [expenseDetail]);
-  assert.equal(typeof kit.useRegister, "function");
-  assert.equal(typeof kit.Component, "function");
+  assert.equal(typeof kit.useRegister, 'function');
+  assert.equal(typeof kit.Component, 'function');
   const guarded = applyMobigentPolicy(
     kit,
-    createMobigentPolicy("confirmed", {
-      title: "Approve module action?",
-      allowedAgents: ["finance-agent"],
+    createMobigentPolicy('confirmed', {
+      title: 'Approve module action?',
+      allowedAgents: ['finance-agent'],
       rateLimitPerMinute: 3,
-      sensitiveData: ["expense"]
-    })
+      sensitiveData: ['expense'],
+    }),
   );
 
   assert.deepEqual(guarded.actions[0]?.policy, {
     foregroundOnly: true,
     requiresUser: true,
-    allowedAgents: ["finance-agent"],
+    allowedAgents: ['finance-agent'],
     rateLimitPerMinute: 3,
-    sensitiveData: ["expense"]
+    sensitiveData: ['expense'],
   });
   assert.deepEqual(guarded.actions[0]?.confirmation, {
     required: true,
-    title: "Create expense?",
-    risk: "medium"
+    title: 'Create expense?',
+    risk: 'medium',
   });
   assert.deepEqual(guarded.resources[0]?.policy, {
     foregroundOnly: true,
     requiresUser: true,
-    allowedAgents: ["finance-agent"],
+    allowedAgents: ['finance-agent'],
     rateLimitPerMinute: 3,
-    sensitiveData: ["expense"]
+    sensitiveData: ['expense'],
   });
   assert.deepEqual(guarded.components[0]?.policy, {
     foregroundOnly: true,
     requiresUser: true,
-    allowedAgents: ["finance-agent"],
+    allowedAgents: ['finance-agent'],
     rateLimitPerMinute: 3,
-    sensitiveData: ["expense"]
+    sensitiveData: ['expense'],
   });
   assert.deepEqual(
     composed.actions.map((action) => action.name),
-    ["expense.create", "settings.open"]
+    ['expense.create', 'settings.open'],
   );
   assert.deepEqual(
     composed.resources.map((resource) => resource.name),
-    ["expense.list", "profile.read"]
+    ['expense.list', 'profile.read'],
   );
   assert.deepEqual(
     composed.components.map((component) => component.name),
-    ["expense.detail"]
+    ['expense.detail'],
   );
-  assert.equal(typeof composed.useRegister, "function");
-  assert.equal(typeof composed.Component, "function");
+  assert.equal(typeof composed.useRegister, 'function');
+  assert.equal(typeof composed.Component, 'function');
   const diagnostics = diagnoseMobigentCapabilities(
     defineMobigentCapabilities({
       actions: [
         defineMobigentAction({
-          name: "expense_create",
-          description: "Create an expense.",
-          inputSchema: schema.object({ merchant: schema.string() }, { required: "all" }),
-          outputSchema: schema.object({ id: schema.string() }, { required: "all" }),
-          ...createMobigentPolicy("confirmed", { allowedAgents: ["finance-agent"] }),
-          handler: () => ({ id: "exp_123" })
-        })
+          name: 'expense_create',
+          description: 'Create an expense.',
+          inputSchema: schema.object({ merchant: schema.string() }, { required: 'all' }),
+          outputSchema: schema.object({ id: schema.string() }, { required: 'all' }),
+          ...createMobigentPolicy('confirmed', { allowedAgents: ['finance-agent'] }),
+          handler: () => ({ id: 'exp_123' }),
+        }),
       ],
       resources: [
         defineMobigentResource({
-          name: "expense_list",
-          description: "List expenses.",
+          name: 'expense_list',
+          description: 'List expenses.',
           outputSchema: schema.object({ expenses: schema.array(schema.object()) }),
-          read: () => ({ expenses: [] })
-        })
-      ]
+          read: () => ({ expenses: [] }),
+        }),
+      ],
     }),
-    { app: { id: "com.example.expenses", name: "Expenses" } }
+    { app: { id: 'com.example.expenses', name: 'Expenses' } },
   );
-  assert.equal(diagnostics.status, "pass");
+  assert.equal(diagnostics.status, 'pass');
   assert.deepEqual(diagnostics.summary, { actions: 1, resources: 1, components: 0, total: 2 });
-  assert.match(formatMobigentCapabilityDiagnostics(diagnostics), /Mobigent capability diagnostics: PASS/);
+  assert.match(
+    formatMobigentCapabilityDiagnostics(diagnostics),
+    /Mobigent capability diagnostics: PASS/,
+  );
 
   const unsafeDiagnostics = diagnoseMobigentCapabilities(
     defineMobigentCapabilities({
       actions: [
         defineMobigentAction({
-          name: "unsafe_action",
-          description: "Send sensitive data.",
+          name: 'unsafe_action',
+          description: 'Send sensitive data.',
           inputSchema: schema.object(),
-          policy: { requiresUser: true, sensitiveData: ["token"] },
-          handler: () => ({ ok: true })
-        })
-      ]
-    })
+          policy: { requiresUser: true, sensitiveData: ['token'] },
+          handler: () => ({ ok: true }),
+        }),
+      ],
+    }),
   );
-  assert.equal(unsafeDiagnostics.status, "warn");
-  assert.equal(unsafeDiagnostics.checks.find((check) => check.name === "safety-policy")?.status, "warn");
+  assert.equal(unsafeDiagnostics.status, 'warn');
+  assert.equal(
+    unsafeDiagnostics.checks.find((check) => check.name === 'safety-policy')?.status,
+    'warn',
+  );
 
   const invalidNameDiagnostics = diagnoseMobigentCapabilities(
     defineMobigentCapabilities({
       actions: [
         defineMobigentAction({
-          name: "expense.create",
-          description: "Create an expense.",
+          name: 'expense.create',
+          description: 'Create an expense.',
           inputSchema: schema.object(),
-          handler: () => ({ ok: true })
-        })
-      ]
-    })
+          handler: () => ({ ok: true }),
+        }),
+      ],
+    }),
   );
-  assert.equal(invalidNameDiagnostics.status, "fail");
-  assert.match(invalidNameDiagnostics.errors.join("\n"), /letters, numbers, and underscores/);
+  assert.equal(invalidNameDiagnostics.status, 'fail');
+  assert.match(invalidNameDiagnostics.errors.join('\n'), /letters, numbers, and underscores/);
 
   const duplicateDiagnostics = diagnoseMobigentCapabilities([
     defineMobigentCapabilities({
       actions: [
         defineMobigentAction({
-          name: "duplicate_tool",
-          description: "First.",
+          name: 'duplicate_tool',
+          description: 'First.',
           inputSchema: schema.object(),
-          handler: () => ({ ok: true })
-        })
-      ]
+          handler: () => ({ ok: true }),
+        }),
+      ],
     }),
     defineMobigentCapabilities({
       resources: [
         defineMobigentResource({
-          name: "duplicate_tool",
-          description: "Second.",
-          read: () => ({ ok: true })
-        })
-      ]
-    })
+          name: 'duplicate_tool',
+          description: 'Second.',
+          read: () => ({ ok: true }),
+        }),
+      ],
+    }),
   ]);
-  assert.equal(duplicateDiagnostics.status, "fail");
-  assert.match(duplicateDiagnostics.errors.join("\n"), /Duplicate capability name/);
+  assert.equal(duplicateDiagnostics.status, 'fail');
+  assert.match(duplicateDiagnostics.errors.join('\n'), /Duplicate capability name/);
   const registry = createMobigentCapabilityRegistry(kit);
   const registrySnapshots: string[][] = [];
   const unsubscribeRegistry = registry.subscribe(() => {
@@ -1765,313 +1797,327 @@ test("React Native capability definition helpers create mountable kits", () => {
   });
   assert.deepEqual(
     registry.actions.map((action) => action.name),
-    ["expense.create"]
+    ['expense.create'],
   );
   registry.add(settings, {
     resources: [
       defineMobigentResource({
-        name: "workspace.read",
-        description: "Read active workspace.",
-        read: () => ({ id: "workspace_123" })
-      })
-    ]
+        name: 'workspace.read',
+        description: 'Read active workspace.',
+        read: () => ({ id: 'workspace_123' }),
+      }),
+    ],
   });
   assert.deepEqual(
     registry.getCapabilities().actions.map((action) => action.name),
-    ["expense.create", "settings.open"]
+    ['expense.create', 'settings.open'],
   );
-  assert.deepEqual(registrySnapshots.at(-1), ["expense.create", "settings.open"]);
+  assert.deepEqual(registrySnapshots.at(-1), ['expense.create', 'settings.open']);
   assert.deepEqual(
     registry.resources.map((resource) => resource.name),
-    ["expense.list", "workspace.read"]
+    ['expense.list', 'workspace.read'],
   );
   registry.remove(settings);
   assert.deepEqual(
     registry.actions.map((action) => action.name),
-    ["expense.create"]
+    ['expense.create'],
   );
   registry.clear();
   assert.deepEqual(registry.actions, []);
   assert.deepEqual(registrySnapshots, [
-    ["expense.create", "settings.open"],
-    ["expense.create"],
-    []
+    ['expense.create', 'settings.open'],
+    ['expense.create'],
+    [],
   ]);
   unsubscribeRegistry();
   registry.add(settings);
   assert.deepEqual(registrySnapshots, [
-    ["expense.create", "settings.open"],
-    ["expense.create"],
-    []
+    ['expense.create', 'settings.open'],
+    ['expense.create'],
+    [],
   ]);
-  assert.equal(typeof registry.useRegister, "function");
-  assert.equal(typeof registry.Component, "function");
+  assert.equal(typeof registry.useRegister, 'function');
+  assert.equal(typeof registry.Component, 'function');
   assert.throws(
     () =>
       composeMobigentCapabilities(kit, {
         actions: [
           defineMobigentAction({
-            name: "expense.list",
-            description: "Duplicate resource name.",
+            name: 'expense.list',
+            description: 'Duplicate resource name.',
             inputSchema: schema.object(),
-            handler: () => ({ ok: true })
-          })
-        ]
+            handler: () => ({ ok: true }),
+          }),
+        ],
       }),
-    /Duplicate capability name "expense.list" while composing Mobigent capabilities/
+    /Duplicate capability name "expense.list" while composing Mobigent capabilities/,
   );
 });
 
-test("React Native feature helper namespaces local capability names", () => {
+test('React Native feature helper namespaces local capability names', () => {
   const expenseFeature = defineMobigentFeature({
-    namespace: "expense",
+    namespace: 'expense',
     actions: [
       defineMobigentAction({
-        name: "create",
-        description: "Create an expense.",
+        name: 'create',
+        description: 'Create an expense.',
         inputSchema: schema.object(),
-        handler: () => ({ ok: true })
+        handler: () => ({ ok: true }),
       }),
       defineMobigentAction({
-        name: "expense_sync",
-        description: "Sync expenses.",
+        name: 'expense_sync',
+        description: 'Sync expenses.',
         inputSchema: schema.object(),
-        handler: () => ({ ok: true })
-      })
+        handler: () => ({ ok: true }),
+      }),
     ],
     resources: [
       defineMobigentResource({
-        name: "list",
-        description: "List expenses.",
-        read: () => ({ expenses: [] })
-      })
+        name: 'list',
+        description: 'List expenses.',
+        read: () => ({ expenses: [] }),
+      }),
     ],
     components: [
       defineMobigentComponent({
-        name: "detail",
-        description: "Open expense detail.",
-        propsSchema: schema.object({ id: schema.string() }, { required: "all" }),
-        focus: () => ({ focused: true })
-      })
-    ]
+        name: 'detail',
+        description: 'Open expense detail.',
+        propsSchema: schema.object({ id: schema.string() }, { required: 'all' }),
+        focus: () => ({ focused: true }),
+      }),
+    ],
   });
 
   assert.deepEqual(
     expenseFeature.actions.map((action) => action.name),
-    ["expense_create", "expense_sync"]
+    ['expense_create', 'expense_sync'],
   );
   assert.deepEqual(
     expenseFeature.resources.map((resource) => resource.name),
-    ["expense_list"]
+    ['expense_list'],
   );
   assert.deepEqual(
     expenseFeature.components.map((component) => component.name),
-    ["expense_detail"]
+    ['expense_detail'],
   );
   assert.throws(
     () =>
       defineMobigentFeature({
-        namespace: "expense-report",
-        actions: []
+        namespace: 'expense-report',
+        actions: [],
       }),
-    /Invalid Mobigent feature namespace/
+    /Invalid Mobigent feature namespace/,
   );
   assert.throws(
     () =>
       defineMobigentFeature({
-        namespace: "expense",
+        namespace: 'expense',
         actions: [
           defineMobigentAction({
-            name: "create-report",
-            description: "Invalid local name.",
+            name: 'create-report',
+            description: 'Invalid local name.',
             inputSchema: schema.object(),
-            handler: () => ({ ok: true })
-          })
-        ]
+            handler: () => ({ ok: true }),
+          }),
+        ],
       }),
-    /Invalid Mobigent feature capability name/
+    /Invalid Mobigent feature capability name/,
   );
 });
 
-test("React Native feature factory creates namespaced feature modules", () => {
-  const expense = createMobigentFeature("expense");
+test('React Native feature factory creates namespaced feature modules', () => {
+  const expense = createMobigentFeature('expense');
   const createExpense = expense.action({
-    name: "create",
-    description: "Create an expense.",
-    inputSchema: schema.object({ merchant: schema.string() }, { required: "all" }),
-    handler: () => ({ ok: true })
+    name: 'create',
+    description: 'Create an expense.',
+    inputSchema: schema.object({ merchant: schema.string() }, { required: 'all' }),
+    handler: () => ({ ok: true }),
   });
   const listExpenses = expense.resource({
-    name: "list",
-    description: "List expenses.",
-    read: () => ({ expenses: [] })
+    name: 'list',
+    description: 'List expenses.',
+    read: () => ({ expenses: [] }),
   });
   const expenseDetail = expense.component({
-    name: "detail",
-    description: "Open expense detail.",
-    propsSchema: schema.object({ id: schema.string() }, { required: "all" }),
-    focus: () => ({ focused: true })
+    name: 'detail',
+    description: 'Open expense detail.',
+    propsSchema: schema.object({ id: schema.string() }, { required: 'all' }),
+    focus: () => ({ focused: true }),
   });
   const kit = expense.capabilities({
     actions: [createExpense],
     resources: [listExpenses],
-    components: [expenseDetail]
+    components: [expenseDetail],
   });
 
-  assert.equal(expense.namespace, "expense");
-  assert.equal(createExpense.name, "expense_create");
-  assert.equal(listExpenses.name, "expense_list");
-  assert.equal(expenseDetail.name, "expense_detail");
+  assert.equal(expense.namespace, 'expense');
+  assert.equal(createExpense.name, 'expense_create');
+  assert.equal(listExpenses.name, 'expense_list');
+  assert.equal(expenseDetail.name, 'expense_detail');
   assert.deepEqual(
     kit.actions.map((action) => action.name),
-    ["expense_create"]
+    ['expense_create'],
   );
   assert.deepEqual(
     kit.resources.map((resource) => resource.name),
-    ["expense_list"]
+    ['expense_list'],
   );
   assert.deepEqual(
     kit.components.map((component) => component.name),
-    ["expense_detail"]
+    ['expense_detail'],
   );
-  assert.throws(() => createMobigentFeature("expense-report"), /Invalid Mobigent feature namespace/);
+  assert.throws(
+    () => createMobigentFeature('expense-report'),
+    /Invalid Mobigent feature namespace/,
+  );
 });
 
-test("React Native modules package feature capabilities for app-level installation", () => {
-  const expense = createMobigentFeature("expense");
-  const profile = createMobigentFeature("profile");
+test('React Native modules package feature capabilities for app-level installation', () => {
+  const expense = createMobigentFeature('expense');
+  const profile = createMobigentFeature('profile');
   const expenseCapabilities = expense.capabilities({
     actions: [
       expense.action({
-        name: "create",
-        description: "Create an expense.",
-        inputSchema: schema.object({ merchant: schema.string() }, { required: "all" }),
-        handler: () => ({ ok: true })
-      })
-    ]
+        name: 'create',
+        description: 'Create an expense.',
+        inputSchema: schema.object({ merchant: schema.string() }, { required: 'all' }),
+        handler: () => ({ ok: true }),
+      }),
+    ],
   });
   const profileCapabilities = profile.capabilities({
     resources: [
       profile.resource({
-        name: "current",
-        description: "Read the active profile.",
-        read: () => ({ id: "profile-1" })
-      })
-    ]
+        name: 'current',
+        description: 'Read the active profile.',
+        read: () => ({ id: 'profile-1' }),
+      }),
+    ],
   });
 
   const module = createMobigentModule({
-    id: "com.example.expenses",
-    name: "Expense module",
-    version: "1.0.0",
-    capabilities: [expenseCapabilities, profileCapabilities]
+    id: 'com.example.expenses',
+    name: 'Expense module',
+    version: '1.0.0',
+    capabilities: [expenseCapabilities, profileCapabilities],
   });
   const registry = createMobigentCapabilityRegistry().install(module);
 
-  assert.equal(module.id, "com.example.expenses");
-  assert.equal(module.name, "Expense module");
-  assert.equal(module.version, "1.0.0");
-  assert.equal(typeof MobigentModuleMount, "function");
-  assert.equal(typeof MobigentModules, "function");
-  assert.equal(typeof MobigentSurface, "function");
-  assert.equal(typeof useMobigentModule, "function");
-  assert.equal(typeof useMobigentModules, "function");
-  assert.equal(typeof useMobigentSurface, "function");
+  assert.equal(module.id, 'com.example.expenses');
+  assert.equal(module.name, 'Expense module');
+  assert.equal(module.version, '1.0.0');
+  assert.equal(typeof MobigentModuleMount, 'function');
+  assert.equal(typeof MobigentModules, 'function');
+  assert.equal(typeof MobigentSurface, 'function');
+  assert.equal(typeof useMobigentModule, 'function');
+  assert.equal(typeof useMobigentModules, 'function');
+  assert.equal(typeof useMobigentSurface, 'function');
   const surfaceProps = {
     children: null,
     modules: module,
     enabled: true,
-    deps: ["workspace-1"]
+    deps: ['workspace-1'],
   } satisfies MobigentSurfaceProps;
   assert.equal(surfaceProps.modules, module);
   assert.deepEqual(
     module.actions.map((action) => action.name),
-    ["expense_create"]
+    ['expense_create'],
   );
   assert.deepEqual(
     registry.getCapabilities().resources.map((resource) => resource.name),
-    ["profile_current"]
+    ['profile_current'],
   );
   registry.install(module);
   assert.deepEqual(
     registry.getCapabilities().actions.map((action) => action.name),
-    ["expense_create"]
+    ['expense_create'],
   );
   assert.deepEqual(registry.getModules(), [
     {
-      id: "com.example.expenses",
-      name: "Expense module",
-      version: "1.0.0",
-      actions: ["expense_create"],
-      resources: ["profile_current"],
-      components: []
-    }
+      id: 'com.example.expenses',
+      name: 'Expense module',
+      version: '1.0.0',
+      actions: ['expense_create'],
+      resources: ['profile_current'],
+      components: [],
+    },
   ]);
   registry.remove(module);
   assert.deepEqual(registry.getModules(), []);
   assert.deepEqual(registry.getCapabilities().actions, []);
   registry.install(module);
-  assert.deepEqual(registry.getModules().map((installedModule) => installedModule.id), ["com.example.expenses"]);
+  assert.deepEqual(
+    registry.getModules().map((installedModule) => installedModule.id),
+    ['com.example.expenses'],
+  );
   assert.throws(
     () =>
       createMobigentModule({
-        id: "expense module",
-        capabilities: expenseCapabilities
+        id: 'expense module',
+        capabilities: expenseCapabilities,
       }),
-    /Invalid Mobigent module id/
+    /Invalid Mobigent module id/,
   );
 });
 
-test("React Native agent module API creates namespaced modules directly", () => {
+test('React Native agent module API creates namespaced modules directly', () => {
   const module = createAgentModule({
-    namespace: "task",
+    namespace: 'task',
     actions: [
       {
-        name: "create",
-        description: "Create a task.",
-        inputSchema: schema.object({ title: schema.string() }, { required: "all" }),
-        handler: () => ({ ok: true })
-      }
+        name: 'create',
+        description: 'Create a task.',
+        inputSchema: schema.object({ title: schema.string() }, { required: 'all' }),
+        handler: () => ({ ok: true }),
+      },
     ],
     resources: [
       {
-        name: "list",
-        description: "List tasks.",
-        read: () => ({ items: [] })
-      }
-    ]
+        name: 'list',
+        description: 'List tasks.',
+        read: () => ({ items: [] }),
+      },
+    ],
   });
 
-  assert.equal(module.id, "mobigent.task");
-  assert.equal(module.name, "task feature");
-  assert.deepEqual(module.actions.map((action) => action.name), ["task_create"]);
-  assert.deepEqual(module.resources.map((resource) => resource.name), ["task_list"]);
+  assert.equal(module.id, 'mobigent.task');
+  assert.equal(module.name, 'task feature');
+  assert.deepEqual(
+    module.actions.map((action) => action.name),
+    ['task_create'],
+  );
+  assert.deepEqual(
+    module.resources.map((resource) => resource.name),
+    ['task_list'],
+  );
   assert.throws(
     () =>
       createAgentModule({
-        namespace: "bad-name",
-        actions: []
+        namespace: 'bad-name',
+        actions: [],
       }),
-    /Invalid Mobigent feature namespace/
+    /Invalid Mobigent feature namespace/,
   );
 });
 
-test("React Native init CLI generates a standard app integration scaffold", async () => {
+test('React Native init CLI generates a standard app integration scaffold', async () => {
   const files = createReactNativeStarterFiles({
-    appId: "com.mobigent.demo",
-    appName: "Demo App",
-    appVersion: "1.2.3",
-    feature: "expense",
-    outDir: "src",
+    appId: 'com.mobigent.demo',
+    appName: 'Demo App',
+    appVersion: '1.2.3',
+    feature: 'expense',
+    outDir: 'src',
     dryRun: true,
     force: false,
     doctor: false,
     manifest: false,
-    contract: false
+    contract: false,
   });
-  const rootFile = files.find((file) => file.path === join("src", "mobigent.tsx"));
-  const starterConfigFile = files.find((file) => file.path === join("src", "mobigent-config.ts"));
-  const featureFile = files.find((file) => file.path === join("src", "mobigent-functions", "expense.ts"));
+  const rootFile = files.find((file) => file.path === join('src', 'mobigent.tsx'));
+  const starterConfigFile = files.find((file) => file.path === join('src', 'mobigent-config.ts'));
+  const featureFile = files.find(
+    (file) => file.path === join('src', 'mobigent-functions', 'expense.ts'),
+  );
 
   assert.ok(rootFile);
   assert.equal(starterConfigFile, undefined);
@@ -2079,7 +2125,10 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   assert.match(rootFile.contents, /createApp/);
   assert.match(rootFile.contents, /export const mobigent/);
   assert.match(rootFile.contents, /@mobigent\/app/);
-  assert.match(rootFile.contents, /createApp\("com\.mobigent\.demo", \{ \.\.\.expenseFunctions \}, \{/);
+  assert.match(
+    rootFile.contents,
+    /createApp\("com\.mobigent\.demo", \{ \.\.\.expenseFunctions \}, \{/,
+  );
   assert.match(rootFile.contents, /appName: "Demo App"/);
   assert.match(rootFile.contents, /version: "1\.2\.3"/);
   assert.doesNotMatch(rootFile.contents, /config: mobigentConfig/);
@@ -2101,19 +2150,19 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   assert.match(featureFile.contents, /create: write\(/);
 
   const expoFiles = createReactNativeStarterFiles({
-    appId: "com.mobigent.expo",
-    appName: "Expo App",
-    feature: "expense",
-    outDir: "src",
+    appId: 'com.mobigent.expo',
+    appName: 'Expo App',
+    feature: 'expense',
+    outDir: 'src',
     dryRun: true,
     force: false,
     doctor: false,
     manifest: false,
     contract: false,
     customConfirmation: false,
-    expo: true
+    expo: true,
   });
-  const expoRootFile = expoFiles.find((file) => file.path === join("src", "mobigent.tsx"));
+  const expoRootFile = expoFiles.find((file) => file.path === join('src', 'mobigent.tsx'));
   assert.ok(expoRootFile);
   assert.doesNotMatch(expoRootFile.contents, /expo-constants/);
   assert.match(expoRootFile.contents, /createApp/);
@@ -2123,10 +2172,10 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   assert.doesNotMatch(expoRootFile.contents, /createMobigentEnvironmentFromEnv/);
 
   const expoRouterFiles = createReactNativeStarterFiles({
-    appId: "com.mobigent.router",
-    appName: "Expo Router App",
-    feature: "expense",
-    outDir: "src",
+    appId: 'com.mobigent.router',
+    appName: 'Expo Router App',
+    feature: 'expense',
+    outDir: 'src',
     dryRun: true,
     force: false,
     doctor: false,
@@ -2134,9 +2183,11 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
     contract: false,
     customConfirmation: false,
     expo: true,
-    expoRouter: true
+    expoRouter: true,
   });
-  const expoRouterLayoutFile = expoRouterFiles.find((file) => file.path === join("app", "_layout.tsx"));
+  const expoRouterLayoutFile = expoRouterFiles.find(
+    (file) => file.path === join('app', '_layout.tsx'),
+  );
   assert.ok(expoRouterLayoutFile);
   assert.match(expoRouterLayoutFile.contents, /expo-router/);
   assert.match(expoRouterLayoutFile.contents, /Stack/);
@@ -2144,61 +2195,64 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   assert.match(expoRouterLayoutFile.contents, /from "\.\.\/src\/mobigent"/);
 
   const featureOnlyFiles = createReactNativeFeatureFiles({
-    feature: "invoice",
-    outDir: "src"
+    feature: 'invoice',
+    outDir: 'src',
   });
   assert.deepEqual(
     featureOnlyFiles.map((file) => file.path),
-    [join("src", "mobigent-functions", "invoice.ts")]
+    [join('src', 'mobigent-functions', 'invoice.ts')],
   );
-  assert.match(featureOnlyFiles[0]?.contents ?? "", /export const invoiceFunctions = \{/);
-  assert.match(featureOnlyFiles[0]?.contents ?? "", /invoice: \{/);
+  assert.match(featureOnlyFiles[0]?.contents ?? '', /export const invoiceFunctions = \{/);
+  assert.match(featureOnlyFiles[0]?.contents ?? '', /invoice: \{/);
 
   const featureOnlyStarterFiles = createReactNativeStarterFiles({
-    appId: "",
-    appName: "",
-    feature: "invoice",
-    outDir: "src",
+    appId: '',
+    appName: '',
+    feature: 'invoice',
+    outDir: 'src',
     dryRun: true,
     force: false,
     doctor: false,
     manifest: false,
     contract: false,
     featureOnly: true,
-    customConfirmation: false
+    customConfirmation: false,
   });
   assert.deepEqual(
     featureOnlyStarterFiles.map((file) => file.path),
-    [join("src", "mobigent-functions", "invoice.ts")]
+    [join('src', 'mobigent-functions', 'invoice.ts')],
   );
 
-  const envTemplate = createReactNativeEnvTemplate({ gatewayUrl: "ws://localhost:9000" });
+  const envTemplate = createReactNativeEnvTemplate({ gatewayUrl: 'ws://localhost:9000' });
   assert.match(envTemplate, /EXPO_PUBLIC_MOBIGENT_MODE=local/);
   assert.match(envTemplate, /EXPO_PUBLIC_MOBIGENT_URL=ws:\/\/localhost:9000/);
   assert.match(envTemplate, /EXPO_PUBLIC_MOBIGENT_DEVICE_HOST/);
 
   const configFiles = createReactNativeStarterFiles({
-    appId: "com.mobigent.config",
-    appName: "Config App",
+    appId: 'com.mobigent.config',
+    appName: 'Config App',
     appConfig: {
-      appId: "com.mobigent.config",
-      appName: "Config App",
-      gatewayUrl: "ws://localhost:19000",
-      authToken: "dev-token"
+      appId: 'com.mobigent.config',
+      appName: 'Config App',
+      gatewayUrl: 'ws://localhost:19000',
+      authToken: 'dev-token',
     },
-    feature: "expense",
-    outDir: "src",
+    feature: 'expense',
+    outDir: 'src',
     dryRun: true,
     force: false,
     doctor: false,
     manifest: false,
-    contract: false
+    contract: false,
   });
-  const configFile = configFiles.find((file) => file.path === join("src", "mobigent-config.ts"));
-  const configRootFile = configFiles.find((file) => file.path === join("src", "mobigent.tsx"));
+  const configFile = configFiles.find((file) => file.path === join('src', 'mobigent-config.ts'));
+  const configRootFile = configFiles.find((file) => file.path === join('src', 'mobigent.tsx'));
   assert.equal(configFile, undefined);
   assert.ok(configRootFile);
-  assert.match(configRootFile.contents, /createApp\("com\.mobigent\.config", \{ \.\.\.expenseFunctions \}, \{/);
+  assert.match(
+    configRootFile.contents,
+    /createApp\("com\.mobigent\.config", \{ \.\.\.expenseFunctions \}, \{/,
+  );
   assert.match(configRootFile.contents, /appName: "Config App"/);
   assert.match(configRootFile.contents, /connection: "ws:\/\/localhost:19000"/);
   assert.match(configRootFile.contents, /authToken: "dev-token"/);
@@ -2207,193 +2261,213 @@ test("React Native init CLI generates a standard app integration scaffold", asyn
   assert.match(envTemplate, /EXPO_PUBLIC_MOBIGENT_TOKEN/);
 
   const customConfirmationFiles = createReactNativeStarterFiles({
-    appId: "com.mobigent.demo",
-    appName: "Demo App",
-    feature: "expense",
-    outDir: "src",
+    appId: 'com.mobigent.demo',
+    appName: 'Demo App',
+    feature: 'expense',
+    outDir: 'src',
     dryRun: true,
     force: false,
     doctor: false,
     manifest: false,
     contract: false,
-    customConfirmation: true
+    customConfirmation: true,
   });
-  const customRootFile = customConfirmationFiles.find((file) => file.path === join("src", "mobigent.tsx"));
-  const confirmationFile = customConfirmationFiles.find((file) => file.path === join("src", "mobigent-confirmation.tsx"));
+  const customRootFile = customConfirmationFiles.find(
+    (file) => file.path === join('src', 'mobigent.tsx'),
+  );
+  const confirmationFile = customConfirmationFiles.find(
+    (file) => file.path === join('src', 'mobigent-confirmation.tsx'),
+  );
   assert.ok(customRootFile);
   assert.ok(confirmationFile);
   assert.match(customRootFile.contents, /ConfirmationComponent: MobigentAgentApproval/);
   assert.match(confirmationFile.contents, /useMobigentConfirmation/);
 
-  const inferredDir = await mkdtemp(join(tmpdir(), "mobigent-rn-infer-"));
-  await writeFile(join(inferredDir, "package.json"), JSON.stringify({ name: "@acme/mobile-wallet" }), "utf8");
+  const inferredDir = await mkdtemp(join(tmpdir(), 'mobigent-rn-infer-'));
+  await writeFile(
+    join(inferredDir, 'package.json'),
+    JSON.stringify({ name: '@acme/mobile-wallet' }),
+    'utf8',
+  );
   assert.deepEqual(inferReactNativeAppIdentity(inferredDir), {
-    appId: "app.acme.mobile.wallet",
-    appName: "Mobile Wallet"
+    appId: 'app.acme.mobile.wallet',
+    appName: 'Mobile Wallet',
   });
 
-  let stdout = "";
-  let stderr = "";
+  let stdout = '';
+  let stderr = '';
   const dryRunCode = runReactNativeInitCli(
-    ["--feature", "expense", "--out-dir", "src", "--app-root", inferredDir, "--dry-run"],
+    ['--feature', 'expense', '--out-dir', 'src', '--app-root', inferredDir, '--dry-run'],
     { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
-    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
+    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream,
   );
 
-	  assert.equal(dryRunCode, 0);
-	  assert.equal(stderr, "");
-	  assert.match(stdout, /mobigent\.tsx/);
-	  assert.match(stdout, /mobigent-functions/);
-	  assert.match(stdout, /app\.acme\.mobile\.wallet/);
-	  assert.match(stdout, /Mobile Wallet/);
-	  await rm(inferredDir, { force: true, recursive: true });
+  assert.equal(dryRunCode, 0);
+  assert.equal(stderr, '');
+  assert.match(stdout, /mobigent\.tsx/);
+  assert.match(stdout, /mobigent-functions/);
+  assert.match(stdout, /app\.acme\.mobile\.wallet/);
+  assert.match(stdout, /Mobile Wallet/);
+  await rm(inferredDir, { force: true, recursive: true });
 
-	  stdout = "";
-	  stderr = "";
-	  const initDryRunCode = runReactNativeInitCli(
-	    [
-	      "--app-id",
-	      "com.mobigent.init",
-	      "--app-name",
-	      "Init App",
-	      "--feature",
-	      "expense",
-	      "--out-dir",
-	      "src",
-	      "--dry-run"
-	    ],
-	    { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
-	    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream,
-	    "mobigent-rn-init"
-	  );
-	  assert.equal(initDryRunCode, 0);
-	  assert.equal(stderr, "");
-	  assert.match(stdout, /createApp/);
-	  assert.match(stdout, /mobigent\.with\(App\)/);
-	  assert.doesNotMatch(stdout, /expo-constants/);
-
-	  stdout = "";
-	  stderr = "";
-	  const initBareDryRunCode = runReactNativeInitCli(
-	    [
-	      "--app-id",
-	      "com.mobigent.bare",
-	      "--app-name",
-	      "Bare App",
-	      "--feature",
-	      "expense",
-	      "--out-dir",
-	      "src",
-	      "--react-native",
-	      "--dry-run"
-	    ],
-	    { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
-	    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream,
-	    "mobigent-rn-init"
-	  );
-	  assert.equal(initBareDryRunCode, 0);
-	  assert.equal(stderr, "");
-	  assert.match(stdout, /createApp/);
-	  assert.match(stdout, /mobigent\.with\(App\)/);
-	  assert.doesNotMatch(stdout, /expo-constants/);
-
-	  stdout = "";
-	  stderr = "";
-	  const expoDryRunCode = runReactNativeInitCli(
+  stdout = '';
+  stderr = '';
+  const initDryRunCode = runReactNativeInitCli(
     [
-      "--app-id",
-      "com.mobigent.expo",
-      "--app-name",
-      "Expo App",
-      "--feature",
-      "expense",
-      "--out-dir",
-      "src",
-      "--expo",
-      "--dry-run"
+      '--app-id',
+      'com.mobigent.init',
+      '--app-name',
+      'Init App',
+      '--feature',
+      'expense',
+      '--out-dir',
+      'src',
+      '--dry-run',
     ],
     { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
-    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
+    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream,
+    'mobigent-rn-init',
   );
-  assert.equal(expoDryRunCode, 0);
-  assert.equal(stderr, "");
+  assert.equal(initDryRunCode, 0);
+  assert.equal(stderr, '');
   assert.match(stdout, /createApp/);
   assert.match(stdout, /mobigent\.with\(App\)/);
   assert.doesNotMatch(stdout, /expo-constants/);
 
-  stdout = "";
-  stderr = "";
-  const expoRouterDryRunCode = runReactNativeInitCli(
+  stdout = '';
+  stderr = '';
+  const initBareDryRunCode = runReactNativeInitCli(
     [
-      "--app-id",
-      "com.mobigent.router",
-      "--app-name",
-      "Expo Router App",
-      "--feature",
-      "expense",
-      "--out-dir",
-      "src",
-      "--expo-router",
-      "--dry-run"
+      '--app-id',
+      'com.mobigent.bare',
+      '--app-name',
+      'Bare App',
+      '--feature',
+      'expense',
+      '--out-dir',
+      'src',
+      '--react-native',
+      '--dry-run',
     ],
     { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
-    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
+    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream,
+    'mobigent-rn-init',
+  );
+  assert.equal(initBareDryRunCode, 0);
+  assert.equal(stderr, '');
+  assert.match(stdout, /createApp/);
+  assert.match(stdout, /mobigent\.with\(App\)/);
+  assert.doesNotMatch(stdout, /expo-constants/);
+
+  stdout = '';
+  stderr = '';
+  const expoDryRunCode = runReactNativeInitCli(
+    [
+      '--app-id',
+      'com.mobigent.expo',
+      '--app-name',
+      'Expo App',
+      '--feature',
+      'expense',
+      '--out-dir',
+      'src',
+      '--expo',
+      '--dry-run',
+    ],
+    { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
+    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream,
+  );
+  assert.equal(expoDryRunCode, 0);
+  assert.equal(stderr, '');
+  assert.match(stdout, /createApp/);
+  assert.match(stdout, /mobigent\.with\(App\)/);
+  assert.doesNotMatch(stdout, /expo-constants/);
+
+  stdout = '';
+  stderr = '';
+  const expoRouterDryRunCode = runReactNativeInitCli(
+    [
+      '--app-id',
+      'com.mobigent.router',
+      '--app-name',
+      'Expo Router App',
+      '--feature',
+      'expense',
+      '--out-dir',
+      'src',
+      '--expo-router',
+      '--dry-run',
+    ],
+    { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
+    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream,
   );
   assert.equal(expoRouterDryRunCode, 0);
-  assert.equal(stderr, "");
+  assert.equal(stderr, '');
   assert.match(stdout, /app[\\/]_layout\.tsx/);
   assert.match(stdout, /expo-router/);
   assert.match(stdout, /MobigentRoot/);
 
-  stdout = "";
-  stderr = "";
+  stdout = '';
+  stderr = '';
   const envTemplateCode = runReactNativeInitCli(
-    ["--env-template", "--gateway-url", "ws://localhost:9000"],
+    ['--env-template', '--gateway-url', 'ws://localhost:9000'],
     { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
-    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
+    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream,
   );
   assert.equal(envTemplateCode, 0);
-  assert.equal(stderr, "");
+  assert.equal(stderr, '');
   assert.match(stdout, /EXPO_PUBLIC_MOBIGENT_URL=ws:\/\/localhost:9000/);
 
-  stdout = "";
-  stderr = "";
+  stdout = '';
+  stderr = '';
   const featureOnlyCode = runReactNativeInitCli(
-    ["--feature", "invoice", "--out-dir", "src", "--feature-only", "--dry-run"],
+    ['--feature', 'invoice', '--out-dir', 'src', '--feature-only', '--dry-run'],
     { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
-    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
+    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream,
   );
   assert.equal(featureOnlyCode, 0);
-  assert.equal(stderr, "");
+  assert.equal(stderr, '');
   assert.match(stdout, /mobigent-functions/);
   assert.doesNotMatch(stdout, /mobigent\.tsx/);
 
-  const dir = await mkdtemp(join(tmpdir(), "mobigent-rn-init-"));
-  const envPath = join(dir, ".env.mobigent");
+  const dir = await mkdtemp(join(tmpdir(), 'mobigent-rn-init-'));
+  const envPath = join(dir, '.env.mobigent');
   const writeEnvCode = runReactNativeInitCli(
-    ["--write-env", envPath, "--gateway-url", "wss://gateway.example.com"],
+    ['--write-env', envPath, '--gateway-url', 'wss://gateway.example.com'],
     { write: () => undefined } as NodeJS.WritableStream,
-    { write: () => undefined } as NodeJS.WritableStream
+    { write: () => undefined } as NodeJS.WritableStream,
   );
   assert.equal(writeEnvCode, 0);
-  assert.match(await readFile(envPath, "utf8"), /EXPO_PUBLIC_MOBIGENT_URL=wss:\/\/gateway.example.com/);
+  assert.match(
+    await readFile(envPath, 'utf8'),
+    /EXPO_PUBLIC_MOBIGENT_URL=wss:\/\/gateway.example.com/,
+  );
 
   const writeCode = runReactNativeInitCli(
-    ["--app-id", "com.mobigent.demo", "--app-name", "Demo App", "--feature", "task", "--out-dir", dir],
+    [
+      '--app-id',
+      'com.mobigent.demo',
+      '--app-name',
+      'Demo App',
+      '--feature',
+      'task',
+      '--out-dir',
+      dir,
+    ],
     { write: () => undefined } as NodeJS.WritableStream,
-    { write: () => undefined } as NodeJS.WritableStream
+    { write: () => undefined } as NodeJS.WritableStream,
   );
 
   assert.equal(writeCode, 0);
-  assert.match(await readFile(join(dir, "mobigent.tsx"), "utf8"), /taskFunctions/);
-  const taskFeatureFile = await readFile(join(dir, "mobigent-functions", "task.ts"), "utf8");
+  assert.match(await readFile(join(dir, 'mobigent.tsx'), 'utf8'), /taskFunctions/);
+  const taskFeatureFile = await readFile(join(dir, 'mobigent-functions', 'task.ts'), 'utf8');
   assert.match(taskFeatureFile, /export const taskFunctions = \{/);
   assert.match(taskFeatureFile, /task: \{/);
   await rm(dir, { force: true, recursive: true });
 
-  const backendFirstDir = await mkdtemp(join(tmpdir(), "mobigent-rn-backend-first-"));
+  const backendFirstDir = await mkdtemp(join(tmpdir(), 'mobigent-rn-backend-first-'));
   await writeFile(
-    join(backendFirstDir, "mobigent-config.ts"),
+    join(backendFirstDir, 'mobigent-config.ts'),
     `import { defineMobigentConfig } from "@mobigent/app/app";
 
 export const mobigentConfig = defineMobigentConfig({
@@ -2402,123 +2476,149 @@ export const mobigentConfig = defineMobigentConfig({
   connectionUrl: "ws://localhost:8787"
 });
 `,
-    "utf8"
+    'utf8',
   );
-  stderr = "";
+  stderr = '';
   const backendFirstCode = runReactNativeInitCli(
     [
-      "--app-id",
-      "com.mobigent.generated",
-      "--app-name",
-      "Generated App",
-      "--feature",
-      "expense",
-      "--out-dir",
-      backendFirstDir
+      '--app-id',
+      'com.mobigent.generated',
+      '--app-name',
+      'Generated App',
+      '--feature',
+      'expense',
+      '--out-dir',
+      backendFirstDir,
     ],
     { write: () => undefined } as NodeJS.WritableStream,
-    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
+    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream,
   );
   assert.equal(backendFirstCode, 0, stderr);
-  const backendFirstRoot = await readFile(join(backendFirstDir, "mobigent.tsx"), "utf8");
-  assert.match(backendFirstRoot, /createApp\("com\.mobigent\.generated", \{ \.\.\.expenseFunctions \}, \{/);
+  const backendFirstRoot = await readFile(join(backendFirstDir, 'mobigent.tsx'), 'utf8');
+  assert.match(
+    backendFirstRoot,
+    /createApp\("com\.mobigent\.generated", \{ \.\.\.expenseFunctions \}, \{/,
+  );
   assert.match(backendFirstRoot, /appName: "Generated App"/);
   assert.doesNotMatch(backendFirstRoot, /config: mobigentConfig/);
-  assert.match(await readFile(join(backendFirstDir, "mobigent-config.ts"), "utf8"), /com.mobigent.backendfirst/);
-  assert.doesNotMatch(await readFile(join(backendFirstDir, "mobigent-config.ts"), "utf8"), /com.mobigent.generated/);
-  stderr = "";
+  assert.match(
+    await readFile(join(backendFirstDir, 'mobigent-config.ts'), 'utf8'),
+    /com.mobigent.backendfirst/,
+  );
+  assert.doesNotMatch(
+    await readFile(join(backendFirstDir, 'mobigent-config.ts'), 'utf8'),
+    /com.mobigent.generated/,
+  );
+  stderr = '';
   const secondFeatureCode = runReactNativeInitCli(
     [
-      "--app-id",
-      "com.mobigent.backendfirst",
-      "--app-name",
-      "Backend First App",
-      "--feature",
-      "invoice",
-      "--out-dir",
-      backendFirstDir
+      '--app-id',
+      'com.mobigent.backendfirst',
+      '--app-name',
+      'Backend First App',
+      '--feature',
+      'invoice',
+      '--out-dir',
+      backendFirstDir,
     ],
     { write: () => undefined } as NodeJS.WritableStream,
-    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
+    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream,
   );
   assert.equal(secondFeatureCode, 0, stderr);
-  const backendFirstRootWithInvoice = await readFile(join(backendFirstDir, "mobigent.tsx"), "utf8");
+  const backendFirstRootWithInvoice = await readFile(join(backendFirstDir, 'mobigent.tsx'), 'utf8');
   assert.match(backendFirstRootWithInvoice, /expenseFunctions/);
   assert.match(backendFirstRootWithInvoice, /invoiceFunctions/);
   assert.match(
-    await readFile(join(backendFirstDir, "mobigent-functions", "invoice.ts"), "utf8"),
-    /export const invoiceFunctions = \{/
+    await readFile(join(backendFirstDir, 'mobigent-functions', 'invoice.ts'), 'utf8'),
+    /export const invoiceFunctions = \{/,
   );
   await rm(backendFirstDir, { force: true, recursive: true });
 
   assert.equal(
     runReactNativeInitCli(
-      ["--app-id", "com.mobigent.demo", "--app-name", "Demo App", "--feature", "bad-name", "--dry-run"],
+      [
+        '--app-id',
+        'com.mobigent.demo',
+        '--app-name',
+        'Demo App',
+        '--feature',
+        'bad-name',
+        '--dry-run',
+      ],
       { write: () => undefined } as NodeJS.WritableStream,
-      { write: () => undefined } as NodeJS.WritableStream
+      { write: () => undefined } as NodeJS.WritableStream,
     ),
-    1
+    1,
   );
 });
 
-test("React Native init CLI diagnoses local integration setup", async () => {
-  const dir = await mkdtemp(join(tmpdir(), "mobigent-rn-doctor-"));
+test('React Native init CLI diagnoses local integration setup', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'mobigent-rn-doctor-'));
   await writeFile(
-    join(dir, "package.json"),
+    join(dir, 'package.json'),
     JSON.stringify({
       dependencies: {
-        "@mobigent/react-native": "0.1.0",
-        "react-native": "0.74.0"
-      }
+        '@mobigent/react-native': '0.1.0',
+        'react-native': '0.74.0',
+      },
     }),
-    "utf8"
+    'utf8',
   );
   runReactNativeInitCli(
-    ["--app-id", "com.mobigent.demo", "--app-name", "Demo App", "--feature", "task", "--out-dir", dir],
+    [
+      '--app-id',
+      'com.mobigent.demo',
+      '--app-name',
+      'Demo App',
+      '--feature',
+      'task',
+      '--out-dir',
+      dir,
+    ],
     { write: () => undefined } as NodeJS.WritableStream,
-    { write: () => undefined } as NodeJS.WritableStream
+    { write: () => undefined } as NodeJS.WritableStream,
   );
 
   const report = createReactNativeDoctorReport({
-    appId: "com.mobigent.demo",
-    appName: "Demo App",
-    feature: "task",
+    appId: 'com.mobigent.demo',
+    appName: 'Demo App',
+    feature: 'task',
     appRoot: dir,
     outDir: dir,
-    gatewayUrl: "ws://localhost:8787",
+    gatewayUrl: 'ws://localhost:8787',
     dryRun: false,
     force: false,
     doctor: true,
     manifest: false,
-    contract: false
+    contract: false,
   });
 
-  assert.equal(report.status, "pass");
+  assert.equal(report.status, 'pass');
   assert.deepEqual(
     report.checks.map((check) => check.name),
-    ["app_identity", "feature_name", "gateway_url", "package_json", "root_file", "feature_file"]
+    ['app_identity', 'feature_name', 'gateway_url', 'package_json', 'root_file', 'feature_file'],
   );
-  assert.equal(report.checks.find((check) => check.name === "package_json")?.status, "pass");
+  assert.equal(report.checks.find((check) => check.name === 'package_json')?.status, 'pass');
 
-  let stdout = "";
+  let stdout = '';
   const code = runReactNativeInitCli(
     [
-      "--doctor",
-      "--app-id",
-      "com.mobigent.demo",
-      "--app-name",
-      "Demo App",
-      "--feature",
-      "task",
-      "--app-root",
+      '--doctor',
+      '--app-id',
+      'com.mobigent.demo',
+      '--app-name',
+      'Demo App',
+      '--feature',
+      'task',
+      '--app-root',
       dir,
-      "--out-dir",
+      '--out-dir',
       dir,
-      "--gateway-url",
-      "ws://localhost:8787"
+      '--gateway-url',
+      'ws://localhost:8787',
     ],
     { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
-    { write: () => undefined } as NodeJS.WritableStream
+    { write: () => undefined } as NodeJS.WritableStream,
   );
 
   assert.equal(code, 0);
@@ -2526,305 +2626,322 @@ test("React Native init CLI diagnoses local integration setup", async () => {
   assert.match(stdout, /PASS package_json/);
   assert.match(stdout, /PASS root_file/);
 
-  const missingDependencyDir = await mkdtemp(join(tmpdir(), "mobigent-rn-doctor-missing-dep-"));
-  await writeFile(join(missingDependencyDir, "package.json"), JSON.stringify({ dependencies: {} }), "utf8");
+  const missingDependencyDir = await mkdtemp(join(tmpdir(), 'mobigent-rn-doctor-missing-dep-'));
+  await writeFile(
+    join(missingDependencyDir, 'package.json'),
+    JSON.stringify({ dependencies: {} }),
+    'utf8',
+  );
   assert.equal(
     createReactNativeDoctorReport({
-      appId: "com.mobigent.demo",
-      appName: "Demo App",
-      feature: "task",
+      appId: 'com.mobigent.demo',
+      appName: 'Demo App',
+      feature: 'task',
       appRoot: missingDependencyDir,
       outDir: dir,
-      gatewayUrl: "ws://localhost:8787",
+      gatewayUrl: 'ws://localhost:8787',
       dryRun: false,
       force: false,
       doctor: true,
       manifest: false,
-      contract: false
+      contract: false,
     }).status,
-    "warn"
+    'warn',
   );
 
   assert.equal(
     createReactNativeDoctorReport({
-      appId: "",
-      appName: "",
-      feature: "bad-name",
+      appId: '',
+      appName: '',
+      feature: 'bad-name',
       outDir: dir,
-      gatewayUrl: "http://localhost:8788",
+      gatewayUrl: 'http://localhost:8788',
       dryRun: false,
       force: false,
       doctor: true,
       manifest: false,
-      contract: false
+      contract: false,
     }).status,
-    "fail"
+    'fail',
   );
 
   await rm(dir, { force: true, recursive: true });
   await rm(missingDependencyDir, { force: true, recursive: true });
 });
 
-test("React Native init CLI runs a security doctor and prints native platform action plans", () => {
+test('React Native init CLI runs a security doctor and prints native platform action plans', () => {
   const safeReport = createReactNativeSecurityDoctorReport({
-    appId: "com.mobigent.demo",
-    appName: "Demo App",
-    feature: "expense",
-    outDir: "src",
-    gatewayUrl: "wss://gateway.example.com",
+    appId: 'com.mobigent.demo',
+    appName: 'Demo App',
+    feature: 'expense',
+    outDir: 'src',
+    gatewayUrl: 'wss://gateway.example.com',
     dryRun: false,
     force: false,
     doctor: false,
     securityDoctor: true,
     customConfirmation: true,
     manifest: false,
-    contract: false
+    contract: false,
   });
 
-  assert.equal(safeReport.status, "pass");
+  assert.equal(safeReport.status, 'pass');
   assert.deepEqual(
     safeReport.checks.map((check) => check.name),
-    ["gateway_transport", "risky_action_confirmation", "host_approval_ui", "app_identity"]
+    ['gateway_transport', 'risky_action_confirmation', 'host_approval_ui', 'app_identity'],
   );
 
   const riskyReport = createReactNativeSecurityDoctorReport({
-    appId: "com.mobigent.demo",
-    appName: "Demo App",
-    feature: "expense",
-    outDir: "src",
-    gatewayUrl: "ws://gateway.example.com",
+    appId: 'com.mobigent.demo',
+    appName: 'Demo App',
+    feature: 'expense',
+    outDir: 'src',
+    gatewayUrl: 'ws://gateway.example.com',
     dryRun: false,
     force: false,
     doctor: false,
     securityDoctor: true,
     customConfirmation: false,
     manifest: false,
-    contract: false
+    contract: false,
   });
-  assert.equal(riskyReport.status, "fail");
+  assert.equal(riskyReport.status, 'fail');
 
-  let stdout = "";
+  let stdout = '';
   const securityCode = runReactNativeInitCli(
     [
-      "--security-doctor",
-      "--app-id",
-      "com.mobigent.demo",
-      "--app-name",
-      "Demo App",
-      "--feature",
-      "expense",
-      "--gateway-url",
-      "wss://gateway.example.com",
-      "--custom-confirmation"
+      '--security-doctor',
+      '--app-id',
+      'com.mobigent.demo',
+      '--app-name',
+      'Demo App',
+      '--feature',
+      'expense',
+      '--gateway-url',
+      'wss://gateway.example.com',
+      '--custom-confirmation',
     ],
     { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
-    { write: () => undefined } as NodeJS.WritableStream
+    { write: () => undefined } as NodeJS.WritableStream,
   );
   assert.equal(securityCode, 0);
   assert.match(stdout, /Mobigent security doctor: PASS/);
 
-  stdout = "";
+  stdout = '';
   const planCode = runReactNativeInitCli(
-    ["--platform-actions", "json", "--app-id", "com.mobigent.demo", "--app-name", "Demo App", "--feature", "expense"],
+    [
+      '--platform-actions',
+      'json',
+      '--app-id',
+      'com.mobigent.demo',
+      '--app-name',
+      'Demo App',
+      '--feature',
+      'expense',
+    ],
     { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
-    { write: () => undefined } as NodeJS.WritableStream
+    { write: () => undefined } as NodeJS.WritableStream,
   );
   assert.equal(planCode, 0);
   assert.match(stdout, /mobigent\.apple-app-intents\.plan/);
   assert.match(stdout, /mobigent\.android-app-actions\.plan/);
 });
 
-test("React Native init CLI prints a machine-readable integration manifest", () => {
+test('React Native init CLI prints a machine-readable integration manifest', () => {
   const manifestOptions = {
-    appId: "com.mobigent.demo",
-    appName: "Demo App",
-    appVersion: "1.2.3",
-    feature: "expense",
-    outDir: "src",
-    gatewayUrl: "wss://gateway.example.com:443",
+    appId: 'com.mobigent.demo',
+    appName: 'Demo App',
+    appVersion: '1.2.3',
+    feature: 'expense',
+    outDir: 'src',
+    gatewayUrl: 'wss://gateway.example.com:443',
     dryRun: false,
     force: false,
     doctor: false,
     manifest: true,
-    contract: false
+    contract: false,
   };
   const manifest = createReactNativeIntegrationManifest(manifestOptions);
 
-  assert.equal(manifest.kind, "mobigent.react-native.integration");
+  assert.equal(manifest.kind, 'mobigent.react-native.integration');
   assert.deepEqual(manifest.app, {
-    id: "com.mobigent.demo",
-    name: "Demo App",
-    version: "1.2.3"
+    id: 'com.mobigent.demo',
+    name: 'Demo App',
+    version: '1.2.3',
   });
-  assert.equal(manifest.gatewayUrl, "wss://gateway.example.com:443");
-  assert.deepEqual(manifest.capabilities.actions, ["expense_create"]);
-  assert.deepEqual(manifest.capabilities.resources, ["expense_list"]);
-  assert.deepEqual(manifest.capabilities.events, ["expense.created"]);
+  assert.equal(manifest.gatewayUrl, 'wss://gateway.example.com:443');
+  assert.deepEqual(manifest.capabilities.actions, ['expense_create']);
+  assert.deepEqual(manifest.capabilities.resources, ['expense_list']);
+  assert.deepEqual(manifest.capabilities.events, ['expense.created']);
   assert.deepEqual(manifest.modules, [
     {
-      id: "mobigent.expense",
-      name: "expense feature",
-      feature: "expense",
-      file: join("src", "mobigent-functions", "expense.ts"),
-      actions: ["expense_create"],
-      resources: ["expense_list"],
-      components: []
-    }
+      id: 'mobigent.expense',
+      name: 'expense feature',
+      feature: 'expense',
+      file: join('src', 'mobigent-functions', 'expense.ts'),
+      actions: ['expense_create'],
+      resources: ['expense_list'],
+      components: [],
+    },
   ]);
   assert.match(manifest.commands.generate, /mobigent app/);
   assert.doesNotMatch(manifest.commands.generate, /mobigent-rn-init|mobigent-init/);
   assert.match(
     createReactNativeIntegrationManifest({
       ...manifestOptions,
-      expo: true
+      expo: true,
     }).commands.generate,
-    /mobigent app/
+    /mobigent app/,
   );
   assert.match(manifest.commands.doctor, /--doctor/);
 
-  let stdout = "";
+  let stdout = '';
   const code = runReactNativeInitCli(
     [
-      "--manifest",
-      "--app-id",
-      "com.mobigent.demo",
-      "--app-name",
-      "Demo App",
-      "--feature",
-      "expense",
-      "--out-dir",
-      "src"
+      '--manifest',
+      '--app-id',
+      'com.mobigent.demo',
+      '--app-name',
+      'Demo App',
+      '--feature',
+      'expense',
+      '--out-dir',
+      'src',
     ],
     { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
-    { write: () => undefined } as NodeJS.WritableStream
+    { write: () => undefined } as NodeJS.WritableStream,
   );
   const parsed = JSON.parse(stdout) as ReturnType<typeof createReactNativeIntegrationManifest>;
 
   assert.equal(code, 0);
-  assert.equal(parsed.kind, "mobigent.react-native.integration");
-  assert.equal(parsed.files.root, join("src", "mobigent.tsx"));
-  assert.equal(parsed.capabilities.actions[0], "expense_create");
-  assert.equal(parsed.modules[0]?.id, "mobigent.expense");
+  assert.equal(parsed.kind, 'mobigent.react-native.integration');
+  assert.equal(parsed.files.root, join('src', 'mobigent.tsx'));
+  assert.equal(parsed.capabilities.actions[0], 'expense_create');
+  assert.equal(parsed.modules[0]?.id, 'mobigent.expense');
 });
 
-test("React Native init CLI writes integration manifests for app onboarding", async () => {
-  const dir = await mkdtemp(join(tmpdir(), "mobigent-rn-write-manifest-"));
-  const manifestPath = join(dir, "mobigent-integration.json");
+test('React Native init CLI writes integration manifests for app onboarding', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'mobigent-rn-write-manifest-'));
+  const manifestPath = join(dir, 'mobigent-integration.json');
 
-  let stdout = "";
+  let stdout = '';
   const writeCode = runReactNativeInitCli(
     [
-      "--write-manifest",
+      '--write-manifest',
       manifestPath,
-      "--app-id",
-      "com.mobigent.demo",
-      "--app-name",
-      "Demo App",
-      "--app-version",
-      "1.2.3",
-      "--feature",
-      "expense",
-      "--out-dir",
-      "src",
-      "--gateway-url",
-      "wss://gateway.example.com:443"
+      '--app-id',
+      'com.mobigent.demo',
+      '--app-name',
+      'Demo App',
+      '--app-version',
+      '1.2.3',
+      '--feature',
+      'expense',
+      '--out-dir',
+      'src',
+      '--gateway-url',
+      'wss://gateway.example.com:443',
     ],
     { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
-    { write: () => undefined } as NodeJS.WritableStream
+    { write: () => undefined } as NodeJS.WritableStream,
   );
-  const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as ReturnType<
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf8')) as ReturnType<
     typeof createReactNativeIntegrationManifest
   >;
 
   assert.equal(writeCode, 0);
   assert.match(stdout, /Created Mobigent integration manifest/);
-  assert.equal(manifest.kind, "mobigent.react-native.integration");
-  assert.equal(manifest.app.version, "1.2.3");
-  assert.equal(manifest.gatewayUrl, "wss://gateway.example.com:443");
-  assert.deepEqual(manifest.capabilities.actions, ["expense_create"]);
+  assert.equal(manifest.kind, 'mobigent.react-native.integration');
+  assert.equal(manifest.app.version, '1.2.3');
+  assert.equal(manifest.gatewayUrl, 'wss://gateway.example.com:443');
+  assert.deepEqual(manifest.capabilities.actions, ['expense_create']);
 
   assert.equal(
     runReactNativeInitCli(
       [
-        "--write-manifest",
+        '--write-manifest',
         manifestPath,
-        "--app-id",
-        "com.mobigent.demo",
-        "--app-name",
-        "Demo App",
-        "--feature",
-        "expense"
+        '--app-id',
+        'com.mobigent.demo',
+        '--app-name',
+        'Demo App',
+        '--feature',
+        'expense',
       ],
       { write: () => undefined } as NodeJS.WritableStream,
-      { write: () => undefined } as NodeJS.WritableStream
+      { write: () => undefined } as NodeJS.WritableStream,
     ),
-    1
+    1,
   );
 
   assert.equal(
     runReactNativeInitCli(
       [
-        "--write-manifest",
+        '--write-manifest',
         manifestPath,
-        "--app-id",
-        "com.mobigent.demo",
-        "--app-name",
-        "Demo App",
-        "--feature",
-        "expense",
-        "--force"
+        '--app-id',
+        'com.mobigent.demo',
+        '--app-name',
+        'Demo App',
+        '--feature',
+        'expense',
+        '--force',
       ],
       { write: () => undefined } as NodeJS.WritableStream,
-      { write: () => undefined } as NodeJS.WritableStream
+      { write: () => undefined } as NodeJS.WritableStream,
     ),
-    0
+    0,
   );
 
   await rm(dir, { force: true, recursive: true });
 });
 
-test("React Native init CLI validates saved integration manifests", async () => {
-  const dir = await mkdtemp(join(tmpdir(), "mobigent-rn-manifest-"));
-  const validPath = join(dir, "valid-integration.json");
-  const invalidPath = join(dir, "invalid-integration.json");
+test('React Native init CLI validates saved integration manifests', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'mobigent-rn-manifest-'));
+  const validPath = join(dir, 'valid-integration.json');
+  const invalidPath = join(dir, 'invalid-integration.json');
   const manifest = createReactNativeIntegrationManifest({
-    appId: "com.mobigent.demo",
-    appName: "Demo App",
-    feature: "expense",
-    outDir: "src",
-    gatewayUrl: "ws://localhost:8787",
+    appId: 'com.mobigent.demo',
+    appName: 'Demo App',
+    feature: 'expense',
+    outDir: 'src',
+    gatewayUrl: 'ws://localhost:8787',
     dryRun: false,
     force: false,
     doctor: false,
     manifest: true,
-    contract: false
+    contract: false,
   });
 
-  await writeFile(validPath, JSON.stringify(manifest), "utf8");
-  await writeFile(invalidPath, JSON.stringify({ ...manifest, kind: "wrong", gatewayUrl: "http://localhost" }), "utf8");
+  await writeFile(validPath, JSON.stringify(manifest), 'utf8');
+  await writeFile(
+    invalidPath,
+    JSON.stringify({ ...manifest, kind: 'wrong', gatewayUrl: 'http://localhost' }),
+    'utf8',
+  );
 
   assert.deepEqual(validateReactNativeIntegrationManifestFile(validPath), {
-    status: "pass",
+    status: 'pass',
     path: validPath,
-    errors: []
+    errors: [],
   });
-  assert.equal(validateReactNativeIntegrationManifestFile(invalidPath).status, "fail");
+  assert.equal(validateReactNativeIntegrationManifestFile(invalidPath).status, 'fail');
 
-  let stdout = "";
+  let stdout = '';
   const validCode = runReactNativeInitCli(
-    ["--validate-manifest", validPath],
+    ['--validate-manifest', validPath],
     { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
-    { write: () => undefined } as NodeJS.WritableStream
+    { write: () => undefined } as NodeJS.WritableStream,
   );
 
   assert.equal(validCode, 0);
   assert.match(stdout, /Mobigent React Native integration manifest: PASS/);
 
-  stdout = "";
+  stdout = '';
   const invalidCode = runReactNativeInitCli(
-    ["--validate-manifest", invalidPath],
+    ['--validate-manifest', invalidPath],
     { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
-    { write: () => undefined } as NodeJS.WritableStream
+    { write: () => undefined } as NodeJS.WritableStream,
   );
 
   assert.equal(invalidCode, 1);
@@ -2834,169 +2951,173 @@ test("React Native init CLI validates saved integration manifests", async () => 
   await rm(dir, { force: true, recursive: true });
 });
 
-test("React Native init CLI prints a protocol-native capability contract", () => {
+test('React Native init CLI prints a protocol-native capability contract', () => {
   const contract = createReactNativeCapabilityContract({
-    appId: "com.mobigent.demo",
-    appName: "Demo App",
-    appVersion: "1.2.3",
-    feature: "expense",
-    outDir: "src",
+    appId: 'com.mobigent.demo',
+    appName: 'Demo App',
+    appVersion: '1.2.3',
+    feature: 'expense',
+    outDir: 'src',
     dryRun: false,
     force: false,
     doctor: false,
     manifest: false,
-    contract: true
+    contract: true,
   });
 
-  assert.equal(contract.kind, "mobigent.react-native.capability-contract");
-  assert.equal(contract.sdk, "react-native");
-  assert.equal(contract.version, "1.2.3");
+  assert.equal(contract.kind, 'mobigent.react-native.capability-contract');
+  assert.equal(contract.sdk, 'react-native');
+  assert.equal(contract.version, '1.2.3');
   assert.deepEqual(
     contract.actions.map((action) => action.name),
-    ["expense_create"]
+    ['expense_create'],
   );
   assert.deepEqual(
     contract.resources.map((resource) => resource.name),
-    ["expense_list"]
+    ['expense_list'],
   );
   assert.deepEqual(validateCapabilityManifest(contract), { ok: true });
 
-  let stdout = "";
+  let stdout = '';
   const code = runReactNativeInitCli(
     [
-      "--contract",
-      "--app-id",
-      "com.mobigent.demo",
-      "--app-name",
-      "Demo App",
-      "--app-version",
-      "1.2.3",
-      "--feature",
-      "expense"
+      '--contract',
+      '--app-id',
+      'com.mobigent.demo',
+      '--app-name',
+      'Demo App',
+      '--app-version',
+      '1.2.3',
+      '--feature',
+      'expense',
     ],
     { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
-    { write: () => undefined } as NodeJS.WritableStream
+    { write: () => undefined } as NodeJS.WritableStream,
   );
   const parsed = JSON.parse(stdout) as ReturnType<typeof createReactNativeCapabilityContract>;
 
   assert.equal(code, 0);
-  assert.equal(parsed.kind, "mobigent.react-native.capability-contract");
-  assert.equal(parsed.actions[0].inputSchema.properties?.title.type, "string");
+  assert.equal(parsed.kind, 'mobigent.react-native.capability-contract');
+  assert.equal(parsed.actions[0].inputSchema.properties?.title.type, 'string');
   assert.equal(parsed.resources[0].policy?.readOnly, true);
 });
 
-test("React Native init CLI writes capability contracts for CI validation", async () => {
-  const dir = await mkdtemp(join(tmpdir(), "mobigent-rn-write-contract-"));
-  const contractPath = join(dir, "contracts", "mobigent-contract.json");
+test('React Native init CLI writes capability contracts for CI validation', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'mobigent-rn-write-contract-'));
+  const contractPath = join(dir, 'contracts', 'mobigent-contract.json');
 
-  let stdout = "";
+  let stdout = '';
   const writeCode = runReactNativeInitCli(
     [
-      "--write-contract",
+      '--write-contract',
       contractPath,
-      "--app-id",
-      "com.mobigent.demo",
-      "--app-name",
-      "Demo App",
-      "--app-version",
-      "1.2.3",
-      "--feature",
-      "expense"
+      '--app-id',
+      'com.mobigent.demo',
+      '--app-name',
+      'Demo App',
+      '--app-version',
+      '1.2.3',
+      '--feature',
+      'expense',
     ],
     { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
-    { write: () => undefined } as NodeJS.WritableStream
+    { write: () => undefined } as NodeJS.WritableStream,
   );
-  const contract = JSON.parse(await readFile(contractPath, "utf8")) as ReturnType<
+  const contract = JSON.parse(await readFile(contractPath, 'utf8')) as ReturnType<
     typeof createReactNativeCapabilityContract
   >;
 
   assert.equal(writeCode, 0);
   assert.match(stdout, /Created Mobigent capability contract/);
-  assert.equal(contract.kind, "mobigent.react-native.capability-contract");
-  assert.equal(contract.version, "1.2.3");
+  assert.equal(contract.kind, 'mobigent.react-native.capability-contract');
+  assert.equal(contract.version, '1.2.3');
   assert.deepEqual(validateReactNativeCapabilityContractFile(contractPath), {
-    status: "pass",
+    status: 'pass',
     path: contractPath,
-    errors: []
+    errors: [],
   });
 
   const duplicateCode = runReactNativeInitCli(
     [
-      "--write-contract",
+      '--write-contract',
       contractPath,
-      "--app-id",
-      "com.mobigent.demo",
-      "--app-name",
-      "Demo App",
-      "--feature",
-      "expense"
+      '--app-id',
+      'com.mobigent.demo',
+      '--app-name',
+      'Demo App',
+      '--feature',
+      'expense',
     ],
     { write: () => undefined } as NodeJS.WritableStream,
-    { write: () => undefined } as NodeJS.WritableStream
+    { write: () => undefined } as NodeJS.WritableStream,
   );
   assert.equal(duplicateCode, 1);
 
   const forceCode = runReactNativeInitCli(
     [
-      "--write-contract",
+      '--write-contract',
       contractPath,
-      "--app-id",
-      "com.mobigent.demo",
-      "--app-name",
-      "Demo App",
-      "--feature",
-      "expense",
-      "--force"
+      '--app-id',
+      'com.mobigent.demo',
+      '--app-name',
+      'Demo App',
+      '--feature',
+      'expense',
+      '--force',
     ],
     { write: () => undefined } as NodeJS.WritableStream,
-    { write: () => undefined } as NodeJS.WritableStream
+    { write: () => undefined } as NodeJS.WritableStream,
   );
   assert.equal(forceCode, 0);
 
   await rm(dir, { force: true, recursive: true });
 });
 
-test("React Native init CLI validates saved capability contracts", async () => {
-  const dir = await mkdtemp(join(tmpdir(), "mobigent-rn-contract-"));
-  const validPath = join(dir, "valid-contract.json");
-  const invalidPath = join(dir, "invalid-contract.json");
+test('React Native init CLI validates saved capability contracts', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'mobigent-rn-contract-'));
+  const validPath = join(dir, 'valid-contract.json');
+  const invalidPath = join(dir, 'invalid-contract.json');
   const contract = createReactNativeCapabilityContract({
-    appId: "com.mobigent.demo",
-    appName: "Demo App",
-    feature: "expense",
-    outDir: "src",
+    appId: 'com.mobigent.demo',
+    appName: 'Demo App',
+    feature: 'expense',
+    outDir: 'src',
     dryRun: false,
     force: false,
     doctor: false,
     manifest: false,
-    contract: true
+    contract: true,
   });
 
-  await writeFile(validPath, JSON.stringify(contract), "utf8");
-  await writeFile(invalidPath, JSON.stringify({ ...contract, actions: [{ name: "broken" }] }), "utf8");
+  await writeFile(validPath, JSON.stringify(contract), 'utf8');
+  await writeFile(
+    invalidPath,
+    JSON.stringify({ ...contract, actions: [{ name: 'broken' }] }),
+    'utf8',
+  );
 
   assert.deepEqual(validateReactNativeCapabilityContractFile(validPath), {
-    status: "pass",
+    status: 'pass',
     path: validPath,
-    errors: []
+    errors: [],
   });
-  assert.equal(validateReactNativeCapabilityContractFile(invalidPath).status, "fail");
+  assert.equal(validateReactNativeCapabilityContractFile(invalidPath).status, 'fail');
 
-  let stdout = "";
+  let stdout = '';
   const validCode = runReactNativeInitCli(
-    ["--validate-contract", validPath],
+    ['--validate-contract', validPath],
     { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
-    { write: () => undefined } as NodeJS.WritableStream
+    { write: () => undefined } as NodeJS.WritableStream,
   );
 
   assert.equal(validCode, 0);
   assert.match(stdout, /Mobigent React Native contract: PASS/);
 
-  stdout = "";
+  stdout = '';
   const invalidCode = runReactNativeInitCli(
-    ["--validate-contract", invalidPath],
+    ['--validate-contract', invalidPath],
     { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
-    { write: () => undefined } as NodeJS.WritableStream
+    { write: () => undefined } as NodeJS.WritableStream,
   );
 
   assert.equal(invalidCode, 1);
@@ -3006,90 +3127,99 @@ test("React Native init CLI validates saved capability contracts", async () => {
   await rm(dir, { force: true, recursive: true });
 });
 
-test("React Native schema helpers create JSON schema definitions", () => {
+test('React Native schema helpers create JSON schema definitions', () => {
   assert.deepEqual(
     schema.object(
       {
-        merchant: schema.string({ description: "Merchant name." }),
+        merchant: schema.string({ description: 'Merchant name.' }),
         amount: schema.number(),
         guests: schema.integer(),
         reimbursable: schema.boolean(),
-        category: schema.enum(["travel", "meals"]),
-        kind: schema.literal("expense"),
+        category: schema.enum(['travel', 'meals']),
+        kind: schema.literal('expense'),
         note: schema.nullable(schema.string()),
-        tags: schema.array(schema.string())
+        tags: schema.array(schema.string()),
       },
-      { required: "all" }
+      { required: 'all' },
     ),
     {
-      type: "object",
+      type: 'object',
       properties: {
-        merchant: { type: "string", description: "Merchant name." },
-        amount: { type: "number" },
-        guests: { type: "integer" },
-        reimbursable: { type: "boolean" },
-        category: { type: "string", enum: ["travel", "meals"] },
-        kind: { type: "string", enum: ["expense"] },
-        note: { type: ["string", "null"] },
-        tags: { type: "array", items: { type: "string" } }
+        merchant: { type: 'string', description: 'Merchant name.' },
+        amount: { type: 'number' },
+        guests: { type: 'integer' },
+        reimbursable: { type: 'boolean' },
+        category: { type: 'string', enum: ['travel', 'meals'] },
+        kind: { type: 'string', enum: ['expense'] },
+        note: { type: ['string', 'null'] },
+        tags: { type: 'array', items: { type: 'string' } },
       },
-      required: ["merchant", "amount", "guests", "reimbursable", "category", "kind", "note", "tags"]
-    }
+      required: [
+        'merchant',
+        'amount',
+        'guests',
+        'reimbursable',
+        'category',
+        'kind',
+        'note',
+        'tags',
+      ],
+    },
   );
-  assert.deepEqual(integerSchema(), { type: "integer" });
-  assert.deepEqual(literalSchema("ready"), { type: "string", enum: ["ready"] });
-  assert.deepEqual(nullableSchema(schema.number(), { description: "Optional amount." }), {
-    type: ["number", "null"],
-    description: "Optional amount."
+  assert.deepEqual(integerSchema(), { type: 'integer' });
+  assert.deepEqual(literalSchema('ready'), { type: 'string', enum: ['ready'] });
+  assert.deepEqual(nullableSchema(schema.number(), { description: 'Optional amount.' }), {
+    type: ['number', 'null'],
+    description: 'Optional amount.',
   });
   assert.deepEqual(validateJsonSchema(schema.nullable(schema.string()), null), { ok: true });
-  assert.deepEqual(validateJsonSchema(schema.nullable(schema.string()), "hello"), { ok: true });
+  assert.deepEqual(validateJsonSchema(schema.nullable(schema.string()), 'hello'), { ok: true });
   assert.deepEqual(validateJsonSchema(schema.nullable(schema.string()), 10), {
     ok: false,
-    errors: ["$ must be string or null"]
+    errors: ['$ must be string or null'],
   });
-  assert.deepEqual(objectSchema({ id: schema.string() }, { required: ["id"] }), {
-    type: "object",
+  assert.deepEqual(objectSchema({ id: schema.string() }, { required: ['id'] }), {
+    type: 'object',
     properties: {
-      id: { type: "string" }
+      id: { type: 'string' },
     },
-    required: ["id"]
+    required: ['id'],
   });
 });
 
-test("React Native schema adapters and platform action generators keep manifest parity", () => {
-  assert.deepEqual(fromTypeBox({ type: "string" }), { type: "string" });
+test('React Native schema adapters and platform action generators keep manifest parity', () => {
+  assert.deepEqual(fromTypeBox({ type: 'string' }), { type: 'string' });
   assert.deepEqual(fromZod(z.object({ merchant: z.string(), amount: z.number() })), {
-    type: "object",
+    type: 'object',
     properties: {
-      merchant: { type: "string" },
-      amount: { type: "number" }
+      merchant: { type: 'string' },
+      amount: { type: 'number' },
     },
-    required: ["merchant", "amount"],
-    additionalProperties: false
+    required: ['merchant', 'amount'],
+    additionalProperties: false,
   });
 
   const contract = createReactNativeCapabilityContract({
-    appId: "com.mobigent.demo",
-    appName: "Demo App",
-    feature: "expense",
-    outDir: "src",
+    appId: 'com.mobigent.demo',
+    appName: 'Demo App',
+    feature: 'expense',
+    outDir: 'src',
     dryRun: false,
     force: false,
     doctor: false,
     manifest: false,
-    contract: true
+    contract: true,
   });
   const ios = createAppleAppIntentsPlan(contract);
   const android = createAndroidAppActionsPlan(contract);
 
-  assert.equal(ios.intents[0]?.swiftTypeName, "ExpenseCreateIntent");
-  assert.equal(android.actions[0]?.deepLink, "mobigent://com.mobigent.demo/actions/expense_create");
+  assert.equal(ios.intents[0]?.swiftTypeName, 'ExpenseCreateIntent');
+  assert.equal(android.actions[0]?.deepLink, 'mobigent://com.mobigent.demo/actions/expense_create');
   assert.match(renderAppleAppIntentsSwift(ios), /struct ExpenseCreateIntent: AppIntent/);
   assert.match(renderAndroidAppActionsXml(android), /actions.intent.EXPENSE_CREATE/);
 });
 
-test("confirmation controller pauses action calls until approved", async () => {
+test('confirmation controller pauses action calls until approved', async () => {
   const port = 18_788;
   const gateway = new BridgeGateway(port);
   const bridge = new Mobigent();
@@ -3098,34 +3228,34 @@ test("confirmation controller pauses action calls until approved", async () => {
   gateway.start();
 
   bridge.configure({
-    appId: "com.mobigent.confirmation",
-    appName: "Mobigent Confirmation",
+    appId: 'com.mobigent.confirmation',
+    appName: 'Mobigent Confirmation',
     gatewayUrl: `ws://localhost:${port}`,
     createSocket: createNodeSocket,
-    confirmationController: confirmation
+    confirmationController: confirmation,
   });
 
   bridge.registerAction({
-    name: "dangerous_action",
-    description: "A consequential action.",
+    name: 'dangerous_action',
+    description: 'A consequential action.',
     inputSchema: {
-      type: "object",
-      properties: {}
+      type: 'object',
+      properties: {},
     },
     confirmation: {
       required: true,
-      risk: "high"
+      risk: 'high',
     },
-    handler: async () => ({ completed: true })
+    handler: async () => ({ completed: true }),
   });
 
   try {
     await bridge.connect();
     await delay(50);
 
-    const pending = gateway.callTool("com_mobigent_confirmation.dangerous_action", {});
+    const pending = gateway.callTool('com_mobigent_confirmation.dangerous_action', {});
     await delay(20);
-    assert.equal(confirmation.getCurrent()?.action.name, "dangerous_action");
+    assert.equal(confirmation.getCurrent()?.action.name, 'dangerous_action');
 
     confirmation.approve();
     assert.deepEqual(await pending, { completed: true });
@@ -3135,9 +3265,9 @@ test("confirmation controller pauses action calls until approved", async () => {
   }
 });
 
-test("gateway only accepts app sessions with matching auth token", async () => {
+test('gateway only accepts app sessions with matching auth token', async () => {
   const port = 18_797;
-  const gateway = new BridgeGateway({ port, authToken: "secret" });
+  const gateway = new BridgeGateway({ port, authToken: 'secret' });
   const rejectedBridge = new Mobigent();
   const acceptedBridge = new Mobigent();
 
@@ -3145,33 +3275,33 @@ test("gateway only accepts app sessions with matching auth token", async () => {
   await delay(20);
 
   rejectedBridge.configure({
-    appId: "com.mobigent.rejected",
-    appName: "Rejected",
+    appId: 'com.mobigent.rejected',
+    appName: 'Rejected',
     gatewayUrl: `ws://localhost:${port}`,
     createSocket: createNodeSocket,
-    authToken: "wrong"
+    authToken: 'wrong',
   });
 
   acceptedBridge.configure({
-    appId: "com.mobigent.accepted",
-    appName: "Accepted",
+    appId: 'com.mobigent.accepted',
+    appName: 'Accepted',
     gatewayUrl: `ws://localhost:${port}`,
     createSocket: createNodeSocket,
-    authToken: "secret"
+    authToken: 'secret',
   });
 
   rejectedBridge.registerAction({
-    name: "bad_action",
-    description: "Should not be exposed.",
-    inputSchema: { type: "object", properties: {} },
-    handler: async () => ({ ok: false })
+    name: 'bad_action',
+    description: 'Should not be exposed.',
+    inputSchema: { type: 'object', properties: {} },
+    handler: async () => ({ ok: false }),
   });
 
   acceptedBridge.registerAction({
-    name: "good_action",
-    description: "Should be exposed.",
-    inputSchema: { type: "object", properties: {} },
-    handler: async () => ({ ok: true })
+    name: 'good_action',
+    description: 'Should be exposed.',
+    inputSchema: { type: 'object', properties: {} },
+    handler: async () => ({ ok: true }),
   });
 
   try {
@@ -3180,7 +3310,7 @@ test("gateway only accepts app sessions with matching auth token", async () => {
 
     assert.deepEqual(
       gateway.listTools().map((tool) => tool.name),
-      ["com_mobigent_accepted.good_action"]
+      ['com_mobigent_accepted.good_action'],
     );
 
     await rejectedBridge.connect();
@@ -3188,7 +3318,7 @@ test("gateway only accepts app sessions with matching auth token", async () => {
 
     assert.deepEqual(
       gateway.listTools().map((tool) => tool.name),
-      ["com_mobigent_accepted.good_action"]
+      ['com_mobigent_accepted.good_action'],
     );
   } finally {
     rejectedBridge.disconnect();
@@ -3197,9 +3327,9 @@ test("gateway only accepts app sessions with matching auth token", async () => {
   }
 });
 
-test("gateway can restrict app sessions by app id", async () => {
+test('gateway can restrict app sessions by app id', async () => {
   const port = 18_820;
-  const gateway = new BridgeGateway({ port, allowedAppIds: ["com.mobigent.allowed"] });
+  const gateway = new BridgeGateway({ port, allowedAppIds: ['com.mobigent.allowed'] });
   const rejectedBridge = new Mobigent();
   const allowedBridge = new Mobigent();
   const auditTypes: string[] = [];
@@ -3208,43 +3338,43 @@ test("gateway can restrict app sessions by app id", async () => {
   gateway.start();
 
   rejectedBridge.configure({
-    appId: "com.mobigent.rejected",
-    appName: "Rejected App",
+    appId: 'com.mobigent.rejected',
+    appName: 'Rejected App',
     gatewayUrl: `ws://localhost:${port}`,
-    createSocket: createNodeSocket
+    createSocket: createNodeSocket,
   });
   rejectedBridge.registerAction({
-    name: "rejected_action",
-    description: "Should not be exposed.",
-    inputSchema: { type: "object", properties: {} },
-    handler: async () => ({ ok: true })
+    name: 'rejected_action',
+    description: 'Should not be exposed.',
+    inputSchema: { type: 'object', properties: {} },
+    handler: async () => ({ ok: true }),
   });
 
   allowedBridge.configure({
-    appId: "com.mobigent.allowed",
-    appName: "Allowed App",
+    appId: 'com.mobigent.allowed',
+    appName: 'Allowed App',
     gatewayUrl: `ws://localhost:${port}`,
-    createSocket: createNodeSocket
+    createSocket: createNodeSocket,
   });
   allowedBridge.registerAction({
-    name: "allowed_action",
-    description: "Should be exposed.",
-    inputSchema: { type: "object", properties: {} },
-    handler: async () => ({ ok: true })
+    name: 'allowed_action',
+    description: 'Should be exposed.',
+    inputSchema: { type: 'object', properties: {} },
+    handler: async () => ({ ok: true }),
   });
 
   try {
     await rejectedBridge.connect();
     await delay(80);
     assert.deepEqual(gateway.listTools(), []);
-    assert.ok(auditTypes.includes("app.rejected"));
+    assert.ok(auditTypes.includes('app.rejected'));
     assert.equal(gateway.getStatus().appAllowlistEnabled, true);
 
     await allowedBridge.connect();
     await delay(50);
     assert.deepEqual(
       gateway.listTools().map((tool) => tool.name),
-      ["com_mobigent_allowed.allowed_action"]
+      ['com_mobigent_allowed.allowed_action'],
     );
   } finally {
     rejectedBridge.disconnect();
@@ -3253,9 +3383,9 @@ test("gateway can restrict app sessions by app id", async () => {
   }
 });
 
-test("gateway can require signed capability manifests", async () => {
+test('gateway can require signed capability manifests', async () => {
   const port = 18_817;
-  const secret = "manifest-secret";
+  const secret = 'manifest-secret';
   const gateway = new BridgeGateway({ port, manifestSigningSecret: secret });
   const unsignedBridge = new Mobigent();
   const signedBridge = new Mobigent();
@@ -3265,46 +3395,46 @@ test("gateway can require signed capability manifests", async () => {
   gateway.start();
 
   unsignedBridge.configure({
-    appId: "com.mobigent.unsigned",
-    appName: "Unsigned App",
+    appId: 'com.mobigent.unsigned',
+    appName: 'Unsigned App',
     gatewayUrl: `ws://localhost:${port}`,
-    createSocket: createNodeSocket
+    createSocket: createNodeSocket,
   });
   unsignedBridge.registerAction({
-    name: "unsigned_action",
-    description: "Should not be exposed.",
-    inputSchema: { type: "object", properties: {} },
-    handler: async () => ({ ok: true })
+    name: 'unsigned_action',
+    description: 'Should not be exposed.',
+    inputSchema: { type: 'object', properties: {} },
+    handler: async () => ({ ok: true }),
   });
 
   signedBridge.configure({
-    appId: "com.mobigent.signed",
-    appName: "Signed App",
+    appId: 'com.mobigent.signed',
+    appName: 'Signed App',
     gatewayUrl: `ws://localhost:${port}`,
     createSocket: createNodeSocket,
-    signManifest: (manifest) => signManifest(manifest, secret)
+    signManifest: (manifest) => signManifest(manifest, secret),
   });
   signedBridge.registerAction({
-    name: "signed_action",
-    description: "Should be exposed.",
-    inputSchema: { type: "object", properties: {} },
-    handler: async () => ({ ok: true })
+    name: 'signed_action',
+    description: 'Should be exposed.',
+    inputSchema: { type: 'object', properties: {} },
+    handler: async () => ({ ok: true }),
   });
 
   try {
     await unsignedBridge.connect();
     await delay(50);
     assert.deepEqual(gateway.listTools(), []);
-    assert.ok(auditTypes.includes("manifest.rejected"));
+    assert.ok(auditTypes.includes('manifest.rejected'));
 
     await signedBridge.connect();
     await delay(50);
     assert.deepEqual(
       gateway.listTools().map((tool) => tool.name),
-      ["com_mobigent_signed.signed_action"]
+      ['com_mobigent_signed.signed_action'],
     );
-    assert.deepEqual(await gateway.callTool("com_mobigent_signed.signed_action", {}), {
-      ok: true
+    assert.deepEqual(await gateway.callTool('com_mobigent_signed.signed_action', {}), {
+      ok: true,
     });
   } finally {
     unsignedBridge.disconnect();
@@ -3313,7 +3443,7 @@ test("gateway can require signed capability manifests", async () => {
   }
 });
 
-test("gateway rejects malformed capability manifests before registration", async () => {
+test('gateway rejects malformed capability manifests before registration', async () => {
   const port = 18_838;
   const gateway = new BridgeGateway(port);
   let socket: WebSocket | undefined;
@@ -3323,54 +3453,54 @@ test("gateway rejects malformed capability manifests before registration", async
   try {
     socket = new WebSocket(`ws://localhost:${port}`);
     await new Promise<void>((resolve, reject) => {
-      socket?.once("open", resolve);
-      socket?.once("error", reject);
+      socket?.once('open', resolve);
+      socket?.once('error', reject);
     });
 
     socket.send(
       JSON.stringify({
-        type: "hello",
-        appId: "com.mobigent.malformed",
-        appName: "Malformed App",
-        sdk: "react-native",
-        version: "0.1.0",
-        protocolVersion: 1
-      })
+        type: 'hello',
+        appId: 'com.mobigent.malformed',
+        appName: 'Malformed App',
+        sdk: 'react-native',
+        version: '0.1.0',
+        protocolVersion: 1,
+      }),
     );
     socket.send(
       JSON.stringify({
-        type: "manifest",
+        type: 'manifest',
         manifest: {
-          appId: "com.mobigent.malformed",
-          appName: "Malformed App",
-          sdk: "react-native",
-          version: "0.1.0",
+          appId: 'com.mobigent.malformed',
+          appName: 'Malformed App',
+          sdk: 'react-native',
+          version: '0.1.0',
           protocolVersion: 1,
           actions: [
             {
-              name: "broken_action",
-              description: "Missing input schema."
-            }
+              name: 'broken_action',
+              description: 'Missing input schema.',
+            },
           ],
-          resources: "not-an-array",
-          components: []
-        }
-      })
+          resources: 'not-an-array',
+          components: [],
+        },
+      }),
     );
 
     await delay(50);
     assert.deepEqual(gateway.listTools(), []);
-    const rejected = gateway.getAuditLog().find((event) => event.type === "manifest.rejected");
-    assert.equal(rejected?.details?.reason, "invalid_manifest");
+    const rejected = gateway.getAuditLog().find((event) => event.type === 'manifest.rejected');
+    assert.equal(rejected?.details?.reason, 'invalid_manifest');
     assert.ok(
       ((rejected?.details?.errors as string[] | undefined) ?? []).some((error) =>
-        error.includes("$.actions[0].inputSchema")
-      )
+        error.includes('$.actions[0].inputSchema'),
+      ),
     );
     assert.ok(
       ((rejected?.details?.errors as string[] | undefined) ?? []).some((error) =>
-        error.includes("$.resources must be an array")
-      )
+        error.includes('$.resources must be an array'),
+      ),
     );
   } finally {
     socket?.close();
@@ -3378,7 +3508,7 @@ test("gateway rejects malformed capability manifests before registration", async
   }
 });
 
-test("gateway rejects manifests with duplicate internal tool names", async () => {
+test('gateway rejects manifests with duplicate internal tool names', async () => {
   const port = 18_839;
   const gateway = new BridgeGateway(port);
   let socket: WebSocket | undefined;
@@ -3388,55 +3518,55 @@ test("gateway rejects manifests with duplicate internal tool names", async () =>
   try {
     socket = new WebSocket(`ws://localhost:${port}`);
     await new Promise<void>((resolve, reject) => {
-      socket?.once("open", resolve);
-      socket?.once("error", reject);
+      socket?.once('open', resolve);
+      socket?.once('error', reject);
     });
 
     socket.send(
       JSON.stringify({
-        type: "hello",
-        appId: "com.mobigent.internal_duplicate",
-        appName: "Internal Duplicate App",
-        sdk: "react-native",
-        version: "0.1.0",
-        protocolVersion: 1
-      })
+        type: 'hello',
+        appId: 'com.mobigent.internal_duplicate',
+        appName: 'Internal Duplicate App',
+        sdk: 'react-native',
+        version: '0.1.0',
+        protocolVersion: 1,
+      }),
     );
     socket.send(
       JSON.stringify({
-        type: "manifest",
+        type: 'manifest',
         manifest: {
-          appId: "com.mobigent.internal_duplicate",
-          appName: "Internal Duplicate App",
-          sdk: "react-native",
-          version: "0.1.0",
+          appId: 'com.mobigent.internal_duplicate',
+          appName: 'Internal Duplicate App',
+          sdk: 'react-native',
+          version: '0.1.0',
           protocolVersion: 1,
           actions: [
             {
-              name: "get_profile",
-              description: "Action that collides with a resource tool.",
-              inputSchema: { type: "object", properties: {} }
-            }
+              name: 'get_profile',
+              description: 'Action that collides with a resource tool.',
+              inputSchema: { type: 'object', properties: {} },
+            },
           ],
           resources: [
             {
-              name: "profile",
-              description: "Profile resource."
-            }
+              name: 'profile',
+              description: 'Profile resource.',
+            },
           ],
-          components: []
-        }
-      })
+          components: [],
+        },
+      }),
     );
 
     await delay(50);
     assert.deepEqual(gateway.listTools(), []);
-    const rejected = gateway.getAuditLog().find((event) => event.type === "manifest.rejected");
-    assert.equal(rejected?.details?.reason, "invalid_manifest");
+    const rejected = gateway.getAuditLog().find((event) => event.type === 'manifest.rejected');
+    assert.equal(rejected?.details?.reason, 'invalid_manifest');
     assert.ok(
       ((rejected?.details?.errors as string[] | undefined) ?? []).some((error) =>
-        error.includes("duplicate tool name com_mobigent_internal_duplicate.get_profile")
-      )
+        error.includes('duplicate tool name com_mobigent_internal_duplicate.get_profile'),
+      ),
     );
   } finally {
     socket?.close();
@@ -3444,7 +3574,7 @@ test("gateway rejects manifests with duplicate internal tool names", async () =>
   }
 });
 
-test("gateway rejects manifests that would expose duplicate tool names", async () => {
+test('gateway rejects manifests that would expose duplicate tool names', async () => {
   const port = 18_826;
   const gateway = new BridgeGateway(port);
   const firstBridge = new Mobigent();
@@ -3455,29 +3585,29 @@ test("gateway rejects manifests that would expose duplicate tool names", async (
   gateway.start();
 
   firstBridge.configure({
-    appId: "com.mobigent.duplicate_app",
-    appName: "Duplicate App One",
+    appId: 'com.mobigent.duplicate_app',
+    appName: 'Duplicate App One',
     gatewayUrl: `ws://localhost:${port}`,
-    createSocket: createNodeSocket
+    createSocket: createNodeSocket,
   });
   firstBridge.registerAction({
-    name: "shared_action",
-    description: "First shared action.",
-    inputSchema: { type: "object", properties: {} },
-    handler: async () => ({ owner: "first" })
+    name: 'shared_action',
+    description: 'First shared action.',
+    inputSchema: { type: 'object', properties: {} },
+    handler: async () => ({ owner: 'first' }),
   });
 
   duplicateBridge.configure({
-    appId: "com.mobigent.duplicate_app",
-    appName: "Duplicate App Two",
+    appId: 'com.mobigent.duplicate_app',
+    appName: 'Duplicate App Two',
     gatewayUrl: `ws://localhost:${port}`,
-    createSocket: createNodeSocket
+    createSocket: createNodeSocket,
   });
   duplicateBridge.registerAction({
-    name: "shared_action",
-    description: "Second shared action.",
-    inputSchema: { type: "object", properties: {} },
-    handler: async () => ({ owner: "second" })
+    name: 'shared_action',
+    description: 'Second shared action.',
+    inputSchema: { type: 'object', properties: {} },
+    handler: async () => ({ owner: 'second' }),
   });
 
   try {
@@ -3488,15 +3618,16 @@ test("gateway rejects manifests that would expose duplicate tool names", async (
 
     assert.deepEqual(
       gateway.listTools().map((tool) => tool.name),
-      ["com_mobigent_duplicate_app.shared_action"]
+      ['com_mobigent_duplicate_app.shared_action'],
     );
-    assert.deepEqual(await gateway.callTool("com_mobigent_duplicate_app.shared_action", {}), {
-      owner: "first"
+    assert.deepEqual(await gateway.callTool('com_mobigent_duplicate_app.shared_action', {}), {
+      owner: 'first',
     });
     const rejected = auditEvents.find(
-      (event) => event.type === "manifest.rejected" && event.details?.reason === "duplicate_tool_name"
+      (event) =>
+        event.type === 'manifest.rejected' && event.details?.reason === 'duplicate_tool_name',
     );
-    assert.equal(rejected?.details?.tool, "com_mobigent_duplicate_app.shared_action");
+    assert.equal(rejected?.details?.tool, 'com_mobigent_duplicate_app.shared_action');
   } finally {
     duplicateBridge.disconnect();
     firstBridge.disconnect();
@@ -3504,47 +3635,47 @@ test("gateway rejects manifests that would expose duplicate tool names", async (
   }
 });
 
-test("MCP server exposes connected app capabilities as tools", async () => {
+test('MCP server exposes connected app capabilities as tools', async () => {
   const port = 18_798;
   const gateway = new BridgeGateway(port);
   const bridge = new Mobigent();
   const mcpServer = createMcpServer(gateway);
   const client = new Client({
-    name: "mobigent-test-client",
-    version: "0.1.0"
+    name: 'mobigent-test-client',
+    version: '0.1.0',
   });
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
 
   gateway.start();
 
   bridge.configure({
-    appId: "com.mobigent.mcp",
-    appName: "MCP App",
+    appId: 'com.mobigent.mcp',
+    appName: 'MCP App',
     gatewayUrl: `ws://localhost:${port}`,
     createSocket: createNodeSocket,
-    confirm: async () => true
+    confirm: async () => true,
   });
 
   bridge.registerAction({
-    name: "create_expense",
-    description: "Create an expense through MCP.",
+    name: 'create_expense',
+    description: 'Create an expense through MCP.',
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
-        amount: { type: "number" },
-        merchant: { type: "string" }
+        amount: { type: 'number' },
+        merchant: { type: 'string' },
       },
-      required: ["amount", "merchant"]
+      required: ['amount', 'merchant'],
     },
     confirmation: {
       required: true,
-      risk: "medium"
+      risk: 'medium',
     },
     handler: async (input) => ({
-      id: "EXP-MCP",
+      id: 'EXP-MCP',
       amount: Number(input.amount),
-      merchant: String(input.merchant)
-    })
+      merchant: String(input.merchant),
+    }),
   });
 
   try {
@@ -3555,22 +3686,22 @@ test("MCP server exposes connected app capabilities as tools", async () => {
     const listed = await client.listTools();
     assert.deepEqual(
       listed.tools.map((tool) => tool.name),
-      ["com_mobigent_mcp.create_expense"]
+      ['com_mobigent_mcp.create_expense'],
     );
 
     const called = await client.callTool({
-      name: "com_mobigent_mcp.create_expense",
+      name: 'com_mobigent_mcp.create_expense',
       arguments: {
         amount: 12.5,
-        merchant: "Train"
-      }
+        merchant: 'Train',
+      },
     });
 
     assert.equal(called.isError, undefined);
     assert.deepEqual(called.structuredContent, {
-      id: "EXP-MCP",
+      id: 'EXP-MCP',
       amount: 12.5,
-      merchant: "Train"
+      merchant: 'Train',
     });
   } finally {
     bridge.disconnect();
@@ -3580,7 +3711,7 @@ test("MCP server exposes connected app capabilities as tools", async () => {
   }
 });
 
-test("gateway emits tool change events when manifests appear and disappear", async () => {
+test('gateway emits tool change events when manifests appear and disappear', async () => {
   const port = 18_800;
   const gateway = new BridgeGateway(port);
   const bridge = new Mobigent();
@@ -3592,17 +3723,17 @@ test("gateway emits tool change events when manifests appear and disappear", asy
   });
 
   bridge.configure({
-    appId: "com.mobigent.changes",
-    appName: "Changes App",
+    appId: 'com.mobigent.changes',
+    appName: 'Changes App',
     gatewayUrl: `ws://localhost:${port}`,
-    createSocket: createNodeSocket
+    createSocket: createNodeSocket,
   });
 
   bridge.registerAction({
-    name: "ping_action",
-    description: "Ping.",
-    inputSchema: { type: "object", properties: {} },
-    handler: async () => ({ pong: true })
+    name: 'ping_action',
+    description: 'Ping.',
+    inputSchema: { type: 'object', properties: {} },
+    handler: async () => ({ pong: true }),
   });
 
   try {
@@ -3618,7 +3749,7 @@ test("gateway emits tool change events when manifests appear and disappear", asy
   }
 });
 
-test("HTTP provider client streams tool snapshots when app capabilities change", async () => {
+test('HTTP provider client streams tool snapshots when app capabilities change', async () => {
   const wsPort = 18_827;
   const httpPort = 18_828;
   const gateway = new BridgeGateway(wsPort);
@@ -3631,22 +3762,22 @@ test("HTTP provider client streams tool snapshots when app capabilities change",
   server = app.listen(httpPort);
 
   bridge.configure({
-    appId: "com.mobigent.tool_stream",
-    appName: "Tool Stream App",
+    appId: 'com.mobigent.tool_stream',
+    appName: 'Tool Stream App',
     gatewayUrl: `ws://localhost:${wsPort}`,
-    createSocket: createNodeSocket
+    createSocket: createNodeSocket,
   });
 
   bridge.registerAction({
-    name: "streamed_action",
-    description: "Action discovered through the tool stream.",
-    inputSchema: { type: "object", properties: {} },
-    handler: async () => ({ ok: true })
+    name: 'streamed_action',
+    description: 'Action discovered through the tool stream.',
+    inputSchema: { type: 'object', properties: {} },
+    handler: async () => ({ ok: true }),
   });
 
   const client = createMobigentHttpClient({
     baseUrl: `http://localhost:${httpPort}`,
-    agentId: "streaming-agent"
+    agentId: 'streaming-agent',
   });
 
   try {
@@ -3655,7 +3786,7 @@ test("HTTP provider client streams tool snapshots when app capabilities change",
       for await (const event of client.watchTools({ signal: controller.signal })) {
         events.push({
           reason: event.reason,
-          toolNames: event.tools.map((tool) => tool.name)
+          toolNames: event.tools.map((tool) => tool.name),
         });
         if (events.length === 2) {
           controller.abort();
@@ -3665,14 +3796,14 @@ test("HTTP provider client streams tool snapshots when app capabilities change",
     })();
 
     await waitFor(() => events.length === 1);
-    assert.deepEqual(events[0], { reason: "snapshot", toolNames: [] });
+    assert.deepEqual(events[0], { reason: 'snapshot', toolNames: [] });
 
     await bridge.connect();
     await waitFor(() => events.length === 2);
     await reader;
 
-    assert.equal(events[1]?.reason, "changed");
-    assert.deepEqual(events[1]?.toolNames, ["com_mobigent_tool_stream.streamed_action"]);
+    assert.equal(events[1]?.reason, 'changed');
+    assert.deepEqual(events[1]?.toolNames, ['com_mobigent_tool_stream.streamed_action']);
   } finally {
     controller.abort();
     bridge.disconnect();
@@ -3681,7 +3812,7 @@ test("HTTP provider client streams tool snapshots when app capabilities change",
   }
 });
 
-test("provider runtime stream maps live tool changes into provider-native shapes", async () => {
+test('provider runtime stream maps live tool changes into provider-native shapes', async () => {
   const wsPort = 18_840;
   const httpPort = 18_841;
   const gateway = new BridgeGateway(wsPort);
@@ -3694,41 +3825,41 @@ test("provider runtime stream maps live tool changes into provider-native shapes
   server = app.listen(httpPort);
 
   bridge.configure({
-    appId: "com.mobigent.runtime_stream",
-    appName: "Runtime Stream App",
+    appId: 'com.mobigent.runtime_stream',
+    appName: 'Runtime Stream App',
     gatewayUrl: `ws://localhost:${wsPort}`,
-    createSocket: createNodeSocket
+    createSocket: createNodeSocket,
   });
 
   bridge.registerAction({
-    name: "streamed_runtime_action",
-    description: "Action discovered through the provider runtime stream.",
+    name: 'streamed_runtime_action',
+    description: 'Action discovered through the provider runtime stream.',
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
-        value: { type: "string" }
-      }
+        value: { type: 'string' },
+      },
     },
-    handler: async () => ({ ok: true })
+    handler: async () => ({ ok: true }),
   });
 
   const client = createMobigentHttpClient({
     baseUrl: `http://localhost:${httpPort}`,
-    agentId: "anthropic-tool-use"
+    agentId: 'anthropic-tool-use',
   });
 
   try {
     const events: Array<{ reason: string; rawToolNames: string[]; mappedToolNames: string[] }> = [];
     const reader = (async () => {
       for await (const event of watchMobigentProviderRuntime({
-        kind: "anthropic-tool-use",
+        kind: 'anthropic-tool-use',
         client,
-        stream: { signal: controller.signal }
+        stream: { signal: controller.signal },
       })) {
         events.push({
           reason: event.reason,
           rawToolNames: event.rawTools.map((tool) => tool.name),
-          mappedToolNames: (event.tools as Array<{ name: string }>).map((tool) => tool.name)
+          mappedToolNames: (event.tools as Array<{ name: string }>).map((tool) => tool.name),
         });
         if (events.length === 2) {
           controller.abort();
@@ -3738,15 +3869,19 @@ test("provider runtime stream maps live tool changes into provider-native shapes
     })();
 
     await waitFor(() => events.length === 1);
-    assert.deepEqual(events[0], { reason: "snapshot", rawToolNames: [], mappedToolNames: [] });
+    assert.deepEqual(events[0], { reason: 'snapshot', rawToolNames: [], mappedToolNames: [] });
 
     await bridge.connect();
     await waitFor(() => events.length === 2);
     await reader;
 
-    assert.equal(events[1]?.reason, "changed");
-    assert.deepEqual(events[1]?.rawToolNames, ["com_mobigent_runtime_stream.streamed_runtime_action"]);
-    assert.deepEqual(events[1]?.mappedToolNames, ["com_mobigent_runtime_stream.streamed_runtime_action"]);
+    assert.equal(events[1]?.reason, 'changed');
+    assert.deepEqual(events[1]?.rawToolNames, [
+      'com_mobigent_runtime_stream.streamed_runtime_action',
+    ]);
+    assert.deepEqual(events[1]?.mappedToolNames, [
+      'com_mobigent_runtime_stream.streamed_runtime_action',
+    ]);
   } finally {
     controller.abort();
     bridge.disconnect();
@@ -3755,7 +3890,7 @@ test("provider runtime stream maps live tool changes into provider-native shapes
   }
 });
 
-test("gateway responds to SDK heartbeat pings", async () => {
+test('gateway responds to SDK heartbeat pings', async () => {
   const port = 18_830;
   const gateway = new BridgeGateway(port);
   let socket: WebSocket | undefined;
@@ -3765,25 +3900,28 @@ test("gateway responds to SDK heartbeat pings", async () => {
   try {
     socket = new WebSocket(`ws://localhost:${port}`);
     await new Promise<void>((resolve, reject) => {
-      socket.once("open", resolve);
-      socket.once("error", reject);
+      socket.once('open', resolve);
+      socket.once('error', reject);
     });
     socket.send(
       JSON.stringify({
-        type: "hello",
-        appId: "com.mobigent.heartbeat",
-        appName: "Heartbeat App",
-        sdk: "react-native",
-        version: "0.1.0"
-      })
+        type: 'hello',
+        appId: 'com.mobigent.heartbeat',
+        appName: 'Heartbeat App',
+        sdk: 'react-native',
+        version: '0.1.0',
+      }),
     );
-    socket.send(JSON.stringify({ type: "ping", id: "heartbeat-1", at: new Date().toISOString() }));
+    socket.send(JSON.stringify({ type: 'ping', id: 'heartbeat-1', at: new Date().toISOString() }));
 
     const response = await new Promise<BridgeMessage>((resolve, reject) => {
-      const timeout = setTimeout(() => reject(new Error("Timed out waiting for heartbeat pong.")), 500);
-      socket.on("message", (raw) => {
+      const timeout = setTimeout(
+        () => reject(new Error('Timed out waiting for heartbeat pong.')),
+        500,
+      );
+      socket.on('message', (raw) => {
         const message = JSON.parse(raw.toString()) as BridgeMessage;
-        if (message.type === "pong") {
+        if (message.type === 'pong') {
           clearTimeout(timeout);
           resolve(message);
         }
@@ -3791,8 +3929,8 @@ test("gateway responds to SDK heartbeat pings", async () => {
     });
 
     assert.deepEqual(
-      { type: response.type, id: response.type === "pong" ? response.id : undefined },
-      { type: "pong", id: "heartbeat-1" }
+      { type: response.type, id: response.type === 'pong' ? response.id : undefined },
+      { type: 'pong', id: 'heartbeat-1' },
     );
   } finally {
     socket?.close();
@@ -3800,7 +3938,7 @@ test("gateway responds to SDK heartbeat pings", async () => {
   }
 });
 
-test("gateway negotiates supported app protocol versions", async () => {
+test('gateway negotiates supported app protocol versions', async () => {
   const port = 18_836;
   const gateway = new BridgeGateway(port);
   let socket: WebSocket | undefined;
@@ -3810,26 +3948,29 @@ test("gateway negotiates supported app protocol versions", async () => {
   try {
     socket = new WebSocket(`ws://localhost:${port}`);
     await new Promise<void>((resolve, reject) => {
-      socket.once("open", resolve);
-      socket.once("error", reject);
+      socket.once('open', resolve);
+      socket.once('error', reject);
     });
 
     socket.send(
       JSON.stringify({
-        type: "hello",
-        appId: "com.mobigent.protocol",
-        appName: "Protocol App",
-        sdk: "react-native",
-        version: "0.1.0",
-        protocolVersion: 1
-      })
+        type: 'hello',
+        appId: 'com.mobigent.protocol',
+        appName: 'Protocol App',
+        sdk: 'react-native',
+        version: '0.1.0',
+        protocolVersion: 1,
+      }),
     );
 
     const ready = await new Promise<BridgeMessage>((resolve, reject) => {
-      const timeout = setTimeout(() => reject(new Error("Timed out waiting for ready message.")), 500);
-      socket?.on("message", (raw) => {
+      const timeout = setTimeout(
+        () => reject(new Error('Timed out waiting for ready message.')),
+        500,
+      );
+      socket?.on('message', (raw) => {
         const message = JSON.parse(raw.toString()) as BridgeMessage;
-        if (message.type === "ready") {
+        if (message.type === 'ready') {
           clearTimeout(timeout);
           resolve(message);
         }
@@ -3837,13 +3978,14 @@ test("gateway negotiates supported app protocol versions", async () => {
     });
 
     assert.deepEqual(ready, {
-      type: "ready",
+      type: 'ready',
       protocolVersion: 1,
-      supportedProtocolVersions: [1]
+      supportedProtocolVersions: [1],
     });
     assert.equal(
-      gateway.getAuditLog().find((event) => event.type === "app.authenticated")?.details?.protocolVersion,
-      1
+      gateway.getAuditLog().find((event) => event.type === 'app.authenticated')?.details
+        ?.protocolVersion,
+      1,
     );
   } finally {
     socket?.close();
@@ -3851,7 +3993,7 @@ test("gateway negotiates supported app protocol versions", async () => {
   }
 });
 
-test("gateway rejects unsupported app protocol versions", async () => {
+test('gateway rejects unsupported app protocol versions', async () => {
   const port = 18_837;
   const gateway = new BridgeGateway(port);
   let socket: WebSocket | undefined;
@@ -3861,32 +4003,32 @@ test("gateway rejects unsupported app protocol versions", async () => {
   try {
     socket = new WebSocket(`ws://localhost:${port}`);
     await new Promise<void>((resolve, reject) => {
-      socket.once("open", resolve);
-      socket.once("error", reject);
+      socket.once('open', resolve);
+      socket.once('error', reject);
     });
 
     const closed = new Promise<{ code: number; reason: string }>((resolve) => {
-      socket?.once("close", (code, rawReason) => {
+      socket?.once('close', (code, rawReason) => {
         resolve({ code, reason: rawReason.toString() });
       });
     });
 
     socket.send(
       JSON.stringify({
-        type: "hello",
-        appId: "com.mobigent.future",
-        appName: "Future App",
-        sdk: "react-native",
-        version: "99.0.0",
-        protocolVersion: 99
-      })
+        type: 'hello',
+        appId: 'com.mobigent.future',
+        appName: 'Future App',
+        sdk: 'react-native',
+        version: '99.0.0',
+        protocolVersion: 99,
+      }),
     );
 
     const close = await closed;
     assert.equal(close.code, 1002);
     assert.match(close.reason, /Unsupported Mobigent protocol version/);
-    const rejected = gateway.getAuditLog().find((event) => event.type === "app.rejected");
-    assert.equal(rejected?.details?.reason, "unsupported_protocol_version");
+    const rejected = gateway.getAuditLog().find((event) => event.type === 'app.rejected');
+    assert.equal(rejected?.details?.reason, 'unsupported_protocol_version');
     assert.equal(rejected?.details?.protocolVersion, 99);
   } finally {
     socket?.close();
@@ -3894,7 +4036,7 @@ test("gateway rejects unsupported app protocol versions", async () => {
   }
 });
 
-test("gateway enforces allowed agent and rate limit policies", async () => {
+test('gateway enforces allowed agent and rate limit policies', async () => {
   const port = 18_802;
   const gateway = new BridgeGateway(port);
   const bridge = new Mobigent();
@@ -3903,63 +4045,79 @@ test("gateway enforces allowed agent and rate limit policies", async () => {
   gateway.start();
 
   bridge.configure({
-    appId: "com.mobigent.policy",
-    appName: "Policy App",
+    appId: 'com.mobigent.policy',
+    appName: 'Policy App',
     gatewayUrl: `ws://localhost:${port}`,
-    createSocket: createNodeSocket
+    createSocket: createNodeSocket,
   });
 
   bridge.registerAction({
-    name: "limited_action",
-    description: "Policy protected action.",
-    inputSchema: { type: "object", properties: {} },
+    name: 'limited_action',
+    description: 'Policy protected action.',
+    inputSchema: { type: 'object', properties: {} },
     policy: {
-      allowedAgents: ["trusted-agent"],
-      rateLimitPerMinute: 1
+      allowedAgents: ['trusted-agent'],
+      rateLimitPerMinute: 1,
     },
     handler: async () => {
       calls += 1;
       return { calls };
-    }
+    },
   });
 
   try {
     await bridge.connect();
     await delay(50);
 
-    assert.deepEqual(gateway.listToolsForAgent().map((tool) => tool.name), []);
-    assert.deepEqual(gateway.listToolsForAgent("unknown-agent").map((tool) => tool.name), []);
-    assert.deepEqual(gateway.listToolsForAgent("trusted-agent").map((tool) => tool.name), [
-      "com_mobigent_policy.limited_action"
-    ]);
+    assert.deepEqual(
+      gateway.listToolsForAgent().map((tool) => tool.name),
+      [],
+    );
+    assert.deepEqual(
+      gateway.listToolsForAgent('unknown-agent').map((tool) => tool.name),
+      [],
+    );
+    assert.deepEqual(
+      gateway.listToolsForAgent('trusted-agent').map((tool) => tool.name),
+      ['com_mobigent_policy.limited_action'],
+    );
 
     await assert.rejects(
-      () => gateway.callTool("com_mobigent_policy.limited_action", {}),
-      /anonymous.*not allowed/
+      () => gateway.callTool('com_mobigent_policy.limited_action', {}),
+      /anonymous.*not allowed/,
     );
     await assert.rejects(
       () =>
-        gateway.callTool("com_mobigent_policy.limited_action", {}, { agentId: "unknown-agent" }),
-      /unknown-agent.*not allowed/
+        gateway.callTool('com_mobigent_policy.limited_action', {}, { agentId: 'unknown-agent' }),
+      /unknown-agent.*not allowed/,
     );
 
     assert.deepEqual(
-      await gateway.callTool("com_mobigent_policy.limited_action", {}, {
-        agentId: "trusted-agent",
-        idempotencyKey: "limited-1"
-      }),
-      { calls: 1 }
+      await gateway.callTool(
+        'com_mobigent_policy.limited_action',
+        {},
+        {
+          agentId: 'trusted-agent',
+          idempotencyKey: 'limited-1',
+        },
+      ),
+      { calls: 1 },
     );
     assert.deepEqual(
-      await gateway.callTool("com_mobigent_policy.limited_action", {}, {
-        agentId: "trusted-agent",
-        idempotencyKey: "limited-1"
-      }),
-      { calls: 1 }
+      await gateway.callTool(
+        'com_mobigent_policy.limited_action',
+        {},
+        {
+          agentId: 'trusted-agent',
+          idempotencyKey: 'limited-1',
+        },
+      ),
+      { calls: 1 },
     );
     await assert.rejects(
-      () => gateway.callTool("com_mobigent_policy.limited_action", {}, { agentId: "trusted-agent" }),
-      /Rate limit exceeded/
+      () =>
+        gateway.callTool('com_mobigent_policy.limited_action', {}, { agentId: 'trusted-agent' }),
+      /Rate limit exceeded/,
     );
     assert.equal(calls, 1);
   } finally {
@@ -3968,56 +4126,56 @@ test("gateway enforces allowed agent and rate limit policies", async () => {
   }
 });
 
-test("gateway agent profiles filter discovery and enforce risk/read-only limits", async () => {
+test('gateway agent profiles filter discovery and enforce risk/read-only limits', async () => {
   const port = 18_832;
   const gateway = new BridgeGateway({
     port,
     agentProfiles: {
       readonly: {
         readOnly: true,
-        allowedTools: ["com_mobigent_profiles.*"]
+        allowedTools: ['com_mobigent_profiles.*'],
       },
       safe: {
-        maxRisk: "low",
-        deniedTools: ["com_mobigent_profiles.get_private_notes"]
+        maxRisk: 'low',
+        deniedTools: ['com_mobigent_profiles.get_private_notes'],
       },
       scoped: {
-        allowedTools: ["com_mobigent_profiles.get_balance"]
-      }
-    }
+        allowedTools: ['com_mobigent_profiles.get_balance'],
+      },
+    },
   });
   const bridge = new Mobigent();
 
   gateway.start();
 
   bridge.configure({
-    appId: "com.mobigent.profiles",
-    appName: "Profile Policy App",
+    appId: 'com.mobigent.profiles',
+    appName: 'Profile Policy App',
     gatewayUrl: `ws://localhost:${port}`,
-    createSocket: createNodeSocket
+    createSocket: createNodeSocket,
   });
 
   bridge.registerAction({
-    name: "create_payment",
-    description: "Create a payment.",
-    inputSchema: { type: "object", properties: {} },
+    name: 'create_payment',
+    description: 'Create a payment.',
+    inputSchema: { type: 'object', properties: {} },
     confirmation: {
       required: true,
-      risk: "high"
+      risk: 'high',
     },
-    handler: async () => ({ paid: true })
+    handler: async () => ({ paid: true }),
   });
 
   bridge.registerResource({
-    name: "balance",
-    description: "Read balance.",
-    read: async () => ({ balance: 42 })
+    name: 'balance',
+    description: 'Read balance.',
+    read: async () => ({ balance: 42 }),
   });
 
   bridge.registerResource({
-    name: "private_notes",
-    description: "Read private notes.",
-    read: async () => ({ notes: [] })
+    name: 'private_notes',
+    description: 'Read private notes.',
+    read: async () => ({ notes: [] }),
   });
 
   try {
@@ -4025,52 +4183,58 @@ test("gateway agent profiles filter discovery and enforce risk/read-only limits"
     await delay(50);
 
     assert.deepEqual(
-      gateway.listToolsForAgent("readonly").map((tool) => tool.name).sort(),
-      ["com_mobigent_profiles.get_balance", "com_mobigent_profiles.get_private_notes"]
+      gateway
+        .listToolsForAgent('readonly')
+        .map((tool) => tool.name)
+        .sort(),
+      ['com_mobigent_profiles.get_balance', 'com_mobigent_profiles.get_private_notes'],
     );
     assert.deepEqual(
-      gateway.listToolsForAgent("safe").map((tool) => tool.name).sort(),
-      ["com_mobigent_profiles.get_balance"]
+      gateway
+        .listToolsForAgent('safe')
+        .map((tool) => tool.name)
+        .sort(),
+      ['com_mobigent_profiles.get_balance'],
     );
     assert.deepEqual(
-      gateway.listToolsForAgent("scoped").map((tool) => tool.name),
-      ["com_mobigent_profiles.get_balance"]
+      gateway.listToolsForAgent('scoped').map((tool) => tool.name),
+      ['com_mobigent_profiles.get_balance'],
     );
     assert.deepEqual(
-      gateway.listAgentVisibility(["safe"]).map((agent) => ({
+      gateway.listAgentVisibility(['safe']).map((agent) => ({
         agentId: agent.agentId,
         profileConfigured: agent.profileConfigured,
         visibleTools: agent.visibleTools,
         hiddenTools: agent.hiddenTools,
-        visibleToolNames: agent.visibleToolNames
+        visibleToolNames: agent.visibleToolNames,
       })),
       [
         {
-          agentId: "safe",
+          agentId: 'safe',
           profileConfigured: true,
           visibleTools: 1,
           hiddenTools: 2,
-          visibleToolNames: ["com_mobigent_profiles.get_balance"]
-        }
-      ]
+          visibleToolNames: ['com_mobigent_profiles.get_balance'],
+        },
+      ],
     );
 
     await assert.rejects(
-      () => gateway.callTool("com_mobigent_profiles.create_payment", {}, { agentId: "readonly" }),
-      /read-only/
+      () => gateway.callTool('com_mobigent_profiles.create_payment', {}, { agentId: 'readonly' }),
+      /read-only/,
     );
     await assert.rejects(
-      () => gateway.callTool("com_mobigent_profiles.create_payment", {}, { agentId: "safe" }),
-      /up to low risk/
+      () => gateway.callTool('com_mobigent_profiles.create_payment', {}, { agentId: 'safe' }),
+      /up to low risk/,
     );
     await assert.rejects(
-      () => gateway.callTool("com_mobigent_profiles.get_private_notes", {}, { agentId: "safe" }),
-      /profile denies access/
+      () => gateway.callTool('com_mobigent_profiles.get_private_notes', {}, { agentId: 'safe' }),
+      /profile denies access/,
     );
 
     assert.deepEqual(
-      await gateway.callTool("com_mobigent_profiles.get_balance", {}, { agentId: "readonly" }),
-      { balance: 42 }
+      await gateway.callTool('com_mobigent_profiles.get_balance', {}, { agentId: 'readonly' }),
+      { balance: 42 },
     );
     assert.equal(gateway.getStatus().agentProfilesConfigured, true);
   } finally {
@@ -4079,12 +4243,12 @@ test("gateway agent profiles filter discovery and enforce risk/read-only limits"
   }
 });
 
-test("gateway prunes retained idempotency records and stale rate-limit buckets", async () => {
+test('gateway prunes retained idempotency records and stale rate-limit buckets', async () => {
   const port = 18_831;
   const gateway = new BridgeGateway({
     port,
     idempotencyRecordTtlMs: 10,
-    cleanupIntervalMs: 0
+    cleanupIntervalMs: 0,
   });
   const bridge = new Mobigent();
   const originalNow = Date.now;
@@ -4094,20 +4258,20 @@ test("gateway prunes retained idempotency records and stale rate-limit buckets",
   gateway.start();
 
   bridge.configure({
-    appId: "com.mobigent.retention",
-    appName: "Retention App",
+    appId: 'com.mobigent.retention',
+    appName: 'Retention App',
     gatewayUrl: `ws://localhost:${port}`,
-    createSocket: createNodeSocket
+    createSocket: createNodeSocket,
   });
 
   bridge.registerAction({
-    name: "limited_action",
-    description: "Retention test action.",
-    inputSchema: { type: "object", properties: {} },
+    name: 'limited_action',
+    description: 'Retention test action.',
+    inputSchema: { type: 'object', properties: {} },
     policy: {
-      rateLimitPerMinute: 10
+      rateLimitPerMinute: 10,
     },
-    handler: async () => ({ ok: true })
+    handler: async () => ({ ok: true }),
   });
 
   try {
@@ -4115,11 +4279,15 @@ test("gateway prunes retained idempotency records and stale rate-limit buckets",
     await delay(50);
 
     assert.deepEqual(
-      await gateway.callTool("com_mobigent_retention.limited_action", {}, {
-        agentId: "retention-agent",
-        idempotencyKey: "retention-1"
-      }),
-      { ok: true }
+      await gateway.callTool(
+        'com_mobigent_retention.limited_action',
+        {},
+        {
+          agentId: 'retention-agent',
+          idempotencyKey: 'retention-1',
+        },
+      ),
+      { ok: true },
     );
 
     assert.equal(gateway.getStatus().idempotencyRecords, 1);
@@ -4135,7 +4303,7 @@ test("gateway prunes retained idempotency records and stale rate-limit buckets",
   }
 });
 
-test("HTTP gateway forwards agent identity, idempotency, request ids, and per-call timeout", async () => {
+test('HTTP gateway forwards agent identity, idempotency, request ids, and per-call timeout', async () => {
   const wsPort = 18_803;
   const httpPort = 18_804;
   const gateway = new BridgeGateway({ port: wsPort, requestTimeoutMs: 500 });
@@ -4148,39 +4316,39 @@ test("HTTP gateway forwards agent identity, idempotency, request ids, and per-ca
   server = app.listen(httpPort);
 
   bridge.configure({
-    appId: "com.mobigent.http_policy",
-    appName: "HTTP Policy App",
+    appId: 'com.mobigent.http_policy',
+    appName: 'HTTP Policy App',
     gatewayUrl: `ws://localhost:${wsPort}`,
-    createSocket: createNodeSocket
+    createSocket: createNodeSocket,
   });
 
   bridge.registerAction({
-    name: "allowed_action",
-    description: "Only selected HTTP agents can call this.",
+    name: 'allowed_action',
+    description: 'Only selected HTTP agents can call this.',
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
-        message: { type: "string" }
+        message: { type: 'string' },
       },
-      required: ["message"]
+      required: ['message'],
     },
     policy: {
-      allowedAgents: ["chatgpt-actions"]
+      allowedAgents: ['chatgpt-actions'],
     },
     handler: async (input) => {
       allowedCalls += 1;
       return { calls: allowedCalls, ok: true, message: input.message };
-    }
+    },
   });
 
   bridge.registerAction({
-    name: "slow_action",
-    description: "Slow action for timeout testing.",
-    inputSchema: { type: "object", properties: {} },
+    name: 'slow_action',
+    description: 'Slow action for timeout testing.',
+    inputSchema: { type: 'object', properties: {} },
     handler: async () => {
       await delay(80);
       return { ok: true };
-    }
+    },
   });
 
   try {
@@ -4191,151 +4359,169 @@ test("HTTP gateway forwards agent identity, idempotency, request ids, and per-ca
     assert.equal(anonymousTools.status, 200);
     assert.deepEqual(
       (await anonymousTools.json()).tools.map((tool: { name: string }) => tool.name),
-      ["com_mobigent_http_policy.slow_action"]
+      ['com_mobigent_http_policy.slow_action'],
     );
 
     const chatGptTools = await fetch(`http://localhost:${httpPort}/tools`, {
       headers: {
-        "x-mobigent-agent": "chatgpt-actions"
-      }
+        'x-mobigent-agent': 'chatgpt-actions',
+      },
     });
     assert.equal(chatGptTools.status, 200);
     assert.deepEqual(
       (await chatGptTools.json()).tools.map((tool: { name: string }) => tool.name).sort(),
-      ["com_mobigent_http_policy.allowed_action", "com_mobigent_http_policy.slow_action"]
+      ['com_mobigent_http_policy.allowed_action', 'com_mobigent_http_policy.slow_action'],
     );
 
     const deniedLookup = await fetch(
-      `http://localhost:${httpPort}/tools/com_mobigent_http_policy.allowed_action`
+      `http://localhost:${httpPort}/tools/com_mobigent_http_policy.allowed_action`,
     );
     assert.equal(deniedLookup.status, 403);
     assert.deepEqual(await deniedLookup.json(), {
-      code: "forbidden",
+      code: 'forbidden',
       error: 'Agent "anonymous" is not allowed to call com_mobigent_http_policy.allowed_action.',
-      retryable: false
+      retryable: false,
     });
 
     const allowedLookup = await fetch(
       `http://localhost:${httpPort}/tools/com_mobigent_http_policy.allowed_action`,
       {
         headers: {
-          "x-mobigent-agent": "chatgpt-actions"
-        }
-      }
+          'x-mobigent-agent': 'chatgpt-actions',
+        },
+      },
     );
     assert.equal(allowedLookup.status, 200);
-    assert.equal((await allowedLookup.json()).tool.name, "com_mobigent_http_policy.allowed_action");
+    assert.equal((await allowedLookup.json()).tool.name, 'com_mobigent_http_policy.allowed_action');
 
-    const missingLookup = await fetch(`http://localhost:${httpPort}/tools/com_mobigent_http_policy.missing`);
+    const missingLookup = await fetch(
+      `http://localhost:${httpPort}/tools/com_mobigent_http_policy.missing`,
+    );
     assert.equal(missingLookup.status, 404);
-    assert.equal(((await missingLookup.json()) as { code: string }).code, "not_found");
+    assert.equal(((await missingLookup.json()) as { code: string }).code, 'not_found');
 
     const denied = await fetch(
       `http://localhost:${httpPort}/tools/com_mobigent_http_policy.allowed_action/call`,
       {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({})
-      }
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({}),
+      },
     );
     assert.equal(denied.status, 403);
-    assert.equal(((await denied.json()) as { code: string }).code, "forbidden");
+    assert.equal(((await denied.json()) as { code: string }).code, 'forbidden');
 
     const invalidInput = await fetch(
       `http://localhost:${httpPort}/tools/com_mobigent_http_policy.allowed_action/call`,
       {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "content-type": "application/json",
-          "x-mobigent-agent": "chatgpt-actions"
+          'content-type': 'application/json',
+          'x-mobigent-agent': 'chatgpt-actions',
         },
-        body: JSON.stringify({})
-      }
+        body: JSON.stringify({}),
+      },
     );
     assert.equal(invalidInput.status, 400);
-    const invalidInputBody = (await invalidInput.json()) as { code: string; error: string; retryable: boolean };
-    assert.equal(invalidInputBody.code, "invalid_input");
+    const invalidInputBody = (await invalidInput.json()) as {
+      code: string;
+      error: string;
+      retryable: boolean;
+    };
+    assert.equal(invalidInputBody.code, 'invalid_input');
     assert.equal(invalidInputBody.retryable, false);
     assert.match(invalidInputBody.error, /Invalid tool input.*message is required/);
 
     const allowed = await fetch(
       `http://localhost:${httpPort}/tools/com_mobigent_http_policy.allowed_action/call`,
       {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "content-type": "application/json",
-          "x-mobigent-agent": "chatgpt-actions",
-          "x-mobigent-idempotency-key": "expense-create-1",
-          "x-mobigent-request-id": "provider-request-1"
+          'content-type': 'application/json',
+          'x-mobigent-agent': 'chatgpt-actions',
+          'x-mobigent-idempotency-key': 'expense-create-1',
+          'x-mobigent-request-id': 'provider-request-1',
         },
-        body: JSON.stringify({ message: "hello" })
-      }
+        body: JSON.stringify({ message: 'hello' }),
+      },
     );
     assert.equal(allowed.status, 200);
     assert.deepEqual(await allowed.json(), {
-      tool: "com_mobigent_http_policy.allowed_action",
-      result: { calls: 1, ok: true, message: "hello" }
+      tool: 'com_mobigent_http_policy.allowed_action',
+      result: { calls: 1, ok: true, message: 'hello' },
     });
 
     const replayed = await fetch(
       `http://localhost:${httpPort}/tools/com_mobigent_http_policy.allowed_action/call`,
       {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "content-type": "application/json",
-          "x-mobigent-agent": "chatgpt-actions",
-          "x-mobigent-idempotency-key": "expense-create-1",
-          "x-mobigent-request-id": "provider-request-2"
+          'content-type': 'application/json',
+          'x-mobigent-agent': 'chatgpt-actions',
+          'x-mobigent-idempotency-key': 'expense-create-1',
+          'x-mobigent-request-id': 'provider-request-2',
         },
-        body: JSON.stringify({ message: "hello" })
-      }
+        body: JSON.stringify({ message: 'hello' }),
+      },
     );
     assert.equal(replayed.status, 200);
     assert.deepEqual(await replayed.json(), {
-      tool: "com_mobigent_http_policy.allowed_action",
-      result: { calls: 1, ok: true, message: "hello" }
+      tool: 'com_mobigent_http_policy.allowed_action',
+      result: { calls: 1, ok: true, message: 'hello' },
     });
     assert.equal(allowedCalls, 1);
 
     const mismatchedReplay = await fetch(
       `http://localhost:${httpPort}/tools/com_mobigent_http_policy.allowed_action/call`,
       {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "content-type": "application/json",
-          "x-mobigent-agent": "chatgpt-actions",
-          "x-mobigent-idempotency-key": "expense-create-1"
+          'content-type': 'application/json',
+          'x-mobigent-agent': 'chatgpt-actions',
+          'x-mobigent-idempotency-key': 'expense-create-1',
         },
-        body: JSON.stringify({ message: "different" })
-      }
+        body: JSON.stringify({ message: 'different' }),
+      },
     );
     assert.equal(mismatchedReplay.status, 409);
-    assert.equal(((await mismatchedReplay.json()) as { code: string }).code, "conflict");
+    assert.equal(((await mismatchedReplay.json()) as { code: string }).code, 'conflict');
 
     const successEvent = gateway
       .getAuditLog()
-      .find((event) => event.type === "tool.call.succeeded" && event.tool === "com_mobigent_http_policy.allowed_action");
-    assert.equal(successEvent?.details?.externalRequestId, "provider-request-1");
-    assert.equal(successEvent?.details?.idempotencyKey, "expense-create-1");
+      .find(
+        (event) =>
+          event.type === 'tool.call.succeeded' &&
+          event.tool === 'com_mobigent_http_policy.allowed_action',
+      );
+    assert.equal(successEvent?.details?.externalRequestId, 'provider-request-1');
+    assert.equal(successEvent?.details?.idempotencyKey, 'expense-create-1');
     const deduplicatedEvent = gateway
       .getAuditLog()
-      .find((event) => event.type === "tool.call.deduplicated" && event.tool === "com_mobigent_http_policy.allowed_action");
-    assert.equal(deduplicatedEvent?.details?.externalRequestId, "provider-request-2");
+      .find(
+        (event) =>
+          event.type === 'tool.call.deduplicated' &&
+          event.tool === 'com_mobigent_http_policy.allowed_action',
+      );
+    assert.equal(deduplicatedEvent?.details?.externalRequestId, 'provider-request-2');
 
     const timedOut = await fetch(
       `http://localhost:${httpPort}/tools/com_mobigent_http_policy.slow_action/call`,
       {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "content-type": "application/json",
-          "x-mobigent-timeout-ms": "10"
+          'content-type': 'application/json',
+          'x-mobigent-timeout-ms': '10',
         },
-        body: JSON.stringify({})
-      }
+        body: JSON.stringify({}),
+      },
     );
     assert.equal(timedOut.status, 504);
-    const timeoutBody = (await timedOut.json()) as { code: string; error: string; retryable: boolean };
-    assert.equal(timeoutBody.code, "timeout");
+    const timeoutBody = (await timedOut.json()) as {
+      code: string;
+      error: string;
+      retryable: boolean;
+    };
+    assert.equal(timeoutBody.code, 'timeout');
     assert.equal(timeoutBody.retryable, true);
     assert.match(timeoutBody.error, /Timed out waiting for app response/);
   } finally {
@@ -4345,7 +4531,7 @@ test("HTTP gateway forwards agent identity, idempotency, request ids, and per-ca
   }
 });
 
-test("gateway records and streams audit events", async () => {
+test('gateway records and streams audit events', async () => {
   const port = 18_805;
   const gateway = new BridgeGateway({ port, auditLogLimit: 4 });
   const bridge = new Mobigent();
@@ -4355,40 +4541,40 @@ test("gateway records and streams audit events", async () => {
   gateway.start();
 
   bridge.configure({
-    appId: "com.mobigent.audit",
-    appName: "Audit App",
+    appId: 'com.mobigent.audit',
+    appName: 'Audit App',
     gatewayUrl: `ws://localhost:${port}`,
-    createSocket: createNodeSocket
+    createSocket: createNodeSocket,
   });
 
   bridge.registerAction({
-    name: "audit_action",
-    description: "Audited action.",
-    inputSchema: { type: "object", properties: {} },
-    handler: async () => ({ ok: true })
+    name: 'audit_action',
+    description: 'Audited action.',
+    inputSchema: { type: 'object', properties: {} },
+    handler: async () => ({ ok: true }),
   });
 
   try {
     await bridge.connect();
     await delay(50);
-    bridge.emit("audit.test", { ok: true });
+    bridge.emit('audit.test', { ok: true });
     await delay(20);
 
-    assert.deepEqual(await gateway.callTool("com_mobigent_audit.audit_action", {}), {
-      ok: true
+    assert.deepEqual(await gateway.callTool('com_mobigent_audit.audit_action', {}), {
+      ok: true,
     });
     await assert.rejects(
-      () => gateway.callTool("com_mobigent_audit.missing_action", {}),
-      /No connected app exposes tool/
+      () => gateway.callTool('com_mobigent_audit.missing_action', {}),
+      /No connected app exposes tool/,
     );
 
-    assert.ok(streamed.includes("gateway.started"));
-    assert.ok(streamed.includes("session.connected"));
-    assert.ok(streamed.includes("manifest.registered"));
-    assert.ok(streamed.includes("app.event"));
-    assert.ok(streamed.includes("tool.call.started"));
-    assert.ok(streamed.includes("tool.call.succeeded"));
-    assert.ok(streamed.includes("tool.call.failed"));
+    assert.ok(streamed.includes('gateway.started'));
+    assert.ok(streamed.includes('session.connected'));
+    assert.ok(streamed.includes('manifest.registered'));
+    assert.ok(streamed.includes('app.event'));
+    assert.ok(streamed.includes('tool.call.started'));
+    assert.ok(streamed.includes('tool.call.succeeded'));
+    assert.ok(streamed.includes('tool.call.failed'));
 
     bridge.disconnect();
     await delay(20);
@@ -4397,7 +4583,7 @@ test("gateway records and streams audit events", async () => {
     assert.equal(limited.length, 4);
     assert.deepEqual(
       limited.map((event) => event.type),
-      ["tool.call.started", "tool.call.succeeded", "tool.call.failed", "session.disconnected"]
+      ['tool.call.started', 'tool.call.succeeded', 'tool.call.failed', 'session.disconnected'],
     );
     assert.equal(gateway.getAuditLog(2).length, 2);
   } finally {
@@ -4406,22 +4592,24 @@ test("gateway records and streams audit events", async () => {
   }
 });
 
-test("gateway writes durable JSONL audit events", async () => {
+test('gateway writes durable JSONL audit events', async () => {
   const port = 18_816;
-  const tempDir = await mkdtemp(join(tmpdir(), "mobigent-audit-"));
-  const auditLogPath = join(tempDir, "nested", "audit.jsonl");
+  const tempDir = await mkdtemp(join(tmpdir(), 'mobigent-audit-'));
+  const auditLogPath = join(tempDir, 'nested', 'audit.jsonl');
   const gateway = new BridgeGateway({ port, auditLogPath });
 
   try {
     gateway.start();
     gateway.stop();
 
-    const lines = (await readFile(auditLogPath, "utf8")).trim().split("\n");
-    const events = lines.map((line) => JSON.parse(line) as { type: string; at: string; id: string });
+    const lines = (await readFile(auditLogPath, 'utf8')).trim().split('\n');
+    const events = lines.map(
+      (line) => JSON.parse(line) as { type: string; at: string; id: string },
+    );
 
     assert.deepEqual(
       events.map((event) => event.type),
-      ["gateway.started", "gateway.stopped"]
+      ['gateway.started', 'gateway.stopped'],
     );
     assert.ok(events.every((event) => event.id));
     assert.ok(events.every((event) => !Number.isNaN(Date.parse(event.at))));
@@ -4431,61 +4619,63 @@ test("gateway writes durable JSONL audit events", async () => {
   }
 });
 
-test("gateway redacts sensitive audit details before memory and JSONL storage", async () => {
+test('gateway redacts sensitive audit details before memory and JSONL storage', async () => {
   const port = 18_821;
-  const tempDir = await mkdtemp(join(tmpdir(), "mobigent-redaction-"));
-  const auditLogPath = join(tempDir, "audit.jsonl");
+  const tempDir = await mkdtemp(join(tmpdir(), 'mobigent-redaction-'));
+  const auditLogPath = join(tempDir, 'audit.jsonl');
   const gateway = new BridgeGateway({
     port,
     auditLogPath,
-    auditRedactKeys: ["email"]
+    auditRedactKeys: ['email'],
   });
   const bridge = new Mobigent();
 
   gateway.start();
 
   bridge.configure({
-    appId: "com.mobigent.redaction",
-    appName: "Redaction App",
+    appId: 'com.mobigent.redaction',
+    appName: 'Redaction App',
     gatewayUrl: `ws://localhost:${port}`,
-    createSocket: createNodeSocket
+    createSocket: createNodeSocket,
   });
 
   try {
     await bridge.connect();
     await delay(50);
 
-    bridge.emit("profile.updated", {
-      email: "person@example.com",
+    bridge.emit('profile.updated', {
+      email: 'person@example.com',
       nested: {
-        token: "secret-token",
-        keep: "visible"
+        token: 'secret-token',
+        keep: 'visible',
       },
-      list: [{ password: "pw", label: "work" }]
+      list: [{ password: 'pw', label: 'work' }],
     });
     await delay(30);
 
-    const appEvent = gateway.getAuditLog().find((event) => event.type === "app.event");
+    const appEvent = gateway.getAuditLog().find((event) => event.type === 'app.event');
     assert.deepEqual(appEvent?.details, {
-      name: "profile.updated",
+      name: 'profile.updated',
       payload: {
-        email: "[REDACTED]",
+        email: '[REDACTED]',
         nested: {
-          token: "[REDACTED]",
-          keep: "visible"
+          token: '[REDACTED]',
+          keep: 'visible',
         },
-        list: [{ password: "[REDACTED]", label: "work" }]
+        list: [{ password: '[REDACTED]', label: 'work' }],
       },
-      at: appEvent?.details?.at
+      at: appEvent?.details?.at,
     });
 
-    const lines = (await readFile(auditLogPath, "utf8")).trim().split("\n");
-    const persistedEvents = lines.map((line) => JSON.parse(line) as { type: string; details?: JsonObject });
-    const persistedAppEvent = persistedEvents.find((event) => event.type === "app.event");
-    assert.deepEqual((persistedAppEvent?.details?.payload as JsonObject).email, "[REDACTED]");
+    const lines = (await readFile(auditLogPath, 'utf8')).trim().split('\n');
+    const persistedEvents = lines.map(
+      (line) => JSON.parse(line) as { type: string; details?: JsonObject },
+    );
+    const persistedAppEvent = persistedEvents.find((event) => event.type === 'app.event');
+    assert.deepEqual((persistedAppEvent?.details?.payload as JsonObject).email, '[REDACTED]');
     assert.deepEqual(
       ((persistedAppEvent?.details?.payload as JsonObject).nested as JsonObject).token,
-      "[REDACTED]"
+      '[REDACTED]',
     );
   } finally {
     bridge.disconnect();
@@ -4494,7 +4684,7 @@ test("gateway redacts sensitive audit details before memory and JSONL storage", 
   }
 });
 
-test("HTTP gateway exposes recent audit events", async () => {
+test('HTTP gateway exposes recent audit events', async () => {
   const wsPort = 18_806;
   const httpPort = 18_807;
   const gateway = new BridgeGateway({ port: wsPort });
@@ -4509,7 +4699,7 @@ test("HTTP gateway exposes recent audit events", async () => {
     assert.equal(response.status, 200);
     const body = (await response.json()) as { events: Array<{ type: string }> };
     assert.equal(body.events.length, 1);
-    assert.equal(body.events[0]?.type, "gateway.started");
+    assert.equal(body.events[0]?.type, 'gateway.started');
 
     const badLimit = await fetch(`http://localhost:${httpPort}/audit?limit=0`);
     assert.equal(badLimit.status, 400);
@@ -4519,7 +4709,7 @@ test("HTTP gateway exposes recent audit events", async () => {
   }
 });
 
-test("HTTP gateway streams audit events as server-sent events", async () => {
+test('HTTP gateway streams audit events as server-sent events', async () => {
   const wsPort = 18_824;
   const httpPort = 18_825;
   const gateway = new BridgeGateway({ port: wsPort });
@@ -4532,21 +4722,21 @@ test("HTTP gateway streams audit events as server-sent events", async () => {
 
   try {
     const response = await fetch(`http://localhost:${httpPort}/audit/stream?replay=1`, {
-      signal: abort.signal
+      signal: abort.signal,
     });
     assert.equal(response.status, 200);
-    assert.equal(response.headers.get("content-type")?.startsWith("text/event-stream"), true);
+    assert.equal(response.headers.get('content-type')?.startsWith('text/event-stream'), true);
     assert.ok(response.body);
 
     const reader = response.body.getReader();
-    const started = await readStreamUntil(reader, "gateway.started");
+    const started = await readStreamUntil(reader, 'gateway.started');
     assert.match(started, /event: audit/);
 
     await assert.rejects(
-      () => gateway.callTool("com_mobigent_stream.missing_tool", {}),
-      /No connected app exposes tool/
+      () => gateway.callTool('com_mobigent_stream.missing_tool', {}),
+      /No connected app exposes tool/,
     );
-    const live = await readStreamUntil(reader, "tool.call.failed");
+    const live = await readStreamUntil(reader, 'tool.call.failed');
     assert.match(live, /No connected app exposes tool/);
 
     await reader.cancel();
@@ -4557,7 +4747,7 @@ test("HTTP gateway streams audit events as server-sent events", async () => {
   }
 });
 
-test("provider HTTP client streams audit events", async () => {
+test('provider HTTP client streams audit events', async () => {
   const wsPort = 18_828;
   const httpPort = 18_829;
   const gateway = new BridgeGateway({ port: wsPort });
@@ -4570,7 +4760,7 @@ test("provider HTTP client streams audit events", async () => {
 
   const client = createMobigentHttpClient({
     baseUrl: `http://localhost:${httpPort}`,
-    agentId: "audit-monitor"
+    agentId: 'audit-monitor',
   });
 
   try {
@@ -4578,23 +4768,23 @@ test("provider HTTP client streams audit events", async () => {
     const reader = (async () => {
       for await (const event of client.watchAuditEvents({ replay: 1, signal: controller.signal })) {
         events.push(event.type);
-        if (events.includes("tool.call.failed")) {
+        if (events.includes('tool.call.failed')) {
           controller.abort();
           break;
         }
       }
     })();
 
-    await waitFor(() => events.includes("gateway.started"));
+    await waitFor(() => events.includes('gateway.started'));
     await assert.rejects(
-      () => gateway.callTool("com_mobigent_stream.missing_tool", {}, { agentId: "audit-monitor" }),
-      /No connected app exposes tool/
+      () => gateway.callTool('com_mobigent_stream.missing_tool', {}, { agentId: 'audit-monitor' }),
+      /No connected app exposes tool/,
     );
-    await waitFor(() => events.includes("tool.call.failed"));
+    await waitFor(() => events.includes('tool.call.failed'));
     await reader;
 
-    assert.ok(events.includes("gateway.started"));
-    assert.ok(events.includes("tool.call.failed"));
+    assert.ok(events.includes('gateway.started'));
+    assert.ok(events.includes('tool.call.failed'));
   } finally {
     controller.abort();
     gateway.stop();
@@ -4602,10 +4792,10 @@ test("provider HTTP client streams audit events", async () => {
   }
 });
 
-test("gateway exposes app session status for operators", async () => {
+test('gateway exposes app session status for operators', async () => {
   const wsPort = 18_818;
   const httpPort = 18_819;
-  const gateway = new BridgeGateway({ port: wsPort, manifestSigningSecret: "status-secret" });
+  const gateway = new BridgeGateway({ port: wsPort, manifestSigningSecret: 'status-secret' });
   const bridge = new Mobigent();
   const app = createHttpApp(gateway);
   let server: ReturnType<typeof app.listen> | undefined;
@@ -4614,27 +4804,27 @@ test("gateway exposes app session status for operators", async () => {
   server = app.listen(httpPort);
 
   bridge.configure({
-    appId: "com.mobigent.status",
-    appName: "Status App",
+    appId: 'com.mobigent.status',
+    appName: 'Status App',
     gatewayUrl: `ws://localhost:${wsPort}`,
     createSocket: createNodeSocket,
-    signManifest: (manifest) => signManifest(manifest, "status-secret")
+    signManifest: (manifest) => signManifest(manifest, 'status-secret'),
   });
   bridge.registerAction({
-    name: "status_action",
-    description: "Action for status test.",
-    inputSchema: { type: "object", properties: {} },
-    handler: async () => ({ ok: true })
+    name: 'status_action',
+    description: 'Action for status test.',
+    inputSchema: { type: 'object', properties: {} },
+    handler: async () => ({ ok: true }),
   });
   bridge.registerResource({
-    name: "status_resource",
-    description: "Status resource.",
-    read: async () => ({ ok: true })
+    name: 'status_resource',
+    description: 'Status resource.',
+    read: async () => ({ ok: true }),
   });
   bridge.registerComponent({
-    name: "status_screen",
-    description: "Status screen.",
-    focus: async () => ({ focused: true })
+    name: 'status_screen',
+    description: 'Status screen.',
+    focus: async () => ({ focused: true }),
   });
 
   try {
@@ -4651,15 +4841,15 @@ test("gateway exposes app session status for operators", async () => {
       rateLimitBuckets: 0,
       manifestSigningRequired: true,
       appAllowlistEnabled: false,
-      agentProfilesConfigured: false
+      agentProfilesConfigured: false,
     });
 
     const apps = gateway.listApps();
     assert.equal(apps.length, 1);
-    assert.equal(apps[0]?.app?.id, "com.mobigent.status");
+    assert.equal(apps[0]?.app?.id, 'com.mobigent.status');
     assert.ok(apps[0]?.lastSeenAt);
-    assert.equal(typeof apps[0]?.ageMs, "number");
-    assert.equal(typeof apps[0]?.idleMs, "number");
+    assert.equal(typeof apps[0]?.ageMs, 'number');
+    assert.equal(typeof apps[0]?.idleMs, 'number');
     assert.equal(apps[0]?.app?.protocolVersion, 1);
     assert.equal(apps[0]?.app?.protocolCompatible, true);
     assert.equal(apps[0]?.capabilities.tools, 3);
@@ -4675,46 +4865,59 @@ test("gateway exposes app session status for operators", async () => {
     assert.equal(health.status.tools, 3);
     assert.equal(health.status.manifestSigningRequired, true);
 
-    const readyResponse = await fetch(`http://localhost:${httpPort}/ready?minApps=1&minFunctions=3`);
+    const readyResponse = await fetch(
+      `http://localhost:${httpPort}/ready?minApps=1&minFunctions=3`,
+    );
     assert.equal(readyResponse.status, 200);
     const ready = (await readyResponse.json()) as {
       ok: boolean;
       requirements: { minApps: number; minTools: number };
-      checks: { apps: { actual: number; required: number }; tools: { actual: number; required: number } };
+      checks: {
+        apps: { actual: number; required: number };
+        tools: { actual: number; required: number };
+      };
     };
     assert.equal(ready.ok, true);
     assert.deepEqual(ready.requirements, { minApps: 1, minTools: 3 });
     assert.equal(ready.checks.apps.actual, 1);
     assert.equal(ready.checks.tools.required, 3);
 
-    const legacyReadyResponse = await fetch(`http://localhost:${httpPort}/ready?minApps=1&minTools=3`);
+    const legacyReadyResponse = await fetch(
+      `http://localhost:${httpPort}/ready?minApps=1&minTools=3`,
+    );
     assert.equal(legacyReadyResponse.status, 200);
 
     const notReadyResponse = await fetch(`http://localhost:${httpPort}/ready?minFunctions=4`);
     assert.equal(notReadyResponse.status, 503);
-    const notReady = (await notReadyResponse.json()) as { ok: boolean; checks: { tools: { actual: number } } };
+    const notReady = (await notReadyResponse.json()) as {
+      ok: boolean;
+      checks: { tools: { actual: number } };
+    };
     assert.equal(notReady.ok, false);
     assert.equal(notReady.checks.tools.actual, 3);
 
-    assert.deepEqual(await gateway.callTool("com_mobigent_status.status_action", {}, { agentId: "ops-agent" }), {
-      ok: true
-    });
+    assert.deepEqual(
+      await gateway.callTool('com_mobigent_status.status_action', {}, { agentId: 'ops-agent' }),
+      {
+        ok: true,
+      },
+    );
     await assert.rejects(
-      () => gateway.callTool("com_mobigent_status.missing_action", {}, { agentId: "ops-agent" }),
-      /No connected app exposes tool/
+      () => gateway.callTool('com_mobigent_status.missing_action', {}, { agentId: 'ops-agent' }),
+      /No connected app exposes tool/,
     );
 
     const metrics = gateway.getMetrics();
     assert.equal(metrics.status.tools, 3);
-    assert.equal(metrics.auditEvents["tool.call.started"], 1);
-    assert.equal(metrics.auditEvents["tool.call.succeeded"], 1);
-    assert.equal(metrics.auditEvents["tool.call.failed"], 1);
+    assert.equal(metrics.auditEvents['tool.call.started'], 1);
+    assert.equal(metrics.auditEvents['tool.call.succeeded'], 1);
+    assert.equal(metrics.auditEvents['tool.call.failed'], 1);
     assert.equal(metrics.toolCalls.started, 1);
     assert.equal(metrics.toolCalls.succeeded, 1);
     assert.equal(metrics.toolCalls.failed, 1);
-    assert.equal(metrics.byTool["com_mobigent_status.status_action"]?.succeeded, 1);
-    assert.equal(metrics.byAgent["ops-agent"]?.started, 1);
-    assert.equal(metrics.byAgent["ops-agent"]?.failed, 1);
+    assert.equal(metrics.byTool['com_mobigent_status.status_action']?.succeeded, 1);
+    assert.equal(metrics.byAgent['ops-agent']?.started, 1);
+    assert.equal(metrics.byAgent['ops-agent']?.failed, 1);
 
     const metricsResponse = await fetch(`http://localhost:${httpPort}/metrics`);
     assert.equal(metricsResponse.status, 200);
@@ -4726,23 +4929,30 @@ test("gateway exposes app session status for operators", async () => {
 
     const prometheusResponse = await fetch(`http://localhost:${httpPort}/metrics/prometheus`);
     assert.equal(prometheusResponse.status, 200);
-    assert.match(prometheusResponse.headers.get("content-type") ?? "", /text\/plain/);
+    assert.match(prometheusResponse.headers.get('content-type') ?? '', /text\/plain/);
     const prometheus = await prometheusResponse.text();
     assert.match(prometheus, /# TYPE mobigent_tools gauge/);
     assert.match(prometheus, /mobigent_tools 3/);
     assert.match(prometheus, /mobigent_tool_calls_total\{outcome="succeeded"\} 1/);
     assert.match(
       prometheus,
-      /mobigent_tool_calls_by_tool_total\{tool="com_mobigent_status.status_action",outcome="succeeded"\} 1/
+      /mobigent_tool_calls_by_tool_total\{tool="com_mobigent_status.status_action",outcome="succeeded"\} 1/,
     );
-    assert.match(prometheus, /mobigent_tool_calls_by_agent_total\{agent="ops-agent",outcome="failed"\} 1/);
+    assert.match(
+      prometheus,
+      /mobigent_tool_calls_by_agent_total\{agent="ops-agent",outcome="failed"\} 1/,
+    );
 
     const appsResponse = await fetch(`http://localhost:${httpPort}/apps`);
     assert.equal(appsResponse.status, 200);
     const appsBody = (await appsResponse.json()) as {
-      apps: Array<{ app?: { id: string }; capabilities: { tools: number }; manifest?: { signed: boolean } }>;
+      apps: Array<{
+        app?: { id: string };
+        capabilities: { tools: number };
+        manifest?: { signed: boolean };
+      }>;
     };
-    assert.equal(appsBody.apps[0]?.app?.id, "com.mobigent.status");
+    assert.equal(appsBody.apps[0]?.app?.id, 'com.mobigent.status');
     assert.equal(appsBody.apps[0]?.capabilities.tools, 3);
     assert.equal(appsBody.apps[0]?.manifest?.signed, true);
 
@@ -4751,28 +4961,28 @@ test("gateway exposes app session status for operators", async () => {
     const providersBody = (await providersResponse.json()) as {
       providers: Array<{ id: string; setup?: { openApiUrl?: string } }>;
     };
-    assert.ok(providersBody.providers.some((provider) => provider.id === "openai-responses"));
-    assert.ok(providersBody.providers.some((provider) => provider.id === "openrouter"));
-    assert.ok(providersBody.providers.some((provider) => provider.id === "litellm"));
-    assert.ok(providersBody.providers.some((provider) => provider.id === "ollama"));
-    assert.ok(providersBody.providers.some((provider) => provider.id === "lm-studio"));
-    assert.ok(providersBody.providers.some((provider) => provider.id === "xai-grok"));
-    assert.ok(providersBody.providers.some((provider) => provider.id === "deepseek"));
-    assert.ok(providersBody.providers.some((provider) => provider.id === "together-ai"));
-    assert.ok(providersBody.providers.some((provider) => provider.id === "fireworks-ai"));
-    assert.ok(providersBody.providers.some((provider) => provider.id === "mistral"));
-    assert.ok(providersBody.providers.some((provider) => provider.id === "cohere"));
-    assert.ok(providersBody.providers.some((provider) => provider.id === "anthropic-tool-use"));
-    assert.ok(providersBody.providers.some((provider) => provider.id === "aws-bedrock-converse"));
+    assert.ok(providersBody.providers.some((provider) => provider.id === 'openai-responses'));
+    assert.ok(providersBody.providers.some((provider) => provider.id === 'openrouter'));
+    assert.ok(providersBody.providers.some((provider) => provider.id === 'litellm'));
+    assert.ok(providersBody.providers.some((provider) => provider.id === 'ollama'));
+    assert.ok(providersBody.providers.some((provider) => provider.id === 'lm-studio'));
+    assert.ok(providersBody.providers.some((provider) => provider.id === 'xai-grok'));
+    assert.ok(providersBody.providers.some((provider) => provider.id === 'deepseek'));
+    assert.ok(providersBody.providers.some((provider) => provider.id === 'together-ai'));
+    assert.ok(providersBody.providers.some((provider) => provider.id === 'fireworks-ai'));
+    assert.ok(providersBody.providers.some((provider) => provider.id === 'mistral'));
+    assert.ok(providersBody.providers.some((provider) => provider.id === 'cohere'));
+    assert.ok(providersBody.providers.some((provider) => provider.id === 'anthropic-tool-use'));
+    assert.ok(providersBody.providers.some((provider) => provider.id === 'aws-bedrock-converse'));
     assert.equal(
-      providersBody.providers.find((provider) => provider.id === "openapi")?.setup?.openApiUrl,
-      `http://localhost:${httpPort}/openapi.json`
+      providersBody.providers.find((provider) => provider.id === 'openapi')?.setup?.openApiUrl,
+      `http://localhost:${httpPort}/openapi.json`,
     );
 
     const snapshotResponse = await fetch(`http://localhost:${httpPort}/snapshot`, {
       headers: {
-        "x-mobigent-agent": "ops-agent"
-      }
+        'x-mobigent-agent': 'ops-agent',
+      },
     });
     assert.equal(snapshotResponse.status, 200);
     const snapshotBody = (await snapshotResponse.json()) as {
@@ -4783,35 +4993,37 @@ test("gateway exposes app session status for operators", async () => {
       tools: Array<{ name: string }>;
       audit: Array<{ type: string }>;
     };
-    assert.equal(snapshotBody.agentId, "ops-agent");
-    assert.equal(snapshotBody.config.endpoints.snapshot, "/snapshot");
+    assert.equal(snapshotBody.agentId, 'ops-agent');
+    assert.equal(snapshotBody.config.endpoints.snapshot, '/snapshot');
     assert.equal(snapshotBody.health.status.tools, 3);
-    assert.ok(snapshotBody.providers.some((provider) => provider.id === "openai-responses"));
-    assert.ok(snapshotBody.tools.some((tool) => tool.name === "com_mobigent_status.status_action"));
-    assert.ok(snapshotBody.audit.some((event) => event.type === "tool.call.succeeded"));
+    assert.ok(snapshotBody.providers.some((provider) => provider.id === 'openai-responses'));
+    assert.ok(snapshotBody.tools.some((tool) => tool.name === 'com_mobigent_status.status_action'));
+    assert.ok(snapshotBody.audit.some((event) => event.type === 'tool.call.succeeded'));
 
     const snapshotClient = createMobigentHttpClient({
       baseUrl: `http://localhost:${httpPort}`,
-      agentId: "ops-agent"
+      agentId: 'ops-agent',
     });
     const clientSnapshot = await snapshotClient.getSnapshot();
-    assert.equal(clientSnapshot.agentId, "ops-agent");
+    assert.equal(clientSnapshot.agentId, 'ops-agent');
     assert.equal(clientSnapshot.tools.length, 3);
-    assert.equal(clientSnapshot.agents[0]?.agentId, "ops-agent");
+    assert.equal(clientSnapshot.agents[0]?.agentId, 'ops-agent');
     assert.equal(clientSnapshot.agents[0]?.visibleTools, 3);
 
-    const agentVisibility = await snapshotClient.listAgentVisibility({ agentId: ["ops-agent", "anonymous"] });
+    const agentVisibility = await snapshotClient.listAgentVisibility({
+      agentId: ['ops-agent', 'anonymous'],
+    });
     assert.deepEqual(
       agentVisibility.map((agent) => ({
         agentId: agent.agentId,
         profileConfigured: agent.profileConfigured,
         visibleTools: agent.visibleTools,
-        hiddenTools: agent.hiddenTools
+        hiddenTools: agent.hiddenTools,
       })),
       [
-        { agentId: "ops-agent", profileConfigured: false, visibleTools: 3, hiddenTools: 0 },
-        { agentId: "anonymous", profileConfigured: false, visibleTools: 3, hiddenTools: 0 }
-      ]
+        { agentId: 'ops-agent', profileConfigured: false, visibleTools: 3, hiddenTools: 0 },
+        { agentId: 'anonymous', profileConfigured: false, visibleTools: 3, hiddenTools: 0 },
+      ],
     );
 
     const configResponse = await fetch(`http://localhost:${httpPort}/config`);
@@ -4820,8 +5032,23 @@ test("gateway exposes app session status for operators", async () => {
       baseUrl: string;
       protocol: { currentVersion: number; supportedVersions: number[] };
       auth: { required: boolean };
-      endpoints: { ready: string; agents: string; providers: string; snapshot: string; tools: string; toolStream: string; inspector: string; openApi: string };
-      features: { dynamicTools: boolean; agentVisibility: boolean; agentScopedDiscovery: boolean; agentProfiles: boolean; providerSnapshot: boolean };
+      endpoints: {
+        ready: string;
+        agents: string;
+        providers: string;
+        snapshot: string;
+        tools: string;
+        toolStream: string;
+        inspector: string;
+        openApi: string;
+      };
+      features: {
+        dynamicTools: boolean;
+        agentVisibility: boolean;
+        agentScopedDiscovery: boolean;
+        agentProfiles: boolean;
+        providerSnapshot: boolean;
+      };
       limits: { jsonBodyLimit: string | number; maxTimeoutMs: number };
       headers: { agentId: string; idempotencyKey: string };
     };
@@ -4829,35 +5056,35 @@ test("gateway exposes app session status for operators", async () => {
     assert.equal(configBody.protocol.currentVersion, 1);
     assert.deepEqual(configBody.protocol.supportedVersions, [1]);
     assert.equal(configBody.auth.required, false);
-    assert.equal(configBody.endpoints.ready, "/ready");
-    assert.equal(configBody.endpoints.agents, "/agents");
-    assert.equal(configBody.endpoints.providers, "/providers");
-    assert.equal(configBody.endpoints.snapshot, "/snapshot");
-    assert.equal(configBody.endpoints.tools, "/tools");
-    assert.equal(configBody.endpoints.toolStream, "/tools/stream");
-    assert.equal(configBody.endpoints.inspector, "/inspect");
-    assert.equal(configBody.endpoints.openApi, "/openapi.json");
+    assert.equal(configBody.endpoints.ready, '/ready');
+    assert.equal(configBody.endpoints.agents, '/agents');
+    assert.equal(configBody.endpoints.providers, '/providers');
+    assert.equal(configBody.endpoints.snapshot, '/snapshot');
+    assert.equal(configBody.endpoints.tools, '/tools');
+    assert.equal(configBody.endpoints.toolStream, '/tools/stream');
+    assert.equal(configBody.endpoints.inspector, '/inspect');
+    assert.equal(configBody.endpoints.openApi, '/openapi.json');
     assert.equal(configBody.features.dynamicTools, true);
     assert.equal(configBody.features.agentVisibility, true);
     assert.equal(configBody.features.agentScopedDiscovery, true);
     assert.equal(configBody.features.agentProfiles, true);
     assert.equal(configBody.features.providerSnapshot, true);
-    assert.equal(configBody.limits.jsonBodyLimit, "1mb");
+    assert.equal(configBody.limits.jsonBodyLimit, '1mb');
     assert.equal(configBody.limits.maxTimeoutMs, 120_000);
-    assert.equal(configBody.headers.agentId, "x-mobigent-agent");
-    assert.equal(configBody.headers.idempotencyKey, "x-mobigent-idempotency-key");
+    assert.equal(configBody.headers.agentId, 'x-mobigent-agent');
+    assert.equal(configBody.headers.idempotencyKey, 'x-mobigent-idempotency-key');
 
     const openApi = await fetch(`http://localhost:${httpPort}/openapi.json`);
     assert.equal(openApi.status, 200);
     const spec = (await openApi.json()) as { paths: Record<string, unknown> };
-    assert.ok(spec.paths["/apps"]);
-    assert.ok(spec.paths["/agents"]);
-    assert.ok(spec.paths["/config"]);
-    assert.ok(spec.paths["/ready"]);
-    assert.ok(spec.paths["/providers"]);
-    assert.ok(spec.paths["/snapshot"]);
-    assert.ok(spec.paths["/metrics"]);
-    assert.ok(spec.paths["/metrics/prometheus"]);
+    assert.ok(spec.paths['/apps']);
+    assert.ok(spec.paths['/agents']);
+    assert.ok(spec.paths['/config']);
+    assert.ok(spec.paths['/ready']);
+    assert.ok(spec.paths['/providers']);
+    assert.ok(spec.paths['/snapshot']);
+    assert.ok(spec.paths['/metrics']);
+    assert.ok(spec.paths['/metrics/prometheus']);
 
     const inspector = await fetch(`http://localhost:${httpPort}/inspect`);
     assert.equal(inspector.status, 200);
@@ -4869,11 +5096,11 @@ test("gateway exposes app session status for operators", async () => {
   }
 });
 
-test("HTTP gateway can require an agent-facing API key", async () => {
+test('HTTP gateway can require an agent-facing API key', async () => {
   const wsPort = 18_810;
   const httpPort = 18_811;
   const gateway = new BridgeGateway({ port: wsPort });
-  const app = createHttpApp(gateway, { apiKey: "http-secret" });
+  const app = createHttpApp(gateway, { apiKey: 'http-secret' });
   let server: ReturnType<typeof app.listen> | undefined;
 
   gateway.start();
@@ -4894,9 +5121,9 @@ test("HTTP gateway can require an agent-facing API key", async () => {
     };
     assert.ok(spec.components?.securitySchemes?.bearerAuth);
     assert.ok(spec.components?.securitySchemes?.mobigentApiKey);
-    assert.deepEqual(spec.paths["/tools"]?.get?.security, [
+    assert.deepEqual(spec.paths['/tools']?.get?.security, [
       { bearerAuth: [] },
-      { mobigentApiKey: [] }
+      { mobigentApiKey: [] },
     ]);
 
     const denied = await fetch(`http://localhost:${httpPort}/tools`);
@@ -4909,20 +5136,23 @@ test("HTTP gateway can require an agent-facing API key", async () => {
     assert.equal(deniedProviders.status, 401);
     const publicConfig = await fetch(`http://localhost:${httpPort}/config`);
     assert.equal(publicConfig.status, 200);
-    assert.equal(((await publicConfig.json()) as { auth: { required: boolean } }).auth.required, true);
+    assert.equal(
+      ((await publicConfig.json()) as { auth: { required: boolean } }).auth.required,
+      true,
+    );
 
     const apiKeyAllowed = await fetch(`http://localhost:${httpPort}/tools`, {
-      headers: { "x-mobigent-api-key": "http-secret" }
+      headers: { 'x-mobigent-api-key': 'http-secret' },
     });
     assert.equal(apiKeyAllowed.status, 200);
 
     const providersAllowed = await fetch(`http://localhost:${httpPort}/providers`, {
-      headers: { "x-mobigent-api-key": "http-secret" }
+      headers: { 'x-mobigent-api-key': 'http-secret' },
     });
     assert.equal(providersAllowed.status, 200);
 
     const bearerAllowed = await fetch(`http://localhost:${httpPort}/audit`, {
-      headers: { authorization: "Bearer http-secret" }
+      headers: { authorization: 'Bearer http-secret' },
     });
     assert.equal(bearerAllowed.status, 200);
   } finally {
@@ -4931,27 +5161,27 @@ test("HTTP gateway can require an agent-facing API key", async () => {
   }
 });
 
-test("HTTP gateway binds per-agent API keys to agent identity", async () => {
+test('HTTP gateway binds per-agent API keys to agent identity', async () => {
   const wsPort = 18_843;
   const httpPort = 18_844;
   const gateway = new BridgeGateway({
     port: wsPort,
     agentProfiles: {
-      "chatgpt-actions": {
+      'chatgpt-actions': {
         readOnly: true,
-        maxRisk: "low"
+        maxRisk: 'low',
       },
       cursor: {
-        allowedTools: ["com_mobigent_agent_keys.*"]
-      }
-    }
+        allowedTools: ['com_mobigent_agent_keys.*'],
+      },
+    },
   });
   const bridge = new Mobigent();
   const app = createHttpApp(gateway, {
     agentApiKeys: {
-      "chatgpt-actions": "chatgpt-secret",
-      cursor: "cursor-secret"
-    }
+      'chatgpt-actions': 'chatgpt-secret',
+      cursor: 'cursor-secret',
+    },
   });
   let server: ReturnType<typeof app.listen> | undefined;
 
@@ -4959,23 +5189,23 @@ test("HTTP gateway binds per-agent API keys to agent identity", async () => {
   server = app.listen(httpPort);
 
   bridge.configure({
-    appId: "com.mobigent.agent_keys",
-    appName: "Agent Keys App",
+    appId: 'com.mobigent.agent_keys',
+    appName: 'Agent Keys App',
     gatewayUrl: `ws://localhost:${wsPort}`,
-    createSocket: createNodeSocket
+    createSocket: createNodeSocket,
   });
 
   bridge.registerAction({
-    name: "create_note",
-    description: "Create a note.",
-    inputSchema: { type: "object", properties: {} },
-    handler: async () => ({ created: true })
+    name: 'create_note',
+    description: 'Create a note.',
+    inputSchema: { type: 'object', properties: {} },
+    handler: async () => ({ created: true }),
   });
 
   bridge.registerResource({
-    name: "notes",
-    description: "Read notes.",
-    read: async () => ({ notes: [] })
+    name: 'notes',
+    description: 'Read notes.',
+    read: async () => ({ notes: [] }),
   });
 
   try {
@@ -4986,35 +5216,38 @@ test("HTTP gateway binds per-agent API keys to agent identity", async () => {
     assert.equal(denied.status, 401);
 
     const chatGptTools = await fetch(`http://localhost:${httpPort}/tools`, {
-      headers: { "x-mobigent-api-key": "chatgpt-secret" }
+      headers: { 'x-mobigent-api-key': 'chatgpt-secret' },
     });
     assert.equal(chatGptTools.status, 200);
     assert.deepEqual(
       (await chatGptTools.json()).tools.map((tool: { name: string }) => tool.name),
-      ["com_mobigent_agent_keys.get_notes"]
+      ['com_mobigent_agent_keys.get_notes'],
     );
 
     const spoofed = await fetch(`http://localhost:${httpPort}/tools`, {
       headers: {
-        "x-mobigent-api-key": "chatgpt-secret",
-        "x-mobigent-agent": "cursor"
-      }
+        'x-mobigent-api-key': 'chatgpt-secret',
+        'x-mobigent-agent': 'cursor',
+      },
     });
     assert.equal(spoofed.status, 403);
     assert.match(await spoofed.text(), /bound to agent .*chatgpt-actions/);
 
-    const cursorCall = await fetch(`http://localhost:${httpPort}/tools/com_mobigent_agent_keys.create_note/call`, {
-      method: "POST",
-      headers: {
-        authorization: "Bearer cursor-secret",
-        "content-type": "application/json"
+    const cursorCall = await fetch(
+      `http://localhost:${httpPort}/tools/com_mobigent_agent_keys.create_note/call`,
+      {
+        method: 'POST',
+        headers: {
+          authorization: 'Bearer cursor-secret',
+          'content-type': 'application/json',
+        },
+        body: '{}',
       },
-      body: "{}"
-    });
+    );
     assert.equal(cursorCall.status, 200);
     assert.deepEqual(await cursorCall.json(), {
-      tool: "com_mobigent_agent_keys.create_note",
-      result: { created: true }
+      tool: 'com_mobigent_agent_keys.create_note',
+      result: { created: true },
     });
   } finally {
     bridge.disconnect();
@@ -5023,12 +5256,12 @@ test("HTTP gateway binds per-agent API keys to agent identity", async () => {
   }
 });
 
-test("HTTP gateway can restrict browser CORS origins", async () => {
+test('HTTP gateway can restrict browser CORS origins', async () => {
   const port = 18_832;
   const httpPort = 18_833;
   const gateway = new BridgeGateway(port);
   const app = createHttpApp(gateway, {
-    corsOrigins: ["https://allowed.example"]
+    corsOrigins: ['https://allowed.example'],
   });
   let server: ReturnType<typeof app.listen> | undefined;
 
@@ -5037,28 +5270,28 @@ test("HTTP gateway can restrict browser CORS origins", async () => {
 
   try {
     const allowed = await fetch(`http://localhost:${httpPort}/health`, {
-      headers: { origin: "https://allowed.example" }
+      headers: { origin: 'https://allowed.example' },
     });
     assert.equal(allowed.status, 200);
-    assert.equal(allowed.headers.get("access-control-allow-origin"), "https://allowed.example");
+    assert.equal(allowed.headers.get('access-control-allow-origin'), 'https://allowed.example');
 
     const denied = await fetch(`http://localhost:${httpPort}/health`, {
-      headers: { origin: "https://denied.example" }
+      headers: { origin: 'https://denied.example' },
     });
     assert.equal(denied.status, 200);
-    assert.equal(denied.headers.get("access-control-allow-origin"), null);
+    assert.equal(denied.headers.get('access-control-allow-origin'), null);
   } finally {
     gateway.stop();
     server?.close();
   }
 });
 
-test("HTTP gateway rejects JSON request bodies larger than the configured limit", async () => {
+test('HTTP gateway rejects JSON request bodies larger than the configured limit', async () => {
   const port = 18_834;
   const httpPort = 18_835;
   const gateway = new BridgeGateway(port);
   const app = createHttpApp(gateway, {
-    jsonBodyLimit: "20b"
+    jsonBodyLimit: '20b',
   });
   let server: ReturnType<typeof app.listen> | undefined;
 
@@ -5067,11 +5300,11 @@ test("HTTP gateway rejects JSON request bodies larger than the configured limit"
 
   try {
     const response = await fetch(`http://localhost:${httpPort}/tools/example.call/call`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "content-type": "application/json"
+        'content-type': 'application/json',
       },
-      body: JSON.stringify({ value: "this body is intentionally too large" })
+      body: JSON.stringify({ value: 'this body is intentionally too large' }),
     });
     assert.equal(response.status, 413);
     assert.match(await response.text(), /larger than the configured Mobigent HTTP JSON limit/);
@@ -5081,97 +5314,98 @@ test("HTTP gateway rejects JSON request bodies larger than the configured limit"
   }
 });
 
-test("OpenAPI schema includes provider-friendly per-tool operations", () => {
+test('OpenAPI schema includes provider-friendly per-tool operations', () => {
   const spec = createOpenApiSpec(
-    "https://mobigent.example",
+    'https://mobigent.example',
     [
       {
-        name: "com_mobigent_expenses.create_expense",
-        description: "Expenses: Create a new expense.",
+        name: 'com_mobigent_expenses.create_expense',
+        description: 'Expenses: Create a new expense.',
         inputSchema: {
-          type: "object",
+          type: 'object',
           properties: {
-            amount: { type: "number" },
-            merchant: { type: "string" }
+            amount: { type: 'number' },
+            merchant: { type: 'string' },
           },
-          required: ["amount", "merchant"]
+          required: ['amount', 'merchant'],
         },
         outputSchema: {
-          type: "object",
+          type: 'object',
           properties: {
-            id: { type: "string" },
-            amount: { type: "number" },
-            merchant: { type: "string" }
+            id: { type: 'string' },
+            amount: { type: 'number' },
+            merchant: { type: 'string' },
           },
-          required: ["id", "amount", "merchant"]
+          required: ['id', 'amount', 'merchant'],
         },
         readOnly: false,
-        risk: "medium",
+        risk: 'medium',
         app: {
-          id: "com.mobigent.expenses",
-          name: "Expenses"
-        }
+          id: 'com.mobigent.expenses',
+          name: 'Expenses',
+        },
       },
       {
-        name: "com_mobigent_expenses.get_expenses",
-        description: "Expenses: Read expenses.",
+        name: 'com_mobigent_expenses.get_expenses',
+        description: 'Expenses: Read expenses.',
         inputSchema: {
-          type: "object",
-          properties: {}
+          type: 'object',
+          properties: {},
         },
         outputSchema: {
-          type: "object",
+          type: 'object',
           properties: {
             expenses: {
-              type: "array",
+              type: 'array',
               items: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  id: { type: "string" }
+                  id: { type: 'string' },
                 },
-                required: ["id"]
-              }
-            }
+                required: ['id'],
+              },
+            },
           },
-          required: ["expenses"]
+          required: ['expenses'],
         },
         readOnly: true,
-        risk: "low",
+        risk: 'low',
         app: {
-          id: "com.mobigent.expenses",
-          name: "Expenses"
-        }
-      }
+          id: 'com.mobigent.expenses',
+          name: 'Expenses',
+        },
+      },
     ],
-    { requireAuth: true }
+    { requireAuth: true },
   );
 
-  const createPath = spec.paths["/tools/com_mobigent_expenses.create_expense/call"];
-  const readPath = spec.paths["/tools/com_mobigent_expenses.get_expenses/call"];
+  const createPath = spec.paths['/tools/com_mobigent_expenses.create_expense/call'];
+  const readPath = spec.paths['/tools/com_mobigent_expenses.get_expenses/call'];
 
-  assert.equal(spec.servers[0]?.url, "https://mobigent.example");
+  assert.equal(spec.servers[0]?.url, 'https://mobigent.example');
   assert.ok(spec.components?.securitySchemes?.bearerAuth);
-  assert.equal(createPath?.post.operationId, "call_com_mobigent_expenses_create_expense");
-  assert.equal(createPath?.post["x-openai-isConsequential"], true);
+  assert.equal(createPath?.post.operationId, 'call_com_mobigent_expenses_create_expense');
+  assert.equal(createPath?.post['x-openai-isConsequential'], true);
   assert.deepEqual(createPath?.post.security, [{ bearerAuth: [] }, { mobigentApiKey: [] }]);
+  assert.deepEqual(createPath?.post.requestBody.content['application/json'].schema.required, [
+    'amount',
+    'merchant',
+  ]);
   assert.deepEqual(
-    createPath?.post.requestBody.content["application/json"].schema.required,
-    ["amount", "merchant"]
+    createPath?.post.responses['200'].content['application/json'].schema.properties.result.required,
+    ['id', 'amount', 'merchant'],
   );
-  assert.deepEqual(
-    createPath?.post.responses["200"].content["application/json"].schema.properties.result.required,
-    ["id", "amount", "merchant"]
-  );
-  assert.equal(readPath?.post["x-openai-isConsequential"], false);
+  assert.equal(readPath?.post['x-openai-isConsequential'], false);
   assert.equal(
-    readPath?.post.responses["200"].content["application/json"].schema.properties.result.properties.expenses.type,
-    "array"
+    readPath?.post.responses['200'].content['application/json'].schema.properties.result.properties
+      .expenses.type,
+    'array',
   );
-  assert.equal(spec.paths["/tools/stream"]?.get.operationId, "streamTools");
-  assert.equal(spec.paths["/tools/{toolName}/call"]?.post.operationId, "callTool");
+  assert.equal(spec.paths['/tools/stream']?.get.operationId, 'streamTools');
+  assert.equal(spec.paths['/tools/{toolName}/call']?.post.operationId, 'callTool');
 });
 
-test("HTTP OpenAPI endpoint reflects currently connected tools", async () => {
+test('HTTP OpenAPI endpoint reflects currently connected tools', async () => {
   const wsPort = 18_808;
   const httpPort = 18_809;
   const gateway = new BridgeGateway({ port: wsPort });
@@ -5183,45 +5417,45 @@ test("HTTP OpenAPI endpoint reflects currently connected tools", async () => {
   server = app.listen(httpPort);
 
   bridge.configure({
-    appId: "com.mobigent.openapi",
-    appName: "OpenAPI App",
+    appId: 'com.mobigent.openapi',
+    appName: 'OpenAPI App',
     gatewayUrl: `ws://localhost:${wsPort}`,
-    createSocket: createNodeSocket
+    createSocket: createNodeSocket,
   });
 
   bridge.registerAction({
-    name: "create_expense",
-    description: "Create an expense.",
+    name: 'create_expense',
+    description: 'Create an expense.',
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
-        amount: { type: "number" }
+        amount: { type: 'number' },
       },
-      required: ["amount"]
+      required: ['amount'],
     },
     outputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
-        amount: { type: "number" }
+        amount: { type: 'number' },
       },
-      required: ["amount"]
+      required: ['amount'],
     },
-    handler: async (input) => ({ amount: input.amount })
+    handler: async (input) => ({ amount: input.amount }),
   });
   bridge.registerAction({
-    name: "admin_delete_expense",
-    description: "Delete an expense.",
+    name: 'admin_delete_expense',
+    description: 'Delete an expense.',
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
-        id: { type: "string" }
+        id: { type: 'string' },
       },
-      required: ["id"]
+      required: ['id'],
     },
     policy: {
-      allowedAgents: ["admin-agent"]
+      allowedAgents: ['admin-agent'],
     },
-    handler: async () => ({ deleted: true })
+    handler: async () => ({ deleted: true }),
   });
 
   try {
@@ -5231,18 +5465,21 @@ test("HTTP OpenAPI endpoint reflects currently connected tools", async () => {
     const response = await fetch(`http://localhost:${httpPort}/openapi.json`);
     assert.equal(response.status, 200);
     const spec = (await response.json()) as { paths: Record<string, any> };
-    const path = spec.paths["/tools/com_mobigent_openapi.create_expense/call"];
+    const path = spec.paths['/tools/com_mobigent_openapi.create_expense/call'];
     assert.ok(path);
-    assert.equal(spec.paths["/tools/com_mobigent_openapi.admin_delete_expense/call"], undefined);
+    assert.equal(spec.paths['/tools/com_mobigent_openapi.admin_delete_expense/call'], undefined);
     assert.equal(
-      path.post.responses["200"].content["application/json"].schema.properties.result.properties.amount.type,
-      "number"
+      path.post.responses['200'].content['application/json'].schema.properties.result.properties
+        .amount.type,
+      'number',
     );
 
-    const adminResponse = await fetch(`http://localhost:${httpPort}/openapi.json?agentId=admin-agent`);
+    const adminResponse = await fetch(
+      `http://localhost:${httpPort}/openapi.json?agentId=admin-agent`,
+    );
     assert.equal(adminResponse.status, 200);
     const adminSpec = (await adminResponse.json()) as { paths: Record<string, any> };
-    assert.ok(adminSpec.paths["/tools/com_mobigent_openapi.admin_delete_expense/call"]);
+    assert.ok(adminSpec.paths['/tools/com_mobigent_openapi.admin_delete_expense/call']);
   } finally {
     bridge.disconnect();
     gateway.stop();
@@ -5250,38 +5487,38 @@ test("HTTP OpenAPI endpoint reflects currently connected tools", async () => {
   }
 });
 
-test("provider HTTP adapter lists, maps, and executes gateway tools", async () => {
+test('provider HTTP adapter lists, maps, and executes gateway tools', async () => {
   const wsPort = 18_814;
   const httpPort = 18_815;
   const gateway = new BridgeGateway({ port: wsPort });
   const bridge = new Mobigent();
-  const app = createHttpApp(gateway, { apiKey: "adapter-secret" });
+  const app = createHttpApp(gateway, { apiKey: 'adapter-secret' });
   let server: ReturnType<typeof app.listen> | undefined;
 
   gateway.start();
   server = app.listen(httpPort);
 
   bridge.configure({
-    appId: "com.mobigent.adapter",
-    appName: "Adapter App",
+    appId: 'com.mobigent.adapter',
+    appName: 'Adapter App',
     gatewayUrl: `ws://localhost:${wsPort}`,
-    createSocket: createNodeSocket
+    createSocket: createNodeSocket,
   });
 
   bridge.registerAction({
-    name: "create_note",
-    description: "Create a note.",
+    name: 'create_note',
+    description: 'Create a note.',
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
-        title: { type: "string" }
+        title: { type: 'string' },
       },
-      required: ["title"]
+      required: ['title'],
     },
     policy: {
-      allowedAgents: ["openai-responses"]
+      allowedAgents: ['openai-responses'],
     },
-    handler: async (input) => ({ id: "NOTE-1", title: input.title })
+    handler: async (input) => ({ id: 'NOTE-1', title: input.title }),
   });
 
   try {
@@ -5290,12 +5527,12 @@ test("provider HTTP adapter lists, maps, and executes gateway tools", async () =
 
     const client = createMobigentHttpClient({
       baseUrl: `http://localhost:${httpPort}`,
-      auth: "bearer",
-      apiKey: "adapter-secret",
-      agentId: "openai-responses"
+      auth: 'bearer',
+      apiKey: 'adapter-secret',
+      agentId: 'openai-responses',
     });
     const tools = await client.listTools();
-    const tool = await client.getTool("com_mobigent_adapter.create_note");
+    const tool = await client.getTool('com_mobigent_adapter.create_note');
     const apps = await client.listApps();
     const auditEvents = await client.listAuditEvents({ limit: 10 });
     const providers = await client.listProviders();
@@ -5305,37 +5542,37 @@ test("provider HTTP adapter lists, maps, and executes gateway tools", async () =
     const metrics = await client.getMetrics();
 
     assert.deepEqual(client.headers(), {
-      "content-type": "application/json",
-      "x-mobigent-agent": "openai-responses",
-      authorization: "Bearer adapter-secret"
+      'content-type': 'application/json',
+      'x-mobigent-agent': 'openai-responses',
+      authorization: 'Bearer adapter-secret',
     });
     assert.deepEqual(
       tools.map((tool) => tool.name),
-      ["com_mobigent_adapter.create_note"]
+      ['com_mobigent_adapter.create_note'],
     );
-    assert.equal(tool.name, "com_mobigent_adapter.create_note");
-    assert.equal(tool.inputSchema.properties?.title?.type, "string");
-    assert.equal(apps[0]?.app?.id, "com.mobigent.adapter");
+    assert.equal(tool.name, 'com_mobigent_adapter.create_note');
+    assert.equal(tool.inputSchema.properties?.title?.type, 'string');
+    assert.equal(apps[0]?.app?.id, 'com.mobigent.adapter');
     assert.equal(apps[0]?.capabilities.tools, 1);
-    assert.ok(auditEvents.some((event) => event.type === "manifest.registered"));
-    assert.ok(providers.some((provider) => provider.id === "openai-responses"));
-    assert.ok(providers.some((provider) => provider.id === "openrouter"));
-    assert.ok(providers.some((provider) => provider.id === "litellm"));
-    assert.ok(providers.some((provider) => provider.id === "ollama"));
-    assert.ok(providers.some((provider) => provider.id === "lm-studio"));
-    assert.ok(providers.some((provider) => provider.id === "xai-grok"));
-  assert.ok(providers.some((provider) => provider.id === "deepseek"));
-  assert.ok(providers.some((provider) => provider.id === "together-ai"));
-  assert.ok(providers.some((provider) => provider.id === "fireworks-ai"));
-  assert.ok(providers.some((provider) => provider.id === "mistral"));
-    assert.ok(providers.some((provider) => provider.id === "cohere"));
-    assert.ok(providers.some((provider) => provider.id === "semantic-kernel"));
+    assert.ok(auditEvents.some((event) => event.type === 'manifest.registered'));
+    assert.ok(providers.some((provider) => provider.id === 'openai-responses'));
+    assert.ok(providers.some((provider) => provider.id === 'openrouter'));
+    assert.ok(providers.some((provider) => provider.id === 'litellm'));
+    assert.ok(providers.some((provider) => provider.id === 'ollama'));
+    assert.ok(providers.some((provider) => provider.id === 'lm-studio'));
+    assert.ok(providers.some((provider) => provider.id === 'xai-grok'));
+    assert.ok(providers.some((provider) => provider.id === 'deepseek'));
+    assert.ok(providers.some((provider) => provider.id === 'together-ai'));
+    assert.ok(providers.some((provider) => provider.id === 'fireworks-ai'));
+    assert.ok(providers.some((provider) => provider.id === 'mistral'));
+    assert.ok(providers.some((provider) => provider.id === 'cohere'));
+    assert.ok(providers.some((provider) => provider.id === 'semantic-kernel'));
     assert.equal(config.auth.required, true);
     assert.deepEqual(config.protocol.supportedVersions, [1]);
-    assert.equal(config.endpoints.ready, "/ready");
-    assert.equal(config.endpoints.toolCallTemplate, "/tools/{toolName}/call");
+    assert.equal(config.endpoints.ready, '/ready');
+    assert.equal(config.endpoints.toolCallTemplate, '/tools/{toolName}/call');
     assert.equal(config.features.toolStreaming, true);
-    assert.equal(config.headers.timeoutMs, "x-mobigent-timeout-ms");
+    assert.equal(config.headers.timeoutMs, 'x-mobigent-timeout-ms');
     assert.equal(health.ok, true);
     assert.equal(health.status.tools, 1);
     assert.equal(readiness.ok, true);
@@ -5344,149 +5581,152 @@ test("provider HTTP adapter lists, maps, and executes gateway tools", async () =
     assert.equal(metrics.toolCalls.started, 0);
     assert.deepEqual(toOpenAiTools(tools), [
       {
-        type: "function",
-        name: "com_mobigent_adapter.create_note",
-        description: "Adapter App: Create a note.",
+        type: 'function',
+        name: 'com_mobigent_adapter.create_note',
+        description: 'Adapter App: Create a note.',
         parameters: {
-          type: "object",
+          type: 'object',
           properties: {
-            title: { type: "string" }
+            title: { type: 'string' },
           },
-          required: ["title"]
-        }
-      }
+          required: ['title'],
+        },
+      },
     ]);
     assert.deepEqual(toChatFunctionTools(tools), [
       {
-        type: "function",
+        type: 'function',
         function: {
-          name: "com_mobigent_adapter.create_note",
-          description: "Adapter App: Create a note.",
+          name: 'com_mobigent_adapter.create_note',
+          description: 'Adapter App: Create a note.',
           parameters: {
-            type: "object",
+            type: 'object',
             properties: {
-              title: { type: "string" }
+              title: { type: 'string' },
             },
-            required: ["title"]
-          }
-        }
-      }
+            required: ['title'],
+          },
+        },
+      },
     ]);
     assert.deepEqual(toAnthropicTools(tools), [
       {
-        name: "com_mobigent_adapter.create_note",
-        description: "Adapter App: Create a note.",
+        name: 'com_mobigent_adapter.create_note',
+        description: 'Adapter App: Create a note.',
         input_schema: {
-          type: "object",
+          type: 'object',
           properties: {
-            title: { type: "string" }
+            title: { type: 'string' },
           },
-          required: ["title"]
-        }
-      }
+          required: ['title'],
+        },
+      },
     ]);
     assert.deepEqual(toGeminiFunctionDeclarations(tools), [
       {
-        name: "com_mobigent_adapter.create_note",
-        description: "Adapter App: Create a note.",
+        name: 'com_mobigent_adapter.create_note',
+        description: 'Adapter App: Create a note.',
         parameters: {
-          type: "object",
+          type: 'object',
           properties: {
-            title: { type: "string" }
+            title: { type: 'string' },
           },
-          required: ["title"]
-        }
-      }
+          required: ['title'],
+        },
+      },
     ]);
     assert.deepEqual(toBedrockToolConfigTools(tools), [
       {
         toolSpec: {
-          name: "com_mobigent_adapter.create_note",
-          description: "Adapter App: Create a note.",
+          name: 'com_mobigent_adapter.create_note',
+          description: 'Adapter App: Create a note.',
           inputSchema: {
             json: {
-              type: "object",
+              type: 'object',
               properties: {
-                title: { type: "string" }
+                title: { type: 'string' },
               },
-              required: ["title"]
-            }
-          }
-        }
-      }
+              required: ['title'],
+            },
+          },
+        },
+      },
     ]);
 
     const executeTool = createMobigentToolExecutor(client);
-    assert.deepEqual(await executeTool("com_mobigent_adapter.create_note", { title: "Ship SDK" }), {
-      id: "NOTE-1",
-      title: "Ship SDK"
+    assert.deepEqual(await executeTool('com_mobigent_adapter.create_note', { title: 'Ship SDK' }), {
+      id: 'NOTE-1',
+      title: 'Ship SDK',
     });
 
     const executableTools = toExecutableTools(tools, client);
     assert.equal(executableTools[0]?.schema, tools[0]?.inputSchema);
-    assert.deepEqual(await executableTools[0]?.execute({ title: "Executable" }), {
-      id: "NOTE-1",
-      title: "Executable"
+    assert.deepEqual(await executableTools[0]?.execute({ title: 'Executable' }), {
+      id: 'NOTE-1',
+      title: 'Executable',
     });
 
     const langChainTools = toLangChainTools(tools, client);
-    assert.deepEqual(langChainTools[0]?.lc_namespace, ["mobigent", "tools"]);
-    assert.deepEqual(await langChainTools[0]?.execute({ title: "LangChain" }), {
-      id: "NOTE-1",
-      title: "LangChain"
+    assert.deepEqual(langChainTools[0]?.lc_namespace, ['mobigent', 'tools']);
+    assert.deepEqual(await langChainTools[0]?.execute({ title: 'LangChain' }), {
+      id: 'NOTE-1',
+      title: 'LangChain',
     });
 
     const llamaIndexTools = toLlamaIndexTools(tools, client);
-    assert.equal(llamaIndexTools[0]?.metadata.name, "com_mobigent_adapter.create_note");
-    assert.deepEqual(await llamaIndexTools[0]?.call({ title: "LlamaIndex" }), {
-      id: "NOTE-1",
-      title: "LlamaIndex"
+    assert.equal(llamaIndexTools[0]?.metadata.name, 'com_mobigent_adapter.create_note');
+    assert.deepEqual(await llamaIndexTools[0]?.call({ title: 'LlamaIndex' }), {
+      id: 'NOTE-1',
+      title: 'LlamaIndex',
     });
 
     const mastraTools = toMastraTools(tools, client);
     assert.equal(mastraTools[0]?.inputSchema, tools[0]?.inputSchema);
-    assert.deepEqual(await mastraTools[0]?.execute({ input: { title: "Mastra" } }), {
-      id: "NOTE-1",
-      title: "Mastra"
+    assert.deepEqual(await mastraTools[0]?.execute({ input: { title: 'Mastra' } }), {
+      id: 'NOTE-1',
+      title: 'Mastra',
     });
 
     const semanticKernelPlugin = toSemanticKernelPlugin(tools, client);
-    assert.equal(semanticKernelPlugin[0]?.pluginName, "Mobigent");
+    assert.equal(semanticKernelPlugin[0]?.pluginName, 'Mobigent');
     assert.equal(semanticKernelPlugin[0]?.parameters, tools[0]?.inputSchema);
-    assert.deepEqual(await semanticKernelPlugin[0]?.invoke({ title: "Semantic Kernel" }), {
-      id: "NOTE-1",
-      title: "Semantic Kernel"
+    assert.deepEqual(await semanticKernelPlugin[0]?.invoke({ title: 'Semantic Kernel' }), {
+      id: 'NOTE-1',
+      title: 'Semantic Kernel',
     });
 
     const vercelTools = toVercelAiSdkTools(tools, client);
-    assert.equal(vercelTools["com_mobigent_adapter.create_note"]?.parameters, tools[0]?.inputSchema);
+    assert.equal(
+      vercelTools['com_mobigent_adapter.create_note']?.parameters,
+      tools[0]?.inputSchema,
+    );
     assert.deepEqual(
-      await vercelTools["com_mobigent_adapter.create_note"]?.execute({ title: "Vercel" }),
+      await vercelTools['com_mobigent_adapter.create_note']?.execute({ title: 'Vercel' }),
       {
-        id: "NOTE-1",
-        title: "Vercel"
-      }
+        id: 'NOTE-1',
+        title: 'Vercel',
+      },
     );
 
     const crewAiTools = toCrewAiTools(tools, client);
     assert.equal(crewAiTools[0]?.args_schema, tools[0]?.inputSchema);
-    assert.deepEqual(await crewAiTools[0]?.run({ title: "CrewAI" }), {
-      id: "NOTE-1",
-      title: "CrewAI"
+    assert.deepEqual(await crewAiTools[0]?.run({ title: 'CrewAI' }), {
+      id: 'NOTE-1',
+      title: 'CrewAI',
     });
 
     const autoGenTools = toAutoGenTools(tools, client);
     assert.equal(autoGenTools[0]?.schema, tools[0]?.inputSchema);
-    assert.deepEqual(await autoGenTools[0]?.run({ title: "AutoGen" }), {
-      id: "NOTE-1",
-      title: "AutoGen"
+    assert.deepEqual(await autoGenTools[0]?.run({ title: 'AutoGen' }), {
+      id: 'NOTE-1',
+      title: 'AutoGen',
     });
 
     const haystackTools = toHaystackTools(tools, client);
     assert.equal(haystackTools[0]?.parameters, tools[0]?.inputSchema);
-    assert.deepEqual(await haystackTools[0]?.invoke({ title: "Haystack" }), {
-      id: "NOTE-1",
-      title: "Haystack"
+    assert.deepEqual(await haystackTools[0]?.invoke({ title: 'Haystack' }), {
+      id: 'NOTE-1',
+      title: 'Haystack',
     });
   } finally {
     bridge.disconnect();
@@ -5495,362 +5735,391 @@ test("provider HTTP adapter lists, maps, and executes gateway tools", async () =
   }
 });
 
-test("provider helpers generate copy-pasteable agent configuration", () => {
+test('provider helpers generate copy-pasteable agent configuration', () => {
   const claude = createClaudeDesktopProvider({
-    command: "mobigent-mcp",
-    env: { MOBIGENT_AUTH_TOKEN: "secret" }
+    command: 'mobigent-mcp',
+    env: { MOBIGENT_AUTH_TOKEN: 'secret' },
   });
   const chatgpt = createChatGptActionsProvider({
-    baseUrl: "https://mobigent.example",
-    auth: "bearer"
+    baseUrl: 'https://mobigent.example',
+    auth: 'bearer',
   });
-  const vscode = createVsCodeProvider({ command: "npx", args: ["mobigent-mcp"] });
+  const vscode = createVsCodeProvider({ command: 'npx', args: ['mobigent-mcp'] });
   const anthropic = createAnthropicToolUseProvider({
-    baseUrl: "http://localhost:8788",
-    auth: "api-key",
-    agentId: "claude-server"
+    baseUrl: 'http://localhost:8788',
+    auth: 'api-key',
+    agentId: 'claude-server',
   });
   const azureOpenAi = createAzureOpenAiProvider({
-    baseUrl: "http://localhost:8788"
+    baseUrl: 'http://localhost:8788',
   });
   const openAiCompatible = createOpenAiCompatibleProvider({
-    baseUrl: "http://localhost:8788"
+    baseUrl: 'http://localhost:8788',
   });
   const openrouter = createOpenRouterProvider({
-    baseUrl: "http://localhost:8788"
+    baseUrl: 'http://localhost:8788',
   });
   const litellm = createLiteLlmProvider({
-    baseUrl: "http://localhost:8788"
+    baseUrl: 'http://localhost:8788',
   });
   const ollama = createOllamaProvider({
-    baseUrl: "http://localhost:8788"
+    baseUrl: 'http://localhost:8788',
   });
   const lmStudio = createLmStudioProvider({
-    baseUrl: "http://localhost:8788"
+    baseUrl: 'http://localhost:8788',
   });
   const groq = createGroqProvider({
-    baseUrl: "http://localhost:8788"
+    baseUrl: 'http://localhost:8788',
   });
   const perplexity = createPerplexityProvider({
-    baseUrl: "http://localhost:8788"
+    baseUrl: 'http://localhost:8788',
   });
   const xaiGrok = createXaiGrokProvider({
-    baseUrl: "http://localhost:8788"
+    baseUrl: 'http://localhost:8788',
   });
   const deepseek = createDeepSeekProvider({
-    baseUrl: "http://localhost:8788"
+    baseUrl: 'http://localhost:8788',
   });
   const together = createTogetherAiProvider({
-    baseUrl: "http://localhost:8788"
+    baseUrl: 'http://localhost:8788',
   });
   const fireworks = createFireworksAiProvider({
-    baseUrl: "http://localhost:8788"
+    baseUrl: 'http://localhost:8788',
   });
   const qwen = createQwenDashScopeProvider({
-    baseUrl: "http://localhost:8788"
+    baseUrl: 'http://localhost:8788',
   });
   const nvidia = createNvidiaNimProvider({
-    baseUrl: "http://localhost:8788"
+    baseUrl: 'http://localhost:8788',
   });
   const cloudflare = createCloudflareAiGatewayProvider({
-    baseUrl: "http://localhost:8788"
+    baseUrl: 'http://localhost:8788',
   });
   const mistral = createMistralProvider({
-    baseUrl: "http://localhost:8788"
+    baseUrl: 'http://localhost:8788',
   });
   const cohere = createCohereProvider({
-    baseUrl: "http://localhost:8788"
+    baseUrl: 'http://localhost:8788',
   });
   const langchain = createLangChainProvider({
-    baseUrl: "http://localhost:8788"
+    baseUrl: 'http://localhost:8788',
   });
   const gemini = createGoogleGeminiProvider({
-    baseUrl: "http://localhost:8788",
-    auth: "bearer"
+    baseUrl: 'http://localhost:8788',
+    auth: 'bearer',
   });
   const vertexAi = createGoogleVertexAiProvider({
-    baseUrl: "http://localhost:8788"
+    baseUrl: 'http://localhost:8788',
   });
   const bedrock = createAwsBedrockConverseProvider({
-    baseUrl: "http://localhost:8788"
+    baseUrl: 'http://localhost:8788',
   });
   const vercel = createVercelAiSdkProvider({
-    baseUrl: "http://localhost:8788"
+    baseUrl: 'http://localhost:8788',
   });
   const semanticKernel = createSemanticKernelProvider({
-    baseUrl: "http://localhost:8788"
+    baseUrl: 'http://localhost:8788',
   });
   const crewai = createCrewAiProvider({
-    baseUrl: "http://localhost:8788"
+    baseUrl: 'http://localhost:8788',
   });
   const autogen = createAutoGenProvider({
-    baseUrl: "http://localhost:8788"
+    baseUrl: 'http://localhost:8788',
   });
   const haystack = createHaystackProvider({
-    baseUrl: "http://localhost:8788"
+    baseUrl: 'http://localhost:8788',
   });
   const catalog = createProviderCatalog({
-    mcp: { command: "mobigent-mcp" },
-    openApi: { baseUrl: "https://mobigent.example" }
+    mcp: { command: 'mobigent-mcp' },
+    openApi: { baseUrl: 'https://mobigent.example' },
   });
 
-  assert.equal(claude.capabilities.transport, "stdio");
+  assert.equal(claude.capabilities.transport, 'stdio');
   assert.equal(claude.capabilities.supportsDynamicTools, true);
   assert.deepEqual(claude.setup, {
     mcpServers: {
       mobigent: {
-        command: "mobigent-mcp",
+        command: 'mobigent-mcp',
         args: [],
-        env: { MOBIGENT_AUTH_TOKEN: "secret" }
-      }
-    }
+        env: { MOBIGENT_AUTH_TOKEN: 'secret' },
+      },
+    },
   });
 
   assert.equal(chatgpt.capabilities.requiresPublicUrl, true);
-  assert.equal(chatgpt.setup.openApiUrl, "https://mobigent.example/openapi.json");
+  assert.equal(chatgpt.setup.openApiUrl, 'https://mobigent.example/openapi.json');
   assert.deepEqual(vscode.setup, {
     servers: {
       mobigent: {
-        type: "stdio",
-        command: "npx",
-        args: ["mobigent-mcp"],
-        env: {}
-      }
-    }
+        type: 'stdio',
+        command: 'npx',
+        args: ['mobigent-mcp'],
+        env: {},
+      },
+    },
   });
-  assert.equal(anthropic.capabilities.transport, "http");
+  assert.equal(anthropic.capabilities.transport, 'http');
   assert.equal(anthropic.capabilities.supportsDynamicTools, true);
   assert.deepEqual(getProviderIntegrationProfile(claude), {
-    category: "local-agent",
-    bestFor: ["desktop agents", "local development", "MCP-compatible clients"],
-    setupComplexity: "low",
+    category: 'local-agent',
+    bestFor: ['desktop agents', 'local development', 'MCP-compatible clients'],
+    setupComplexity: 'low',
     productionNotes: [
-      "Runs without a public URL.",
-      "Best when the provider can launch a local Mobigent MCP command."
-    ]
+      'Runs without a public URL.',
+      'Best when the provider can launch a local Mobigent MCP command.',
+    ],
   });
-  assert.equal(getProviderIntegrationProfile(chatgpt).category, "hosted-actions");
-  assert.equal(getProviderIntegrationProfile(anthropic).category, "runtime-agent");
+  assert.equal(getProviderIntegrationProfile(chatgpt).category, 'hosted-actions');
+  assert.equal(getProviderIntegrationProfile(anthropic).category, 'runtime-agent');
   assert.deepEqual(anthropic.setup.headers, {
-    "content-type": "application/json",
-    "x-mobigent-agent": "claude-server",
-    "x-mobigent-api-key": "${MOBIGENT_HTTP_API_KEY}"
+    'content-type': 'application/json',
+    'x-mobigent-agent': 'claude-server',
+    'x-mobigent-api-key': '${MOBIGENT_HTTP_API_KEY}',
   });
-  assert.equal(azureOpenAi.kind, "azure-openai");
+  assert.equal(azureOpenAi.kind, 'azure-openai');
   assert.match(azureOpenAi.setup.adapter as string, /Azure OpenAI chat function tools/);
-  assert.equal(openAiCompatible.kind, "openai-compatible");
+  assert.equal(openAiCompatible.kind, 'openai-compatible');
   assert.match(openAiCompatible.setup.adapter as string, /OpenAI-compatible chat function tools/);
-  assert.equal(openrouter.kind, "openrouter");
+  assert.equal(openrouter.kind, 'openrouter');
   assert.match(openrouter.setup.adapter as string, /OpenAI-compatible chat function tools/);
-  assert.equal(litellm.kind, "litellm");
+  assert.equal(litellm.kind, 'litellm');
   assert.match(litellm.setup.adapter as string, /LiteLLM/);
-  assert.equal(ollama.kind, "ollama");
+  assert.equal(ollama.kind, 'ollama');
   assert.match(ollama.setup.adapter as string, /Ollama chat function tools/);
-  assert.equal(lmStudio.kind, "lm-studio");
+  assert.equal(lmStudio.kind, 'lm-studio');
   assert.match(lmStudio.setup.adapter as string, /LM Studio OpenAI-compatible/);
-  assert.equal(groq.kind, "groq");
+  assert.equal(groq.kind, 'groq');
   assert.match(groq.setup.adapter as string, /Groq OpenAI-compatible/);
-  assert.equal(perplexity.kind, "perplexity");
+  assert.equal(perplexity.kind, 'perplexity');
   assert.match(perplexity.setup.adapter as string, /Perplexity function-calling tools/);
-  assert.equal(xaiGrok.kind, "xai-grok");
+  assert.equal(xaiGrok.kind, 'xai-grok');
   assert.match(xaiGrok.setup.adapter as string, /xAI Grok OpenAI-compatible/);
-  assert.equal(deepseek.kind, "deepseek");
+  assert.equal(deepseek.kind, 'deepseek');
   assert.match(deepseek.setup.adapter as string, /DeepSeek OpenAI-compatible/);
-  assert.equal(together.kind, "together-ai");
+  assert.equal(together.kind, 'together-ai');
   assert.match(together.setup.adapter as string, /Together AI OpenAI-compatible/);
-  assert.equal(fireworks.kind, "fireworks-ai");
+  assert.equal(fireworks.kind, 'fireworks-ai');
   assert.match(fireworks.setup.adapter as string, /Fireworks AI OpenAI-compatible/);
-  assert.equal(qwen.kind, "qwen-dashscope");
+  assert.equal(qwen.kind, 'qwen-dashscope');
   assert.match(qwen.setup.adapter as string, /Qwen DashScope OpenAI-compatible/);
-  assert.equal(nvidia.kind, "nvidia-nim");
+  assert.equal(nvidia.kind, 'nvidia-nim');
   assert.match(nvidia.setup.adapter as string, /NVIDIA NIM OpenAI-compatible/);
-  assert.equal(cloudflare.kind, "cloudflare-ai-gateway");
+  assert.equal(cloudflare.kind, 'cloudflare-ai-gateway');
   assert.match(cloudflare.setup.adapter as string, /Cloudflare AI Gateway/);
-  assert.equal(mistral.kind, "mistral");
+  assert.equal(mistral.kind, 'mistral');
   assert.match(mistral.setup.adapter as string, /Mistral chat function tools/);
-  assert.equal(cohere.kind, "cohere");
+  assert.equal(cohere.kind, 'cohere');
   assert.match(cohere.setup.adapter as string, /Cohere function tools/);
-  assert.equal(langchain.setup.callToolUrlTemplate, "http://localhost:8788/tools/{toolName}/call");
-  assert.equal(gemini.kind, "google-gemini");
-  assert.equal((gemini.setup.headers as Record<string, string>)["x-mobigent-agent"], "google-gemini");
-  assert.equal(vertexAi.kind, "google-vertex-ai");
-  assert.equal((vertexAi.setup.headers as Record<string, string>)["x-mobigent-agent"], "google-vertex-ai");
-  assert.equal(bedrock.kind, "aws-bedrock-converse");
-  assert.equal((bedrock.setup.headers as Record<string, string>)["x-mobigent-agent"], "aws-bedrock-converse");
-  assert.equal(vercel.kind, "vercel-ai-sdk");
-  assert.deepEqual(vercel.setup.npm, ["ai"]);
-  assert.equal(semanticKernel.kind, "semantic-kernel");
-  assert.deepEqual(semanticKernel.setup.python, ["semantic-kernel"]);
-  assert.equal(crewai.kind, "crewai");
-  assert.deepEqual(crewai.setup.python, ["crewai", "crewai-tools", "pydantic"]);
-  assert.equal(autogen.kind, "autogen");
-  assert.deepEqual(autogen.setup.python, ["autogen-core"]);
-  assert.equal(haystack.kind, "haystack");
-  assert.deepEqual(haystack.setup.python, ["haystack-ai"]);
+  assert.equal(langchain.setup.callToolUrlTemplate, 'http://localhost:8788/tools/{toolName}/call');
+  assert.equal(gemini.kind, 'google-gemini');
+  assert.equal(
+    (gemini.setup.headers as Record<string, string>)['x-mobigent-agent'],
+    'google-gemini',
+  );
+  assert.equal(vertexAi.kind, 'google-vertex-ai');
+  assert.equal(
+    (vertexAi.setup.headers as Record<string, string>)['x-mobigent-agent'],
+    'google-vertex-ai',
+  );
+  assert.equal(bedrock.kind, 'aws-bedrock-converse');
+  assert.equal(
+    (bedrock.setup.headers as Record<string, string>)['x-mobigent-agent'],
+    'aws-bedrock-converse',
+  );
+  assert.equal(vercel.kind, 'vercel-ai-sdk');
+  assert.deepEqual(vercel.setup.npm, ['ai']);
+  assert.equal(semanticKernel.kind, 'semantic-kernel');
+  assert.deepEqual(semanticKernel.setup.python, ['semantic-kernel']);
+  assert.equal(crewai.kind, 'crewai');
+  assert.deepEqual(crewai.setup.python, ['crewai', 'crewai-tools', 'pydantic']);
+  assert.equal(autogen.kind, 'autogen');
+  assert.deepEqual(autogen.setup.python, ['autogen-core']);
+  assert.equal(haystack.kind, 'haystack');
+  assert.deepEqual(haystack.setup.python, ['haystack-ai']);
   assert.deepEqual(
     catalog.map((provider) => provider.id),
     [
-      "mcp-stdio",
-      "claude-desktop",
-      "cursor",
-      "vscode",
-      "openapi",
-      "chatgpt-actions",
-      "openai-responses",
-      "azure-openai",
-      "openai-compatible",
-      "openrouter",
-      "litellm",
-      "ollama",
-      "lm-studio",
-      "groq",
-      "perplexity",
-      "xai-grok",
-      "deepseek",
-      "together-ai",
-      "fireworks-ai",
-      "qwen-dashscope",
-      "nvidia-nim",
-      "cloudflare-ai-gateway",
-      "mistral",
-      "cohere",
-      "anthropic-tool-use",
-      "google-gemini",
-      "google-vertex-ai",
-      "aws-bedrock-converse",
-      "vercel-ai-sdk",
-      "langchain",
-      "llamaindex",
-      "mastra",
-      "semantic-kernel",
-      "crewai",
-      "autogen",
-      "haystack",
-      "generic-agent"
-    ]
+      'mcp-stdio',
+      'claude-desktop',
+      'cursor',
+      'vscode',
+      'openapi',
+      'chatgpt-actions',
+      'openai-responses',
+      'azure-openai',
+      'openai-compatible',
+      'openrouter',
+      'litellm',
+      'ollama',
+      'lm-studio',
+      'groq',
+      'perplexity',
+      'xai-grok',
+      'deepseek',
+      'together-ai',
+      'fireworks-ai',
+      'qwen-dashscope',
+      'nvidia-nim',
+      'cloudflare-ai-gateway',
+      'mistral',
+      'cohere',
+      'anthropic-tool-use',
+      'google-gemini',
+      'google-vertex-ai',
+      'aws-bedrock-converse',
+      'vercel-ai-sdk',
+      'langchain',
+      'llamaindex',
+      'mastra',
+      'semantic-kernel',
+      'crewai',
+      'autogen',
+      'haystack',
+      'generic-agent',
+    ],
   );
   assert.deepEqual(
-    filterProviderCatalog(catalog, { transport: "stdio" }).map((provider) => provider.id),
-    ["mcp-stdio", "claude-desktop", "cursor", "vscode"]
+    filterProviderCatalog(catalog, { transport: 'stdio' }).map((provider) => provider.id),
+    ['mcp-stdio', 'claude-desktop', 'cursor', 'vscode'],
   );
   assert.deepEqual(
-    filterProviderCatalog(catalog, { transport: "openapi", requiresPublicUrl: true }).map((provider) => provider.id),
-    ["openapi", "chatgpt-actions", "generic-agent"]
+    filterProviderCatalog(catalog, { transport: 'openapi', requiresPublicUrl: true }).map(
+      (provider) => provider.id,
+    ),
+    ['openapi', 'chatgpt-actions', 'generic-agent'],
   );
   assert.deepEqual(
-    filterProviderCatalog(catalog, { runtimeOnly: true, query: "openai-compatible" }).map((provider) => provider.id),
+    filterProviderCatalog(catalog, { runtimeOnly: true, query: 'openai-compatible' }).map(
+      (provider) => provider.id,
+    ),
     [
-      "openai-compatible",
-      "openrouter",
-      "litellm",
-      "lm-studio",
-      "groq",
-      "xai-grok",
-      "deepseek",
-      "together-ai",
-      "fireworks-ai",
-      "qwen-dashscope",
-      "nvidia-nim",
-      "cloudflare-ai-gateway"
-    ]
+      'openai-compatible',
+      'openrouter',
+      'litellm',
+      'lm-studio',
+      'groq',
+      'xai-grok',
+      'deepseek',
+      'together-ai',
+      'fireworks-ai',
+      'qwen-dashscope',
+      'nvidia-nim',
+      'cloudflare-ai-gateway',
+    ],
   );
   assert.deepEqual(
-    filterProviderCatalog(catalog, { ids: ["mistral", "cohere", "missing"] }).map((provider) => provider.id),
-    ["mistral", "cohere"]
+    filterProviderCatalog(catalog, { ids: ['mistral', 'cohere', 'missing'] }).map(
+      (provider) => provider.id,
+    ),
+    ['mistral', 'cohere'],
   );
   assert.deepEqual(summarizeProviderCatalog(catalog), {
     total: 37,
     byTransport: {
       stdio: 4,
       http: 30,
-      openapi: 3
+      openapi: 3,
     },
     byCategory: {
-      "local-agent": 4,
-      "hosted-actions": 2,
-      "runtime-agent": 30,
-      fallback: 1
+      'local-agent': 4,
+      'hosted-actions': 2,
+      'runtime-agent': 30,
+      fallback: 1,
     },
     runtimeProviders: 31,
     publicUrlProviders: 3,
-    dynamicToolProviders: 35
+    dynamicToolProviders: 35,
   });
   const compatibility = createProviderCompatibilityReport(catalog);
   assert.equal(compatibility.summary.total, 37);
   assert.equal(compatibility.summary.pass, 37);
   assert.equal(compatibility.summary.fail, 0);
-  assert.deepEqual(compatibility.providers.find((provider) => provider.id === "openrouter"), {
-    id: "openrouter",
-    name: "OpenRouter",
-    transport: "http",
-    runtime: true,
-    status: "pass",
-    failingChecks: [],
-    warningChecks: []
-  });
   assert.deepEqual(
-    createProviderCompatibilityReport([createOpenApiProvider({ baseUrl: "http://localhost:8788" })]).providers[0],
+    compatibility.providers.find((provider) => provider.id === 'openrouter'),
     {
-      id: "openapi",
-      name: "OpenAPI",
-      transport: "openapi",
+      id: 'openrouter',
+      name: 'OpenRouter',
+      transport: 'http',
+      runtime: true,
+      status: 'pass',
+      failingChecks: [],
+      warningChecks: [],
+    },
+  );
+  assert.deepEqual(
+    createProviderCompatibilityReport([createOpenApiProvider({ baseUrl: 'http://localhost:8788' })])
+      .providers[0],
+    {
+      id: 'openapi',
+      name: 'OpenAPI',
+      transport: 'openapi',
       runtime: false,
-      status: "fail",
-      failingChecks: ["publicUrl"],
-      warningChecks: []
-    }
+      status: 'fail',
+      failingChecks: ['publicUrl'],
+      warningChecks: [],
+    },
   );
   assert.deepEqual(
     listProviderRecommendationPresets().map((preset) => preset.id),
-    ["local-agent", "hosted-actions", "runtime-agent"]
+    ['local-agent', 'hosted-actions', 'runtime-agent'],
   );
-  assert.equal(getProviderRecommendationPreset("hosted-actions").recommendedTransport, "openapi");
-  assert.equal(getProviderRecommendationPreset().id, "runtime-agent");
+  assert.equal(getProviderRecommendationPreset('hosted-actions').recommendedTransport, 'openapi');
+  assert.equal(getProviderRecommendationPreset().id, 'runtime-agent');
   assert.deepEqual(
-    recommendProviders(catalog, { useCase: "local-agent", limit: 2 }).map((recommendation) => recommendation.provider.id),
-    ["claude-desktop", "cursor"]
-  );
-  assert.deepEqual(
-    recommendProviders(catalog, { useCase: "hosted-actions", limit: 2 }).map((recommendation) => recommendation.provider.id),
-    ["chatgpt-actions", "openapi"]
-  );
-  assert.deepEqual(
-    recommendProviders(catalog, { useCase: "runtime-agent", query: "openrouter", limit: 1 }).map(
-      (recommendation) => recommendation.provider.id
+    recommendProviders(catalog, { useCase: 'local-agent', limit: 2 }).map(
+      (recommendation) => recommendation.provider.id,
     ),
-    ["openrouter"]
+    ['claude-desktop', 'cursor'],
+  );
+  assert.deepEqual(
+    recommendProviders(catalog, { useCase: 'hosted-actions', limit: 2 }).map(
+      (recommendation) => recommendation.provider.id,
+    ),
+    ['chatgpt-actions', 'openapi'],
+  );
+  assert.deepEqual(
+    recommendProviders(catalog, { useCase: 'runtime-agent', query: 'openrouter', limit: 1 }).map(
+      (recommendation) => recommendation.provider.id,
+    ),
+    ['openrouter'],
   );
   const setupPlan = createProviderSetupPlan(catalog, {
-    useCase: "runtime-agent",
-    query: "openrouter",
+    useCase: 'runtime-agent',
+    query: 'openrouter',
     runtimeEnv: {
-      agentId: "openrouter-prod",
+      agentId: 'openrouter-prod',
       watchTools: true,
-      minTools: 2
-    }
+      minTools: 2,
+    },
   });
-  assert.equal(setupPlan.recommendation.provider.id, "openrouter");
-  assert.equal(setupPlan.profile.category, "runtime-agent");
-  assert.equal(setupPlan.validation.status, "pass");
-  assert.equal(setupPlan.bundle.runtimeEnv?.MOBIGENT_AGENT_ID, "openrouter-prod");
-  assert.equal(setupPlan.bundle.runtimeEnv?.MOBIGENT_MIN_TOOLS, "2");
-  assert.equal(setupPlan.bundle.runtimeEnv?.MOBIGENT_WATCH_TOOLS, "true");
+  assert.equal(setupPlan.recommendation.provider.id, 'openrouter');
+  assert.equal(setupPlan.profile.category, 'runtime-agent');
+  assert.equal(setupPlan.validation.status, 'pass');
+  assert.equal(setupPlan.bundle.runtimeEnv?.MOBIGENT_AGENT_ID, 'openrouter-prod');
+  assert.equal(setupPlan.bundle.runtimeEnv?.MOBIGENT_MIN_TOOLS, '2');
+  assert.equal(setupPlan.bundle.runtimeEnv?.MOBIGENT_WATCH_TOOLS, 'true');
   assert.deepEqual(validateProviderSetupPlan(setupPlan), {
     ok: true,
-    status: "pass",
+    status: 'pass',
     errors: [],
     provider: {
-      id: "openrouter",
-      name: "OpenRouter"
-    }
+      id: 'openrouter',
+      name: 'OpenRouter',
+    },
   });
-  assert.match(formatProviderSetupPlanValidation(validateProviderSetupPlan(setupPlan)), /Mobigent provider setup plan: PASS/);
+  assert.match(
+    formatProviderSetupPlanValidation(validateProviderSetupPlan(setupPlan)),
+    /Mobigent provider setup plan: PASS/,
+  );
   assert.equal(
     validateProviderSetupPlan({
       ...setupPlan,
-      bundle: { ...setupPlan.bundle, provider: { ...setupPlan.bundle.provider, id: "wrong-provider" } }
+      bundle: {
+        ...setupPlan.bundle,
+        provider: { ...setupPlan.bundle.provider, id: 'wrong-provider' },
+      },
     }).status,
-    "fail"
+    'fail',
   );
   assert.match(createProviderGuide(chatgpt), /https:\/\/mobigent.example\/openapi\.json/);
   assert.match(createProviderGuide(azureOpenAi), /Azure OpenAI/);
@@ -5879,39 +6148,43 @@ test("provider helpers generate copy-pasteable agent configuration", () => {
   assert.match(createProviderGuide(haystack), /Haystack Tool/);
 
   const anthropicBundle = createProviderBundle(anthropic);
-  assert.equal(anthropicBundle.provider.id, "anthropic-tool-use");
-  assert.equal(anthropicBundle.endpoints.snapshot, "http://localhost:8788/snapshot");
-  assert.equal(anthropicBundle.endpoints.tools, "http://localhost:8788/tools");
-  assert.equal(anthropicBundle.runtimeEnv?.MOBIGENT_PROVIDER, "anthropic-tool-use");
-  assert.equal(anthropicBundle.runtimeEnv?.MOBIGENT_AGENT_ID, "claude-server");
-  assert.equal(anthropicBundle.runtimeEnv?.MOBIGENT_HTTP_API_KEY, "${MOBIGENT_HTTP_API_KEY}");
+  assert.equal(anthropicBundle.provider.id, 'anthropic-tool-use');
+  assert.equal(anthropicBundle.endpoints.snapshot, 'http://localhost:8788/snapshot');
+  assert.equal(anthropicBundle.endpoints.tools, 'http://localhost:8788/tools');
+  assert.equal(anthropicBundle.runtimeEnv?.MOBIGENT_PROVIDER, 'anthropic-tool-use');
+  assert.equal(anthropicBundle.runtimeEnv?.MOBIGENT_AGENT_ID, 'claude-server');
+  assert.equal(anthropicBundle.runtimeEnv?.MOBIGENT_HTTP_API_KEY, '${MOBIGENT_HTTP_API_KEY}');
   assert.match(anthropicBundle.guide, /Anthropic Tool Use/);
   assert.deepEqual(createProviderRuntimeEnv(anthropic, { watchTools: true, minTools: 2 }), {
-    MOBIGENT_PROVIDER: "anthropic-tool-use",
-    MOBIGENT_HTTP_URL: "http://localhost:8788",
-    MOBIGENT_AGENT_ID: "claude-server",
-    MOBIGENT_HTTP_API_KEY: "${MOBIGENT_HTTP_API_KEY}",
-    MOBIGENT_MIN_APPS: "1",
-    MOBIGENT_MIN_TOOLS: "2",
-    MOBIGENT_WAIT_TIMEOUT_MS: "30000",
-    MOBIGENT_WAIT_INTERVAL_MS: "500",
-    MOBIGENT_WATCH_TOOLS: "true"
+    MOBIGENT_PROVIDER: 'anthropic-tool-use',
+    MOBIGENT_HTTP_URL: 'http://localhost:8788',
+    MOBIGENT_AGENT_ID: 'claude-server',
+    MOBIGENT_HTTP_API_KEY: '${MOBIGENT_HTTP_API_KEY}',
+    MOBIGENT_MIN_APPS: '1',
+    MOBIGENT_MIN_TOOLS: '2',
+    MOBIGENT_WAIT_TIMEOUT_MS: '30000',
+    MOBIGENT_WAIT_INTERVAL_MS: '500',
+    MOBIGENT_WATCH_TOOLS: 'true',
   });
   assert.match(stringifyProviderRuntimeEnv(anthropic), /MOBIGENT_PROVIDER=anthropic-tool-use/);
   assert.throws(() => createProviderRuntimeEnv(claude), /not an HTTP runtime provider/);
 
   const chatGptBundle = createProviderBundle(chatgpt);
-  assert.equal(chatGptBundle.endpoints.openApi, "https://mobigent.example/openapi.json");
+  assert.equal(chatGptBundle.endpoints.openApi, 'https://mobigent.example/openapi.json');
   assert.equal(chatGptBundle.runtimeEnv, undefined);
-  assert.equal(validateProviderSetup(openrouter).status, "pass");
-  assert.match(formatProviderSetupValidation(validateProviderSetup(openrouter)), /OpenRouter setup is ready/);
+  assert.equal(validateProviderSetup(openrouter).status, 'pass');
+  assert.match(
+    formatProviderSetupValidation(validateProviderSetup(openrouter)),
+    /OpenRouter setup is ready/,
+  );
   assert.equal(
-    validateProviderSetup(createChatGptActionsProvider({ baseUrl: "http://localhost:8788" })).status,
-    "fail"
+    validateProviderSetup(createChatGptActionsProvider({ baseUrl: 'http://localhost:8788' }))
+      .status,
+    'fail',
   );
 });
 
-test("provider HTTP client forwards reliability headers and retries transient failures", async () => {
+test('provider HTTP client forwards reliability headers and retries transient failures', async () => {
   const requests: Array<{ url: string; init?: RequestInit }> = [];
   let healthAttempts = 0;
   let readinessAttempts = 0;
@@ -5925,15 +6198,15 @@ test("provider HTTP client forwards reliability headers and retries transient fa
   const mockFetch: typeof fetch = async (url, init) => {
     requests.push({ url: String(url), init });
 
-    if (String(url).endsWith("/health")) {
+    if (String(url).endsWith('/health')) {
       healthAttempts += 1;
       if (healthAttempts === 1) {
-        return new Response(JSON.stringify({ error: "warming up" }), { status: 503 });
+        return new Response(JSON.stringify({ error: 'warming up' }), { status: 503 });
       }
       return new Response(
         JSON.stringify({
           ok: true,
-          name: "Mobigent Gateway",
+          name: 'Mobigent Gateway',
           status: {
             appSessions: 1,
             authenticatedAppSessions: 1,
@@ -5943,22 +6216,22 @@ test("provider HTTP client forwards reliability headers and retries transient fa
             idempotencyRecords: 0,
             rateLimitBuckets: 0,
             manifestSigningRequired: false,
-            appAllowlistEnabled: false
-          }
+            appAllowlistEnabled: false,
+          },
         }),
-        { status: 200 }
+        { status: 200 },
       );
     }
 
-    if (String(url).includes("/ready")) {
+    if (String(url).includes('/ready')) {
       readinessAttempts += 1;
       if (readinessAttempts === 1) {
-        return new Response(JSON.stringify({ error: "warming up" }), { status: 503 });
+        return new Response(JSON.stringify({ error: 'warming up' }), { status: 503 });
       }
       return new Response(
         JSON.stringify({
           ok: false,
-          name: "Mobigent Gateway",
+          name: 'Mobigent Gateway',
           status: {
             appSessions: 1,
             authenticatedAppSessions: 1,
@@ -5968,33 +6241,33 @@ test("provider HTTP client forwards reliability headers and retries transient fa
             idempotencyRecords: 0,
             rateLimitBuckets: 0,
             manifestSigningRequired: false,
-            appAllowlistEnabled: false
+            appAllowlistEnabled: false,
           },
           requirements: {
             minApps: 1,
-            minTools: 3
+            minTools: 3,
           },
           checks: {
             apps: {
               ok: true,
               actual: 1,
-              required: 1
+              required: 1,
             },
             tools: {
               ok: false,
               actual: 2,
-              required: 3
-            }
-          }
+              required: 3,
+            },
+          },
         }),
-        { status: 503 }
+        { status: 503 },
       );
     }
 
-    if (String(url).endsWith("/metrics")) {
+    if (String(url).endsWith('/metrics')) {
       metricsAttempts += 1;
       if (metricsAttempts === 1) {
-        return new Response(JSON.stringify({ error: "warming up" }), { status: 503 });
+        return new Response(JSON.stringify({ error: 'warming up' }), { status: 503 });
       }
       return new Response(
         JSON.stringify({
@@ -6008,10 +6281,10 @@ test("provider HTTP client forwards reliability headers and retries transient fa
               idempotencyRecords: 0,
               rateLimitBuckets: 0,
               manifestSigningRequired: false,
-              appAllowlistEnabled: false
+              appAllowlistEnabled: false,
             },
             auditEvents: {
-              "tool.call.started": 1
+              'tool.call.started': 1,
             },
             toolCalls: {
               started: 1,
@@ -6019,138 +6292,138 @@ test("provider HTTP client forwards reliability headers and retries transient fa
               failed: 0,
               denied: 0,
               timedOut: 0,
-              deduplicated: 0
+              deduplicated: 0,
             },
             byTool: {},
-            byAgent: {}
-          }
+            byAgent: {},
+          },
         }),
-        { status: 200 }
+        { status: 200 },
       );
     }
 
-    if (String(url).includes("/audit")) {
+    if (String(url).includes('/audit')) {
       auditAttempts += 1;
       if (auditAttempts === 1) {
-        return new Response(JSON.stringify({ error: "warming up" }), { status: 503 });
+        return new Response(JSON.stringify({ error: 'warming up' }), { status: 503 });
       }
       return new Response(
         JSON.stringify({
           events: [
             {
-              id: "audit-1",
-              at: "2026-05-24T00:00:02.000Z",
-              type: "tool.call.started",
-              severity: "info",
-              message: "Tool call started.",
-              tool: "com.example.create_note",
-              agentId: "anthropic-tool-use",
+              id: 'audit-1',
+              at: '2026-05-24T00:00:02.000Z',
+              type: 'tool.call.started',
+              severity: 'info',
+              message: 'Tool call started.',
+              tool: 'com.example.create_note',
+              agentId: 'anthropic-tool-use',
               details: {
-                requestId: "req-1"
-              }
-            }
-          ]
+                requestId: 'req-1',
+              },
+            },
+          ],
         }),
-        { status: 200 }
+        { status: 200 },
       );
     }
 
-    if (String(url).endsWith("/providers")) {
+    if (String(url).endsWith('/providers')) {
       providerAttempts += 1;
       if (providerAttempts === 1) {
-        return new Response(JSON.stringify({ error: "warming up" }), { status: 503 });
+        return new Response(JSON.stringify({ error: 'warming up' }), { status: 503 });
       }
       return new Response(
         JSON.stringify({
           providers: [
             {
-              id: "openai-responses",
-              kind: "openai-responses",
-              name: "OpenAI Responses",
-              description: "OpenAI Responses API tool adapter metadata.",
+              id: 'openai-responses',
+              kind: 'openai-responses',
+              name: 'OpenAI Responses',
+              description: 'OpenAI Responses API tool adapter metadata.',
               capabilities: {
-                transport: "http",
+                transport: 'http',
                 supportsTools: true,
                 supportsDynamicTools: true,
                 requiresPublicUrl: false,
-                supportsConfirmationNotes: true
+                supportsConfirmationNotes: true,
               },
-              setup: {}
-            }
-          ]
+              setup: {},
+            },
+          ],
         }),
-        { status: 200 }
+        { status: 200 },
       );
     }
 
-    if (String(url).endsWith("/apps")) {
+    if (String(url).endsWith('/apps')) {
       appAttempts += 1;
       if (appAttempts === 1) {
-        return new Response(JSON.stringify({ error: "warming up" }), { status: 503 });
+        return new Response(JSON.stringify({ error: 'warming up' }), { status: 503 });
       }
       return new Response(
         JSON.stringify({
           apps: [
             {
-              sessionId: "session-1",
-              connectedAt: "2026-05-24T00:00:00.000Z",
-              lastSeenAt: "2026-05-24T00:00:03.000Z",
+              sessionId: 'session-1',
+              connectedAt: '2026-05-24T00:00:00.000Z',
+              lastSeenAt: '2026-05-24T00:00:03.000Z',
               ageMs: 3000,
               idleMs: 0,
               authenticated: true,
               app: {
-                id: "com.mobigent.mock",
-                name: "Mock App",
-                sdk: "react-native",
-                version: "0.1.0",
+                id: 'com.mobigent.mock',
+                name: 'Mock App',
+                sdk: 'react-native',
+                version: '0.1.0',
                 protocolVersion: 1,
-                protocolCompatible: true
+                protocolCompatible: true,
               },
               capabilities: {
                 actions: 1,
                 resources: 0,
                 components: 0,
-                tools: 1
+                tools: 1,
               },
               manifest: {
-                acceptedAt: "2026-05-24T00:00:01.000Z",
-                signed: false
-              }
-            }
-          ]
+                acceptedAt: '2026-05-24T00:00:01.000Z',
+                signed: false,
+              },
+            },
+          ],
         }),
-        { status: 200 }
+        { status: 200 },
       );
     }
 
-    if (String(url).endsWith("/tools")) {
+    if (String(url).endsWith('/tools')) {
       listAttempts += 1;
       if (listAttempts === 1) {
-        return new Response(JSON.stringify({ error: "warming up" }), { status: 503 });
+        return new Response(JSON.stringify({ error: 'warming up' }), { status: 503 });
       }
       return new Response(JSON.stringify({ tools: [] }), { status: 200 });
     }
 
     callAttempts += 1;
     if (callAttempts === 1) {
-      return new Response(JSON.stringify({ error: "busy" }), { status: 429 });
+      return new Response(JSON.stringify({ error: 'busy' }), { status: 429 });
     }
     return new Response(JSON.stringify({ result: { ok: true } }), { status: 200 });
   };
 
   const client = createMobigentHttpClient({
-    baseUrl: "http://localhost:8788/",
-    auth: "api-key",
-    apiKey: "provider-secret",
-    agentId: "anthropic-tool-use",
+    baseUrl: 'http://localhost:8788/',
+    auth: 'api-key',
+    apiKey: 'provider-secret',
+    agentId: 'anthropic-tool-use',
     timeoutMs: 20_000,
     requestId: () => `req-${++requestId}`,
     headers: {
-      "x-custom-provider": "test"
+      'x-custom-provider': 'test',
     },
     retries: 1,
     retryDelayMs: 0,
-    fetch: mockFetch
+    fetch: mockFetch,
   });
 
   assert.equal((await client.getHealth()).status.tools, 2);
@@ -6160,30 +6433,30 @@ test("provider HTTP client forwards reliability headers and retries transient fa
   assert.equal((await client.getMetrics()).toolCalls.succeeded, 1);
   assert.deepEqual(
     (await client.listAuditEvents({ limit: 1 })).map((event) => event.type),
-    ["tool.call.started"]
+    ['tool.call.started'],
   );
   assert.deepEqual(
     (await client.listApps()).map((app) => app.app?.id),
-    ["com.mobigent.mock"]
+    ['com.mobigent.mock'],
   );
   assert.deepEqual(
     (await client.listProviders()).map((provider) => provider.id),
-    ["openai-responses"]
+    ['openai-responses'],
   );
   assert.deepEqual(await client.listTools(), []);
   assert.deepEqual(
     await client.callTool(
-      "com.example.create_note",
-      { title: "Retry" },
+      'com.example.create_note',
+      { title: 'Retry' },
       {
-        agentId: "openai-responses",
-        headers: { "x-call-scope": "single-call" },
-        idempotencyKey: "note-create-1",
-        requestId: "call-req",
-        timeoutMs: 5_000
-      }
+        agentId: 'openai-responses',
+        headers: { 'x-call-scope': 'single-call' },
+        idempotencyKey: 'note-create-1',
+        requestId: 'call-req',
+        timeoutMs: 5_000,
+      },
     ),
-    { ok: true }
+    { ok: true },
   );
   assert.equal(healthAttempts, 2);
   assert.equal(readinessAttempts, 2);
@@ -6196,23 +6469,23 @@ test("provider HTTP client forwards reliability headers and retries transient fa
 
   const firstHeaders = requests[0]?.init?.headers as Record<string, string>;
   const lastHeaders = requests.at(-1)?.init?.headers as Record<string, string>;
-  assert.equal(firstHeaders["x-mobigent-agent"], "anthropic-tool-use");
-  assert.equal(firstHeaders["x-mobigent-api-key"], "provider-secret");
-  assert.equal(firstHeaders["x-mobigent-timeout-ms"], "20000");
-  assert.equal(firstHeaders["x-custom-provider"], "test");
-  assert.equal(firstHeaders["x-mobigent-request-id"], "req-1");
-  assert.equal(lastHeaders["x-mobigent-agent"], "openai-responses");
-  assert.equal(lastHeaders["x-mobigent-timeout-ms"], "5000");
-  assert.equal(lastHeaders["x-mobigent-request-id"], "call-req");
-  assert.equal(lastHeaders["x-mobigent-idempotency-key"], "note-create-1");
-  assert.equal(lastHeaders["x-call-scope"], "single-call");
+  assert.equal(firstHeaders['x-mobigent-agent'], 'anthropic-tool-use');
+  assert.equal(firstHeaders['x-mobigent-api-key'], 'provider-secret');
+  assert.equal(firstHeaders['x-mobigent-timeout-ms'], '20000');
+  assert.equal(firstHeaders['x-custom-provider'], 'test');
+  assert.equal(firstHeaders['x-mobigent-request-id'], 'req-1');
+  assert.equal(lastHeaders['x-mobigent-agent'], 'openai-responses');
+  assert.equal(lastHeaders['x-mobigent-timeout-ms'], '5000');
+  assert.equal(lastHeaders['x-mobigent-request-id'], 'call-req');
+  assert.equal(lastHeaders['x-mobigent-idempotency-key'], 'note-create-1');
+  assert.equal(lastHeaders['x-call-scope'], 'single-call');
 });
 
-test("provider HTTP client waits for visible tools during agent startup", async () => {
+test('provider HTTP client waits for visible tools during agent startup', async () => {
   let listAttempts = 0;
   const mockFetch: typeof fetch = async (url) => {
-    if (!String(url).endsWith("/tools")) {
-      return new Response(JSON.stringify({ error: "unexpected route" }), { status: 404 });
+    if (!String(url).endsWith('/tools')) {
+      return new Response(JSON.stringify({ error: 'unexpected route' }), { status: 404 });
     }
 
     listAttempts += 1;
@@ -6224,38 +6497,38 @@ test("provider HTTP client waits for visible tools during agent startup", async 
       JSON.stringify({
         tools: [
           {
-            name: "com_example_notes.create_note",
-            description: "Create a note.",
+            name: 'com_example_notes.create_note',
+            description: 'Create a note.',
             inputSchema: {
-              type: "object",
+              type: 'object',
               properties: {
-                title: { type: "string" }
+                title: { type: 'string' },
               },
-              required: ["title"]
+              required: ['title'],
             },
             readOnly: false,
-            risk: "low"
-          }
-        ]
+            risk: 'low',
+          },
+        ],
       }),
-      { status: 200 }
+      { status: 200 },
     );
   };
 
   const client = createMobigentHttpClient({
-    baseUrl: "http://localhost:8788",
-    fetch: mockFetch
+    baseUrl: 'http://localhost:8788',
+    fetch: mockFetch,
   });
 
   const tools = await client.waitForTools({ intervalMs: 0, timeoutMs: 100 });
   assert.equal(listAttempts, 3);
   assert.deepEqual(
     tools.map((tool) => tool.name),
-    ["com_example_notes.create_note"]
+    ['com_example_notes.create_note'],
   );
 });
 
-test("provider diagnostics summarize readiness warnings and endpoint failures", async () => {
+test('provider diagnostics summarize readiness warnings and endpoint failures', async () => {
   const status = {
     appSessions: 1,
     authenticatedAppSessions: 1,
@@ -6265,42 +6538,42 @@ test("provider diagnostics summarize readiness warnings and endpoint failures", 
     idempotencyRecords: 0,
     rateLimitBuckets: 0,
     manifestSigningRequired: false,
-    appAllowlistEnabled: false
+    appAllowlistEnabled: false,
   };
   const client = createMobigentHttpClient({
-    baseUrl: "http://localhost:8788",
+    baseUrl: 'http://localhost:8788',
     fetch: async (url) => {
       const path = String(url);
-      if (path.endsWith("/config")) {
+      if (path.endsWith('/config')) {
         return new Response(
           JSON.stringify({
-            name: "Mobigent Gateway",
-            version: "0.1.0",
-            baseUrl: "http://localhost:8788",
+            name: 'Mobigent Gateway',
+            version: '0.1.0',
+            baseUrl: 'http://localhost:8788',
             protocol: { currentVersion: 1, supportedVersions: [1] },
             auth: {
               required: false,
-              schemes: ["bearer", "api-key"],
-              apiKeyHeader: "x-mobigent-api-key",
-              bearerHeader: "authorization"
+              schemes: ['bearer', 'api-key'],
+              apiKeyHeader: 'x-mobigent-api-key',
+              bearerHeader: 'authorization',
             },
             endpoints: {
-              health: "/health",
-              ready: "/ready",
-              config: "/config",
-              agents: "/agents",
-              apps: "/apps",
-              providers: "/providers",
-              snapshot: "/snapshot",
-              tools: "/tools",
-              toolStream: "/tools/stream",
-              toolLookupTemplate: "/tools/{toolName}",
-              metrics: "/metrics",
-              prometheusMetrics: "/metrics/prometheus",
-              audit: "/audit",
-              auditStream: "/audit/stream",
-              openApi: "/openapi.json",
-              toolCallTemplate: "/tools/{toolName}/call"
+              health: '/health',
+              ready: '/ready',
+              config: '/config',
+              agents: '/agents',
+              apps: '/apps',
+              providers: '/providers',
+              snapshot: '/snapshot',
+              tools: '/tools',
+              toolStream: '/tools/stream',
+              toolLookupTemplate: '/tools/{toolName}',
+              metrics: '/metrics',
+              prometheusMetrics: '/metrics/prometheus',
+              audit: '/audit',
+              auditStream: '/audit/stream',
+              openApi: '/openapi.json',
+              toolCallTemplate: '/tools/{toolName}/call',
             },
             features: {
               dynamicTools: true,
@@ -6315,145 +6588,150 @@ test("provider diagnostics summarize readiness warnings and endpoint failures", 
               requestIds: true,
               agentVisibility: true,
               agentScopedDiscovery: true,
-              agentProfiles: true
+              agentProfiles: true,
             },
-            limits: { jsonBodyLimit: "1mb", maxTimeoutMs: 30000 },
+            limits: { jsonBodyLimit: '1mb', maxTimeoutMs: 30000 },
             headers: {
-              agentId: "x-mobigent-agent",
-              idempotencyKey: "x-mobigent-idempotency-key",
-              requestId: "x-mobigent-request-id",
-              timeoutMs: "x-mobigent-timeout-ms"
-            }
+              agentId: 'x-mobigent-agent',
+              idempotencyKey: 'x-mobigent-idempotency-key',
+              requestId: 'x-mobigent-request-id',
+              timeoutMs: 'x-mobigent-timeout-ms',
+            },
           }),
-          { status: 200 }
+          { status: 200 },
         );
       }
-      if (path.endsWith("/health")) {
-        return new Response(JSON.stringify({ ok: true, name: "Mobigent Gateway", status }), { status: 200 });
+      if (path.endsWith('/health')) {
+        return new Response(JSON.stringify({ ok: true, name: 'Mobigent Gateway', status }), {
+          status: 200,
+        });
       }
-      if (path.includes("/ready")) {
+      if (path.includes('/ready')) {
         return new Response(
           JSON.stringify({
             ok: false,
-            name: "Mobigent Gateway",
+            name: 'Mobigent Gateway',
             status,
             requirements: { minApps: 1, minTools: 1 },
             checks: {
               apps: { ok: true, actual: 1, required: 1 },
-              tools: { ok: false, actual: 0, required: 1 }
-            }
+              tools: { ok: false, actual: 0, required: 1 },
+            },
           }),
-          { status: 503 }
+          { status: 503 },
         );
       }
-      if (path.endsWith("/apps")) {
+      if (path.endsWith('/apps')) {
         return new Response(
           JSON.stringify({
             apps: [
               {
-                sessionId: "session-1",
-                connectedAt: "2026-05-24T00:00:00.000Z",
-                lastSeenAt: "2026-05-24T00:00:01.000Z",
+                sessionId: 'session-1',
+                connectedAt: '2026-05-24T00:00:00.000Z',
+                lastSeenAt: '2026-05-24T00:00:01.000Z',
                 ageMs: 1000,
                 idleMs: 0,
                 authenticated: true,
                 app: {
-                  id: "com.example",
-                  name: "Example",
-                  sdk: "react-native",
-                  version: "0.1.0",
+                  id: 'com.example',
+                  name: 'Example',
+                  sdk: 'react-native',
+                  version: '0.1.0',
                   protocolVersion: 1,
-                  protocolCompatible: true
+                  protocolCompatible: true,
                 },
                 capabilities: { actions: 0, resources: 0, components: 0, tools: 0 },
-                manifest: { acceptedAt: "2026-05-24T00:00:00.000Z", signed: false }
-              }
-            ]
+                manifest: { acceptedAt: '2026-05-24T00:00:00.000Z', signed: false },
+              },
+            ],
           }),
-          { status: 200 }
+          { status: 200 },
         );
       }
-      if (path.endsWith("/tools")) {
+      if (path.endsWith('/tools')) {
         return new Response(JSON.stringify({ tools: [] }), { status: 200 });
       }
-      if (path.endsWith("/providers")) {
+      if (path.endsWith('/providers')) {
         return new Response(
           JSON.stringify({
             providers: [
               {
-                id: "openrouter",
-                kind: "openrouter",
-                name: "OpenRouter",
-                description: "OpenRouter provider.",
+                id: 'openrouter',
+                kind: 'openrouter',
+                name: 'OpenRouter',
+                description: 'OpenRouter provider.',
                 capabilities: {
-                  transport: "http",
+                  transport: 'http',
                   supportsTools: true,
                   supportsDynamicTools: true,
                   requiresPublicUrl: false,
-                  supportsConfirmationNotes: true
+                  supportsConfirmationNotes: true,
                 },
-                setup: {}
-              }
-            ]
+                setup: {},
+              },
+            ],
           }),
-          { status: 200 }
+          { status: 200 },
         );
       }
-      if (path.includes("/audit")) {
+      if (path.includes('/audit')) {
         return new Response(
           JSON.stringify({
             events: [
               {
-                id: "audit-1",
-                at: "2026-05-24T00:00:00.000Z",
-                type: "gateway.started",
-                severity: "info",
-                message: "Gateway started."
-              }
-            ]
+                id: 'audit-1',
+                at: '2026-05-24T00:00:00.000Z',
+                type: 'gateway.started',
+                severity: 'info',
+                message: 'Gateway started.',
+              },
+            ],
           }),
-          { status: 200 }
+          { status: 200 },
         );
       }
-      return new Response(JSON.stringify({ error: "not found" }), { status: 404 });
-    }
+      return new Response(JSON.stringify({ error: 'not found' }), { status: 404 });
+    },
   });
 
   const report = await diagnoseMobigentProvider(client, {
     minApps: 1,
     minTools: 1,
-    expectedProvider: "openrouter"
+    expectedProvider: 'openrouter',
   });
   assert.equal(report.ok, true);
-  assert.equal(report.status, "warn");
+  assert.equal(report.status, 'warn');
   assert.equal(report.summary.apps, 1);
   assert.equal(report.summary.tools, 0);
   assert.equal(report.summary.providers, 1);
   assert.equal(report.summary.auditEvents, 1);
-  assert.equal(report.checks.find((check) => check.name === "readiness")?.status, "warn");
-  assert.equal(report.checks.find((check) => check.name === "expected-provider")?.status, "pass");
+  assert.equal(report.checks.find((check) => check.name === 'readiness')?.status, 'warn');
+  assert.equal(report.checks.find((check) => check.name === 'expected-provider')?.status, 'pass');
   assert.match(formatMobigentProviderDiagnostics(report), /Mobigent provider diagnostics: WARN/);
   assert.match(formatMobigentProviderDiagnostics(report), /\[WARN\] readiness/);
   assert.match(
     formatMobigentProviderDiagnostics(report, { includeDetails: true }),
-    /"agentScopedDiscovery": true/
+    /"agentScopedDiscovery": true/,
   );
 
   const failingClient = createMobigentHttpClient({
-    baseUrl: "http://localhost:8788",
-    fetch: async () => new Response(JSON.stringify({ error: "unauthorized" }), { status: 401 })
+    baseUrl: 'http://localhost:8788',
+    fetch: async () => new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401 }),
   });
-  const failingReport = await failingClient.diagnose({ expectedProvider: "openrouter" });
+  const failingReport = await failingClient.diagnose({ expectedProvider: 'openrouter' });
   assert.equal(failingReport.ok, false);
-  assert.equal(failingReport.status, "fail");
-  assert.ok(failingReport.checks.every((check) => check.status === "fail"));
-  assert.equal((failingReport.checks[0]?.details as { code?: string } | undefined)?.code, "unauthorized");
+  assert.equal(failingReport.status, 'fail');
+  assert.ok(failingReport.checks.every((check) => check.status === 'fail'));
+  assert.equal(
+    (failingReport.checks[0]?.details as { code?: string } | undefined)?.code,
+    'unauthorized',
+  );
 });
 
-test("provider HTTP client waits for gateway readiness during agent startup", async () => {
+test('provider HTTP client waits for gateway readiness during agent startup', async () => {
   let readinessAttempts = 0;
   const client = createMobigentHttpClient({
-    baseUrl: "http://localhost:8788",
+    baseUrl: 'http://localhost:8788',
     fetch: async (url) => {
       assert.match(String(url), /\/ready\?minApps=1&minTools=2$/);
       readinessAttempts += 1;
@@ -6461,7 +6739,7 @@ test("provider HTTP client waits for gateway readiness during agent startup", as
       return new Response(
         JSON.stringify({
           ok: ready,
-          name: "Mobigent Gateway",
+          name: 'Mobigent Gateway',
           status: {
             appSessions: 1,
             authenticatedAppSessions: 1,
@@ -6471,44 +6749,49 @@ test("provider HTTP client waits for gateway readiness during agent startup", as
             idempotencyRecords: 0,
             rateLimitBuckets: 0,
             manifestSigningRequired: false,
-            appAllowlistEnabled: false
+            appAllowlistEnabled: false,
           },
           requirements: {
             minApps: 1,
-            minTools: 2
+            minTools: 2,
           },
           checks: {
             apps: {
               ok: ready,
               actual: ready ? 1 : 0,
-              required: 1
+              required: 1,
             },
             tools: {
               ok: ready,
               actual: ready ? 2 : 1,
-              required: 2
-            }
-          }
+              required: 2,
+            },
+          },
         }),
-        { status: ready ? 200 : 503 }
+        { status: ready ? 200 : 503 },
       );
-    }
+    },
   });
 
-  const readiness = await client.waitForReadiness({ minApps: 1, minTools: 2, intervalMs: 0, timeoutMs: 100 });
+  const readiness = await client.waitForReadiness({
+    minApps: 1,
+    minTools: 2,
+    intervalMs: 0,
+    timeoutMs: 100,
+  });
   assert.equal(readinessAttempts, 3);
   assert.equal(readiness.ok, true);
   assert.equal(readiness.checks.tools.actual, 2);
 });
 
-test("provider HTTP client reports typed timeout while waiting for gateway readiness", async () => {
+test('provider HTTP client reports typed timeout while waiting for gateway readiness', async () => {
   const client = createMobigentHttpClient({
-    baseUrl: "http://localhost:8788",
+    baseUrl: 'http://localhost:8788',
     fetch: async () =>
       new Response(
         JSON.stringify({
           ok: false,
-          name: "Mobigent Gateway",
+          name: 'Mobigent Gateway',
           status: {
             appSessions: 0,
             authenticatedAppSessions: 0,
@@ -6518,63 +6801,63 @@ test("provider HTTP client reports typed timeout while waiting for gateway readi
             idempotencyRecords: 0,
             rateLimitBuckets: 0,
             manifestSigningRequired: false,
-            appAllowlistEnabled: false
+            appAllowlistEnabled: false,
           },
           requirements: {
             minApps: 1,
-            minTools: 1
+            minTools: 1,
           },
           checks: {
             apps: {
               ok: false,
               actual: 0,
-              required: 1
+              required: 1,
             },
             tools: {
               ok: false,
               actual: 0,
-              required: 1
-            }
-          }
+              required: 1,
+            },
+          },
         }),
-        { status: 503 }
-      )
+        { status: 503 },
+      ),
   });
 
   await assert.rejects(
     () => client.waitForReadiness({ minApps: 1, minTools: 1, intervalMs: 0, timeoutMs: 1 }),
     (error) => {
       assert.ok(error instanceof MobigentHttpError);
-      assert.equal(error.code, "gateway_error");
-      assert.equal(error.operation, "waitForReadiness");
+      assert.equal(error.code, 'gateway_error');
+      assert.equal(error.operation, 'waitForReadiness');
       assert.equal(error.retryable, true);
       assert.match(error.message, /apps 0\/1, tools 0\/1/);
       assert.equal((error.body as { ok?: boolean }).ok, false);
       return true;
-    }
+    },
   );
 });
 
-test("provider runtime waits for tools and maps them to provider-native shapes", async () => {
+test('provider runtime waits for tools and maps them to provider-native shapes', async () => {
   let listAttempts = 0;
   const tool = {
-    name: "com_example_notes.create_note",
-    description: "Create a note.",
+    name: 'com_example_notes.create_note',
+    description: 'Create a note.',
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
-        title: { type: "string" }
+        title: { type: 'string' },
       },
-      required: ["title"]
+      required: ['title'],
     },
     readOnly: false,
-    risk: "low"
+    risk: 'low',
   };
 
   const client = createMobigentHttpClient({
-    baseUrl: "http://localhost:8788",
+    baseUrl: 'http://localhost:8788',
     fetch: async (url, init) => {
-      if (String(url).endsWith("/tools")) {
+      if (String(url).endsWith('/tools')) {
         listAttempts += 1;
         if (listAttempts === 1) {
           return new Response(JSON.stringify({ tools: [] }), { status: 200 });
@@ -6582,471 +6865,479 @@ test("provider runtime waits for tools and maps them to provider-native shapes",
         return new Response(JSON.stringify({ tools: [tool] }), { status: 200 });
       }
 
-      assert.equal(String(url), "http://localhost:8788/tools/com_example_notes.create_note/call");
-      assert.equal(init?.method, "POST");
+      assert.equal(String(url), 'http://localhost:8788/tools/com_example_notes.create_note/call');
+      assert.equal(init?.method, 'POST');
       return new Response(JSON.stringify({ result: { created: true } }), { status: 200 });
-    }
+    },
   });
 
   const anthropicRuntime = await createMobigentProviderRuntime({
-    kind: "anthropic-tool-use",
+    kind: 'anthropic-tool-use',
     client,
-    waitForTools: { minTools: 1, intervalMs: 0, timeoutMs: 100 }
+    waitForTools: { minTools: 1, intervalMs: 0, timeoutMs: 100 },
   });
   assert.equal(listAttempts, 2);
   assert.deepEqual(anthropicRuntime.tools, toAnthropicTools([tool]));
-  assert.equal(anthropicRuntime.tools[0]?.input_schema.type, "object");
-  assert.deepEqual(await anthropicRuntime.executeTool(tool.name, { title: "Runtime" }), { created: true });
+  assert.equal(anthropicRuntime.tools[0]?.input_schema.type, 'object');
+  assert.deepEqual(await anthropicRuntime.executeTool(tool.name, { title: 'Runtime' }), {
+    created: true,
+  });
 
   const openRouterRuntime = await createMobigentProviderRuntime({
-    kind: "openrouter",
+    kind: 'openrouter',
     client,
-    tools: [tool]
+    tools: [tool],
   });
   assert.deepEqual(openRouterRuntime.tools, toChatFunctionTools([tool]));
   assert.equal(openRouterRuntime.tools[0]?.function.parameters, tool.inputSchema);
 
   const azureOpenAiRuntime = await createMobigentProviderRuntime({
-    kind: "azure-openai",
+    kind: 'azure-openai',
     client,
-    tools: [tool]
+    tools: [tool],
   });
   assert.deepEqual(azureOpenAiRuntime.tools, toChatFunctionTools([tool]));
 
   const openAiCompatibleRuntime = await createMobigentProviderRuntime({
-    kind: "openai-compatible",
+    kind: 'openai-compatible',
     client,
-    tools: [tool]
+    tools: [tool],
   });
   assert.deepEqual(openAiCompatibleRuntime.tools, toChatFunctionTools([tool]));
 
   const liteLlmRuntime = await createMobigentProviderRuntime({
-    kind: "litellm",
+    kind: 'litellm',
     client,
-    tools: [tool]
+    tools: [tool],
   });
   assert.deepEqual(liteLlmRuntime.tools, toChatFunctionTools([tool]));
 
   const ollamaRuntime = await createMobigentProviderRuntime({
-    kind: "ollama",
+    kind: 'ollama',
     client,
-    tools: [tool]
+    tools: [tool],
   });
   assert.deepEqual(ollamaRuntime.tools, toChatFunctionTools([tool]));
 
   const lmStudioRuntime = await createMobigentProviderRuntime({
-    kind: "lm-studio",
+    kind: 'lm-studio',
     client,
-    tools: [tool]
+    tools: [tool],
   });
   assert.deepEqual(lmStudioRuntime.tools, toChatFunctionTools([tool]));
 
   const groqRuntime = await createMobigentProviderRuntime({
-    kind: "groq",
+    kind: 'groq',
     client,
-    tools: [tool]
+    tools: [tool],
   });
   assert.deepEqual(groqRuntime.tools, toChatFunctionTools([tool]));
 
   const perplexityRuntime = await createMobigentProviderRuntime({
-    kind: "perplexity",
+    kind: 'perplexity',
     client,
-    tools: [tool]
+    tools: [tool],
   });
   assert.deepEqual(perplexityRuntime.tools, toChatFunctionTools([tool]));
 
   const xaiGrokRuntime = await createMobigentProviderRuntime({
-    kind: "xai-grok",
+    kind: 'xai-grok',
     client,
-    tools: [tool]
+    tools: [tool],
   });
   assert.deepEqual(xaiGrokRuntime.tools, toChatFunctionTools([tool]));
 
   const deepSeekRuntime = await createMobigentProviderRuntime({
-    kind: "deepseek",
+    kind: 'deepseek',
     client,
-    tools: [tool]
+    tools: [tool],
   });
   assert.deepEqual(deepSeekRuntime.tools, toChatFunctionTools([tool]));
 
   const togetherRuntime = await createMobigentProviderRuntime({
-    kind: "together-ai",
+    kind: 'together-ai',
     client,
-    tools: [tool]
+    tools: [tool],
   });
   assert.deepEqual(togetherRuntime.tools, toChatFunctionTools([tool]));
 
   const fireworksRuntime = await createMobigentProviderRuntime({
-    kind: "fireworks-ai",
+    kind: 'fireworks-ai',
     client,
-    tools: [tool]
+    tools: [tool],
   });
   assert.deepEqual(fireworksRuntime.tools, toChatFunctionTools([tool]));
 
   const qwenRuntime = await createMobigentProviderRuntime({
-    kind: "qwen-dashscope",
+    kind: 'qwen-dashscope',
     client,
-    tools: [tool]
+    tools: [tool],
   });
   assert.deepEqual(qwenRuntime.tools, toChatFunctionTools([tool]));
 
   const nvidiaRuntime = await createMobigentProviderRuntime({
-    kind: "nvidia-nim",
+    kind: 'nvidia-nim',
     client,
-    tools: [tool]
+    tools: [tool],
   });
   assert.deepEqual(nvidiaRuntime.tools, toChatFunctionTools([tool]));
 
   const cloudflareRuntime = await createMobigentProviderRuntime({
-    kind: "cloudflare-ai-gateway",
+    kind: 'cloudflare-ai-gateway',
     client,
-    tools: [tool]
+    tools: [tool],
   });
   assert.deepEqual(cloudflareRuntime.tools, toChatFunctionTools([tool]));
 
   const mistralRuntime = await createMobigentProviderRuntime({
-    kind: "mistral",
+    kind: 'mistral',
     client,
-    tools: [tool]
+    tools: [tool],
   });
   assert.equal(mistralRuntime.tools[0]?.function.name, tool.name);
 
   const cohereRuntime = await createMobigentProviderRuntime({
-    kind: "cohere",
+    kind: 'cohere',
     client,
-    tools: [tool]
+    tools: [tool],
   });
-  assert.equal(cohereRuntime.tools[0]?.function.description, "Create a note.");
+  assert.equal(cohereRuntime.tools[0]?.function.description, 'Create a note.');
 
   const vertexRuntime = await createMobigentProviderRuntime({
-    kind: "google-vertex-ai",
+    kind: 'google-vertex-ai',
     client,
-    tools: [tool]
+    tools: [tool],
   });
   assert.deepEqual(vertexRuntime.tools, toGeminiFunctionDeclarations([tool]));
 
   const vercelRuntime = await createMobigentProviderRuntime({
-    kind: "vercel-ai-sdk",
-    client,
-    tools: [tool]
-  });
-  assert.equal(typeof vercelRuntime.tools[tool.name]?.execute, "function");
-
-  const semanticKernelRuntime = await createMobigentProviderRuntime({
-    kind: "semantic-kernel",
+    kind: 'vercel-ai-sdk',
     client,
     tools: [tool],
-    pluginName: "MobileApp"
+  });
+  assert.equal(typeof vercelRuntime.tools[tool.name]?.execute, 'function');
+
+  const semanticKernelRuntime = await createMobigentProviderRuntime({
+    kind: 'semantic-kernel',
+    client,
+    tools: [tool],
+    pluginName: 'MobileApp',
   });
   assert.equal(Array.isArray(semanticKernelRuntime.tools), true);
-  assert.equal(semanticKernelRuntime.tools[0]?.pluginName, "MobileApp");
+  assert.equal(semanticKernelRuntime.tools[0]?.pluginName, 'MobileApp');
 });
 
-test("provider adapters can expose provider-safe tool names while executing original tools", async () => {
+test('provider adapters can expose provider-safe tool names while executing original tools', async () => {
   const called: Array<{ toolName: string; input?: Record<string, unknown> }> = [];
   const tools = [
     {
-      name: "com.example.notes/create-note",
-      description: "Create a note.",
-      inputSchema: { type: "object", properties: {} }
+      name: 'com.example.notes/create-note',
+      description: 'Create a note.',
+      inputSchema: { type: 'object', properties: {} },
     },
     {
-      name: "com_example_notes_create_note",
-      description: "Create another note.",
-      inputSchema: { type: "object", properties: {} }
-    }
+      name: 'com_example_notes_create_note',
+      description: 'Create another note.',
+      inputSchema: { type: 'object', properties: {} },
+    },
   ];
   const client = createMobigentHttpClient({
-    baseUrl: "http://localhost:8788",
+    baseUrl: 'http://localhost:8788',
     fetch: async (url, init) => {
-      if (String(url).includes("/call")) {
+      if (String(url).includes('/call')) {
         called.push({
-          toolName: decodeURIComponent(String(url).split("/tools/")[1]?.split("/call")[0] ?? ""),
-          input: JSON.parse(String(init?.body ?? "{}")) as Record<string, unknown>
+          toolName: decodeURIComponent(String(url).split('/tools/')[1]?.split('/call')[0] ?? ''),
+          input: JSON.parse(String(init?.body ?? '{}')) as Record<string, unknown>,
         });
         return new Response(JSON.stringify({ result: { ok: true } }), { status: 200 });
       }
       return new Response(JSON.stringify({ tools }), { status: 200 });
-    }
+    },
   });
 
   const nameMap = createProviderSafeToolNameMap(tools);
   assert.deepEqual(
     nameMap.tools.map((tool) => tool.name),
-    ["com_example_notes_create-note", "com_example_notes_create_note"]
+    ['com_example_notes_create-note', 'com_example_notes_create_note'],
   );
-  assert.equal(nameMap.resolve("com_example_notes_create-note"), "com.example.notes/create-note");
-  assert.equal(nameMap.resolve("unknown_tool"), "unknown_tool");
+  assert.equal(nameMap.resolve('com_example_notes_create-note'), 'com.example.notes/create-note');
+  assert.equal(nameMap.resolve('unknown_tool'), 'unknown_tool');
 
-  const collisionMap = mapToolsForProviderNames(tools, { mode: "provider-safe" });
+  const collisionMap = mapToolsForProviderNames(tools, { mode: 'provider-safe' });
   assert.notEqual(collisionMap.tools[0]?.name, tools[0]?.name);
   assert.equal(mapToolsForProviderNames(tools).tools[0]?.name, tools[0]?.name);
 
   const openRouterRuntime = await createMobigentProviderRuntime({
-    kind: "openrouter",
+    kind: 'openrouter',
     client,
     tools,
-    toolNames: { mode: "provider-safe" }
+    toolNames: { mode: 'provider-safe' },
   });
-  const exposedName = openRouterRuntime.tools[0]?.function.name ?? "";
+  const exposedName = openRouterRuntime.tools[0]?.function.name ?? '';
   assert.deepEqual(openRouterRuntime.toolNameMap.entries[0], {
-    originalName: "com.example.notes/create-note",
-    providerName: exposedName
+    originalName: 'com.example.notes/create-note',
+    providerName: exposedName,
   });
   assert.deepEqual(createMobigentProviderRuntimeReport(openRouterRuntime), {
-    kind: "openrouter",
+    kind: 'openrouter',
     toolCount: 2,
-    resultFormat: "chat-completions",
-    rawToolNames: ["com.example.notes/create-note", "com_example_notes_create_note"],
-    providerToolNames: ["com_example_notes_create-note", "com_example_notes_create_note"],
+    resultFormat: 'chat-completions',
+    rawToolNames: ['com.example.notes/create-note', 'com_example_notes_create_note'],
+    providerToolNames: ['com_example_notes_create-note', 'com_example_notes_create_note'],
     toolNameMap: [
       {
-        originalName: "com.example.notes/create-note",
-        providerName: "com_example_notes_create-note"
+        originalName: 'com.example.notes/create-note',
+        providerName: 'com_example_notes_create-note',
       },
       {
-        originalName: "com_example_notes_create_note",
-        providerName: "com_example_notes_create_note"
-      }
-    ]
+        originalName: 'com_example_notes_create_note',
+        providerName: 'com_example_notes_create_note',
+      },
+    ],
   });
   assert.match(
     formatMobigentProviderRuntimeReport(createMobigentProviderRuntimeReport(openRouterRuntime)),
-    /com_example_notes_create-note -> com\.example\.notes\/create-note/
+    /com_example_notes_create-note -> com\.example\.notes\/create-note/,
   );
-  assert.equal(exposedName, "com_example_notes_create-note");
-  assert.deepEqual(await openRouterRuntime.executeTool(exposedName, { title: "Safe" }), { ok: true });
+  assert.equal(exposedName, 'com_example_notes_create-note');
+  assert.deepEqual(await openRouterRuntime.executeTool(exposedName, { title: 'Safe' }), {
+    ok: true,
+  });
   assert.deepEqual(called[0], {
-    toolName: "com.example.notes/create-note",
-    input: { title: "Safe" }
+    toolName: 'com.example.notes/create-note',
+    input: { title: 'Safe' },
   });
 
   const vercelRuntime = await createMobigentProviderRuntime({
-    kind: "vercel-ai-sdk",
+    kind: 'vercel-ai-sdk',
     client,
     tools,
-    toolNames: { mode: "provider-safe" }
+    toolNames: { mode: 'provider-safe' },
   });
-  assert.deepEqual(await vercelRuntime.tools[exposedName]?.execute({ title: "Vercel Safe" }), { ok: true });
+  assert.deepEqual(await vercelRuntime.tools[exposedName]?.execute({ title: 'Vercel Safe' }), {
+    ok: true,
+  });
   assert.deepEqual(called[1], {
-    toolName: "com.example.notes/create-note",
-    input: { title: "Vercel Safe" }
+    toolName: 'com.example.notes/create-note',
+    input: { title: 'Vercel Safe' },
   });
 });
 
-test("provider runtime resolves and executes common tool call shapes", async () => {
+test('provider runtime resolves and executes common tool call shapes', async () => {
   const calls: Array<{ toolName: string; input?: Record<string, unknown> }> = [];
   const client = createMobigentHttpClient({
-    baseUrl: "http://localhost:8788",
+    baseUrl: 'http://localhost:8788',
     fetch: async (url, init) => {
-      const toolName = decodeURIComponent(String(url).split("/tools/")[1]?.split("/call")[0] ?? "");
+      const toolName = decodeURIComponent(String(url).split('/tools/')[1]?.split('/call')[0] ?? '');
       calls.push({
         toolName,
-        input: JSON.parse(String(init?.body ?? "{}")) as Record<string, unknown>
+        input: JSON.parse(String(init?.body ?? '{}')) as Record<string, unknown>,
       });
 
-      if (toolName === "fail_action") {
+      if (toolName === 'fail_action') {
         return new Response(
           JSON.stringify({
             error: {
-              code: "gateway_error",
-              message: "App failed.",
-              retryable: true
-            }
+              code: 'gateway_error',
+              message: 'App failed.',
+              retryable: true,
+            },
           }),
-          { status: 502 }
+          { status: 502 },
         );
       }
 
       return new Response(JSON.stringify({ result: { ok: true, toolName } }), { status: 200 });
-    }
+    },
   });
 
   assert.deepEqual(
     resolveMobigentToolCall({
-      id: "call-1",
+      id: 'call-1',
       function: {
-        name: "create_note",
-        arguments: "{\"title\":\"Runtime\"}"
-      }
+        name: 'create_note',
+        arguments: '{"title":"Runtime"}',
+      },
     }),
     {
-      id: "call-1",
-      name: "create_note",
-      input: { title: "Runtime" }
-    }
+      id: 'call-1',
+      name: 'create_note',
+      input: { title: 'Runtime' },
+    },
   );
-  assert.deepEqual(resolveMobigentToolCall({ name: "anthropic_tool", input: { ok: true } }), {
-    name: "anthropic_tool",
-    input: { ok: true }
+  assert.deepEqual(resolveMobigentToolCall({ name: 'anthropic_tool', input: { ok: true } }), {
+    name: 'anthropic_tool',
+    input: { ok: true },
   });
   assert.throws(
-    () => resolveMobigentToolCall({ function: { name: "broken", arguments: "not-json" } }),
-    /JSON object/
+    () => resolveMobigentToolCall({ function: { name: 'broken', arguments: 'not-json' } }),
+    /JSON object/,
   );
 
-  const executeToolCall = createMobigentToolCallExecutor((toolName, input) => client.callTool(toolName, input));
+  const executeToolCall = createMobigentToolCallExecutor((toolName, input) =>
+    client.callTool(toolName, input),
+  );
   assert.deepEqual(
     await executeToolCall({
-      id: "call-2",
+      id: 'call-2',
       function: {
-        name: "create_note",
-        arguments: "{\"title\":\"Executor\"}"
-      }
+        name: 'create_note',
+        arguments: '{"title":"Executor"}',
+      },
     }),
     {
-      id: "call-2",
-      name: "create_note",
-      input: { title: "Executor" },
-      result: { ok: true, toolName: "create_note" }
-    }
+      id: 'call-2',
+      name: 'create_note',
+      input: { title: 'Executor' },
+      result: { ok: true, toolName: 'create_note' },
+    },
   );
 
   const runtime = await createMobigentProviderRuntime({
-    kind: "openrouter",
+    kind: 'openrouter',
     client,
     tools: [
       {
-        name: "com.example.notes/create-note",
-        description: "Create note.",
-        inputSchema: { type: "object", properties: {} }
-      }
+        name: 'com.example.notes/create-note',
+        description: 'Create note.',
+        inputSchema: { type: 'object', properties: {} },
+      },
     ],
-    toolNames: { mode: "provider-safe" }
+    toolNames: { mode: 'provider-safe' },
   });
-  const exposedName = runtime.tools[0]?.function.name ?? "";
+  const exposedName = runtime.tools[0]?.function.name ?? '';
   const results = await runtime.executeToolCalls([
     {
-      id: "call-3",
+      id: 'call-3',
       function: {
         name: exposedName,
-        arguments: { title: "Safe call" }
-      }
+        arguments: { title: 'Safe call' },
+      },
     },
     {
-      id: "call-4",
+      id: 'call-4',
       function: {
-        name: "fail_action",
-        arguments: "{}"
-      }
-    }
+        name: 'fail_action',
+        arguments: '{}',
+      },
+    },
   ]);
 
   assert.deepEqual(results[0], {
-    id: "call-3",
+    id: 'call-3',
     name: exposedName,
-    input: { title: "Safe call" },
-    result: { ok: true, toolName: "com.example.notes/create-note" }
+    input: { title: 'Safe call' },
+    result: { ok: true, toolName: 'com.example.notes/create-note' },
   });
-  assert.equal(results[1]?.id, "call-4");
-  assert.equal(results[1]?.name, "fail_action");
-  assert.equal(results[1]?.error?.code, "gateway_error");
+  assert.equal(results[1]?.id, 'call-4');
+  assert.equal(results[1]?.name, 'fail_action');
+  assert.equal(results[1]?.error?.code, 'gateway_error');
   assert.equal(results[1]?.error?.retryable, true);
   assert.deepEqual(runtime.formatToolCallResult(results[0]!), {
-    role: "tool",
-    tool_call_id: "call-3",
-    content: JSON.stringify({ ok: true, toolName: "com.example.notes/create-note" })
+    role: 'tool',
+    tool_call_id: 'call-3',
+    content: JSON.stringify({ ok: true, toolName: 'com.example.notes/create-note' }),
   });
   assert.deepEqual(runtime.formatToolCallResult(results[1]!), {
-    role: "tool",
-    tool_call_id: "call-4",
+    role: 'tool',
+    tool_call_id: 'call-4',
     content: JSON.stringify({
       error: results[1]?.error,
-      name: "fail_action"
-    })
-  });
-  assert.deepEqual(formatMobigentToolCallResult(results[0]!, "openai-responses"), {
-    type: "function_call_output",
-    call_id: "call-3",
-    output: JSON.stringify({ ok: true, toolName: "com.example.notes/create-note" })
-  });
-  assert.deepEqual(formatMobigentToolCallResult(results[1]!, "anthropic-tool-use"), {
-    type: "tool_result",
-    tool_use_id: "call-4",
-    content: JSON.stringify({
-      error: results[1]?.error,
-      name: "fail_action"
+      name: 'fail_action',
     }),
-    is_error: true
   });
-  assert.deepEqual(formatMobigentToolCallResult(results[0]!, "google-gemini"), {
+  assert.deepEqual(formatMobigentToolCallResult(results[0]!, 'openai-responses'), {
+    type: 'function_call_output',
+    call_id: 'call-3',
+    output: JSON.stringify({ ok: true, toolName: 'com.example.notes/create-note' }),
+  });
+  assert.deepEqual(formatMobigentToolCallResult(results[1]!, 'anthropic-tool-use'), {
+    type: 'tool_result',
+    tool_use_id: 'call-4',
+    content: JSON.stringify({
+      error: results[1]?.error,
+      name: 'fail_action',
+    }),
+    is_error: true,
+  });
+  assert.deepEqual(formatMobigentToolCallResult(results[0]!, 'google-gemini'), {
     functionResponse: {
       name: exposedName,
-      response: { ok: true, toolName: "com.example.notes/create-note" }
-    }
+      response: { ok: true, toolName: 'com.example.notes/create-note' },
+    },
   });
-  assert.deepEqual(formatMobigentToolCallResult(results[0]!, "aws-bedrock-converse"), {
+  assert.deepEqual(formatMobigentToolCallResult(results[0]!, 'aws-bedrock-converse'), {
     toolResult: {
-      toolUseId: "call-3",
-      content: [{ json: { ok: true, toolName: "com.example.notes/create-note" } }],
-      status: "success"
-    }
+      toolUseId: 'call-3',
+      content: [{ json: { ok: true, toolName: 'com.example.notes/create-note' } }],
+      status: 'success',
+    },
   });
-  assert.deepEqual(formatMobigentToolCallResults(results, "generic-agent"), results);
+  assert.deepEqual(formatMobigentToolCallResults(results, 'generic-agent'), results);
   assert.deepEqual(calls.at(-2), {
-    toolName: "com.example.notes/create-note",
-    input: { title: "Safe call" }
+    toolName: 'com.example.notes/create-note',
+    input: { title: 'Safe call' },
   });
 });
 
-test("provider runtime bootstrap reads environment defaults and creates a ready runtime", async () => {
+test('provider runtime bootstrap reads environment defaults and creates a ready runtime', async () => {
   const requests: string[] = [];
   const tool = {
-    name: "com_example_bootstrap.create_note",
-    description: "Create a note from bootstrap.",
+    name: 'com_example_bootstrap.create_note',
+    description: 'Create a note from bootstrap.',
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: {
-        title: { type: "string" }
+        title: { type: 'string' },
       },
-      required: ["title"]
-    }
+      required: ['title'],
+    },
   };
 
   const config = readMobigentProviderRuntimeConfig({
     env: {
-      MOBIGENT_PROVIDER: "openrouter",
-      MOBIGENT_HTTP_URL: "http://localhost:8788/",
-      MOBIGENT_HTTP_API_KEY: "bootstrap-secret",
-      MOBIGENT_AGENT_ID: "openrouter-prod",
-      MOBIGENT_TIMEOUT_MS: "12000",
-      MOBIGENT_RETRIES: "3",
-      MOBIGENT_RETRY_DELAY_MS: "10",
-      MOBIGENT_MIN_APPS: "1",
-      MOBIGENT_MIN_TOOLS: "1",
-      MOBIGENT_WAIT_TIMEOUT_MS: "250",
-      MOBIGENT_WAIT_INTERVAL_MS: "0",
-      MOBIGENT_WATCH_TOOLS: "true"
-    }
+      MOBIGENT_PROVIDER: 'openrouter',
+      MOBIGENT_HTTP_URL: 'http://localhost:8788/',
+      MOBIGENT_HTTP_API_KEY: 'bootstrap-secret',
+      MOBIGENT_AGENT_ID: 'openrouter-prod',
+      MOBIGENT_TIMEOUT_MS: '12000',
+      MOBIGENT_RETRIES: '3',
+      MOBIGENT_RETRY_DELAY_MS: '10',
+      MOBIGENT_MIN_APPS: '1',
+      MOBIGENT_MIN_TOOLS: '1',
+      MOBIGENT_WAIT_TIMEOUT_MS: '250',
+      MOBIGENT_WAIT_INTERVAL_MS: '0',
+      MOBIGENT_WATCH_TOOLS: 'true',
+    },
   });
-  assert.equal(config.kind, "openrouter");
-  assert.equal(config.auth, "bearer");
-  assert.equal(config.agentId, "openrouter-prod");
+  assert.equal(config.kind, 'openrouter');
+  assert.equal(config.auth, 'bearer');
+  assert.equal(config.agentId, 'openrouter-prod');
   assert.equal(config.timeoutMs, 12000);
   assert.equal(config.retries, 3);
   assert.equal(config.watchTools, true);
 
   const bootstrap = await createMobigentProviderRuntimeFromEnv({
     env: {
-      MOBIGENT_PROVIDER: "openrouter",
-      MOBIGENT_HTTP_URL: "http://localhost:8788",
-      MOBIGENT_HTTP_API_KEY: "bootstrap-secret",
-      MOBIGENT_AGENT_ID: "openrouter-prod",
-      MOBIGENT_WAIT_INTERVAL_MS: "0"
+      MOBIGENT_PROVIDER: 'openrouter',
+      MOBIGENT_HTTP_URL: 'http://localhost:8788',
+      MOBIGENT_HTTP_API_KEY: 'bootstrap-secret',
+      MOBIGENT_AGENT_ID: 'openrouter-prod',
+      MOBIGENT_WAIT_INTERVAL_MS: '0',
     },
-    requestId: "bootstrap-request",
+    requestId: 'bootstrap-request',
     fetch: async (url, init) => {
       requests.push(String(url));
       const headers = init?.headers as Record<string, string>;
-      assert.equal(headers.authorization, "Bearer bootstrap-secret");
-      assert.equal(headers["x-mobigent-agent"], "openrouter-prod");
-      assert.equal(headers["x-mobigent-request-id"], "bootstrap-request");
+      assert.equal(headers.authorization, 'Bearer bootstrap-secret');
+      assert.equal(headers['x-mobigent-agent'], 'openrouter-prod');
+      assert.equal(headers['x-mobigent-request-id'], 'bootstrap-request');
 
-      if (String(url).includes("/ready")) {
+      if (String(url).includes('/ready')) {
         return new Response(
           JSON.stringify({
             ok: true,
-            name: "Mobigent Gateway",
+            name: 'Mobigent Gateway',
             status: {
               appSessions: 1,
               authenticatedAppSessions: 1,
@@ -7056,320 +7347,353 @@ test("provider runtime bootstrap reads environment defaults and creates a ready 
               idempotencyRecords: 0,
               rateLimitBuckets: 0,
               manifestSigningRequired: false,
-              appAllowlistEnabled: false
+              appAllowlistEnabled: false,
             },
             requirements: {
               minApps: 1,
-              minTools: 1
+              minTools: 1,
             },
             checks: {
               apps: {
                 ok: true,
                 actual: 1,
-                required: 1
+                required: 1,
               },
               tools: {
                 ok: true,
                 actual: 1,
-                required: 1
-              }
-            }
+                required: 1,
+              },
+            },
           }),
-          { status: 200 }
+          { status: 200 },
         );
       }
 
-      if (String(url).endsWith("/tools")) {
+      if (String(url).endsWith('/tools')) {
         return new Response(JSON.stringify({ tools: [tool] }), { status: 200 });
       }
 
-      if (String(url).endsWith("/tools/com_example_bootstrap.create_note/call")) {
+      if (String(url).endsWith('/tools/com_example_bootstrap.create_note/call')) {
         return new Response(JSON.stringify({ result: { ok: true } }), { status: 200 });
       }
 
-      return new Response(JSON.stringify({ error: "not found" }), { status: 404 });
-    }
+      return new Response(JSON.stringify({ error: 'not found' }), { status: 404 });
+    },
   });
 
-  assert.equal(bootstrap.kind, "openrouter");
+  assert.equal(bootstrap.kind, 'openrouter');
   assert.equal(bootstrap.readiness?.ok, true);
   assert.deepEqual(bootstrap.runtime.rawTools, [tool]);
   assert.deepEqual(bootstrap.runtime.tools, toChatFunctionTools([tool]));
-  assert.deepEqual(await bootstrap.runtime.executeTool(tool.name, { title: "Bootstrap" }), { ok: true });
-  assert.ok(requests.some((url) => url.includes("/ready")));
-  assert.ok(requests.some((url) => url.endsWith("/tools")));
+  assert.deepEqual(await bootstrap.runtime.executeTool(tool.name, { title: 'Bootstrap' }), {
+    ok: true,
+  });
+  assert.ok(requests.some((url) => url.includes('/ready')));
+  assert.ok(requests.some((url) => url.endsWith('/tools')));
 
   assert.throws(
     () =>
       readMobigentProviderRuntimeConfig({
-        env: { MOBIGENT_PROVIDER: "bad-provider" }
+        env: { MOBIGENT_PROVIDER: 'bad-provider' },
       }),
-    /Unsupported MOBIGENT_PROVIDER/
+    /Unsupported MOBIGENT_PROVIDER/,
   );
   assert.throws(
     () =>
       readMobigentProviderRuntimeConfig({
-        env: { MOBIGENT_WAIT_TIMEOUT_MS: "0" }
+        env: { MOBIGENT_WAIT_TIMEOUT_MS: '0' },
       }),
-    /MOBIGENT_WAIT_TIMEOUT_MS must be a positive integer/
+    /MOBIGENT_WAIT_TIMEOUT_MS must be a positive integer/,
   );
 });
 
-test("provider runtime config diagnostics validate deployable env settings", () => {
+test('provider runtime config diagnostics validate deployable env settings', () => {
   const report = diagnoseMobigentProviderRuntimeConfig({
-    kind: "openrouter",
-    baseUrl: "https://gateway.example.com",
-    auth: "bearer",
-    apiKey: "runtime-secret",
-    agentId: "openrouter-prod",
+    kind: 'openrouter',
+    baseUrl: 'https://gateway.example.com',
+    auth: 'bearer',
+    apiKey: 'runtime-secret',
+    agentId: 'openrouter-prod',
     minApps: 1,
     minTools: 1,
     waitTimeoutMs: 1000,
     waitIntervalMs: 100,
-    env: { MOBIGENT_WATCH_TOOLS: "true" }
+    env: { MOBIGENT_WATCH_TOOLS: 'true' },
   });
 
-  assert.equal(report.status, "pass");
-  assert.equal(report.config?.kind, "openrouter");
-  assert.match(formatMobigentProviderRuntimeConfigReport(report), /Mobigent provider runtime config: PASS/);
+  assert.equal(report.status, 'pass');
+  assert.equal(report.config?.kind, 'openrouter');
+  assert.match(
+    formatMobigentProviderRuntimeConfigReport(report),
+    /Mobigent provider runtime config: PASS/,
+  );
   assert.match(formatMobigentProviderRuntimeConfigReport(report), /Provider: openrouter/);
 
   const localReport = diagnoseMobigentProviderRuntimeConfig({
-    kind: "anthropic-tool-use",
-    baseUrl: "http://localhost:8788",
+    kind: 'anthropic-tool-use',
+    baseUrl: 'http://localhost:8788',
     minApps: 0,
-    minTools: 0
+    minTools: 0,
   });
-  assert.equal(localReport.status, "warn");
+  assert.equal(localReport.status, 'warn');
   assert.deepEqual(
-    localReport.checks.filter((check) => check.status === "warn").map((check) => check.name),
-    ["gateway-url", "auth", "readiness", "tool-watching"]
+    localReport.checks.filter((check) => check.status === 'warn').map((check) => check.name),
+    ['gateway-url', 'auth', 'readiness', 'tool-watching'],
   );
 
   const failedAuthReport = diagnoseMobigentProviderRuntimeConfig({
-    kind: "openrouter",
-    baseUrl: "https://gateway.example.com",
-    auth: "bearer"
+    kind: 'openrouter',
+    baseUrl: 'https://gateway.example.com',
+    auth: 'bearer',
   });
-  assert.equal(failedAuthReport.status, "fail");
-  assert.match(failedAuthReport.errors.join("\n"), /requires MOBIGENT_HTTP_API_KEY/);
+  assert.equal(failedAuthReport.status, 'fail');
+  assert.match(failedAuthReport.errors.join('\n'), /requires MOBIGENT_HTTP_API_KEY/);
 
   const invalidProviderReport = diagnoseMobigentProviderRuntimeConfig({
-    env: { MOBIGENT_PROVIDER: "not-real" }
+    env: { MOBIGENT_PROVIDER: 'not-real' },
   });
-  assert.equal(invalidProviderReport.status, "fail");
-  assert.match(formatMobigentProviderRuntimeConfigReport(invalidProviderReport), /Unsupported MOBIGENT_PROVIDER/);
+  assert.equal(invalidProviderReport.status, 'fail');
+  assert.match(
+    formatMobigentProviderRuntimeConfigReport(invalidProviderReport),
+    /Unsupported MOBIGENT_PROVIDER/,
+  );
 });
 
-test("provider HTTP client reports typed timeout while waiting for tools", async () => {
+test('provider HTTP client reports typed timeout while waiting for tools', async () => {
   const client = createMobigentHttpClient({
-    baseUrl: "http://localhost:8788",
-    fetch: async () => new Response(JSON.stringify({ tools: [] }), { status: 200 })
+    baseUrl: 'http://localhost:8788',
+    fetch: async () => new Response(JSON.stringify({ tools: [] }), { status: 200 }),
   });
 
   await assert.rejects(
     () => client.waitForTools({ intervalMs: 0, timeoutMs: 1 }),
     (error) => {
       assert.ok(error instanceof MobigentHttpError);
-      assert.equal(error.code, "gateway_error");
-      assert.equal(error.operation, "waitForTools");
+      assert.equal(error.code, 'gateway_error');
+      assert.equal(error.operation, 'waitForTools');
       assert.equal(error.retryable, true);
       assert.match(error.message, /Timed out waiting/);
       return true;
-    }
+    },
   );
 });
 
-test("provider HTTP client throws typed errors for HTTP, network, and shape failures", async () => {
+test('provider HTTP client throws typed errors for HTTP, network, and shape failures', async () => {
   const invalidInputClient = createMobigentHttpClient({
-    baseUrl: "http://localhost:8788",
+    baseUrl: 'http://localhost:8788',
     fetch: async () =>
-      new Response(JSON.stringify({ code: "invalid_input", error: "Invalid tool input: $.message is required", retryable: false }), {
-        status: 400
-      })
+      new Response(
+        JSON.stringify({
+          code: 'invalid_input',
+          error: 'Invalid tool input: $.message is required',
+          retryable: false,
+        }),
+        {
+          status: 400,
+        },
+      ),
   });
 
   await assert.rejects(
-    () => invalidInputClient.callTool("com.example.create_note", {}),
+    () => invalidInputClient.callTool('com.example.create_note', {}),
     (error) => {
       assert.ok(error instanceof MobigentHttpError);
-      assert.equal(error.code, "invalid_input");
-      assert.equal(error.operation, "callTool");
+      assert.equal(error.code, 'invalid_input');
+      assert.equal(error.operation, 'callTool');
       assert.equal(error.status, 400);
       assert.equal(error.retryable, false);
       assert.deepEqual(error.body, {
-        code: "invalid_input",
-        error: "Invalid tool input: $.message is required",
-        retryable: false
+        code: 'invalid_input',
+        error: 'Invalid tool input: $.message is required',
+        retryable: false,
       });
       return true;
-    }
+    },
   );
 
   const conflictClient = createMobigentHttpClient({
-    baseUrl: "http://localhost:8788",
+    baseUrl: 'http://localhost:8788',
     fetch: async () =>
-      new Response(JSON.stringify({ code: "conflict", error: "Idempotency key was already used.", retryable: false }), {
-        status: 409
-      })
+      new Response(
+        JSON.stringify({
+          code: 'conflict',
+          error: 'Idempotency key was already used.',
+          retryable: false,
+        }),
+        {
+          status: 409,
+        },
+      ),
   });
 
   await assert.rejects(
-    () => conflictClient.callTool("com.example.create_note", {}),
+    () => conflictClient.callTool('com.example.create_note', {}),
     (error) => {
       assert.ok(error instanceof MobigentHttpError);
-      assert.equal(error.code, "conflict");
+      assert.equal(error.code, 'conflict');
       assert.equal(error.retryable, false);
       return true;
-    }
+    },
   );
 
   const gatewayTimeoutClient = createMobigentHttpClient({
-    baseUrl: "http://localhost:8788",
+    baseUrl: 'http://localhost:8788',
     fetch: async () =>
-      new Response(JSON.stringify({ code: "timeout", error: "Timed out waiting for app response.", retryable: true }), {
-        status: 504
-      })
+      new Response(
+        JSON.stringify({
+          code: 'timeout',
+          error: 'Timed out waiting for app response.',
+          retryable: true,
+        }),
+        {
+          status: 504,
+        },
+      ),
   });
 
   await assert.rejects(
-    () => gatewayTimeoutClient.callTool("com.example.create_note", {}),
+    () => gatewayTimeoutClient.callTool('com.example.create_note', {}),
     (error) => {
       assert.ok(error instanceof MobigentHttpError);
-      assert.equal(error.code, "timeout");
+      assert.equal(error.code, 'timeout');
       assert.equal(error.retryable, true);
       return true;
-    }
+    },
   );
 
   const forbiddenClient = createMobigentHttpClient({
-    baseUrl: "http://localhost:8788",
-    fetch: async () => new Response(JSON.stringify({ error: 'Agent "anonymous" is not allowed.' }), { status: 400 })
+    baseUrl: 'http://localhost:8788',
+    fetch: async () =>
+      new Response(JSON.stringify({ error: 'Agent "anonymous" is not allowed.' }), { status: 400 }),
   });
 
   await assert.rejects(
-    () => forbiddenClient.callTool("com.example.create_note", {}),
+    () => forbiddenClient.callTool('com.example.create_note', {}),
     (error) => {
       assert.ok(error instanceof MobigentHttpError);
-      assert.equal(error.code, "forbidden");
-      assert.equal(error.operation, "callTool");
+      assert.equal(error.code, 'forbidden');
+      assert.equal(error.operation, 'callTool');
       return true;
-    }
+    },
   );
 
   const invalidShapeClient = createMobigentHttpClient({
-    baseUrl: "http://localhost:8788",
-    fetch: async () => new Response(JSON.stringify({ tools: "bad" }), { status: 200 })
+    baseUrl: 'http://localhost:8788',
+    fetch: async () => new Response(JSON.stringify({ tools: 'bad' }), { status: 200 }),
   });
 
   await assert.rejects(
     () => invalidShapeClient.listTools(),
     (error) => {
       assert.ok(error instanceof MobigentHttpError);
-      assert.equal(error.code, "invalid_response");
-      assert.equal(error.operation, "listTools");
+      assert.equal(error.code, 'invalid_response');
+      assert.equal(error.operation, 'listTools');
       return true;
-    }
+    },
   );
 
   const invalidToolShapeClient = createMobigentHttpClient({
-    baseUrl: "http://localhost:8788",
-    fetch: async () => new Response(JSON.stringify({ tool: { name: "missing-schema" } }), { status: 200 })
+    baseUrl: 'http://localhost:8788',
+    fetch: async () =>
+      new Response(JSON.stringify({ tool: { name: 'missing-schema' } }), { status: 200 }),
   });
 
   await assert.rejects(
-    () => invalidToolShapeClient.getTool("com.example.create_note"),
+    () => invalidToolShapeClient.getTool('com.example.create_note'),
     (error) => {
       assert.ok(error instanceof MobigentHttpError);
-      assert.equal(error.code, "invalid_response");
-      assert.equal(error.operation, "getTool");
+      assert.equal(error.code, 'invalid_response');
+      assert.equal(error.operation, 'getTool');
       return true;
-    }
+    },
   );
 
   const missingToolClient = createMobigentHttpClient({
-    baseUrl: "http://localhost:8788",
-    fetch: async () => new Response(JSON.stringify({ error: "No connected app exposes tool." }), { status: 404 })
+    baseUrl: 'http://localhost:8788',
+    fetch: async () =>
+      new Response(JSON.stringify({ error: 'No connected app exposes tool.' }), { status: 404 }),
   });
 
   await assert.rejects(
-    () => missingToolClient.getTool("com.example.missing"),
+    () => missingToolClient.getTool('com.example.missing'),
     (error) => {
       assert.ok(error instanceof MobigentHttpError);
-      assert.equal(error.code, "not_found");
-      assert.equal(error.operation, "getTool");
+      assert.equal(error.code, 'not_found');
+      assert.equal(error.operation, 'getTool');
       assert.equal(error.status, 404);
       return true;
-    }
+    },
   );
 
   const invalidProviderShapeClient = createMobigentHttpClient({
-    baseUrl: "http://localhost:8788",
-    fetch: async () => new Response(JSON.stringify({ providers: "bad" }), { status: 200 })
+    baseUrl: 'http://localhost:8788',
+    fetch: async () => new Response(JSON.stringify({ providers: 'bad' }), { status: 200 }),
   });
 
   await assert.rejects(
     () => invalidProviderShapeClient.listProviders(),
     (error) => {
       assert.ok(error instanceof MobigentHttpError);
-      assert.equal(error.code, "invalid_response");
-      assert.equal(error.operation, "listProviders");
+      assert.equal(error.code, 'invalid_response');
+      assert.equal(error.operation, 'listProviders');
       return true;
-    }
+    },
   );
 
   const invalidConfigShapeClient = createMobigentHttpClient({
-    baseUrl: "http://localhost:8788",
-    fetch: async () => new Response(JSON.stringify({ name: "wrong" }), { status: 200 })
+    baseUrl: 'http://localhost:8788',
+    fetch: async () => new Response(JSON.stringify({ name: 'wrong' }), { status: 200 }),
   });
 
   await assert.rejects(
     () => invalidConfigShapeClient.getConfig(),
     (error) => {
       assert.ok(error instanceof MobigentHttpError);
-      assert.equal(error.code, "invalid_response");
-      assert.equal(error.operation, "getConfig");
+      assert.equal(error.code, 'invalid_response');
+      assert.equal(error.operation, 'getConfig');
       return true;
-    }
+    },
   );
 
   const invalidAppShapeClient = createMobigentHttpClient({
-    baseUrl: "http://localhost:8788",
-    fetch: async () => new Response(JSON.stringify({ apps: [{ sessionId: "missing-fields" }] }), { status: 200 })
+    baseUrl: 'http://localhost:8788',
+    fetch: async () =>
+      new Response(JSON.stringify({ apps: [{ sessionId: 'missing-fields' }] }), { status: 200 }),
   });
 
   await assert.rejects(
     () => invalidAppShapeClient.listApps(),
     (error) => {
       assert.ok(error instanceof MobigentHttpError);
-      assert.equal(error.code, "invalid_response");
-      assert.equal(error.operation, "listApps");
+      assert.equal(error.code, 'invalid_response');
+      assert.equal(error.operation, 'listApps');
       return true;
-    }
+    },
   );
 
   const invalidHealthShapeClient = createMobigentHttpClient({
-    baseUrl: "http://localhost:8788",
-    fetch: async () => new Response(JSON.stringify({ ok: true }), { status: 200 })
+    baseUrl: 'http://localhost:8788',
+    fetch: async () => new Response(JSON.stringify({ ok: true }), { status: 200 }),
   });
 
   await assert.rejects(
     () => invalidHealthShapeClient.getHealth(),
     (error) => {
       assert.ok(error instanceof MobigentHttpError);
-      assert.equal(error.code, "invalid_response");
-      assert.equal(error.operation, "getHealth");
+      assert.equal(error.code, 'invalid_response');
+      assert.equal(error.operation, 'getHealth');
       return true;
-    }
+    },
   );
 
   const invalidReadinessShapeClient = createMobigentHttpClient({
-    baseUrl: "http://localhost:8788",
+    baseUrl: 'http://localhost:8788',
     fetch: async () =>
       new Response(
         JSON.stringify({
           ok: false,
-          name: "Mobigent Gateway",
+          name: 'Mobigent Gateway',
           status: {
             appSessions: 0,
             authenticatedAppSessions: 0,
@@ -7379,98 +7703,99 @@ test("provider HTTP client throws typed errors for HTTP, network, and shape fail
             idempotencyRecords: 0,
             rateLimitBuckets: 0,
             manifestSigningRequired: false,
-            appAllowlistEnabled: false
+            appAllowlistEnabled: false,
           },
-          requirements: {}
+          requirements: {},
         }),
-        { status: 503 }
-      )
+        { status: 503 },
+      ),
   });
 
   await assert.rejects(
     () => invalidReadinessShapeClient.getReadiness({ minTools: 1 }),
     (error) => {
       assert.ok(error instanceof MobigentHttpError);
-      assert.equal(error.code, "invalid_response");
-      assert.equal(error.operation, "getReadiness");
+      assert.equal(error.code, 'invalid_response');
+      assert.equal(error.operation, 'getReadiness');
       return true;
-    }
+    },
   );
 
   const invalidMetricsShapeClient = createMobigentHttpClient({
-    baseUrl: "http://localhost:8788",
-    fetch: async () => new Response(JSON.stringify({ metrics: { status: {} } }), { status: 200 })
+    baseUrl: 'http://localhost:8788',
+    fetch: async () => new Response(JSON.stringify({ metrics: { status: {} } }), { status: 200 }),
   });
 
   await assert.rejects(
     () => invalidMetricsShapeClient.getMetrics(),
     (error) => {
       assert.ok(error instanceof MobigentHttpError);
-      assert.equal(error.code, "invalid_response");
-      assert.equal(error.operation, "getMetrics");
+      assert.equal(error.code, 'invalid_response');
+      assert.equal(error.operation, 'getMetrics');
       return true;
-    }
+    },
   );
 
   const invalidAuditShapeClient = createMobigentHttpClient({
-    baseUrl: "http://localhost:8788",
-    fetch: async () => new Response(JSON.stringify({ events: [{ id: "missing-fields" }] }), { status: 200 })
+    baseUrl: 'http://localhost:8788',
+    fetch: async () =>
+      new Response(JSON.stringify({ events: [{ id: 'missing-fields' }] }), { status: 200 }),
   });
 
   await assert.rejects(
     () => invalidAuditShapeClient.listAuditEvents(),
     (error) => {
       assert.ok(error instanceof MobigentHttpError);
-      assert.equal(error.code, "invalid_response");
-      assert.equal(error.operation, "listAuditEvents");
+      assert.equal(error.code, 'invalid_response');
+      assert.equal(error.operation, 'listAuditEvents');
       return true;
-    }
+    },
   );
 
   const networkClient = createMobigentHttpClient({
-    baseUrl: "http://localhost:8788",
+    baseUrl: 'http://localhost:8788',
     fetch: async () => {
-      throw new Error("socket hang up");
-    }
+      throw new Error('socket hang up');
+    },
   });
 
   await assert.rejects(
     () => networkClient.listTools(),
     (error) => {
       assert.ok(error instanceof MobigentHttpError);
-      assert.equal(error.code, "network_error");
-      assert.equal(error.operation, "listTools");
+      assert.equal(error.code, 'network_error');
+      assert.equal(error.operation, 'listTools');
       assert.equal(error.retryable, true);
       return true;
-    }
+    },
   );
 
   const timeoutClient = createMobigentHttpClient({
-    baseUrl: "http://localhost:8788",
+    baseUrl: 'http://localhost:8788',
     timeoutMs: 5,
     fetch: async (_url, init) =>
       new Promise<Response>((_resolve, reject) => {
-        init?.signal?.addEventListener("abort", () => reject(new Error("aborted by test signal")), {
-          once: true
+        init?.signal?.addEventListener('abort', () => reject(new Error('aborted by test signal')), {
+          once: true,
         });
-      })
+      }),
   });
 
   await assert.rejects(
     () => timeoutClient.getHealth(),
     (error) => {
       assert.ok(error instanceof MobigentHttpError);
-      assert.equal(error.code, "network_error");
-      assert.equal(error.operation, "getHealth");
+      assert.equal(error.code, 'network_error');
+      assert.equal(error.operation, 'getHealth');
       assert.equal(error.retryable, true);
       assert.match(error.message, /timed out after 5ms/);
       return true;
-    }
+    },
   );
 });
 
-test("provider CLI generates setup and validates required options", () => {
-  const listed = runProviderCli(["--list"]);
+test('provider CLI generates setup and validates required options', () => {
+  const listed = runProviderCli(['--list']);
   assert.equal(listed.code, 0);
   assert.match(listed.stdout, /claude-desktop/);
   assert.match(listed.stdout, /chatgpt-actions/);
@@ -7494,13 +7819,24 @@ test("provider CLI generates setup and validates required options", () => {
   assert.match(listed.stdout, /aws-bedrock-converse/);
   assert.match(listed.stdout, /vercel-ai-sdk/);
 
-  const matrix = runProviderCli(["--matrix", "--base-url", "https://mobigent.example", "--auth", "bearer"]);
+  const matrix = runProviderCli([
+    '--matrix',
+    '--base-url',
+    'https://mobigent.example',
+    '--auth',
+    'bearer',
+  ]);
   assert.equal(matrix.code, 0);
   const matrixBody = JSON.parse(matrix.stdout) as {
     summary: {
       total: number;
       byTransport: { stdio: number; openapi: number; http: number };
-      byCategory: { "local-agent": number; "hosted-actions": number; "runtime-agent": number; fallback: number };
+      byCategory: {
+        'local-agent': number;
+        'hosted-actions': number;
+        'runtime-agent': number;
+        fallback: number;
+      };
     };
     providers: Array<{
       id: string;
@@ -7517,62 +7853,65 @@ test("provider CLI generates setup and validates required options", () => {
   };
   assert.ok(matrixBody.summary.total >= 30);
   assert.ok(matrixBody.summary.byTransport.http > 20);
-  assert.ok(matrixBody.summary.byCategory["runtime-agent"] > 20);
+  assert.ok(matrixBody.summary.byCategory['runtime-agent'] > 20);
   assert.ok(
     matrixBody.providers.some(
       (provider) =>
-        provider.id === "claude-desktop" &&
+        provider.id === 'claude-desktop' &&
         provider.dynamicTools &&
-        provider.category === "local-agent" &&
-        provider.bestFor.includes("desktop agents")
-    )
+        provider.category === 'local-agent' &&
+        provider.bestFor.includes('desktop agents'),
+    ),
   );
   assert.ok(
     matrixBody.providers.some(
       (provider) =>
-        provider.id === "chatgpt-actions" &&
-        provider.transport === "openapi" &&
-        provider.category === "hosted-actions" &&
-        provider.setupComplexity === "high" &&
+        provider.id === 'chatgpt-actions' &&
+        provider.transport === 'openapi' &&
+        provider.category === 'hosted-actions' &&
+        provider.setupComplexity === 'high' &&
         provider.requiresPublicUrl &&
-        provider.setupCommand.includes("https://mobigent.example")
-    )
+        provider.setupCommand.includes('https://mobigent.example'),
+    ),
   );
   assert.ok(
     matrixBody.providers.some(
       (provider) =>
-        provider.id === "openai-responses" &&
-        provider.category === "runtime-agent" &&
+        provider.id === 'openai-responses' &&
+        provider.category === 'runtime-agent' &&
         provider.runtime &&
-        provider.productionNotes.some((note) => note.includes("Fetch tools")) &&
-        provider.setupCommand.includes("--format runtime-env")
-    )
+        provider.productionNotes.some((note) => note.includes('Fetch tools')) &&
+        provider.setupCommand.includes('--format runtime-env'),
+    ),
   );
 
-  const presets = runProviderCli(["--recommend-presets"]);
+  const presets = runProviderCli(['--recommend-presets']);
   assert.equal(presets.code, 0);
   const presetsBody = JSON.parse(presets.stdout) as {
     presets: Array<{ id: string; recommendedTransport: string; publicUrlDefault: boolean }>;
   };
   assert.deepEqual(
     presetsBody.presets.map((preset) => preset.id),
-    ["local-agent", "hosted-actions", "runtime-agent"]
+    ['local-agent', 'hosted-actions', 'runtime-agent'],
   );
   assert.ok(
     presetsBody.presets.some(
-      (preset) => preset.id === "hosted-actions" && preset.recommendedTransport === "openapi" && preset.publicUrlDefault
-    )
+      (preset) =>
+        preset.id === 'hosted-actions' &&
+        preset.recommendedTransport === 'openapi' &&
+        preset.publicUrlDefault,
+    ),
   );
 
   const recommendation = runProviderCli([
-    "--recommend",
-    "runtime-agent",
-    "--base-url",
-    "http://localhost:8788",
-    "--query",
-    "openrouter",
-    "--limit",
-    "1"
+    '--recommend',
+    'runtime-agent',
+    '--base-url',
+    'http://localhost:8788',
+    '--query',
+    'openrouter',
+    '--limit',
+    '1',
   ]);
   assert.equal(recommendation.code, 0);
   const recommendationBody = JSON.parse(recommendation.stdout) as {
@@ -7580,24 +7919,29 @@ test("provider CLI generates setup and validates required options", () => {
     preset: { id: string; recommendedTransport: string };
     recommendations: Array<{ id: string; score: number; reasons: string[]; setupCommand: string }>;
   };
-  assert.equal(recommendationBody.useCase, "runtime-agent");
-  assert.equal(recommendationBody.preset.recommendedTransport, "http");
-  assert.deepEqual(recommendationBody.recommendations.map((provider) => provider.id), ["openrouter"]);
+  assert.equal(recommendationBody.useCase, 'runtime-agent');
+  assert.equal(recommendationBody.preset.recommendedTransport, 'http');
+  assert.deepEqual(
+    recommendationBody.recommendations.map((provider) => provider.id),
+    ['openrouter'],
+  );
   assert.ok(recommendationBody.recommendations[0]?.score);
-  assert.ok(recommendationBody.recommendations[0]?.reasons.some((reason) => reason.includes("server-side")));
-  assert.match(recommendationBody.recommendations[0]?.setupCommand ?? "", /--provider openrouter/);
+  assert.ok(
+    recommendationBody.recommendations[0]?.reasons.some((reason) => reason.includes('server-side')),
+  );
+  assert.match(recommendationBody.recommendations[0]?.setupCommand ?? '', /--provider openrouter/);
 
   const setupPlan = runProviderCli([
-    "--setup-plan",
-    "runtime-agent",
-    "--base-url",
-    "http://localhost:8788",
-    "--query",
-    "openrouter",
-    "--limit",
-    "1",
-    "--agent-id",
-    "openrouter-prod"
+    '--setup-plan',
+    'runtime-agent',
+    '--base-url',
+    'http://localhost:8788',
+    '--query',
+    'openrouter',
+    '--limit',
+    '1',
+    '--agent-id',
+    'openrouter-prod',
   ]);
   assert.equal(setupPlan.code, 0, setupPlan.stderr);
   const setupPlanBody = JSON.parse(setupPlan.stdout) as {
@@ -7613,144 +7957,151 @@ test("provider CLI generates setup and validates required options", () => {
       endpoints: { tools: string; toolStream: string };
     };
   };
-  assert.equal(setupPlanBody.useCase, "runtime-agent");
-  assert.equal(setupPlanBody.recommendation.provider.id, "openrouter");
+  assert.equal(setupPlanBody.useCase, 'runtime-agent');
+  assert.equal(setupPlanBody.recommendation.provider.id, 'openrouter');
   assert.ok(setupPlanBody.recommendation.score > 0);
-  assert.equal(setupPlanBody.validation.status, "pass");
-  assert.equal(setupPlanBody.bundle.runtimeEnv.MOBIGENT_PROVIDER, "openrouter");
-  assert.equal(setupPlanBody.bundle.runtimeEnv.MOBIGENT_HTTP_URL, "http://localhost:8788");
-  assert.equal(setupPlanBody.bundle.runtimeEnv.MOBIGENT_AGENT_ID, "openrouter-prod");
-  assert.equal(setupPlanBody.bundle.endpoints.tools, "http://localhost:8788/tools");
-  assert.equal(setupPlanBody.bundle.endpoints.toolStream, "http://localhost:8788/tools/stream");
+  assert.equal(setupPlanBody.validation.status, 'pass');
+  assert.equal(setupPlanBody.bundle.runtimeEnv.MOBIGENT_PROVIDER, 'openrouter');
+  assert.equal(setupPlanBody.bundle.runtimeEnv.MOBIGENT_HTTP_URL, 'http://localhost:8788');
+  assert.equal(setupPlanBody.bundle.runtimeEnv.MOBIGENT_AGENT_ID, 'openrouter-prod');
+  assert.equal(setupPlanBody.bundle.endpoints.tools, 'http://localhost:8788/tools');
+  assert.equal(setupPlanBody.bundle.endpoints.toolStream, 'http://localhost:8788/tools/stream');
 
   const validSetup = runProviderCli([
-    "--provider",
-    "openrouter",
-    "--base-url",
-    "http://localhost:8788",
-    "--validate"
+    '--provider',
+    'openrouter',
+    '--base-url',
+    'http://localhost:8788',
+    '--validate',
   ]);
   assert.equal(validSetup.code, 0);
-  const validSetupBody = JSON.parse(validSetup.stdout) as { status: string; ok: boolean; summary: string };
-  assert.equal(validSetupBody.status, "pass");
+  const validSetupBody = JSON.parse(validSetup.stdout) as {
+    status: string;
+    ok: boolean;
+    summary: string;
+  };
+  assert.equal(validSetupBody.status, 'pass');
   assert.equal(validSetupBody.ok, true);
   assert.match(validSetupBody.summary, /ready/);
 
   const invalidHostedSetup = runProviderCli([
-    "--provider",
-    "chatgpt-actions",
-    "--base-url",
-    "http://localhost:8788",
-    "--validate"
+    '--provider',
+    'chatgpt-actions',
+    '--base-url',
+    'http://localhost:8788',
+    '--validate',
   ]);
   assert.equal(invalidHostedSetup.code, 1);
-  const invalidHostedSetupBody = JSON.parse(invalidHostedSetup.stdout) as { status: string; ok: boolean };
-  assert.equal(invalidHostedSetupBody.status, "fail");
+  const invalidHostedSetupBody = JSON.parse(invalidHostedSetup.stdout) as {
+    status: string;
+    ok: boolean;
+  };
+  assert.equal(invalidHostedSetupBody.status, 'fail');
   assert.equal(invalidHostedSetupBody.ok, false);
 
   const validationGuide = runProviderCli([
-    "--provider",
-    "openrouter",
-    "--base-url",
-    "http://localhost:8788",
-    "--validate",
-    "--format",
-    "guide"
+    '--provider',
+    'openrouter',
+    '--base-url',
+    'http://localhost:8788',
+    '--validate',
+    '--format',
+    'guide',
   ]);
   assert.equal(validationGuide.code, 0);
   assert.match(validationGuide.stdout, /Mobigent provider setup: PASS/);
 
   const claude = runProviderCli([
-    "--provider",
-    "claude-desktop",
-    "--command",
-    "npx",
-    "--arg",
-    "mobigent-mcp",
-    "--env",
-    "MOBIGENT_AUTH_TOKEN=secret"
+    '--provider',
+    'claude-desktop',
+    '--command',
+    'npx',
+    '--arg',
+    'mobigent-mcp',
+    '--env',
+    'MOBIGENT_AUTH_TOKEN=secret',
   ]);
   assert.equal(claude.code, 0);
   assert.deepEqual(JSON.parse(claude.stdout), {
     mcpServers: {
       mobigent: {
-        command: "npx",
-        args: ["mobigent-mcp"],
-        env: { MOBIGENT_AUTH_TOKEN: "secret" }
-      }
-    }
+        command: 'npx',
+        args: ['mobigent-mcp'],
+        env: { MOBIGENT_AUTH_TOKEN: 'secret' },
+      },
+    },
   });
 
   const chatgpt = runProviderCli([
-    "--provider",
-    "chatgpt-actions",
-    "--base-url",
-    "https://mobigent.example",
-    "--format",
-    "guide"
+    '--provider',
+    'chatgpt-actions',
+    '--base-url',
+    'https://mobigent.example',
+    '--format',
+    'guide',
   ]);
   assert.equal(chatgpt.code, 0);
   assert.match(chatgpt.stdout, /ChatGPT Actions/);
   assert.match(chatgpt.stdout, /https:\/\/mobigent.example\/openapi\.json/);
 
   const openai = runProviderCli([
-    "--provider",
-    "openai-responses",
-    "--base-url",
-    "http://localhost:8788",
-    "--auth",
-    "bearer",
-    "--agent-id",
-    "openai-prod"
+    '--provider',
+    'openai-responses',
+    '--base-url',
+    'http://localhost:8788',
+    '--auth',
+    'bearer',
+    '--agent-id',
+    'openai-prod',
   ]);
   assert.equal(openai.code, 0);
   assert.deepEqual(JSON.parse(openai.stdout).headers, {
-    "content-type": "application/json",
-    "x-mobigent-agent": "openai-prod",
-    authorization: "Bearer ${MOBIGENT_HTTP_API_KEY}"
+    'content-type': 'application/json',
+    'x-mobigent-agent': 'openai-prod',
+    authorization: 'Bearer ${MOBIGENT_HTTP_API_KEY}',
   });
 
   const azureOpenAi = runProviderCli([
-    "--provider",
-    "azure-openai",
-    "--base-url",
-    "http://localhost:8788",
-    "--format",
-    "runtime-env"
+    '--provider',
+    'azure-openai',
+    '--base-url',
+    'http://localhost:8788',
+    '--format',
+    'runtime-env',
   ]);
   assert.equal(azureOpenAi.code, 0);
   assert.match(azureOpenAi.stdout, /MOBIGENT_PROVIDER=azure-openai/);
 
   const openAiCompatible = runProviderCli([
-    "--provider",
-    "openai-compatible",
-    "--base-url",
-    "http://localhost:8788",
-    "--format",
-    "guide"
+    '--provider',
+    'openai-compatible',
+    '--base-url',
+    'http://localhost:8788',
+    '--format',
+    'guide',
   ]);
   assert.equal(openAiCompatible.code, 0);
   assert.match(openAiCompatible.stdout, /OpenAI-compatible/);
 
   const openrouter = runProviderCli([
-    "--provider",
-    "openrouter",
-    "--base-url",
-    "http://localhost:8788",
-    "--format",
-    "guide"
+    '--provider',
+    'openrouter',
+    '--base-url',
+    'http://localhost:8788',
+    '--format',
+    'guide',
   ]);
   assert.equal(openrouter.code, 0);
   assert.match(openrouter.stdout, /OpenRouter/);
   assert.match(openrouter.stdout, /chat function tools/);
 
   const openrouterBundle = runProviderCli([
-    "--provider",
-    "openrouter",
-    "--base-url",
-    "http://localhost:8788",
-    "--format",
-    "bundle"
+    '--provider',
+    'openrouter',
+    '--base-url',
+    'http://localhost:8788',
+    '--format',
+    'bundle',
   ]);
   assert.equal(openrouterBundle.code, 0);
   const bundle = JSON.parse(openrouterBundle.stdout) as {
@@ -7758,133 +8109,108 @@ test("provider CLI generates setup and validates required options", () => {
     endpoints: { snapshot: string; tools: string };
     runtimeEnv: { MOBIGENT_PROVIDER: string; MOBIGENT_AGENT_ID: string };
   };
-  assert.equal(bundle.provider.id, "openrouter");
-  assert.equal(bundle.endpoints.snapshot, "http://localhost:8788/snapshot");
-  assert.equal(bundle.endpoints.tools, "http://localhost:8788/tools");
-  assert.equal(bundle.runtimeEnv.MOBIGENT_PROVIDER, "openrouter");
-  assert.equal(bundle.runtimeEnv.MOBIGENT_AGENT_ID, "openrouter");
+  assert.equal(bundle.provider.id, 'openrouter');
+  assert.equal(bundle.endpoints.snapshot, 'http://localhost:8788/snapshot');
+  assert.equal(bundle.endpoints.tools, 'http://localhost:8788/tools');
+  assert.equal(bundle.runtimeEnv.MOBIGENT_PROVIDER, 'openrouter');
+  assert.equal(bundle.runtimeEnv.MOBIGENT_AGENT_ID, 'openrouter');
 
-  const litellm = runProviderCli([
-    "--provider",
-    "litellm",
-    "--base-url",
-    "http://localhost:8788"
-  ]);
+  const litellm = runProviderCli(['--provider', 'litellm', '--base-url', 'http://localhost:8788']);
   assert.equal(litellm.code, 0);
-  assert.equal(JSON.parse(litellm.stdout).headers["x-mobigent-agent"], "litellm");
+  assert.equal(JSON.parse(litellm.stdout).headers['x-mobigent-agent'], 'litellm');
   assert.match(JSON.parse(litellm.stdout).adapter, /LiteLLM/);
 
-  const ollama = runProviderCli([
-    "--provider",
-    "ollama",
-    "--base-url",
-    "http://localhost:8788"
-  ]);
+  const ollama = runProviderCli(['--provider', 'ollama', '--base-url', 'http://localhost:8788']);
   assert.equal(ollama.code, 0);
-  assert.equal(JSON.parse(ollama.stdout).headers["x-mobigent-agent"], "ollama");
+  assert.equal(JSON.parse(ollama.stdout).headers['x-mobigent-agent'], 'ollama');
   assert.match(JSON.parse(ollama.stdout).adapter, /Ollama/);
 
   const lmStudio = runProviderCli([
-    "--provider",
-    "lm-studio",
-    "--base-url",
-    "http://localhost:8788"
+    '--provider',
+    'lm-studio',
+    '--base-url',
+    'http://localhost:8788',
   ]);
   assert.equal(lmStudio.code, 0);
-  assert.equal(JSON.parse(lmStudio.stdout).headers["x-mobigent-agent"], "lm-studio");
+  assert.equal(JSON.parse(lmStudio.stdout).headers['x-mobigent-agent'], 'lm-studio');
   assert.match(JSON.parse(lmStudio.stdout).adapter, /LM Studio/);
 
-  const groq = runProviderCli([
-    "--provider",
-    "groq",
-    "--base-url",
-    "http://localhost:8788"
-  ]);
+  const groq = runProviderCli(['--provider', 'groq', '--base-url', 'http://localhost:8788']);
   assert.equal(groq.code, 0);
-  assert.equal(JSON.parse(groq.stdout).headers["x-mobigent-agent"], "groq");
+  assert.equal(JSON.parse(groq.stdout).headers['x-mobigent-agent'], 'groq');
   assert.match(JSON.parse(groq.stdout).adapter, /Groq/);
 
   const perplexity = runProviderCli([
-    "--provider",
-    "perplexity",
-    "--base-url",
-    "http://localhost:8788"
+    '--provider',
+    'perplexity',
+    '--base-url',
+    'http://localhost:8788',
   ]);
   assert.equal(perplexity.code, 0);
-  assert.equal(JSON.parse(perplexity.stdout).headers["x-mobigent-agent"], "perplexity");
+  assert.equal(JSON.parse(perplexity.stdout).headers['x-mobigent-agent'], 'perplexity');
   assert.match(JSON.parse(perplexity.stdout).adapter, /Perplexity/);
 
-  const xaiGrok = runProviderCli([
-    "--provider",
-    "xai-grok",
-    "--base-url",
-    "http://localhost:8788"
-  ]);
+  const xaiGrok = runProviderCli(['--provider', 'xai-grok', '--base-url', 'http://localhost:8788']);
   assert.equal(xaiGrok.code, 0);
-  assert.equal(JSON.parse(xaiGrok.stdout).headers["x-mobigent-agent"], "xai-grok");
+  assert.equal(JSON.parse(xaiGrok.stdout).headers['x-mobigent-agent'], 'xai-grok');
   assert.match(JSON.parse(xaiGrok.stdout).adapter, /xAI Grok/);
 
   const deepseek = runProviderCli([
-    "--provider",
-    "deepseek",
-    "--base-url",
-    "http://localhost:8788"
+    '--provider',
+    'deepseek',
+    '--base-url',
+    'http://localhost:8788',
   ]);
   assert.equal(deepseek.code, 0);
-  assert.equal(JSON.parse(deepseek.stdout).headers["x-mobigent-agent"], "deepseek");
+  assert.equal(JSON.parse(deepseek.stdout).headers['x-mobigent-agent'], 'deepseek');
   assert.match(JSON.parse(deepseek.stdout).adapter, /DeepSeek/);
 
   const together = runProviderCli([
-    "--provider",
-    "together-ai",
-    "--base-url",
-    "http://localhost:8788"
+    '--provider',
+    'together-ai',
+    '--base-url',
+    'http://localhost:8788',
   ]);
   assert.equal(together.code, 0);
-  assert.equal(JSON.parse(together.stdout).headers["x-mobigent-agent"], "together-ai");
+  assert.equal(JSON.parse(together.stdout).headers['x-mobigent-agent'], 'together-ai');
   assert.match(JSON.parse(together.stdout).adapter, /Together AI/);
 
   const fireworks = runProviderCli([
-    "--provider",
-    "fireworks-ai",
-    "--base-url",
-    "http://localhost:8788"
+    '--provider',
+    'fireworks-ai',
+    '--base-url',
+    'http://localhost:8788',
   ]);
   assert.equal(fireworks.code, 0);
-  assert.equal(JSON.parse(fireworks.stdout).headers["x-mobigent-agent"], "fireworks-ai");
+  assert.equal(JSON.parse(fireworks.stdout).headers['x-mobigent-agent'], 'fireworks-ai');
   assert.match(JSON.parse(fireworks.stdout).adapter, /Fireworks AI/);
 
-  const mistral = runProviderCli([
-    "--provider",
-    "mistral",
-    "--base-url",
-    "http://localhost:8788"
-  ]);
+  const mistral = runProviderCli(['--provider', 'mistral', '--base-url', 'http://localhost:8788']);
   assert.equal(mistral.code, 0);
-  assert.equal(JSON.parse(mistral.stdout).headers["x-mobigent-agent"], "mistral");
+  assert.equal(JSON.parse(mistral.stdout).headers['x-mobigent-agent'], 'mistral');
 
   const cohereRuntimeEnv = runProviderCli([
-    "--provider",
-    "cohere",
-    "--base-url",
-    "http://localhost:8788",
-    "--format",
-    "runtime-env"
+    '--provider',
+    'cohere',
+    '--base-url',
+    'http://localhost:8788',
+    '--format',
+    'runtime-env',
   ]);
   assert.equal(cohereRuntimeEnv.code, 0);
   assert.match(cohereRuntimeEnv.stdout, /MOBIGENT_PROVIDER=cohere/);
 
   const runtimeEnv = runProviderCli([
-    "--provider",
-    "anthropic-tool-use",
-    "--base-url",
-    "http://localhost:8788",
-    "--auth",
-    "bearer",
-    "--agent-id",
-    "claude-prod",
-    "--format",
-    "runtime-env"
+    '--provider',
+    'anthropic-tool-use',
+    '--base-url',
+    'http://localhost:8788',
+    '--auth',
+    'bearer',
+    '--agent-id',
+    'claude-prod',
+    '--format',
+    'runtime-env',
   ]);
   assert.equal(runtimeEnv.code, 0);
   assert.match(runtimeEnv.stdout, /MOBIGENT_PROVIDER=anthropic-tool-use/);
@@ -7895,123 +8221,130 @@ test("provider CLI generates setup and validates required options", () => {
   assert.match(runtimeEnv.stdout, /MOBIGENT_WATCH_TOOLS=false/);
 
   const gemini = runProviderCli([
-    "--provider",
-    "google-gemini",
-    "--base-url",
-    "http://localhost:8788",
-    "--auth",
-    "api-key"
+    '--provider',
+    'google-gemini',
+    '--base-url',
+    'http://localhost:8788',
+    '--auth',
+    'api-key',
   ]);
   assert.equal(gemini.code, 0);
-  assert.equal(JSON.parse(gemini.stdout).headers["x-mobigent-agent"], "google-gemini");
+  assert.equal(JSON.parse(gemini.stdout).headers['x-mobigent-agent'], 'google-gemini');
 
   const bedrock = runProviderCli([
-    "--provider",
-    "aws-bedrock-converse",
-    "--base-url",
-    "http://localhost:8788"
+    '--provider',
+    'aws-bedrock-converse',
+    '--base-url',
+    'http://localhost:8788',
   ]);
   assert.equal(bedrock.code, 0);
-  assert.equal(JSON.parse(bedrock.stdout).headers["x-mobigent-agent"], "aws-bedrock-converse");
+  assert.equal(JSON.parse(bedrock.stdout).headers['x-mobigent-agent'], 'aws-bedrock-converse');
 
   const vercel = runProviderCli([
-    "--provider",
-    "vercel-ai-sdk",
-    "--base-url",
-    "http://localhost:8788"
+    '--provider',
+    'vercel-ai-sdk',
+    '--base-url',
+    'http://localhost:8788',
   ]);
   assert.equal(vercel.code, 0);
-  assert.deepEqual(JSON.parse(vercel.stdout).npm, ["ai"]);
+  assert.deepEqual(JSON.parse(vercel.stdout).npm, ['ai']);
 
-  const crewai = runProviderCli([
-    "--provider",
-    "crewai",
-    "--base-url",
-    "http://localhost:8788"
-  ]);
+  const crewai = runProviderCli(['--provider', 'crewai', '--base-url', 'http://localhost:8788']);
   assert.equal(crewai.code, 0);
-  assert.deepEqual(JSON.parse(crewai.stdout).python, ["crewai", "crewai-tools", "pydantic"]);
+  assert.deepEqual(JSON.parse(crewai.stdout).python, ['crewai', 'crewai-tools', 'pydantic']);
 
-  const autogen = runProviderCli([
-    "--provider",
-    "autogen",
-    "--base-url",
-    "http://localhost:8788"
-  ]);
+  const autogen = runProviderCli(['--provider', 'autogen', '--base-url', 'http://localhost:8788']);
   assert.equal(autogen.code, 0);
-  assert.deepEqual(JSON.parse(autogen.stdout).python, ["autogen-core"]);
+  assert.deepEqual(JSON.parse(autogen.stdout).python, ['autogen-core']);
 
   const haystack = runProviderCli([
-    "--provider",
-    "haystack",
-    "--base-url",
-    "http://localhost:8788"
+    '--provider',
+    'haystack',
+    '--base-url',
+    'http://localhost:8788',
   ]);
   assert.equal(haystack.code, 0);
-  assert.deepEqual(JSON.parse(haystack.stdout).python, ["haystack-ai"]);
+  assert.deepEqual(JSON.parse(haystack.stdout).python, ['haystack-ai']);
 
-  const missingBaseUrl = runProviderCli(["--provider", "openapi"]);
+  const missingBaseUrl = runProviderCli(['--provider', 'openapi']);
   assert.equal(missingBaseUrl.code, 1);
   assert.match(missingBaseUrl.stderr, /--base-url is required/);
 
-  const invalidRuntimeEnv = runProviderCli(["--provider", "claude-desktop", "--format", "runtime-env"]);
+  const invalidRuntimeEnv = runProviderCli([
+    '--provider',
+    'claude-desktop',
+    '--format',
+    'runtime-env',
+  ]);
   assert.equal(invalidRuntimeEnv.code, 1);
   assert.match(invalidRuntimeEnv.stderr, /runtime-env is only available/);
 });
 
-test("provider CLI writes provider matrix artifacts for setup review", async () => {
-  const dir = await mkdtemp(join(tmpdir(), "mobigent-provider-matrix-"));
-  const matrixPath = join(dir, "mobigent-providers.json");
-  const compatibilityPath = join(dir, "mobigent-provider-compatibility.json");
-  const setupPlanPath = join(dir, "mobigent-provider-setup.json");
+test('provider CLI writes provider matrix artifacts for setup review', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'mobigent-provider-matrix-'));
+  const matrixPath = join(dir, 'mobigent-providers.json');
+  const compatibilityPath = join(dir, 'mobigent-provider-compatibility.json');
+  const setupPlanPath = join(dir, 'mobigent-provider-setup.json');
 
   const written = runProviderCli([
-    "--write-matrix",
+    '--write-matrix',
     matrixPath,
-    "--base-url",
-    "https://mobigent.example",
-    "--auth",
-    "bearer"
+    '--base-url',
+    'https://mobigent.example',
+    '--auth',
+    'bearer',
   ]);
   assert.equal(written.code, 0, written.stderr);
   assert.match(written.stdout, /Created Mobigent provider matrix/);
 
-  const matrix = JSON.parse(await readFile(matrixPath, "utf8")) as {
+  const matrix = JSON.parse(await readFile(matrixPath, 'utf8')) as {
     summary: { total: number };
     providers: Array<{ id: string; setupCommand: string }>;
   };
   assert.ok(matrix.summary.total >= 30);
-  assert.ok(matrix.providers.some((provider) => provider.id === "chatgpt-actions"));
+  assert.ok(matrix.providers.some((provider) => provider.id === 'chatgpt-actions'));
   assert.ok(
     matrix.providers.some(
-      (provider) => provider.id === "openai-responses" && provider.setupCommand.includes("--format runtime-env")
-    )
+      (provider) =>
+        provider.id === 'openai-responses' &&
+        provider.setupCommand.includes('--format runtime-env'),
+    ),
   );
 
-  const duplicate = runProviderCli(["--write-matrix", matrixPath, "--base-url", "https://mobigent.example"]);
+  const duplicate = runProviderCli([
+    '--write-matrix',
+    matrixPath,
+    '--base-url',
+    'https://mobigent.example',
+  ]);
   assert.equal(duplicate.code, 1);
   assert.match(duplicate.stderr, /already exists/);
 
   const forced = runProviderCli([
-    "--write-matrix",
+    '--write-matrix',
     matrixPath,
-    "--base-url",
-    "https://mobigent.example",
-    "--force"
+    '--base-url',
+    'https://mobigent.example',
+    '--force',
   ]);
   assert.equal(forced.code, 0, forced.stderr);
 
   const compatibility = runProviderCli([
-    "--compatibility",
-    "--base-url",
-    "https://mobigent.example",
-    "--auth",
-    "bearer"
+    '--compatibility',
+    '--base-url',
+    'https://mobigent.example',
+    '--auth',
+    'bearer',
   ]);
   assert.equal(compatibility.code, 0, compatibility.stderr);
   const compatibilityReport = JSON.parse(compatibility.stdout) as {
     summary: { total: number; pass: number; warn: number; fail: number };
-    providers: Array<{ id: string; status: string; failingChecks: string[]; warningChecks: string[] }>;
+    providers: Array<{
+      id: string;
+      status: string;
+      failingChecks: string[];
+      warningChecks: string[];
+    }>;
   };
   assert.ok(compatibilityReport.summary.total >= 30);
   assert.equal(compatibilityReport.summary.fail, 0);
@@ -8019,100 +8352,114 @@ test("provider CLI writes provider matrix artifacts for setup review", async () 
   assert.ok(
     compatibilityReport.providers.some(
       (provider) =>
-        provider.id === "openrouter" &&
-        provider.status === "warn" &&
-        provider.warningChecks.includes("http.auth")
-    )
+        provider.id === 'openrouter' &&
+        provider.status === 'warn' &&
+        provider.warningChecks.includes('http.auth'),
+    ),
   );
 
   const writtenCompatibility = runProviderCli([
-    "--write-compatibility",
+    '--write-compatibility',
     compatibilityPath,
-    "--base-url",
-    "https://mobigent.example"
+    '--base-url',
+    'https://mobigent.example',
   ]);
   assert.equal(writtenCompatibility.code, 0, writtenCompatibility.stderr);
   assert.match(writtenCompatibility.stdout, /Created Mobigent provider compatibility report/);
-  assert.equal((JSON.parse(await readFile(compatibilityPath, "utf8")) as { summary: { fail: number } }).summary.fail, 0);
+  assert.equal(
+    (JSON.parse(await readFile(compatibilityPath, 'utf8')) as { summary: { fail: number } }).summary
+      .fail,
+    0,
+  );
 
   const writtenSetupPlan = runProviderCli([
-    "--write-setup-plan",
+    '--write-setup-plan',
     setupPlanPath,
-    "--base-url",
-    "http://localhost:8788",
-    "--query",
-    "anthropic",
-    "--agent-id",
-    "claude-prod"
+    '--base-url',
+    'http://localhost:8788',
+    '--query',
+    'anthropic',
+    '--agent-id',
+    'claude-prod',
   ]);
   assert.equal(writtenSetupPlan.code, 0, writtenSetupPlan.stderr);
   assert.match(writtenSetupPlan.stdout, /Created Mobigent provider setup plan/);
-  const setupPlan = JSON.parse(await readFile(setupPlanPath, "utf8")) as {
+  const setupPlan = JSON.parse(await readFile(setupPlanPath, 'utf8')) as {
     recommendation: { provider: { id: string } };
     bundle: { runtimeEnv: { MOBIGENT_AGENT_ID: string } };
   };
-  assert.equal(setupPlan.recommendation.provider.id, "anthropic-tool-use");
-  assert.equal(setupPlan.bundle.runtimeEnv.MOBIGENT_AGENT_ID, "claude-prod");
+  assert.equal(setupPlan.recommendation.provider.id, 'anthropic-tool-use');
+  assert.equal(setupPlan.bundle.runtimeEnv.MOBIGENT_AGENT_ID, 'claude-prod');
 
-  const validateSetupPlan = runProviderCli(["--validate-setup-plan", setupPlanPath]);
+  const validateSetupPlan = runProviderCli(['--validate-setup-plan', setupPlanPath]);
   assert.equal(validateSetupPlan.code, 0, validateSetupPlan.stderr);
   assert.match(validateSetupPlan.stdout, /Mobigent provider setup plan: PASS/);
   assert.match(validateSetupPlan.stdout, /PROVIDER anthropic-tool-use/);
 
-  const invalidSetupPlanPath = join(dir, "invalid-provider-setup.json");
-  await writeFile(invalidSetupPlanPath, JSON.stringify({ ...setupPlan, useCase: "broken" }), "utf8");
-  const invalidSetupPlan = runProviderCli(["--validate-setup-plan", invalidSetupPlanPath]);
+  const invalidSetupPlanPath = join(dir, 'invalid-provider-setup.json');
+  await writeFile(
+    invalidSetupPlanPath,
+    JSON.stringify({ ...setupPlan, useCase: 'broken' }),
+    'utf8',
+  );
+  const invalidSetupPlan = runProviderCli(['--validate-setup-plan', invalidSetupPlanPath]);
   assert.equal(invalidSetupPlan.code, 1);
   assert.match(invalidSetupPlan.stdout, /Mobigent provider setup plan: FAIL/);
 
   const runtimeConfig = runProviderCli([
-    "--runtime-config",
-    "--provider",
-    "openrouter",
-    "--base-url",
-    "https://mobigent.example",
-    "--auth",
-    "bearer",
-    "--env",
-    "MOBIGENT_HTTP_API_KEY=runtime-secret",
-    "--agent-id",
-    "openrouter-prod"
+    '--runtime-config',
+    '--provider',
+    'openrouter',
+    '--base-url',
+    'https://mobigent.example',
+    '--auth',
+    'bearer',
+    '--env',
+    'MOBIGENT_HTTP_API_KEY=runtime-secret',
+    '--agent-id',
+    'openrouter-prod',
   ]);
   assert.equal(runtimeConfig.code, 0, runtimeConfig.stderr);
-  const runtimeConfigBody = JSON.parse(runtimeConfig.stdout) as { status: string; config: { kind: string; agentId: string } };
-  assert.equal(runtimeConfigBody.status, "warn");
-  assert.equal(runtimeConfigBody.config.kind, "openrouter");
-  assert.equal(runtimeConfigBody.config.agentId, "openrouter-prod");
+  const runtimeConfigBody = JSON.parse(runtimeConfig.stdout) as {
+    status: string;
+    config: { kind: string; agentId: string };
+  };
+  assert.equal(runtimeConfigBody.status, 'warn');
+  assert.equal(runtimeConfigBody.config.kind, 'openrouter');
+  assert.equal(runtimeConfigBody.config.agentId, 'openrouter-prod');
 
   const runtimeConfigGuide = runProviderCli([
-    "--runtime-config",
-    "--provider",
-    "openrouter",
-    "--base-url",
-    "https://mobigent.example",
-    "--auth",
-    "bearer",
-    "--env",
-    "MOBIGENT_HTTP_API_KEY=runtime-secret",
-    "--env",
-    "MOBIGENT_WATCH_TOOLS=true",
-    "--format",
-    "guide"
+    '--runtime-config',
+    '--provider',
+    'openrouter',
+    '--base-url',
+    'https://mobigent.example',
+    '--auth',
+    'bearer',
+    '--env',
+    'MOBIGENT_HTTP_API_KEY=runtime-secret',
+    '--env',
+    'MOBIGENT_WATCH_TOOLS=true',
+    '--format',
+    'guide',
   ]);
   assert.equal(runtimeConfigGuide.code, 0, runtimeConfigGuide.stderr);
   assert.match(runtimeConfigGuide.stdout, /Mobigent provider runtime config: PASS/);
 
   const invalidRuntimeConfig = runProviderCli([
-    "--runtime-config",
-    "--provider",
-    "openrouter",
-    "--base-url",
-    "ws://gateway.example.com",
-    "--auth",
-    "bearer"
+    '--runtime-config',
+    '--provider',
+    'openrouter',
+    '--base-url',
+    'ws://gateway.example.com',
+    '--auth',
+    'bearer',
   ]);
   assert.equal(invalidRuntimeConfig.code, 1);
-  assert.match(JSON.parse(invalidRuntimeConfig.stdout).errors.join("\n"), /http:\/\/ or https:\/\//);
+  assert.match(
+    JSON.parse(invalidRuntimeConfig.stdout).errors.join('\n'),
+    /http:\/\/ or https:\/\//,
+  );
 
   await rm(dir, { force: true, recursive: true });
 });

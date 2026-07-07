@@ -1,6 +1,6 @@
-import { BridgeGateway } from "@mobigent/gateway";
-import { mobigent } from "@mobigent/react-native";
-import { createNodeSocket } from "./nodeSocket.js";
+import { BridgeGateway } from '@mobigent/gateway';
+import { mobigent } from '@mobigent/react-native';
+import { createNodeSocket } from './nodeSocket.js';
 
 type Expense = {
   id: string;
@@ -14,80 +14,80 @@ gateway.start();
 
 const expenses: Expense[] = [
   {
-    id: "EXP-1001",
+    id: 'EXP-1001',
     amount: 18.75,
-    merchant: "Blue Bottle",
-    category: "Meals"
-  }
+    merchant: 'Blue Bottle',
+    category: 'Meals',
+  },
 ];
 
 mobigent.configure({
-  appId: "com.mobigent.expenses",
-  appName: "Mobigent Expenses",
-  gatewayUrl: "ws://localhost:8787",
+  appId: 'com.mobigent.expenses',
+  appName: 'Mobigent Expenses',
+  gatewayUrl: 'ws://localhost:8787',
   createSocket: createNodeSocket,
   confirm: async ({ action, input }) => {
     console.log(`[app confirmation] ${action.confirmation?.title ?? action.name}`);
     console.log(JSON.stringify(input, null, 2));
     return true;
-  }
+  },
 });
 
 mobigent.registerAction({
-  name: "create_expense",
-  description: "Create a new expense report.",
+  name: 'create_expense',
+  description: 'Create a new expense report.',
   inputSchema: {
-    type: "object",
+    type: 'object',
     properties: {
-      amount: { type: "number" },
-      merchant: { type: "string" },
-      category: { type: "string" }
+      amount: { type: 'number' },
+      merchant: { type: 'string' },
+      category: { type: 'string' },
     },
-    required: ["amount", "merchant"]
+    required: ['amount', 'merchant'],
   },
   confirmation: {
     required: true,
-    title: "Create expense?",
-    risk: "medium"
+    title: 'Create expense?',
+    risk: 'medium',
   },
   policy: {
     foregroundOnly: true,
-    requiresUser: true
+    requiresUser: true,
   },
   handler: async (input) => {
     const expense = {
       id: `EXP-${1001 + expenses.length}`,
       amount: Number(input.amount),
       merchant: String(input.merchant),
-      category: input.category ? String(input.category) : undefined
+      category: input.category ? String(input.category) : undefined,
     };
 
     expenses.push(expense);
     return expense;
-  }
+  },
 });
 
 mobigent.registerResource({
-  name: "expenses",
-  description: "Current list of expense reports.",
+  name: 'expenses',
+  description: 'Current list of expense reports.',
   policy: {
-    readOnly: true
+    readOnly: true,
   },
-  read: async () => ({ expenses })
+  read: async () => ({ expenses }),
 });
 
 mobigent.registerComponent({
-  name: "expense_detail",
-  description: "Expense detail screen.",
+  name: 'expense_detail',
+  description: 'Expense detail screen.',
   propsSchema: {
-    type: "object",
+    type: 'object',
     properties: {
-      expenseId: { type: "string" }
+      expenseId: { type: 'string' },
     },
-    required: ["expenseId"]
+    required: ['expenseId'],
   },
   policy: {
-    foregroundOnly: true
+    foregroundOnly: true,
   },
   focus: async (props) => {
     const expense = expenses.find((item) => item.id === props.expenseId);
@@ -97,38 +97,38 @@ mobigent.registerComponent({
 
     return {
       focused: true,
-      screen: "expense_detail",
-      expense
+      screen: 'expense_detail',
+      expense,
     };
-  }
+  },
 });
 
 await mobigent.connect();
 await new Promise((resolve) => setTimeout(resolve, 100));
 
-console.log("");
-console.log("[agent] discovered tools");
+console.log('');
+console.log('[agent] discovered tools');
 const tools = gateway.listTools();
 console.log(JSON.stringify(tools, null, 2));
 
-console.log("");
-console.log("[agent] calling create_expense");
-const createResult = await gateway.callTool("com_mobigent_expenses.create_expense", {
+console.log('');
+console.log('[agent] calling create_expense');
+const createResult = await gateway.callTool('com_mobigent_expenses.create_expense', {
   amount: 28.5,
-  merchant: "Uber",
-  category: "Travel"
+  merchant: 'Uber',
+  category: 'Travel',
 });
 console.log(JSON.stringify(createResult, null, 2));
 
-console.log("");
-console.log("[agent] reading expenses resource");
-const readResult = await gateway.callTool("com_mobigent_expenses.get_expenses", {});
+console.log('');
+console.log('[agent] reading expenses resource');
+const readResult = await gateway.callTool('com_mobigent_expenses.get_expenses', {});
 console.log(JSON.stringify(readResult, null, 2));
 
-console.log("");
-console.log("[agent] focusing expense detail component");
-const focusResult = await gateway.callTool("com_mobigent_expenses.show_expense_detail", {
-  expenseId: "EXP-1001"
+console.log('');
+console.log('[agent] focusing expense detail component');
+const focusResult = await gateway.callTool('com_mobigent_expenses.show_expense_detail', {
+  expenseId: 'EXP-1001',
 });
 console.log(JSON.stringify(focusResult, null, 2));
 

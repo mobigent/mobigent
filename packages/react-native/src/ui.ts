@@ -8,9 +8,9 @@ export {
   MobigentApp,
   MobigentConfirmationModal,
   MobigentDiagnosticsPanel,
-  MobigentStatusBadge
-} from "./ConfirmationModal.js";
-export { resolveMobigentExpoAppIdentity } from "./provider.js";
+  MobigentStatusBadge,
+} from './ConfirmationModal.js';
+export { resolveMobigentExpoAppIdentity } from './provider.js';
 export type {
   AgentAppFactoryOptions,
   AgentAppProps,
@@ -25,6 +25,6 @@ export type {
   MobigentConfirmationModalProps,
   MobigentDiagnosticsPanelProps,
   MobigentExpoAppOptions,
-  MobigentStatusBadgeProps
-} from "./ConfirmationModal.js";
-export type { MobigentExpoConfig } from "./provider.js";
+  MobigentStatusBadgeProps,
+} from './ConfirmationModal.js';
+export type { MobigentExpoConfig } from './provider.js';

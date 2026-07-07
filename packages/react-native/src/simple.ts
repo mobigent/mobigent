@@ -1,44 +1,53 @@
-import type { JsonObject, JsonSchema } from "@mobigent/core";
+import type { JsonObject, JsonSchema } from '@mobigent/core';
 import type {
   MobigentActionHandler,
   MobigentActionRegistration,
   MobigentComponentFocusHandler,
   MobigentComponentRegistration,
   MobigentResourceReader,
-  MobigentResourceRegistration
-} from "./provider.js";
+  MobigentResourceRegistration,
+} from './provider.js';
 import type {
   MobigentEventQueueOptions,
   MobigentHeartbeatOptions,
   MobigentManifestSigner,
-  MobigentReconnectOptions
-} from "./AgentBridge.js";
-import { mobigent } from "./AgentBridge.js";
+  MobigentReconnectOptions,
+} from './AgentBridge.js';
+import { mobigent } from './AgentBridge.js';
 import {
   createMobigentGatewayUrl,
   createMobigentGatewayUrlForPlatform,
   type MobigentGatewayPlatform,
-  type MobigentGatewayTarget
-} from "./gatewayUrl.js";
-import { schema } from "./schema.js";
-import type { MobigentSocketFactory } from "./transport.js";
+  type MobigentGatewayTarget,
+} from './gatewayUrl.js';
+import { schema } from './schema.js';
+import type { MobigentSocketFactory } from './transport.js';
 
 const defaultMobigentSimpleAppIdentity = {
-  id: "app.mobigent.local",
-  name: "Mobigent App"
+  id: 'app.mobigent.local',
+  name: 'Mobigent App',
 };
 
 export type MobigentSimpleField =
-  | "string"
-  | "number"
-  | "integer"
-  | "boolean"
-  | "object"
-  | "array"
+  | 'string'
+  | 'number'
+  | 'integer'
+  | 'boolean'
+  | 'object'
+  | 'array'
   | string[]
   | JsonSchema
   | MobigentSimpleObjectSchema
-  | [JsonSchema | MobigentSimpleObjectSchema | "string" | "number" | "integer" | "boolean" | "object" | "array"];
+  | [
+      | JsonSchema
+      | MobigentSimpleObjectSchema
+      | 'string'
+      | 'number'
+      | 'integer'
+      | 'boolean'
+      | 'object'
+      | 'array',
+    ];
 
 export interface MobigentSimpleObjectSchema {
   [key: string]: MobigentSimpleField;
@@ -51,7 +60,7 @@ export type MobigentSimpleActionOptions = {
   input?: MobigentSimpleSchema;
   output?: MobigentSimpleSchema;
   confirm?: boolean | string;
-  risk?: "low" | "medium" | "high";
+  risk?: 'low' | 'medium' | 'high';
 };
 
 export type MobigentSimpleResourceOptions = {
@@ -76,30 +85,52 @@ export type MobigentSimpleComponentFocusHandler = (props?: any) => Promise<unkno
 
 export type MobigentSimpleFeature = MobigentSimpleCapabilities & {
   readonly namespace: string;
-  action(name: string, handler: MobigentActionHandler, options?: MobigentSimpleActionOptions): MobigentSimpleFeature;
-  write(name: string, handler: MobigentActionHandler, options?: MobigentSimpleActionOptions): MobigentSimpleFeature;
-  resource(name: string, read: MobigentResourceReader, options?: MobigentSimpleResourceOptions): MobigentSimpleFeature;
-  read(name: string, read: MobigentResourceReader, options?: MobigentSimpleResourceOptions): MobigentSimpleFeature;
+  action(
+    name: string,
+    handler: MobigentActionHandler,
+    options?: MobigentSimpleActionOptions,
+  ): MobigentSimpleFeature;
+  write(
+    name: string,
+    handler: MobigentActionHandler,
+    options?: MobigentSimpleActionOptions,
+  ): MobigentSimpleFeature;
+  resource(
+    name: string,
+    read: MobigentResourceReader,
+    options?: MobigentSimpleResourceOptions,
+  ): MobigentSimpleFeature;
+  read(
+    name: string,
+    read: MobigentResourceReader,
+    options?: MobigentSimpleResourceOptions,
+  ): MobigentSimpleFeature;
   screen(
     name: string,
     focus: MobigentComponentFocusHandler,
-    options?: MobigentSimpleComponentOptions
+    options?: MobigentSimpleComponentOptions,
   ): MobigentSimpleFeature;
   capabilities(): MobigentSimpleCapabilities;
 };
 
-export type MobigentSimpleActionDefinition<Handler extends MobigentSimpleActionHandler = MobigentSimpleActionHandler> = {
-  kind: "action";
+export type MobigentSimpleActionDefinition<
+  Handler extends MobigentSimpleActionHandler = MobigentSimpleActionHandler,
+> = {
+  kind: 'action';
   handler: Handler;
   options?: MobigentSimpleActionOptions;
 };
-export type MobigentSimpleResourceDefinition<Reader extends MobigentSimpleResourceReader = MobigentSimpleResourceReader> = {
-  kind: "resource";
+export type MobigentSimpleResourceDefinition<
+  Reader extends MobigentSimpleResourceReader = MobigentSimpleResourceReader,
+> = {
+  kind: 'resource';
   read: Reader;
   options?: MobigentSimpleResourceOptions;
 };
-export type MobigentSimpleComponentDefinition<Focus extends MobigentSimpleComponentFocusHandler = MobigentSimpleComponentFocusHandler> = {
-  kind: "component";
+export type MobigentSimpleComponentDefinition<
+  Focus extends MobigentSimpleComponentFocusHandler = MobigentSimpleComponentFocusHandler,
+> = {
+  kind: 'component';
   focus: Focus;
   options?: MobigentSimpleComponentOptions;
 };
@@ -109,7 +140,8 @@ export type MobigentSimpleCapabilityDefinition =
   | MobigentSimpleResourceDefinition
   | MobigentSimpleComponentDefinition;
 
-export type MobigentSimpleFunction = MobigentSimpleActionHandler | MobigentSimpleCapabilityDefinition;
+export type MobigentSimpleFunction =
+  MobigentSimpleActionHandler | MobigentSimpleCapabilityDefinition;
 export type MobigentSimpleCapabilityMap = Record<string, MobigentSimpleFunction>;
 export type MobigentSimpleFeatureMap = Record<string, MobigentSimpleCapabilityMap>;
 export type MobigentSimpleFunctionMap = MobigentSimpleFeatureMap;
@@ -156,7 +188,14 @@ export type MobigentSimpleConnectionOptions = {
 
 export type MobigentSimpleAppConfig = Pick<
   MobigentSimpleConnectionOptions,
-  "appId" | "appName" | "connection" | "backendUrl" | "connectionUrl" | "gatewayUrl" | "version" | "authToken"
+  | 'appId'
+  | 'appName'
+  | 'connection'
+  | 'backendUrl'
+  | 'connectionUrl'
+  | 'gatewayUrl'
+  | 'version'
+  | 'authToken'
 > & {
   appId: string;
   appName: string;
@@ -170,7 +209,14 @@ export function defineMobigentConfig(config: MobigentSimpleAppConfig): MobigentS
 
 export type MobigentSimpleConfiguredConnectionOptions = Omit<
   MobigentSimpleConnectionOptions,
-  "appId" | "appName" | "connection" | "backendUrl" | "connectionUrl" | "gatewayUrl" | "version" | "authToken"
+  | 'appId'
+  | 'appName'
+  | 'connection'
+  | 'backendUrl'
+  | 'connectionUrl'
+  | 'gatewayUrl'
+  | 'version'
+  | 'authToken'
 > & {
   config: MobigentSimpleAppConfig;
   appId?: string;
@@ -185,18 +231,18 @@ export type MobigentSimpleConfiguredConnectionOptions = Omit<
 };
 
 export type MobigentSimpleConnectionSettings =
-  | Omit<MobigentSimpleConnectionOptions, "features">
-  | Omit<MobigentSimpleConfiguredConnectionOptions, "features">;
+  | Omit<MobigentSimpleConnectionOptions, 'features'>
+  | Omit<MobigentSimpleConfiguredConnectionOptions, 'features'>;
 
 export type MobigentSimpleConnectionClient = MobigentSimpleClient & {
-  configure(options: Omit<MobigentSimpleConnectionOptions, "features">): unknown;
+  configure(options: Omit<MobigentSimpleConnectionOptions, 'features'>): unknown;
   connect(): Promise<void>;
   disconnect(): unknown;
 };
 
 export type MobigentResolvedConnectionOptions = Omit<
   MobigentSimpleConnectionOptions,
-  "appId" | "appName" | "gatewayUrl"
+  'appId' | 'appName' | 'gatewayUrl'
 > & {
   appId: string;
   appName: string;
@@ -213,52 +259,57 @@ export function emitMobigentEvent(name: string, payload: JsonObject = {}) {
 
 export function read<const Reader extends MobigentSimpleResourceReader>(
   read: Reader,
-  options?: MobigentSimpleResourceOptions
+  options?: MobigentSimpleResourceOptions,
 ): MobigentSimpleResourceDefinition<Reader> {
   return {
-    kind: "resource",
+    kind: 'resource',
     read,
-    options
+    options,
   };
 }
 
 export function action<const Handler extends MobigentSimpleActionHandler>(
   handler: Handler,
-  options?: MobigentSimpleActionOptions
+  options?: MobigentSimpleActionOptions,
 ): MobigentSimpleActionDefinition<Handler> {
   return {
-    kind: "action",
+    kind: 'action',
     handler,
-    options
+    options,
   };
 }
 
 export function write<const Handler extends MobigentSimpleActionHandler>(
   handler: Handler,
-  options?: MobigentSimpleActionOptions
+  options?: MobigentSimpleActionOptions,
 ): MobigentSimpleActionDefinition<Handler> {
   return action(handler, { confirm: true, ...options });
 }
 
 export function screen<const Focus extends MobigentSimpleComponentFocusHandler>(
   focus: Focus,
-  options?: MobigentSimpleComponentOptions
+  options?: MobigentSimpleComponentOptions,
 ): MobigentSimpleComponentDefinition<Focus> {
   return {
-    kind: "component",
+    kind: 'component',
     focus,
-    options
+    options,
   };
 }
 
 export function defineMobigent(features: MobigentSimpleFeatureMap): MobigentSimpleFeature[] {
-  return Object.entries(features).map(([namespace, capabilities]) => feature(namespace, capabilities));
+  return Object.entries(features).map(([namespace, capabilities]) =>
+    feature(namespace, capabilities),
+  );
 }
 
 export const defineFunctions = defineMobigent;
 export const functions = defineMobigent;
 
-export function feature(namespace: string, capabilities?: MobigentSimpleCapabilityMap): MobigentSimpleFeature {
+export function feature(
+  namespace: string,
+  capabilities?: MobigentSimpleCapabilityMap,
+): MobigentSimpleFeature {
   const actions: MobigentActionRegistration[] = [];
   const resources: MobigentResourceRegistration[] = [];
   const components: MobigentComponentRegistration[] = [];
@@ -288,7 +339,7 @@ export function feature(namespace: string, capabilities?: MobigentSimpleCapabili
     },
     capabilities() {
       return { actions, resources, components };
-    }
+    },
   };
 
   if (capabilities) {
@@ -304,26 +355,30 @@ export const createFeature = feature;
 
 function addCapabilities(api: MobigentSimpleFeature, capabilities: MobigentSimpleCapabilityMap) {
   for (const [name, capability] of Object.entries(capabilities)) {
-    if (typeof capability === "function") {
+    if (typeof capability === 'function') {
       addPlainFunction(api, name, capability);
       continue;
     }
 
     switch (capability.kind) {
-      case "action":
+      case 'action':
         api.action(name, capability.handler, capability.options);
         break;
-      case "resource":
+      case 'resource':
         api.resource(name, capability.read, capability.options);
         break;
-      case "component":
+      case 'component':
         api.screen(name, capability.focus, capability.options);
         break;
     }
   }
 }
 
-function addPlainFunction(api: MobigentSimpleFeature, name: string, handler: MobigentActionHandler) {
+function addPlainFunction(
+  api: MobigentSimpleFeature,
+  name: string,
+  handler: MobigentActionHandler,
+) {
   if (isReadFunctionName(name)) {
     api.resource(name, async () => handler({}));
     return;
@@ -338,7 +393,7 @@ function isReadFunctionName(name: string) {
 
 export function registerFeatures(
   client: MobigentSimpleClient,
-  features: MobigentSimpleFeature | MobigentSimpleFeature[]
+  features: MobigentSimpleFeature | MobigentSimpleFeature[],
 ): () => void {
   const featureList = Array.isArray(features) ? features : [features];
   const registeredActions: MobigentActionRegistration[] = [];
@@ -381,19 +436,19 @@ export const registerFeature = registerFeatures;
 
 export async function connectMobigent(
   client: MobigentSimpleConnectionClient,
-  options: MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions
+  options: MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions,
 ): Promise<MobigentSimpleConnection>;
 export async function connectMobigent(
   client: MobigentSimpleConnectionClient,
   features: MobigentSimpleFeature | MobigentSimpleFeature[],
-  options?: MobigentSimpleConnectionSettings
+  options?: MobigentSimpleConnectionSettings,
 ): Promise<MobigentSimpleConnection>;
 export async function connectMobigent(
-  options: MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions
+  options: MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions,
 ): Promise<MobigentSimpleConnection>;
 export async function connectMobigent(
   features: MobigentSimpleFeature | MobigentSimpleFeature[],
-  options?: MobigentSimpleConnectionSettings
+  options?: MobigentSimpleConnectionSettings,
 ): Promise<MobigentSimpleConnection>;
 export async function connectMobigent(
   clientOrOptions:
@@ -402,8 +457,13 @@ export async function connectMobigent(
     | MobigentSimpleConfiguredConnectionOptions
     | MobigentSimpleFeature
     | MobigentSimpleFeature[],
-  maybeOptions?: MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions | MobigentSimpleConnectionSettings | MobigentSimpleFeature | MobigentSimpleFeature[],
-  maybeSettings?: MobigentSimpleConnectionSettings
+  maybeOptions?:
+    | MobigentSimpleConnectionOptions
+    | MobigentSimpleConfiguredConnectionOptions
+    | MobigentSimpleConnectionSettings
+    | MobigentSimpleFeature
+    | MobigentSimpleFeature[],
+  maybeSettings?: MobigentSimpleConnectionSettings,
 ): Promise<MobigentSimpleConnection> {
   const parsed = parseConnectArgs(clientOrOptions, maybeOptions, maybeSettings);
   const { client, options } = parsed;
@@ -423,7 +483,7 @@ export async function connectMobigent(
     disconnect() {
       unregisterFeatures();
       client.disconnect();
-    }
+    },
   };
 }
 
@@ -434,8 +494,13 @@ function parseConnectArgs(
     | MobigentSimpleConfiguredConnectionOptions
     | MobigentSimpleFeature
     | MobigentSimpleFeature[],
-  maybeOptions?: MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions | MobigentSimpleConnectionSettings | MobigentSimpleFeature | MobigentSimpleFeature[],
-  maybeSettings?: MobigentSimpleConnectionSettings
+  maybeOptions?:
+    | MobigentSimpleConnectionOptions
+    | MobigentSimpleConfiguredConnectionOptions
+    | MobigentSimpleConnectionSettings
+    | MobigentSimpleFeature
+    | MobigentSimpleFeature[],
+  maybeSettings?: MobigentSimpleConnectionSettings,
 ): {
   client: MobigentSimpleConnectionClient;
   options: MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions;
@@ -448,14 +513,15 @@ function parseConnectArgs(
         client,
         options: {
           ...(maybeSettings ?? {}),
-          features: maybeOptions
-        } as MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions
+          features: maybeOptions,
+        } as MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions,
       };
     }
 
     return {
       client,
-      options: maybeOptions as MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions
+      options: maybeOptions as
+        MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions,
     };
   }
 
@@ -464,29 +530,31 @@ function parseConnectArgs(
       client: mobigent as unknown as MobigentSimpleConnectionClient,
       options: {
         ...((maybeOptions as MobigentSimpleConnectionSettings | undefined) ?? {}),
-        features: clientOrOptions
-      } as MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions
+        features: clientOrOptions,
+      } as MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions,
     };
   }
 
   return {
     client: mobigent as unknown as MobigentSimpleConnectionClient,
-    options: clientOrOptions
+    options: clientOrOptions,
   };
 }
 
 function isMobigentSimpleClient(value: unknown): value is MobigentSimpleConnectionClient {
   return Boolean(
     value &&
-      typeof value === "object" &&
-      "configure" in value &&
-      "connect" in value &&
-      "disconnect" in value &&
-      "registerAction" in value
+    typeof value === 'object' &&
+    'configure' in value &&
+    'connect' in value &&
+    'disconnect' in value &&
+    'registerAction' in value,
   );
 }
 
-function isMobigentFeatureInput(value: unknown): value is MobigentSimpleFeature | MobigentSimpleFeature[] {
+function isMobigentFeatureInput(
+  value: unknown,
+): value is MobigentSimpleFeature | MobigentSimpleFeature[] {
   if (Array.isArray(value)) {
     return value.every(isMobigentFeature);
   }
@@ -497,26 +565,31 @@ function isMobigentFeatureInput(value: unknown): value is MobigentSimpleFeature 
 function isMobigentFeature(value: unknown): value is MobigentSimpleFeature {
   return Boolean(
     value &&
-      typeof value === "object" &&
-      "namespace" in value &&
-      "actions" in value &&
-      "resources" in value &&
-      "components" in value
+    typeof value === 'object' &&
+    'namespace' in value &&
+    'actions' in value &&
+    'resources' in value &&
+    'components' in value,
   );
 }
 
 function resolveConnectionOptions(
-  options: MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions
+  options: MobigentSimpleConnectionOptions | MobigentSimpleConfiguredConnectionOptions,
 ): MobigentResolvedConnectionOptions {
   const envConfig = resolveMobigentEnvironmentConfig();
 
-  if (!("config" in options)) {
+  if (!('config' in options)) {
     const pairing = options.pairing;
 
     return {
       ...options,
-      appId: options.appId ?? pairing?.appId ?? envConfig.appId ?? defaultMobigentSimpleAppIdentity.id,
-      appName: options.appName ?? pairing?.appName ?? envConfig.appName ?? defaultMobigentSimpleAppIdentity.name,
+      appId:
+        options.appId ?? pairing?.appId ?? envConfig.appId ?? defaultMobigentSimpleAppIdentity.id,
+      appName:
+        options.appName ??
+        pairing?.appName ??
+        envConfig.appName ??
+        defaultMobigentSimpleAppIdentity.name,
       gatewayUrl:
         options.gatewayUrl ??
         options.backendUrl ??
@@ -529,14 +602,24 @@ function resolveConnectionOptions(
         envConfig.gatewayUrl ??
         envConfig.backendUrl ??
         envConfig.connectionUrl ??
-        createMobigentGatewayUrl()
+        createMobigentGatewayUrl(),
     };
   }
 
   const { config, ...rest } = options;
   const pairing = rest.pairing;
-  const appId = rest.appId ?? pairing?.appId ?? config.appId ?? envConfig.appId ?? defaultMobigentSimpleAppIdentity.id;
-  const appName = rest.appName ?? pairing?.appName ?? config.appName ?? envConfig.appName ?? defaultMobigentSimpleAppIdentity.name;
+  const appId =
+    rest.appId ??
+    pairing?.appId ??
+    config.appId ??
+    envConfig.appId ??
+    defaultMobigentSimpleAppIdentity.id;
+  const appName =
+    rest.appName ??
+    pairing?.appName ??
+    config.appName ??
+    envConfig.appName ??
+    defaultMobigentSimpleAppIdentity.name;
 
   return {
     ...rest,
@@ -560,32 +643,54 @@ function resolveConnectionOptions(
       envConfig.connectionUrl ??
       createMobigentGatewayUrl(),
     version: rest.version ?? pairing?.version ?? config.version ?? envConfig.version,
-    authToken: rest.authToken ?? pairing?.authToken ?? config.authToken ?? envConfig.authToken
+    authToken: rest.authToken ?? pairing?.authToken ?? config.authToken ?? envConfig.authToken,
   };
 }
 
-export function resolveMobigentEnvironmentConfig(env: MobigentEnvironment = readMobigentRuntimeEnv()): Partial<MobigentSimpleAppConfig> {
-  const appId = firstEnv(env, "EXPO_PUBLIC_MOBIGENT_APP_ID", "EXPO_PUBLIC_MOBIGENT_APP", "MOBIGENT_APP_ID", "MOBIGENT_APP");
-  const appName = firstEnv(env, "EXPO_PUBLIC_MOBIGENT_APP_NAME", "MOBIGENT_APP_NAME") ?? (appId ? inferSimpleAppNameFromId(appId) : undefined);
+export function resolveMobigentEnvironmentConfig(
+  env: MobigentEnvironment = readMobigentRuntimeEnv(),
+): Partial<MobigentSimpleAppConfig> {
+  const appId = firstEnv(
+    env,
+    'EXPO_PUBLIC_MOBIGENT_APP_ID',
+    'EXPO_PUBLIC_MOBIGENT_APP',
+    'MOBIGENT_APP_ID',
+    'MOBIGENT_APP',
+  );
+  const appName =
+    firstEnv(env, 'EXPO_PUBLIC_MOBIGENT_APP_NAME', 'MOBIGENT_APP_NAME') ??
+    (appId ? inferSimpleAppNameFromId(appId) : undefined);
 
   return omitUndefinedValues({
     appId,
     appName,
     connectionUrl: firstEnv(
       env,
-      "EXPO_PUBLIC_MOBIGENT_BACKEND_URL",
-      "EXPO_PUBLIC_MOBIGENT_CONNECTION_URL",
-      "EXPO_PUBLIC_MOBIGENT_GATEWAY_URL",
-      "EXPO_PUBLIC_MOBIGENT_URL",
-      "MOBIGENT_BACKEND_URL",
-      "MOBIGENT_CONNECTION_URL",
-      "MOBIGENT_GATEWAY_URL",
-      "MOBIGENT_URL"
+      'EXPO_PUBLIC_MOBIGENT_BACKEND_URL',
+      'EXPO_PUBLIC_MOBIGENT_CONNECTION_URL',
+      'EXPO_PUBLIC_MOBIGENT_GATEWAY_URL',
+      'EXPO_PUBLIC_MOBIGENT_URL',
+      'MOBIGENT_BACKEND_URL',
+      'MOBIGENT_CONNECTION_URL',
+      'MOBIGENT_GATEWAY_URL',
+      'MOBIGENT_URL',
     ),
-    backendUrl: firstEnv(env, "EXPO_PUBLIC_MOBIGENT_BACKEND_URL", "MOBIGENT_BACKEND_URL"),
-    gatewayUrl: firstEnv(env, "EXPO_PUBLIC_MOBIGENT_GATEWAY_URL", "EXPO_PUBLIC_MOBIGENT_URL", "MOBIGENT_GATEWAY_URL", "MOBIGENT_URL"),
-    version: firstEnv(env, "EXPO_PUBLIC_MOBIGENT_APP_VERSION", "MOBIGENT_APP_VERSION"),
-    authToken: firstEnv(env, "EXPO_PUBLIC_MOBIGENT_AUTH_TOKEN", "EXPO_PUBLIC_MOBIGENT_TOKEN", "MOBIGENT_AUTH_TOKEN", "MOBIGENT_TOKEN")
+    backendUrl: firstEnv(env, 'EXPO_PUBLIC_MOBIGENT_BACKEND_URL', 'MOBIGENT_BACKEND_URL'),
+    gatewayUrl: firstEnv(
+      env,
+      'EXPO_PUBLIC_MOBIGENT_GATEWAY_URL',
+      'EXPO_PUBLIC_MOBIGENT_URL',
+      'MOBIGENT_GATEWAY_URL',
+      'MOBIGENT_URL',
+    ),
+    version: firstEnv(env, 'EXPO_PUBLIC_MOBIGENT_APP_VERSION', 'MOBIGENT_APP_VERSION'),
+    authToken: firstEnv(
+      env,
+      'EXPO_PUBLIC_MOBIGENT_AUTH_TOKEN',
+      'EXPO_PUBLIC_MOBIGENT_TOKEN',
+      'MOBIGENT_AUTH_TOKEN',
+      'MOBIGENT_TOKEN',
+    ),
   });
 }
 
@@ -606,16 +711,18 @@ function firstEnv(env: MobigentEnvironment, ...names: string[]) {
 }
 
 function inferSimpleAppNameFromId(appId: string) {
-  const name = appId.split(".").filter(Boolean).at(-1) ?? appId;
+  const name = appId.split('.').filter(Boolean).at(-1) ?? appId;
   return humanize(name);
 }
 
-export function resolveMobigentConnectionUrl(connection?: MobigentSimpleBackendConnection): string | undefined {
+export function resolveMobigentConnectionUrl(
+  connection?: MobigentSimpleBackendConnection,
+): string | undefined {
   if (!connection) {
     return undefined;
   }
 
-  if (typeof connection === "string") {
+  if (typeof connection === 'string') {
     return connection;
   }
 
@@ -623,7 +730,7 @@ export function resolveMobigentConnectionUrl(connection?: MobigentSimpleBackendC
   const options = {
     ...connection,
     host,
-    target: connection.target ?? (connection.deviceHost ? "device" : undefined)
+    target: connection.target ?? (connection.deviceHost ? 'device' : undefined),
   };
 
   return connection.platform
@@ -635,13 +742,14 @@ function toAction(
   namespace: string,
   name: string,
   handler: MobigentActionHandler,
-  options: MobigentSimpleActionOptions
+  options: MobigentSimpleActionOptions,
 ): MobigentActionRegistration {
   const confirmation = options.confirm
     ? {
         required: true,
-        risk: options.risk ?? "medium",
-        title: typeof options.confirm === "string" ? options.confirm : humanize(`${namespace} ${name}`)
+        risk: options.risk ?? 'medium',
+        title:
+          typeof options.confirm === 'string' ? options.confirm : humanize(`${namespace} ${name}`),
       }
     : undefined;
 
@@ -651,7 +759,7 @@ function toAction(
     inputSchema: toSchema(options.input ?? {}),
     outputSchema: options.output ? toSchema(options.output) : undefined,
     confirmation,
-    handler
+    handler,
   };
 }
 
@@ -659,13 +767,13 @@ function toResource(
   namespace: string,
   name: string,
   read: MobigentResourceReader,
-  options: MobigentSimpleResourceOptions
+  options: MobigentSimpleResourceOptions,
 ): MobigentResourceRegistration {
   return {
     name: simpleCapabilityName(namespace, name),
     description: options.description ?? humanize(`${namespace} ${name}`),
     outputSchema: options.output ? toSchema(options.output) : undefined,
-    read
+    read,
   };
 }
 
@@ -673,13 +781,13 @@ function toComponent(
   namespace: string,
   name: string,
   focus: MobigentComponentFocusHandler,
-  options: MobigentSimpleComponentOptions
+  options: MobigentSimpleComponentOptions,
 ): MobigentComponentRegistration {
   return {
     name: simpleCapabilityName(namespace, name),
     description: options.description ?? humanize(`${namespace} ${name}`),
     propsSchema: options.props ? toSchema(options.props) : undefined,
-    focus
+    focus,
   };
 }
 
@@ -690,7 +798,7 @@ export function toSchema(value: MobigentSimpleSchema): JsonSchema {
 
   return schema.object(
     Object.fromEntries(Object.entries(value).map(([key, field]) => [key, fieldToSchema(field)])),
-    { required: "all" }
+    { required: 'all' },
   );
 }
 
@@ -698,7 +806,7 @@ export const simpleSchema = toSchema;
 
 function fieldToSchema(field: MobigentSimpleField): JsonSchema {
   if (Array.isArray(field)) {
-    if (field.length === 1 && typeof field[0] !== "string") {
+    if (field.length === 1 && typeof field[0] !== 'string') {
       return schema.array(fieldToSchema(field[0]));
     }
 
@@ -706,22 +814,22 @@ function fieldToSchema(field: MobigentSimpleField): JsonSchema {
       return schema.array(fieldToSchema(field[0] as MobigentSimpleField));
     }
 
-    return schema.enum(field.filter((value): value is string => typeof value === "string"));
+    return schema.enum(field.filter((value): value is string => typeof value === 'string'));
   }
 
-  if (typeof field === "string") {
+  if (typeof field === 'string') {
     switch (field) {
-      case "string":
+      case 'string':
         return schema.string();
-      case "number":
+      case 'number':
         return schema.number();
-      case "integer":
+      case 'integer':
         return schema.integer();
-      case "boolean":
+      case 'boolean':
         return schema.boolean();
-      case "array":
+      case 'array':
         return schema.array(schema.object());
-      case "object":
+      case 'object':
         return schema.object();
       default:
         return schema.string({ description: field });
@@ -738,32 +846,34 @@ function fieldToSchema(field: MobigentSimpleField): JsonSchema {
 function isJsonSchema(value: unknown): value is JsonSchema {
   return Boolean(
     value &&
-      typeof value === "object" &&
-      !Array.isArray(value) &&
-      "type" in value &&
-      typeof (value as JsonObject).type === "string"
+    typeof value === 'object' &&
+    !Array.isArray(value) &&
+    'type' in value &&
+    typeof (value as JsonObject).type === 'string',
   );
 }
 
 function isSimpleType(value: unknown): value is string {
-  return ["string", "number", "integer", "boolean", "object", "array"].includes(String(value));
+  return ['string', 'number', 'integer', 'boolean', 'object', 'array'].includes(String(value));
 }
 
 function humanize(value: string) {
   return value
-    .replace(/[_-]+/g, " ")
-    .replace(/\s+/g, " ")
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
     .trim()
     .replace(/\b\w/g, (character) => character.toUpperCase());
 }
 
 function simpleCapabilityName(namespace: string, name: string) {
-  const normalizedNamespace = namespace.replace(/[^a-zA-Z0-9_]/g, "_").replace(/^_+|_+$/g, "");
-  const normalizedName = name.replace(/[^a-zA-Z0-9_]/g, "_").replace(/^_+|_+$/g, "");
+  const normalizedNamespace = namespace.replace(/[^a-zA-Z0-9_]/g, '_').replace(/^_+|_+$/g, '');
+  const normalizedName = name.replace(/[^a-zA-Z0-9_]/g, '_').replace(/^_+|_+$/g, '');
 
   return `${normalizedNamespace}_${normalizedName}`.toLowerCase();
 }
 
 function omitUndefinedValues<T extends Record<string, unknown>>(value: T): T {
-  return Object.fromEntries(Object.entries(value).filter(([, entryValue]) => entryValue !== undefined)) as T;
+  return Object.fromEntries(
+    Object.entries(value).filter(([, entryValue]) => entryValue !== undefined),
+  ) as T;
 }

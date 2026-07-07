@@ -6,8 +6,8 @@ import {
   useMemo,
   useRef,
   useState,
-  type ReactNode
-} from "react";
+  type ReactNode,
+} from 'react';
 import {
   Mobigent,
   type MobigentDiagnostics,
@@ -16,39 +16,39 @@ import {
   type MobigentHeartbeatOptions,
   type MobigentManifestSigner,
   type MobigentReconnectOptions,
-  type AgentBridge as AgentBridgeCompat
-} from "./AgentBridge.js";
+  type AgentBridge as AgentBridgeCompat,
+} from './AgentBridge.js';
 import type {
   ActionDefinition,
   CapabilityPolicy,
   ComponentDefinition,
   ConfirmationPolicy,
   JsonObject,
-  ResourceDefinition
-} from "@mobigent/core";
-import { validateCapabilityManifest } from "@mobigent/core";
+  ResourceDefinition,
+} from '@mobigent/core';
+import { validateCapabilityManifest } from '@mobigent/core';
 import {
   ConfirmationController,
   createConfirmationController,
-  type ConfirmationRequest
-} from "./confirmation.js";
+  type ConfirmationRequest,
+} from './confirmation.js';
 import {
   createMobigentGatewayUrl,
   createMobigentGatewayUrlForPlatform,
   type MobigentGatewayPlatform,
   type MobigentGatewayTarget,
-  type MobigentGatewayUrlOptions
-} from "./gatewayUrl.js";
-import type { MobigentSocketFactory } from "./transport.js";
+  type MobigentGatewayUrlOptions,
+} from './gatewayUrl.js';
+import type { MobigentSocketFactory } from './transport.js';
 
-export type MobigentProviderGatewayOptions = Omit<MobigentGatewayUrlOptions, "target"> & {
+export type MobigentProviderGatewayOptions = Omit<MobigentGatewayUrlOptions, 'target'> & {
   platform?: MobigentGatewayPlatform;
   target?: MobigentGatewayTarget;
   deviceHost?: string;
-  androidTarget?: Extract<MobigentGatewayTarget, "android-emulator" | "device">;
+  androidTarget?: Extract<MobigentGatewayTarget, 'android-emulator' | 'device'>;
 };
 
-export type MobigentEnvironmentMode = "local" | "device" | "hosted" | "disabled";
+export type MobigentEnvironmentMode = 'local' | 'device' | 'hosted' | 'disabled';
 
 export type MobigentEnvironmentOptions = {
   mode?: MobigentEnvironmentMode;
@@ -74,7 +74,7 @@ export type MobigentEnvironmentFromEnvOptions = {
 
 export type MobigentEnvironmentConfig = Pick<
   MobigentProviderProps,
-  "enabled" | "gateway" | "gatewayUrl" | "authToken"
+  'enabled' | 'gateway' | 'gatewayUrl' | 'authToken'
 >;
 
 export type MobigentAppIdentity = {
@@ -84,8 +84,8 @@ export type MobigentAppIdentity = {
 };
 
 export const defaultMobigentAppIdentity: MobigentAppIdentity = {
-  id: "app.mobigent.local",
-  name: "Mobigent App"
+  id: 'app.mobigent.local',
+  name: 'Mobigent App',
 };
 
 export type MobigentExpoConfig = {
@@ -140,7 +140,7 @@ export type MobigentContextValue = {
   disconnect(): void;
 };
 
-export type MobigentStatusLevel = "disabled" | "ready" | "connecting" | "attention" | "offline";
+export type MobigentStatusLevel = 'disabled' | 'ready' | 'connecting' | 'attention' | 'offline';
 
 export type MobigentStatus = {
   level: MobigentStatusLevel;
@@ -163,16 +163,12 @@ export type MobigentRegistrationOptions = {
 };
 
 export type MobigentPolicyPreset =
-  | "read-only"
-  | "foreground"
-  | "user-required"
-  | "confirmed"
-  | "destructive";
+  'read-only' | 'foreground' | 'user-required' | 'confirmed' | 'destructive';
 
 export type MobigentPolicyOptions = {
   title?: string;
   message?: string;
-  risk?: ConfirmationPolicy["risk"];
+  risk?: ConfirmationPolicy['risk'];
   allowedAgents?: string[];
   rateLimitPerMinute?: number;
   sensitiveData?: string[];
@@ -239,7 +235,7 @@ export type MobigentFeatureOptions = {
   components?: MobigentComponentRegistration[];
 };
 
-export type MobigentFeatureCapabilitiesOptions = Omit<MobigentFeatureOptions, "namespace">;
+export type MobigentFeatureCapabilitiesOptions = Omit<MobigentFeatureOptions, 'namespace'>;
 
 export type MobigentFeatureFactory = {
   namespace: string;
@@ -250,7 +246,7 @@ export type MobigentFeatureFactory = {
 };
 
 export type MobigentCapabilityKit = Required<
-  Pick<MobigentCapabilitiesProps, "actions" | "resources" | "components">
+  Pick<MobigentCapabilitiesProps, 'actions' | 'resources' | 'components'>
 > & {
   useRegister(options?: MobigentRegistrationOptions): void;
   Component(props?: MobigentRegistrationOptions): null;
@@ -315,12 +311,7 @@ export type MobigentModuleMountProps = MobigentModuleRegistrationOptions & {
 };
 
 export type MobigentCapabilitySource =
-  | MobigentCapabilityKit
-  | MobigentModule
-  | MobigentCapabilitiesProps
-  | undefined
-  | null
-  | false;
+  MobigentCapabilityKit | MobigentModule | MobigentCapabilitiesProps | undefined | null | false;
 
 export type MobigentCapabilityRegistry = MobigentCapabilityKit & {
   add(...sources: MobigentCapabilitySource[]): MobigentCapabilityRegistry;
@@ -332,7 +323,7 @@ export type MobigentCapabilityRegistry = MobigentCapabilityKit & {
   subscribe(listener: () => void): () => void;
 };
 
-export type MobigentCapabilityDiagnosticsStatus = "pass" | "warn" | "fail";
+export type MobigentCapabilityDiagnosticsStatus = 'pass' | 'warn' | 'fail';
 
 export type MobigentCapabilityDiagnosticsCheck = {
   name: string;
@@ -358,7 +349,8 @@ export type MobigentCapabilityDiagnosticsOptions = {
   version?: string;
 };
 
-export type MobigentCapabilityDefinitionFactory = () => MobigentCapabilitySource | MobigentCapabilitySource[];
+export type MobigentCapabilityDefinitionFactory = () =>
+  MobigentCapabilitySource | MobigentCapabilitySource[];
 
 export type MobigentModuleDefinitionFactory = () => MobigentModule;
 
@@ -381,15 +373,15 @@ export function MobigentProvider({
   bridge,
   enabled = true,
   autoConnect = true,
-  children
+  children,
 }: MobigentProviderProps) {
   const bridgeRef = useRef<Mobigent>(bridge ?? new Mobigent());
   const confirmationController = useMemo(() => createConfirmationController(), []);
   const [confirmationRequest, setConfirmationRequest] = useState<ConfirmationRequest | undefined>();
   const [connectionState, setConnectionState] = useState<MobigentConnectionState>(
-    bridgeRef.current.getConnectionState()
+    bridgeRef.current.getConnectionState(),
   );
-  const connected = connectionState === "connected";
+  const connected = connectionState === 'connected';
   const diagnostics = bridgeRef.current.getDiagnostics();
 
   useEffect(() => {
@@ -420,7 +412,7 @@ export function MobigentProvider({
       heartbeat,
       signManifest,
       createSocket,
-      confirmationController
+      confirmationController,
     });
   }, [
     enabled,
@@ -437,7 +429,7 @@ export function MobigentProvider({
     heartbeat,
     signManifest,
     createSocket,
-    confirmationController
+    confirmationController,
   ]);
 
   const connect = useCallback(async () => {
@@ -458,9 +450,18 @@ export function MobigentProvider({
       diagnostics,
       enabled,
       connect,
-      disconnect
+      disconnect,
     }),
-    [confirmationController, confirmationRequest, connected, connectionState, diagnostics, enabled, connect, disconnect]
+    [
+      confirmationController,
+      confirmationRequest,
+      connected,
+      connectionState,
+      diagnostics,
+      enabled,
+      connect,
+      disconnect,
+    ],
   );
 
   useEffect(() => {
@@ -488,7 +489,7 @@ export function MobigentProvider({
 export function useMobigent() {
   const context = useContext(MobigentContext);
   if (!context) {
-    throw new Error("useMobigent must be used inside MobigentProvider.");
+    throw new Error('useMobigent must be used inside MobigentProvider.');
   }
 
   return context;
@@ -496,7 +497,7 @@ export function useMobigent() {
 
 export function resolveMobigentProviderGatewayUrl(
   gatewayUrl?: string,
-  gateway: MobigentProviderGatewayOptions = {}
+  gateway: MobigentProviderGatewayOptions = {},
 ) {
   if (gatewayUrl) {
     return gatewayUrl;
@@ -510,7 +511,7 @@ export function resolveMobigentProviderGatewayUrl(
 }
 
 export function createMobigentEnvironment({
-  mode = "local",
+  mode = 'local',
   platform,
   deviceHost,
   host,
@@ -520,12 +521,12 @@ export function createMobigentEnvironment({
   backendUrl,
   gatewayUrl,
   authToken,
-  enabled
+  enabled,
 }: MobigentEnvironmentOptions = {}): MobigentEnvironmentConfig {
-  if (mode === "disabled") {
+  if (mode === 'disabled') {
     return {
       enabled: false,
-      authToken
+      authToken,
     };
   }
 
@@ -535,33 +536,33 @@ export function createMobigentEnvironment({
     return {
       enabled: enabled ?? true,
       gatewayUrl: resolvedUrl,
-      authToken
+      authToken,
     };
   }
 
-  if (mode === "device") {
+  if (mode === 'device') {
     if (!deviceHost && !host) {
-      throw new Error("Mobigent device environment requires deviceHost or host.");
+      throw new Error('Mobigent device environment requires deviceHost or host.');
     }
 
     return {
       enabled: enabled ?? true,
       gateway: {
         platform,
-        target: "device",
+        target: 'device',
         deviceHost: deviceHost ?? host,
         host,
         port,
         secure,
-        path
+        path,
       },
-      authToken
+      authToken,
     };
   }
 
-  if (mode === "hosted") {
+  if (mode === 'hosted') {
     if (!host) {
-      throw new Error("Mobigent hosted environment requires host, backendUrl, or gatewayUrl.");
+      throw new Error('Mobigent hosted environment requires host, backendUrl, or gatewayUrl.');
     }
 
     return {
@@ -570,9 +571,9 @@ export function createMobigentEnvironment({
         host,
         port: port ?? 443,
         secure: secure ?? true,
-        path
+        path,
       },
-      authToken
+      authToken,
     };
   }
 
@@ -582,9 +583,9 @@ export function createMobigentEnvironment({
       platform,
       port,
       secure,
-      path
+      path,
     },
-    authToken
+    authToken,
   };
 }
 
@@ -594,42 +595,43 @@ export const createAgentEnvironmentFromExpoConfig = createMobigentEnvironmentFro
 
 export function createMobigentEnvironmentFromEnv({
   env = getDefaultMobigentEnv(),
-  prefix = "MOBIGENT",
-  fallback = {}
+  prefix = 'MOBIGENT',
+  fallback = {},
 }: MobigentEnvironmentFromEnvOptions = {}): MobigentEnvironmentConfig {
   const read = (name: string) =>
     env[`${prefix}_${name}`] ??
     env[`EXPO_PUBLIC_${prefix}_${name}`] ??
     env[`REACT_NATIVE_${prefix}_${name}`];
-  const mode = parseMobigentEnvironmentMode(read("MODE")) ?? fallback.mode;
-  const enabled = parseMobigentBoolean(read("ENABLED")) ?? fallback.enabled;
-  const port = parseMobigentPort(read("PORT")) ?? fallback.port;
-  const secure = parseMobigentBoolean(read("SECURE")) ?? fallback.secure;
-  const platform = parseMobigentGatewayPlatform(read("PLATFORM")) ?? fallback.platform;
+  const mode = parseMobigentEnvironmentMode(read('MODE')) ?? fallback.mode;
+  const enabled = parseMobigentBoolean(read('ENABLED')) ?? fallback.enabled;
+  const port = parseMobigentPort(read('PORT')) ?? fallback.port;
+  const secure = parseMobigentBoolean(read('SECURE')) ?? fallback.secure;
+  const platform = parseMobigentGatewayPlatform(read('PLATFORM')) ?? fallback.platform;
 
   return createMobigentEnvironment({
     ...fallback,
-    mode: enabled === false ? "disabled" : mode,
+    mode: enabled === false ? 'disabled' : mode,
     enabled,
     platform,
-    deviceHost: read("DEVICE_HOST") ?? fallback.deviceHost,
-    host: read("HOST") ?? fallback.host,
+    deviceHost: read('DEVICE_HOST') ?? fallback.deviceHost,
+    host: read('HOST') ?? fallback.host,
     port,
     secure,
-    path: read("PATH") ?? fallback.path,
-    backendUrl: read("BACKEND_URL") ?? fallback.backendUrl,
-    gatewayUrl: read("GATEWAY_URL") ?? read("BACKEND_URL") ?? fallback.gatewayUrl ?? fallback.backendUrl,
-    authToken: read("AUTH_TOKEN") ?? fallback.authToken
+    path: read('PATH') ?? fallback.path,
+    backendUrl: read('BACKEND_URL') ?? fallback.backendUrl,
+    gatewayUrl:
+      read('GATEWAY_URL') ?? read('BACKEND_URL') ?? fallback.gatewayUrl ?? fallback.backendUrl,
+    authToken: read('AUTH_TOKEN') ?? fallback.authToken,
   });
 }
 
 export function createMobigentEnvironmentFromExpoConfig(
   expo: MobigentExpoConfig = {},
-  fallback: MobigentEnvironmentOptions = {}
+  fallback: MobigentEnvironmentOptions = {},
 ): MobigentEnvironmentConfig {
   return createMobigentEnvironment({
     ...fallback,
-    ...readMobigentExpoExtraConfig(expo)
+    ...readMobigentExpoExtraConfig(expo),
   });
 }
 
@@ -637,7 +639,7 @@ export function resolveMobigentAppIdentity(
   app?: MobigentAppIdentity,
   appId?: string,
   appName?: string,
-  version?: string
+  version?: string,
 ): MobigentAppIdentity {
   const id = app?.id ?? appId ?? defaultMobigentAppIdentity.id;
   const name = app?.name ?? appName ?? defaultMobigentAppIdentity.name;
@@ -646,7 +648,7 @@ export function resolveMobigentAppIdentity(
   return {
     id,
     name,
-    version: resolvedVersion
+    version: resolvedVersion,
   };
 }
 
@@ -679,14 +681,14 @@ export function resolveMobigentExpoAppIdentity(expo: MobigentExpoConfig = {}): M
 
   if (!id || !name) {
     throw new Error(
-      "Mobigent Expo app identity is required. Pass app, expo config with name/slug, or extra.mobigentApp."
+      'Mobigent Expo app identity is required. Pass app, expo config with name/slug, or extra.mobigentApp.',
     );
   }
 
   return {
     id,
     name,
-    version: resolvedVersion
+    version: resolvedVersion,
   };
 }
 
@@ -696,7 +698,7 @@ export function useMobigentConfirmation() {
   return {
     request: confirmationRequest,
     approve: () => confirmationController.approve(),
-    reject: () => confirmationController.reject()
+    reject: () => confirmationController.reject(),
   };
 }
 
@@ -707,7 +709,7 @@ export function useMobigentConnection() {
     connected,
     connectionState,
     connect,
-    disconnect
+    disconnect,
   };
 }
 
@@ -723,22 +725,24 @@ export function useMobigentStatus() {
 
 export function createMobigentStatus(
   diagnostics: MobigentDiagnostics,
-  options: { enabled?: boolean } = {}
+  options: { enabled?: boolean } = {},
 ): MobigentStatus {
   const enabled = options.enabled ?? true;
-  const blockingIssueCount = diagnostics.issues.filter((issue) => issue.severity === "error").length;
-  const warningIssueCount = diagnostics.issues.filter((issue) => issue.severity === "warn").length;
+  const blockingIssueCount = diagnostics.issues.filter(
+    (issue) => issue.severity === 'error',
+  ).length;
+  const warningIssueCount = diagnostics.issues.filter((issue) => issue.severity === 'warn').length;
 
   if (!enabled) {
     return {
-      level: "disabled",
-      label: "Agent bridge disabled",
+      level: 'disabled',
+      label: 'Agent bridge disabled',
       connected: false,
       connectionState: diagnostics.connectionState,
       capabilityCount: diagnostics.capabilityCounts.total,
       issueCount: diagnostics.issues.length,
       blockingIssueCount,
-      queuedEventCount: diagnostics.queuedEventCount
+      queuedEventCount: diagnostics.queuedEventCount,
     };
   }
 
@@ -748,43 +752,49 @@ export function createMobigentStatus(
     capabilityCount: diagnostics.capabilityCounts.total,
     issueCount: diagnostics.issues.length,
     blockingIssueCount,
-    queuedEventCount: diagnostics.queuedEventCount
+    queuedEventCount: diagnostics.queuedEventCount,
   };
 
-  if (diagnostics.connectionState === "connecting" || diagnostics.connectionState === "reconnecting") {
+  if (
+    diagnostics.connectionState === 'connecting' ||
+    diagnostics.connectionState === 'reconnecting'
+  ) {
     return {
       ...base,
-      level: "connecting",
-      label: diagnostics.connectionState === "reconnecting" ? "Agent bridge reconnecting" : "Agent bridge connecting"
+      level: 'connecting',
+      label:
+        diagnostics.connectionState === 'reconnecting'
+          ? 'Agent bridge reconnecting'
+          : 'Agent bridge connecting',
     };
   }
 
   if (blockingIssueCount > 0 || warningIssueCount > 0) {
     return {
       ...base,
-      level: "attention",
-      label: blockingIssueCount > 0 ? "Agent bridge needs attention" : "Agent bridge has warnings"
+      level: 'attention',
+      label: blockingIssueCount > 0 ? 'Agent bridge needs attention' : 'Agent bridge has warnings',
     };
   }
 
   if (diagnostics.connected) {
     return {
       ...base,
-      level: "ready",
-      label: "Agent bridge ready"
+      level: 'ready',
+      label: 'Agent bridge ready',
     };
   }
 
   return {
     ...base,
-    level: "offline",
-    label: "Agent bridge offline"
+    level: 'offline',
+    label: 'Agent bridge offline',
   };
 }
 
 export function createMobigentPolicy(
   preset: MobigentPolicyPreset,
-  options: MobigentPolicyOptions = {}
+  options: MobigentPolicyOptions = {},
 ): MobigentPolicyBundle {
   const base = createMobigentPolicyPreset(preset, options);
   const policy = mergeCapabilityPolicy(base.policy, options.policy);
@@ -798,7 +808,7 @@ export const applyAgentPolicy = applyMobigentPolicy;
 
 export function applyMobigentPolicy(
   source: MobigentCapabilitySource,
-  bundle: MobigentPolicyBundle
+  bundle: MobigentPolicyBundle,
 ): MobigentCapabilityKit {
   if (!source) {
     return defineMobigentCapabilities();
@@ -808,16 +818,16 @@ export function applyMobigentPolicy(
     actions: (source.actions ?? []).map((action) => ({
       ...action,
       policy: mergeCapabilityPolicy(bundle.policy, action.policy),
-      confirmation: mergeConfirmationPolicy(bundle.confirmation, action.confirmation)
+      confirmation: mergeConfirmationPolicy(bundle.confirmation, action.confirmation),
     })),
     resources: (source.resources ?? []).map((resource) => ({
       ...resource,
-      policy: mergeCapabilityPolicy(bundle.policy, resource.policy)
+      policy: mergeCapabilityPolicy(bundle.policy, resource.policy),
     })),
     components: (source.components ?? []).map((component) => ({
       ...component,
-      policy: mergeCapabilityPolicy(bundle.policy, component.policy)
-    }))
+      policy: mergeCapabilityPolicy(bundle.policy, component.policy),
+    })),
   });
 }
 
@@ -831,23 +841,23 @@ export function useMobigentConnected() {
 
 export function useMobigentAction(
   action: MobigentActionRegistration,
-  options?: MobigentRegistrationOptions
+  options?: MobigentRegistrationOptions,
 ): void;
 export function useMobigentAction(
   action: ActionDefinition,
   handler: MobigentActionHandler,
-  options?: MobigentRegistrationOptions
+  options?: MobigentRegistrationOptions,
 ): void;
 export function useMobigentAction(
   action: ActionDefinition | MobigentActionRegistration,
   handlerOrOptions?: MobigentActionHandler | MobigentRegistrationOptions,
-  maybeOptions: MobigentRegistrationOptions = {}
+  maybeOptions: MobigentRegistrationOptions = {},
 ) {
   const { bridge, enabled: providerEnabled } = useMobigent();
-  const handler = "handler" in action ? action.handler : handlerOrOptions;
-  const options = typeof handlerOrOptions === "function" ? maybeOptions : handlerOrOptions ?? {};
-  if (typeof handler !== "function") {
-    throw new Error("useMobigentAction requires a handler function.");
+  const handler = 'handler' in action ? action.handler : handlerOrOptions;
+  const options = typeof handlerOrOptions === 'function' ? maybeOptions : (handlerOrOptions ?? {});
+  if (typeof handler !== 'function') {
+    throw new Error('useMobigentAction requires a handler function.');
   }
 
   const handlerRef = useRef(handler);
@@ -861,7 +871,7 @@ export function useMobigentAction(
 
     bridge.registerAction({
       ...action,
-      handler: (input) => handlerRef.current(input)
+      handler: (input) => handlerRef.current(input),
     });
 
     return () => {
@@ -880,23 +890,23 @@ export const useAgentAction = useMobigentAction;
 
 export function useMobigentResource(
   resource: MobigentResourceRegistration,
-  options?: MobigentRegistrationOptions
+  options?: MobigentRegistrationOptions,
 ): void;
 export function useMobigentResource(
   resource: ResourceDefinition,
   read: MobigentResourceReader,
-  options?: MobigentRegistrationOptions
+  options?: MobigentRegistrationOptions,
 ): void;
 export function useMobigentResource(
   resource: ResourceDefinition | MobigentResourceRegistration,
   readOrOptions?: MobigentResourceReader | MobigentRegistrationOptions,
-  maybeOptions: MobigentRegistrationOptions = {}
+  maybeOptions: MobigentRegistrationOptions = {},
 ) {
   const { bridge, enabled: providerEnabled } = useMobigent();
-  const read = "read" in resource ? resource.read : readOrOptions;
-  const options = typeof readOrOptions === "function" ? maybeOptions : readOrOptions ?? {};
-  if (typeof read !== "function") {
-    throw new Error("useMobigentResource requires a read function.");
+  const read = 'read' in resource ? resource.read : readOrOptions;
+  const options = typeof readOrOptions === 'function' ? maybeOptions : (readOrOptions ?? {});
+  if (typeof read !== 'function') {
+    throw new Error('useMobigentResource requires a read function.');
   }
 
   const readRef = useRef(read);
@@ -910,7 +920,7 @@ export function useMobigentResource(
 
     bridge.registerResource({
       ...resource,
-      read: () => readRef.current()
+      read: () => readRef.current(),
     });
 
     return () => {
@@ -929,23 +939,23 @@ export const useAgentResource = useMobigentResource;
 
 export function useMobigentComponent(
   component: MobigentComponentRegistration,
-  options?: MobigentRegistrationOptions
+  options?: MobigentRegistrationOptions,
 ): void;
 export function useMobigentComponent(
   component: ComponentDefinition,
   focus: MobigentComponentFocusHandler,
-  options?: MobigentRegistrationOptions
+  options?: MobigentRegistrationOptions,
 ): void;
 export function useMobigentComponent(
   component: ComponentDefinition | MobigentComponentRegistration,
   focusOrOptions?: MobigentComponentFocusHandler | MobigentRegistrationOptions,
-  maybeOptions: MobigentRegistrationOptions = {}
+  maybeOptions: MobigentRegistrationOptions = {},
 ) {
   const { bridge, enabled: providerEnabled } = useMobigent();
-  const focus = "focus" in component ? component.focus : focusOrOptions;
-  const options = typeof focusOrOptions === "function" ? maybeOptions : focusOrOptions ?? {};
-  if (typeof focus !== "function") {
-    throw new Error("useMobigentComponent requires a focus function.");
+  const focus = 'focus' in component ? component.focus : focusOrOptions;
+  const options = typeof focusOrOptions === 'function' ? maybeOptions : (focusOrOptions ?? {});
+  if (typeof focus !== 'function') {
+    throw new Error('useMobigentComponent requires a focus function.');
   }
 
   const focusRef = useRef(focus);
@@ -959,7 +969,7 @@ export function useMobigentComponent(
 
     bridge.registerComponent({
       ...component,
-      focus: (props) => focusRef.current(props)
+      focus: (props) => focusRef.current(props),
     });
 
     return () => {
@@ -981,7 +991,7 @@ export function useMobigentEvent() {
 
   return useCallback(
     (name: string, payload: JsonObject = {}) => (enabled ? bridge.emit(name, payload) : false),
-    [bridge, enabled]
+    [bridge, enabled],
   );
 }
 
@@ -992,7 +1002,7 @@ export function useMobigentCapabilities({
   resources = [],
   components = [],
   enabled = true,
-  deps = []
+  deps = [],
 }: MobigentCapabilitiesProps = {}) {
   const { bridge, enabled: providerEnabled } = useMobigent();
   const registrationEnabled = providerEnabled && enabled;
@@ -1047,7 +1057,7 @@ function useAgentRuntime(): AgentHookResult {
     emit,
     status,
     connection,
-    connected: connection.connected
+    connected: connection.connected,
   };
 }
 
@@ -1072,7 +1082,7 @@ export const defineAgentComponent = defineMobigentComponent;
 export function defineMobigentCapabilities({
   actions = [],
   resources = [],
-  components = []
+  components = [],
 }: MobigentCapabilitiesProps = {}): MobigentCapabilityKit {
   const kit = {
     actions,
@@ -1083,7 +1093,7 @@ export function defineMobigentCapabilities({
         actions,
         resources,
         components,
-        ...options
+        ...options,
       });
     },
     Component(props: MobigentRegistrationOptions = {}) {
@@ -1091,11 +1101,11 @@ export function defineMobigentCapabilities({
         actions,
         resources,
         components,
-        ...props
+        ...props,
       });
 
       return null;
-    }
+    },
   };
 
   return kit;
@@ -1105,32 +1115,35 @@ export const defineAgentCapabilities = defineMobigentCapabilities;
 
 export function useMobigentCapabilityDefinition(
   factory: MobigentCapabilityDefinitionFactory,
-  deps: readonly unknown[] = []
+  deps: readonly unknown[] = [],
 ): MobigentCapabilityKit {
-  return useMemo(() => composeMobigentCapabilities(...toMobigentCapabilitySources(factory())), deps);
+  return useMemo(
+    () => composeMobigentCapabilities(...toMobigentCapabilitySources(factory())),
+    deps,
+  );
 }
 
 export function defineMobigentFeature({
   namespace,
   actions = [],
   resources = [],
-  components = []
+  components = [],
 }: MobigentFeatureOptions): MobigentCapabilityKit {
   assertFeatureNamespace(namespace);
 
   return defineMobigentCapabilities({
     actions: actions.map((action) => ({
       ...action,
-      name: qualifyFeatureCapabilityName(namespace, action.name)
+      name: qualifyFeatureCapabilityName(namespace, action.name),
     })),
     resources: resources.map((resource) => ({
       ...resource,
-      name: qualifyFeatureCapabilityName(namespace, resource.name)
+      name: qualifyFeatureCapabilityName(namespace, resource.name),
     })),
     components: components.map((component) => ({
       ...component,
-      name: qualifyFeatureCapabilityName(namespace, component.name)
-    }))
+      name: qualifyFeatureCapabilityName(namespace, component.name),
+    })),
   });
 }
 
@@ -1144,27 +1157,27 @@ export function createMobigentFeature(namespace: string): MobigentFeatureFactory
     action(action: MobigentActionRegistration) {
       return {
         ...action,
-        name: qualifyFeatureCapabilityName(namespace, action.name)
+        name: qualifyFeatureCapabilityName(namespace, action.name),
       };
     },
     resource(resource: MobigentResourceRegistration) {
       return {
         ...resource,
-        name: qualifyFeatureCapabilityName(namespace, resource.name)
+        name: qualifyFeatureCapabilityName(namespace, resource.name),
       };
     },
     component(component: MobigentComponentRegistration) {
       return {
         ...component,
-        name: qualifyFeatureCapabilityName(namespace, component.name)
+        name: qualifyFeatureCapabilityName(namespace, component.name),
       };
     },
     capabilities(options: MobigentFeatureCapabilitiesOptions = {}) {
       return defineMobigentFeature({
         namespace,
-        ...options
+        ...options,
       });
-    }
+    },
   };
 }
 
@@ -1184,15 +1197,15 @@ export function composeMobigentCapabilities(
     }
 
     for (const action of source.actions ?? []) {
-      assertComposableCapabilityName(names, "action", action.name);
+      assertComposableCapabilityName(names, 'action', action.name);
       actions.push(action);
     }
     for (const resource of source.resources ?? []) {
-      assertComposableCapabilityName(names, "resource", resource.name);
+      assertComposableCapabilityName(names, 'resource', resource.name);
       resources.push(resource);
     }
     for (const component of source.components ?? []) {
-      assertComposableCapabilityName(names, "component", component.name);
+      assertComposableCapabilityName(names, 'component', component.name);
       components.push(component);
     }
   }
@@ -1200,7 +1213,7 @@ export function composeMobigentCapabilities(
   return defineMobigentCapabilities({
     actions,
     resources,
-    components
+    components,
   });
 }
 
@@ -1208,7 +1221,7 @@ export const composeAgentCapabilities = composeMobigentCapabilities;
 
 export function diagnoseMobigentCapabilities(
   source: MobigentCapabilitySource | MobigentCapabilitySource[],
-  options: MobigentCapabilityDiagnosticsOptions = {}
+  options: MobigentCapabilityDiagnosticsOptions = {},
 ): MobigentCapabilityDiagnostics {
   const checks: MobigentCapabilityDiagnosticsCheck[] = [];
   let capabilities: MobigentCapabilityKit;
@@ -1216,17 +1229,17 @@ export function diagnoseMobigentCapabilities(
   try {
     capabilities = composeMobigentCapabilities(...toMobigentCapabilitySources(source));
     checks.push({
-      name: "composition",
-      status: "pass",
-      message: "Capability names are unique across actions, resources, and components."
+      name: 'composition',
+      status: 'pass',
+      message: 'Capability names are unique across actions, resources, and components.',
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     return {
-      status: "fail",
+      status: 'fail',
       summary: { actions: 0, resources: 0, components: 0, total: 0 },
-      checks: [{ name: "composition", status: "fail", message }],
-      errors: [message]
+      checks: [{ name: 'composition', status: 'fail', message }],
+      errors: [message],
     };
   }
 
@@ -1234,7 +1247,8 @@ export function diagnoseMobigentCapabilities(
     actions: capabilities.actions.length,
     resources: capabilities.resources.length,
     components: capabilities.components.length,
-    total: capabilities.actions.length + capabilities.resources.length + capabilities.components.length
+    total:
+      capabilities.actions.length + capabilities.resources.length + capabilities.components.length,
   };
 
   checks.push(validateCapabilityRuntimeNames(capabilities));
@@ -1246,28 +1260,28 @@ export function diagnoseMobigentCapabilities(
     status,
     summary,
     checks,
-    errors: checks.filter((check) => check.status === "fail").map((check) => check.message)
+    errors: checks.filter((check) => check.status === 'fail').map((check) => check.message),
   };
 }
 
 export function formatMobigentCapabilityDiagnostics(report: MobigentCapabilityDiagnostics) {
   const lines = [
     `Mobigent capability diagnostics: ${report.status.toUpperCase()}`,
-    `Capabilities: ${report.summary.total} total, ${report.summary.actions} actions, ${report.summary.resources} resources, ${report.summary.components} components`
+    `Capabilities: ${report.summary.total} total, ${report.summary.actions} actions, ${report.summary.resources} resources, ${report.summary.components} components`,
   ];
 
   for (const check of report.checks) {
     lines.push(`[${check.status.toUpperCase()}] ${check.name}: ${check.message}`);
   }
 
-  return `${lines.join("\n")}\n`;
+  return `${lines.join('\n')}\n`;
 }
 
 export function createMobigentModule({
   id,
   name,
   version,
-  capabilities
+  capabilities,
 }: MobigentModuleOptions): MobigentModule {
   assertMobigentModuleId(id);
 
@@ -1275,31 +1289,37 @@ export function createMobigentModule({
     id,
     name,
     version,
-    ...composeMobigentCapabilities(...toMobigentCapabilitySources(capabilities))
+    ...composeMobigentCapabilities(...toMobigentCapabilitySources(capabilities)),
   };
 }
 
 export function createAgentModule(options: AgentModuleOptions): MobigentModule {
-  if (!("namespace" in options)) {
+  if (!('namespace' in options)) {
     return createMobigentModule(options);
   }
 
-  const { namespace, id, name, version, actions = [], resources = [], components = [], capabilities } = options;
+  const {
+    namespace,
+    id,
+    name,
+    version,
+    actions = [],
+    resources = [],
+    components = [],
+    capabilities,
+  } = options;
   const featureCapabilities = defineMobigentFeature({
     namespace,
     actions,
     resources,
-    components
+    components,
   });
 
   return createMobigentModule({
     id: id ?? `mobigent.${namespace}`,
     name: name ?? `${namespace} feature`,
     version,
-    capabilities: [
-      featureCapabilities,
-      ...toMobigentCapabilitySources(capabilities ?? [])
-    ]
+    capabilities: [featureCapabilities, ...toMobigentCapabilitySources(capabilities ?? [])],
   });
 }
 
@@ -1307,34 +1327,44 @@ export const createAgentCapabilities = createMobigentCapabilityRegistry;
 
 export function useMobigentModuleDefinition(
   factory: MobigentModuleDefinitionFactory,
-  deps: readonly unknown[] = []
+  deps: readonly unknown[] = [],
 ): MobigentModule {
   return useMemo(factory, deps);
 }
 
 export function useAgentScreen(options: AgentScreenOptions): AgentScreenHookResult;
-export function useAgentScreen(factory: AgentScreenFactory, deps?: readonly unknown[]): AgentScreenHookResult;
+export function useAgentScreen(
+  factory: AgentScreenFactory,
+  deps?: readonly unknown[],
+): AgentScreenHookResult;
 export function useAgentScreen(
   optionsOrFactory: AgentScreenOptions | AgentScreenFactory,
-  deps: readonly unknown[] = []
+  deps: readonly unknown[] = [],
 ): AgentScreenHookResult {
   const module = useMemo(
     () => {
-      const options = typeof optionsOrFactory === "function" ? optionsOrFactory() : optionsOrFactory;
+      const options =
+        typeof optionsOrFactory === 'function' ? optionsOrFactory() : optionsOrFactory;
       return isMobigentModule(options) ? options : createAgentModule(options);
     },
-    typeof optionsOrFactory === "function" ? deps : [...(optionsOrFactory.deps ?? []), ...(deps ?? [])]
+    typeof optionsOrFactory === 'function'
+      ? deps
+      : [...(optionsOrFactory.deps ?? []), ...(deps ?? [])],
   );
-  const enabled = typeof optionsOrFactory === "function" ? true : optionsOrFactory.enabled;
+  const enabled = typeof optionsOrFactory === 'function' ? true : optionsOrFactory.enabled;
 
   useMobigentModules(module, {
     enabled,
-    deps: [module, module.id, ...(typeof optionsOrFactory === "function" ? deps : optionsOrFactory.deps ?? [])]
+    deps: [
+      module,
+      module.id,
+      ...(typeof optionsOrFactory === 'function' ? deps : (optionsOrFactory.deps ?? [])),
+    ],
   });
 
   return {
     ...useAgentRuntime(),
-    module
+    module,
   };
 }
 
@@ -1342,7 +1372,7 @@ export const useAgentModule = useMobigentModules;
 
 export function useMobigentModules(
   modules: MobigentModule | MobigentModule[],
-  options: MobigentModuleRegistrationOptions = {}
+  options: MobigentModuleRegistrationOptions = {},
 ) {
   const kit = composeMobigentCapabilities(...toMobigentModuleArray(modules));
 
@@ -1351,7 +1381,7 @@ export function useMobigentModules(
     resources: kit.resources,
     components: kit.components,
     enabled: options.enabled,
-    deps: [...toMobigentModuleDeps(modules), ...(options.deps ?? [])]
+    deps: [...toMobigentModuleDeps(modules), ...(options.deps ?? [])],
   });
 }
 
@@ -1366,11 +1396,11 @@ export function useMobigentSurface({
   capabilities,
   modules,
   enabled,
-  deps
-}: Omit<MobigentSurfaceProps, "children"> = {}) {
+  deps,
+}: Omit<MobigentSurfaceProps, 'children'> = {}) {
   const sources = [
     ...toMobigentCapabilitySources(capabilities ?? []),
-    ...toMobigentCapabilitySources(modules ?? [])
+    ...toMobigentCapabilitySources(modules ?? []),
   ];
 
   const kit = composeMobigentCapabilities(...sources);
@@ -1380,11 +1410,17 @@ export function useMobigentSurface({
     resources: kit.resources,
     components: kit.components,
     enabled,
-    deps: [...sources.filter(Boolean), ...(deps ?? [])]
+    deps: [...sources.filter(Boolean), ...(deps ?? [])],
   });
 }
 
-export function MobigentSurface({ children, capabilities, modules, enabled, deps }: MobigentSurfaceProps) {
+export function MobigentSurface({
+  children,
+  capabilities,
+  modules,
+  enabled,
+  deps,
+}: MobigentSurfaceProps) {
   useMobigentSurface({ capabilities, modules, enabled, deps });
   return <>{children}</>;
 }
@@ -1394,7 +1430,7 @@ export const AgentSurface = MobigentSurface;
 export function useMobigentModule(
   registry: MobigentCapabilityRegistry,
   module: MobigentModule,
-  options: MobigentModuleRegistrationOptions = {}
+  options: MobigentModuleRegistrationOptions = {},
 ) {
   const enabled = options.enabled ?? true;
 
@@ -1464,7 +1500,7 @@ export function createMobigentCapabilityRegistry(
       return defineMobigentCapabilities({
         actions: registry.actions,
         resources: registry.resources,
-        components: registry.components
+        components: registry.components,
       });
     },
     getModules() {
@@ -1482,7 +1518,7 @@ export function createMobigentCapabilityRegistry(
         actions: registry.actions,
         resources: registry.resources,
         components: registry.components,
-        ...options
+        ...options,
       });
     },
     Component(props: MobigentRegistrationOptions = {}) {
@@ -1491,11 +1527,11 @@ export function createMobigentCapabilityRegistry(
         actions: registry.actions,
         resources: registry.resources,
         components: registry.components,
-        ...props
+        ...props,
       });
 
       return null;
-    }
+    },
   };
 
   registry.add(...initialSources);
@@ -1504,7 +1540,7 @@ export function createMobigentCapabilityRegistry(
 }
 
 function toMobigentCapabilitySources(
-  source: MobigentCapabilitySource | MobigentCapabilitySource[]
+  source: MobigentCapabilitySource | MobigentCapabilitySource[],
 ): MobigentCapabilitySource[] {
   return Array.isArray(source) ? source : [source];
 }
@@ -1529,29 +1565,39 @@ function getMobigentModuleMetadata(source: MobigentCapabilitySource): MobigentMo
       version: source.version,
       actions: source.actions.map((action) => action.name),
       resources: source.resources.map((resource) => resource.name),
-      components: source.components.map((component) => component.name)
-    }
+      components: source.components.map((component) => component.name),
+    },
   ];
 }
 
 function isMobigentModule(source: MobigentCapabilitySource): source is MobigentModule {
-  return Boolean(source && typeof source === "object" && "id" in source && "Component" in source && "useRegister" in source);
+  return Boolean(
+    source &&
+    typeof source === 'object' &&
+    'id' in source &&
+    'Component' in source &&
+    'useRegister' in source,
+  );
 }
 
 function getDefaultMobigentEnv(): MobigentEnvironmentVariables {
-  return typeof process !== "undefined" && process.env ? process.env : {};
+  return typeof process !== 'undefined' && process.env ? process.env : {};
 }
 
-function parseMobigentEnvironmentMode(value: string | undefined): MobigentEnvironmentMode | undefined {
-  if (value === "local" || value === "device" || value === "hosted" || value === "disabled") {
+function parseMobigentEnvironmentMode(
+  value: string | undefined,
+): MobigentEnvironmentMode | undefined {
+  if (value === 'local' || value === 'device' || value === 'hosted' || value === 'disabled') {
     return value;
   }
 
   return undefined;
 }
 
-function parseMobigentGatewayPlatform(value: string | undefined): MobigentGatewayPlatform | undefined {
-  if (value === "ios" || value === "android" || value === "web") {
+function parseMobigentGatewayPlatform(
+  value: string | undefined,
+): MobigentGatewayPlatform | undefined {
+  if (value === 'ios' || value === 'android' || value === 'web') {
     return value;
   }
 
@@ -1564,10 +1610,10 @@ function parseMobigentBoolean(value: string | undefined): boolean | undefined {
   }
 
   const normalized = value.toLowerCase();
-  if (["1", "true", "yes", "on"].includes(normalized)) {
+  if (['1', 'true', 'yes', 'on'].includes(normalized)) {
     return true;
   }
-  if (["0", "false", "no", "off"].includes(normalized)) {
+  if (['0', 'false', 'no', 'off'].includes(normalized)) {
     return false;
   }
 
@@ -1584,13 +1630,13 @@ function parseMobigentPort(value: string | undefined): number | undefined {
 }
 
 function isMobigentExpoExtraApp(
-  value: unknown
+  value: unknown,
 ): value is { id?: unknown; name?: unknown; version?: unknown } {
-  return Boolean(value && typeof value === "object");
+  return Boolean(value && typeof value === 'object');
 }
 
 function isMobigentExpoExtraObject(value: unknown): value is Record<string, unknown> {
-  return Boolean(value && typeof value === "object");
+  return Boolean(value && typeof value === 'object');
 }
 
 function readMobigentExpoExtraConfig(expo: MobigentExpoConfig): MobigentExpoExtraConfig {
@@ -1603,42 +1649,53 @@ function readMobigentExpoExtraConfig(expo: MobigentExpoConfig): MobigentExpoExtr
   const rawApp = isMobigentExpoExtraObject(raw.app) ? raw.app : undefined;
   const appId = readMobigentString(rawApp?.id);
   const appName = readMobigentString(rawApp?.name);
-  const app = appId && appName
-    ? {
-        id: appId,
-        name: appName,
-        version: readMobigentString(rawApp?.version)
-      }
-    : undefined;
+  const app =
+    appId && appName
+      ? {
+          id: appId,
+          name: appName,
+          version: readMobigentString(rawApp?.version),
+        }
+      : undefined;
 
   return removeUndefinedFields({
     mode: parseMobigentEnvironmentMode(readMobigentString(raw.mode)),
     platform: parseMobigentGatewayPlatform(readMobigentString(raw.platform)),
     deviceHost: readMobigentString(raw.deviceHost),
     host: readMobigentString(raw.host),
-    port: parseMobigentPort(readMobigentString(raw.port)) ?? (typeof raw.port === "number" ? raw.port : undefined),
-    secure: typeof raw.secure === "boolean" ? raw.secure : parseMobigentBoolean(readMobigentString(raw.secure)),
+    port:
+      parseMobigentPort(readMobigentString(raw.port)) ??
+      (typeof raw.port === 'number' ? raw.port : undefined),
+    secure:
+      typeof raw.secure === 'boolean'
+        ? raw.secure
+        : parseMobigentBoolean(readMobigentString(raw.secure)),
     path: readMobigentString(raw.path),
     backendUrl: readMobigentString(raw.backendUrl),
     gatewayUrl: readMobigentString(raw.gatewayUrl) ?? readMobigentString(raw.backendUrl),
     authToken: readMobigentString(raw.authToken),
-    enabled: typeof raw.enabled === "boolean" ? raw.enabled : parseMobigentBoolean(readMobigentString(raw.enabled)),
+    enabled:
+      typeof raw.enabled === 'boolean'
+        ? raw.enabled
+        : parseMobigentBoolean(readMobigentString(raw.enabled)),
     app,
     appId: readMobigentString(raw.appId),
     appName: readMobigentString(raw.appName),
-    version: readMobigentString(raw.version)
+    version: readMobigentString(raw.version),
   });
 }
 
 function readMobigentString(value: unknown) {
-  return typeof value === "string" && value.length > 0 ? value : undefined;
+  return typeof value === 'string' && value.length > 0 ? value : undefined;
 }
 
 function normalizeExpoSlug(slug: string) {
-  return slug.replace(/[^a-zA-Z0-9._-]+/g, "-");
+  return slug.replace(/[^a-zA-Z0-9._-]+/g, '-');
 }
 
-function useMobigentCapabilityRegistryVersion(registry: Pick<MobigentCapabilityRegistry, "subscribe">) {
+function useMobigentCapabilityRegistryVersion(
+  registry: Pick<MobigentCapabilityRegistry, 'subscribe'>,
+) {
   const [, setVersion] = useState(0);
 
   useEffect(() => {
@@ -1647,8 +1704,8 @@ function useMobigentCapabilityRegistryVersion(registry: Pick<MobigentCapabilityR
 }
 
 function refreshMobigentCapabilityRegistry(
-  registry: Pick<MobigentCapabilityRegistry, "actions" | "resources" | "components">,
-  sources: MobigentCapabilitySource[]
+  registry: Pick<MobigentCapabilityRegistry, 'actions' | 'resources' | 'components'>,
+  sources: MobigentCapabilitySource[],
 ) {
   const capabilities = composeMobigentCapabilities(...sources);
   registry.actions = capabilities.actions;
@@ -1663,63 +1720,64 @@ function notifyMobigentCapabilityRegistry(listeners: Set<() => void>) {
 }
 
 function validateCapabilityRuntimeNames(
-  capabilities: MobigentCapabilityKit
+  capabilities: MobigentCapabilityKit,
 ): MobigentCapabilityDiagnosticsCheck {
   const invalid = [
-    ...capabilities.actions.map((action) => ({ kind: "action", name: action.name })),
-    ...capabilities.resources.map((resource) => ({ kind: "resource", name: resource.name })),
-    ...capabilities.components.map((component) => ({ kind: "component", name: component.name }))
+    ...capabilities.actions.map((action) => ({ kind: 'action', name: action.name })),
+    ...capabilities.resources.map((resource) => ({ kind: 'resource', name: resource.name })),
+    ...capabilities.components.map((component) => ({ kind: 'component', name: component.name })),
   ].filter((capability) => !isMobigentRuntimeCapabilityName(capability.name));
 
   if (invalid.length > 0) {
     return {
-      name: "runtime-names",
-      status: "fail",
-      message: "Capability names must use letters, numbers, and underscores before they are registered with the bridge.",
-      details: invalid
+      name: 'runtime-names',
+      status: 'fail',
+      message:
+        'Capability names must use letters, numbers, and underscores before they are registered with the bridge.',
+      details: invalid,
     };
   }
 
   return {
-    name: "runtime-names",
-    status: "pass",
-    message: "Capability names are valid for React Native runtime registration."
+    name: 'runtime-names',
+    status: 'pass',
+    message: 'Capability names are valid for React Native runtime registration.',
   };
 }
 
 function validateCapabilityManifestShape(
   capabilities: MobigentCapabilityKit,
-  options: MobigentCapabilityDiagnosticsOptions
+  options: MobigentCapabilityDiagnosticsOptions,
 ): MobigentCapabilityDiagnosticsCheck {
-  const app = options.app ?? { id: "com.mobigent.diagnostics", name: "Mobigent Diagnostics" };
+  const app = options.app ?? { id: 'com.mobigent.diagnostics', name: 'Mobigent Diagnostics' };
   const validation = validateCapabilityManifest({
     appId: app.id,
     appName: app.name,
-    sdk: "react-native",
-    version: app.version ?? options.version ?? "0.1.15",
+    sdk: 'react-native',
+    version: app.version ?? options.version ?? '0.1.15',
     actions: capabilities.actions.map(stripCapabilityRuntimeHandlers),
     resources: capabilities.resources.map(stripCapabilityRuntimeHandlers),
-    components: capabilities.components.map(stripCapabilityRuntimeHandlers)
+    components: capabilities.components.map(stripCapabilityRuntimeHandlers),
   });
 
   if (!validation.ok) {
     return {
-      name: "manifest-shape",
-      status: "fail",
-      message: "Capability definitions do not produce a valid Mobigent manifest.",
-      details: validation.errors
+      name: 'manifest-shape',
+      status: 'fail',
+      message: 'Capability definitions do not produce a valid Mobigent manifest.',
+      details: validation.errors,
     };
   }
 
   return {
-    name: "manifest-shape",
-    status: "pass",
-    message: "Capability definitions produce a valid Mobigent manifest."
+    name: 'manifest-shape',
+    status: 'pass',
+    message: 'Capability definitions produce a valid Mobigent manifest.',
   };
 }
 
 function validateCapabilitySafetyPolicies(
-  capabilities: MobigentCapabilityKit
+  capabilities: MobigentCapabilityKit,
 ): MobigentCapabilityDiagnosticsCheck {
   const warnings: string[] = [];
 
@@ -1727,47 +1785,53 @@ function validateCapabilitySafetyPolicies(
     if (action.policy?.requiresUser && !action.confirmation?.required) {
       warnings.push(`${action.name} requires a user but does not require confirmation.`);
     }
-    if ((action.policy?.sensitiveData?.length ?? 0) > 0 && (action.policy?.allowedAgents?.length ?? 0) === 0) {
+    if (
+      (action.policy?.sensitiveData?.length ?? 0) > 0 &&
+      (action.policy?.allowedAgents?.length ?? 0) === 0
+    ) {
       warnings.push(`${action.name} handles sensitive data without an allowedAgents policy.`);
     }
-    if (action.confirmation?.risk === "high" && !action.confirmation.required) {
+    if (action.confirmation?.risk === 'high' && !action.confirmation.required) {
       warnings.push(`${action.name} is high risk but confirmation.required is not true.`);
     }
   }
 
   const readSurfaces = [...capabilities.resources, ...capabilities.components];
   for (const capability of readSurfaces) {
-    if ((capability.policy?.sensitiveData?.length ?? 0) > 0 && (capability.policy?.allowedAgents?.length ?? 0) === 0) {
+    if (
+      (capability.policy?.sensitiveData?.length ?? 0) > 0 &&
+      (capability.policy?.allowedAgents?.length ?? 0) === 0
+    ) {
       warnings.push(`${capability.name} exposes sensitive data without an allowedAgents policy.`);
     }
   }
 
   if (warnings.length > 0) {
     return {
-      name: "safety-policy",
-      status: "warn",
-      message: "Review capability safety policies before exposing these app functions to agents.",
-      details: warnings
+      name: 'safety-policy',
+      status: 'warn',
+      message: 'Review capability safety policies before exposing these app functions to agents.',
+      details: warnings,
     };
   }
 
   return {
-    name: "safety-policy",
-    status: "pass",
-    message: "Capability safety policies do not have obvious gaps."
+    name: 'safety-policy',
+    status: 'pass',
+    message: 'Capability safety policies do not have obvious gaps.',
   };
 }
 
 function summarizeCapabilityDiagnosticsStatus(
-  checks: MobigentCapabilityDiagnosticsCheck[]
+  checks: MobigentCapabilityDiagnosticsCheck[],
 ): MobigentCapabilityDiagnosticsStatus {
-  if (checks.some((check) => check.status === "fail")) {
-    return "fail";
+  if (checks.some((check) => check.status === 'fail')) {
+    return 'fail';
   }
-  if (checks.some((check) => check.status === "warn")) {
-    return "warn";
+  if (checks.some((check) => check.status === 'warn')) {
+    return 'warn';
   }
-  return "pass";
+  return 'pass';
 }
 
 function stripCapabilityRuntimeHandlers<T extends Record<string, unknown>>(capability: T) {
@@ -1781,55 +1845,55 @@ function isMobigentRuntimeCapabilityName(name: string) {
 
 function createMobigentPolicyPreset(
   preset: MobigentPolicyPreset,
-  options: MobigentPolicyOptions
+  options: MobigentPolicyOptions,
 ): MobigentPolicyBundle {
   const sharedPolicy = {
     allowedAgents: options.allowedAgents,
     rateLimitPerMinute: options.rateLimitPerMinute,
-    sensitiveData: options.sensitiveData
+    sensitiveData: options.sensitiveData,
   };
 
-  if (preset === "read-only") {
+  if (preset === 'read-only') {
     return {
       policy: {
         ...sharedPolicy,
-        readOnly: true
-      }
+        readOnly: true,
+      },
     };
   }
 
-  if (preset === "foreground") {
-    return {
-      policy: {
-        ...sharedPolicy,
-        foregroundOnly: true
-      }
-    };
-  }
-
-  if (preset === "user-required") {
+  if (preset === 'foreground') {
     return {
       policy: {
         ...sharedPolicy,
         foregroundOnly: true,
-        requiresUser: true
-      }
+      },
     };
   }
 
-  if (preset === "confirmed") {
+  if (preset === 'user-required') {
     return {
       policy: {
         ...sharedPolicy,
         foregroundOnly: true,
-        requiresUser: true
+        requiresUser: true,
+      },
+    };
+  }
+
+  if (preset === 'confirmed') {
+    return {
+      policy: {
+        ...sharedPolicy,
+        foregroundOnly: true,
+        requiresUser: true,
       },
       confirmation: {
         required: true,
         title: options.title,
         message: options.message,
-        risk: options.risk ?? "medium"
-      }
+        risk: options.risk ?? 'medium',
+      },
     };
   }
 
@@ -1837,20 +1901,20 @@ function createMobigentPolicyPreset(
     policy: {
       ...sharedPolicy,
       foregroundOnly: true,
-      requiresUser: true
+      requiresUser: true,
     },
     confirmation: {
       required: true,
       title: options.title,
       message: options.message,
-      risk: options.risk ?? "high"
-    }
+      risk: options.risk ?? 'high',
+    },
   };
 }
 
 function mergeCapabilityPolicy(
   base: CapabilityPolicy | undefined,
-  override: CapabilityPolicy | undefined
+  override: CapabilityPolicy | undefined,
 ): CapabilityPolicy | undefined {
   if (!base) {
     return override;
@@ -1860,13 +1924,13 @@ function mergeCapabilityPolicy(
   }
   return removeUndefinedFields({
     ...base,
-    ...override
+    ...override,
   });
 }
 
 function mergeConfirmationPolicy(
   base: ConfirmationPolicy | undefined,
-  override: ConfirmationPolicy | undefined
+  override: ConfirmationPolicy | undefined,
 ): ConfirmationPolicy | undefined {
   if (!base) {
     return override;
@@ -1876,7 +1940,7 @@ function mergeConfirmationPolicy(
   }
   return removeUndefinedFields({
     ...base,
-    ...override
+    ...override,
   });
 }
 
@@ -1897,7 +1961,7 @@ function qualifyFeatureCapabilityName(namespace: string, name: string) {
 function assertFeatureNamespace(namespace: string) {
   if (!/^[a-zA-Z][a-zA-Z0-9_]*$/.test(namespace)) {
     throw new Error(
-      `Invalid Mobigent feature namespace "${namespace}". Use letters, numbers, and underscores, starting with a letter.`
+      `Invalid Mobigent feature namespace "${namespace}". Use letters, numbers, and underscores, starting with a letter.`,
     );
   }
 }
@@ -1905,7 +1969,7 @@ function assertFeatureNamespace(namespace: string) {
 function assertFeatureCapabilityName(name: string) {
   if (!/^[a-zA-Z][a-zA-Z0-9_]*$/.test(name)) {
     throw new Error(
-      `Invalid Mobigent feature capability name "${name}". Use unqualified local names with letters, numbers, and underscores, starting with a letter.`
+      `Invalid Mobigent feature capability name "${name}". Use unqualified local names with letters, numbers, and underscores, starting with a letter.`,
     );
   }
 }
@@ -1913,7 +1977,7 @@ function assertFeatureCapabilityName(name: string) {
 function assertMobigentModuleId(id: string) {
   if (!/^[a-zA-Z][a-zA-Z0-9_.-]*$/.test(id)) {
     throw new Error(
-      `Invalid Mobigent module id "${id}". Use letters, numbers, dots, hyphens, and underscores, starting with a letter.`
+      `Invalid Mobigent module id "${id}". Use letters, numbers, dots, hyphens, and underscores, starting with a letter.`,
     );
   }
 }
@@ -1922,7 +1986,7 @@ function assertComposableCapabilityName(names: Map<string, string>, kind: string
   const existingKind = names.get(name);
   if (existingKind) {
     throw new Error(
-      `Duplicate capability name "${name}" while composing Mobigent capabilities. The name is already used by a ${existingKind}; rename this ${kind} or compose only one owner for that capability.`
+      `Duplicate capability name "${name}" while composing Mobigent capabilities. The name is already used by a ${existingKind}; rename this ${kind} or compose only one owner for that capability.`,
     );
   }
   names.set(name, kind);

@@ -1,24 +1,24 @@
-import assert from "node:assert/strict";
-import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
-import { mkdtemp, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-import { runCreateMobigentAppCli } from "../packages/create-app/src/cli.js";
+import assert from 'node:assert/strict';
+import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { runCreateMobigentAppCli } from '../packages/create-app/src/cli.js';
 
-const dir = await mkdtemp(join(tmpdir(), "mobigent-create-app-runtime-"));
-const target = join(dir, "runtime-demo");
+const dir = await mkdtemp(join(tmpdir(), 'mobigent-create-app-runtime-'));
+const target = join(dir, 'runtime-demo');
 const gatewayPort = 19877;
 const httpPort = 19878;
 const appPort = 19879;
 let server: ChildProcessWithoutNullStreams | undefined;
 
 function runCli(args: string[]) {
-  let stdout = "";
-  let stderr = "";
+  let stdout = '';
+  let stderr = '';
   const code = runCreateMobigentAppCli(
     args,
     { write: (chunk: string) => (stdout += chunk) } as NodeJS.WritableStream,
-    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream
+    { write: (chunk: string) => (stderr += chunk) } as NodeJS.WritableStream,
   );
 
   return { code, stdout, stderr };
@@ -27,64 +27,71 @@ function runCli(args: string[]) {
 try {
   const init = runCli([
     target,
-    "--connection-port",
+    '--connection-port',
     String(gatewayPort),
-    "--http-port",
+    '--http-port',
     String(httpPort),
-    "--app-port",
+    '--app-port',
     String(appPort),
-    "--no-open",
-    "--local-packages",
+    '--no-open',
+    '--local-packages',
     process.cwd(),
-    "--install"
+    '--install',
   ]);
   assert.equal(init.code, 0, init.stderr);
   assert.match(init.stdout, /Installing dependencies/);
 
-  const check = await run("npm", ["run", "check"], target);
+  const check = await run('npm', ['run', 'check'], target);
   assert.match(check, /tsc -p tsconfig\.json --noEmit/);
 
-  server = spawn(join(target, "node_modules", ".bin", process.platform === "win32" ? "tsx.cmd" : "tsx"), ["src/server.ts"], {
-    cwd: target,
-    env: {
-      ...process.env,
-      MOBIGENT_DEMO_OPEN: "0"
+  server = spawn(
+    join(target, 'node_modules', '.bin', process.platform === 'win32' ? 'tsx.cmd' : 'tsx'),
+    ['src/server.ts'],
+    {
+      cwd: target,
+      env: {
+        ...process.env,
+        MOBIGENT_DEMO_OPEN: '0',
+      },
+      stdio: 'pipe',
     },
-    stdio: "pipe"
-  });
+  );
 
-  let serverOutput = "";
-  server.stdout.on("data", (chunk) => {
+  let serverOutput = '';
+  server.stdout.on('data', (chunk) => {
     serverOutput += chunk.toString();
   });
-  server.stderr.on("data", (chunk) => {
+  server.stderr.on('data', (chunk) => {
     serverOutput += chunk.toString();
   });
 
-  await waitFor(async () => {
-    const response = await fetch(`http://localhost:${httpPort}/tools`);
-    if (!response.ok) {
-      return false;
-    }
-    const body = (await response.json()) as { tools?: Array<{ name: string }> };
-    return Boolean(body.tools?.some((tool) => tool.name === "app_mobigent_local.expense_create"));
-  }, () => `starter did not expose tools in time.\n${serverOutput}`);
+  await waitFor(
+    async () => {
+      const response = await fetch(`http://localhost:${httpPort}/tools`);
+      if (!response.ok) {
+        return false;
+      }
+      const body = (await response.json()) as { tools?: Array<{ name: string }> };
+      return Boolean(body.tools?.some((tool) => tool.name === 'app_mobigent_local.expense_create'));
+    },
+    () => `starter did not expose tools in time.\n${serverOutput}`,
+  );
 
-  const doctor = await run("npm", ["run", "doctor"], target);
+  const doctor = await run('npm', ['run', 'doctor'], target);
   assert.match(doctor, /Mobigent starter doctor: PASS/);
   assert.match(doctor, /PASS Backend readiness: ready for agent startup/);
   assert.match(doctor, /PASS Expense function: app_mobigent_local.expense_create/);
 
-  const localAgent = await run("npm", ["run", "agent:local"], target);
+  const localAgent = await run('npm', ['run', 'agent:local'], target);
   assert.match(localAgent, /Claude Desktop/);
   assert.match(localAgent, /mobigent-mcp/);
 
   const runResponse = await fetch(`http://localhost:${appPort}/agent/run`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
     body: JSON.stringify({
-      prompt: "Create a $33.20 travel expense at Runtime Cafe with notes: runtime smoke"
-    })
+      prompt: 'Create a $33.20 travel expense at Runtime Cafe with notes: runtime smoke',
+    }),
   });
   if (!runResponse.ok) {
     assert.fail(await runResponse.text());
@@ -95,7 +102,7 @@ try {
       amount?: number;
     };
   };
-  assert.equal(runBody.response?.merchant, "Runtime Cafe");
+  assert.equal(runBody.response?.merchant, 'Runtime Cafe');
   assert.equal(runBody.response?.amount, 33.2);
 
   const stateResponse = await fetch(`http://localhost:${appPort}/state`);
@@ -107,9 +114,9 @@ try {
       notes?: string;
     }>;
   };
-  assert.equal(state.expenses?.[0]?.merchant, "Runtime Cafe");
+  assert.equal(state.expenses?.[0]?.merchant, 'Runtime Cafe');
   assert.equal(state.expenses?.[0]?.amount, 33.2);
-  assert.equal(state.expenses?.[0]?.notes, "runtime smoke");
+  assert.equal(state.expenses?.[0]?.notes, 'runtime smoke');
 
   const metricsResponse = await fetch(`http://localhost:${httpPort}/metrics`);
   assert.equal(metricsResponse.ok, true);
@@ -122,7 +129,7 @@ try {
   };
   assert.equal(metrics.metrics?.toolCalls?.succeeded, 1);
 
-  console.log("create-mobigent-app runtime smoke check passed.");
+  console.log('create-mobigent-app runtime smoke check passed.');
 } finally {
   if (server) {
     await stop(server);
@@ -132,20 +139,20 @@ try {
 
 function run(command: string, args: string[], cwd: string) {
   return new Promise<string>((resolve, reject) => {
-    const child = spawn(command, args, { cwd, stdio: "pipe" });
-    let output = "";
-    child.stdout.on("data", (chunk) => {
+    const child = spawn(command, args, { cwd, stdio: 'pipe' });
+    let output = '';
+    child.stdout.on('data', (chunk) => {
       output += chunk.toString();
     });
-    child.stderr.on("data", (chunk) => {
+    child.stderr.on('data', (chunk) => {
       output += chunk.toString();
     });
-    child.on("close", (code) => {
+    child.on('close', (code) => {
       if (code === 0) {
         resolve(output);
         return;
       }
-      reject(new Error(`${command} ${args.join(" ")} failed with code ${code}\n${output}`));
+      reject(new Error(`${command} ${args.join(' ')} failed with code ${code}\n${output}`));
     });
   });
 }
@@ -165,7 +172,7 @@ async function waitFor(check: () => Promise<boolean>, message: () => string, tim
     await new Promise((resolve) => setTimeout(resolve, 300));
   }
 
-  throw new Error(`${message()}${lastError ? `\nLast error: ${String(lastError)}` : ""}`);
+  throw new Error(`${message()}${lastError ? `\nLast error: ${String(lastError)}` : ''}`);
 }
 
 function stop(child: ChildProcessWithoutNullStreams) {
@@ -176,13 +183,13 @@ function stop(child: ChildProcessWithoutNullStreams) {
     }
 
     const killTimer = setTimeout(() => {
-      child.kill("SIGKILL");
+      child.kill('SIGKILL');
     }, 3000);
 
-    child.once("close", () => {
+    child.once('close', () => {
       clearTimeout(killTimer);
       resolve();
     });
-    child.kill("SIGTERM");
+    child.kill('SIGTERM');
   });
 }

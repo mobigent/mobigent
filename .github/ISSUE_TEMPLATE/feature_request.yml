@@ -1,7 +1,7 @@
 name: Feature Request
 description: Suggest a capability, SDK improvement, provider, or docs upgrade.
-title: "feat: "
-labels: ["type: feature", "status: needs triage"]
+title: 'feat: '
+labels: ['type: feature', 'status: needs triage']
 body:
   - type: markdown
     attributes:

@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 import type {
   ActionDefinition,
   BridgeMessage,
@@ -6,9 +6,9 @@ import type {
   ComponentDefinition,
   JsonObject,
   ManifestSignature,
-  ResourceDefinition
-} from "@mobigent/core";
-import { validateJsonSchema } from "@mobigent/core";
+  ResourceDefinition,
+} from '@mobigent/core';
+import { validateJsonSchema } from '@mobigent/core';
 import {
   createDefaultSocket,
   onClose,
@@ -17,9 +17,9 @@ import {
   onceOpen,
   OPEN,
   type MobigentSocket,
-  type MobigentSocketFactory
-} from "./transport.js";
-import type { ConfirmationController } from "./confirmation.js";
+  type MobigentSocketFactory,
+} from './transport.js';
+import type { ConfirmationController } from './confirmation.js';
 
 const mobigentProtocolVersion = 1;
 
@@ -31,16 +31,11 @@ type ConfirmationHandler = (request: {
   input: JsonObject;
 }) => Promise<boolean> | boolean;
 export type MobigentManifestSigner = (
-  manifest: CapabilityManifest
+  manifest: CapabilityManifest,
 ) => Promise<ManifestSignature> | ManifestSignature;
 
 export type MobigentConnectionState =
-  | "idle"
-  | "connecting"
-  | "connected"
-  | "reconnecting"
-  | "disconnected"
-  | "error";
+  'idle' | 'connecting' | 'connected' | 'reconnecting' | 'disconnected' | 'error';
 
 export type MobigentReconnectOptions = {
   enabled?: boolean;
@@ -64,7 +59,7 @@ export type MobigentHeartbeatOptions = {
 
 export type MobigentConnectionListener = (state: MobigentConnectionState) => void;
 
-export type MobigentDiagnosticSeverity = "info" | "warn" | "error";
+export type MobigentDiagnosticSeverity = 'info' | 'warn' | 'error';
 
 export type MobigentDiagnosticIssue = {
   severity: MobigentDiagnosticSeverity;
@@ -125,7 +120,7 @@ type RegisteredComponent = ComponentDefinition & {
 };
 
 const objectInputSchema = z.record(z.string(), z.unknown());
-type EventMessage = Extract<BridgeMessage, { type: "event" }>;
+type EventMessage = Extract<BridgeMessage, { type: 'event' }>;
 
 export class Mobigent {
   private actions = new Map<string, RegisteredAction>();
@@ -133,7 +128,7 @@ export class Mobigent {
   private components = new Map<string, RegisteredComponent>();
   private socket?: MobigentSocket;
   private options?: AgentBridgeOptions;
-  private connectionState: MobigentConnectionState = "idle";
+  private connectionState: MobigentConnectionState = 'idle';
   private connectionListeners = new Set<MobigentConnectionListener>();
   private manualDisconnect = false;
   private reconnectAttempts = 0;
@@ -146,15 +141,15 @@ export class Mobigent {
 
   configure(options: AgentBridgeOptions) {
     this.options = {
-      version: "0.1.15",
-      ...options
+      version: '0.1.15',
+      ...options,
     };
     this.lastError = undefined;
   }
 
   registerAction(action: ActionDefinition & { handler: ActionHandler }) {
     this.assertCapabilityName(action.name);
-    this.assertCapabilityAvailable("action", action.name);
+    this.assertCapabilityAvailable('action', action.name);
     this.actions.set(action.name, action);
     void this.sendManifest();
   }
@@ -169,7 +164,7 @@ export class Mobigent {
 
   registerResource(resource: ResourceDefinition & { read: ResourceReader }) {
     this.assertCapabilityName(resource.name);
-    this.assertCapabilityAvailable("resource", resource.name);
+    this.assertCapabilityAvailable('resource', resource.name);
     this.resources.set(resource.name, resource);
     void this.sendManifest();
   }
@@ -184,7 +179,7 @@ export class Mobigent {
 
   registerComponent(component: ComponentDefinition & { focus: ComponentFocusHandler }) {
     this.assertCapabilityName(component.name);
-    this.assertCapabilityAvailable("component", component.name);
+    this.assertCapabilityAvailable('component', component.name);
     this.components.set(component.name, component);
     void this.sendManifest();
   }
@@ -199,11 +194,11 @@ export class Mobigent {
 
   async connect() {
     if (!this.options) {
-      throw new Error("Mobigent.configure must be called before connect.");
+      throw new Error('Mobigent.configure must be called before connect.');
     }
 
     this.manualDisconnect = false;
-    this.setConnectionState(this.reconnectAttempts > 0 ? "reconnecting" : "connecting");
+    this.setConnectionState(this.reconnectAttempts > 0 ? 'reconnecting' : 'connecting');
     const socket = (this.options.createSocket ?? createDefaultSocket)(this.options.gatewayUrl);
     this.socket = socket;
 
@@ -212,17 +207,19 @@ export class Mobigent {
     } catch (error) {
       this.recordError(error);
       if (!this.getReconnectOptions().enabled) {
-        this.setConnectionState("error");
+        this.setConnectionState('error');
       }
       throw error;
     }
 
     this.reconnectAttempts = 0;
-    this.setConnectionState("connected");
+    this.setConnectionState('connected');
 
     onMessage(socket, (raw) => {
       try {
-        void this.handleMessage(JSON.parse(raw) as BridgeMessage).catch((error) => this.recordError(error));
+        void this.handleMessage(JSON.parse(raw) as BridgeMessage).catch((error) =>
+          this.recordError(error),
+        );
       } catch (error) {
         this.recordError(error);
       }
@@ -231,18 +228,18 @@ export class Mobigent {
     onError(socket, (error) => {
       this.recordError(error);
       if (!this.getReconnectOptions().enabled) {
-        this.setConnectionState("error");
+        this.setConnectionState('error');
       }
     });
 
     this.send({
-      type: "hello",
+      type: 'hello',
       appId: this.options.appId,
       appName: this.options.appName,
-      sdk: "react-native",
-      version: this.options.version ?? "0.1.15",
+      sdk: 'react-native',
+      version: this.options.version ?? '0.1.15',
       protocolVersion: mobigentProtocolVersion,
-      authToken: this.options.authToken
+      authToken: this.options.authToken,
     });
     void this.sendManifest();
     this.flushEventQueue();
@@ -258,15 +255,15 @@ export class Mobigent {
     }
     this.socket?.close();
     this.socket = undefined;
-    this.setConnectionState("disconnected");
+    this.setConnectionState('disconnected');
   }
 
   emit(name: string, payload: JsonObject) {
     const message: EventMessage = {
-      type: "event",
+      type: 'event',
       name,
       payload,
-      at: new Date().toISOString()
+      at: new Date().toISOString(),
     };
 
     if (this.canSend()) {
@@ -279,18 +276,18 @@ export class Mobigent {
 
   getManifest(): CapabilityManifest {
     if (!this.options) {
-      throw new Error("Mobigent.configure must be called before getManifest.");
+      throw new Error('Mobigent.configure must be called before getManifest.');
     }
 
     return {
       appId: this.options.appId,
       appName: this.options.appName,
-      sdk: "react-native",
-      version: this.options.version ?? "0.1.15",
+      sdk: 'react-native',
+      version: this.options.version ?? '0.1.15',
       protocolVersion: mobigentProtocolVersion,
       actions: [...this.actions.values()].map(({ handler: _handler, ...action }) => action),
       resources: [...this.resources.values()].map(({ read: _read, ...resource }) => resource),
-      components: [...this.components.values()].map(({ focus: _focus, ...component }) => component)
+      components: [...this.components.values()].map(({ focus: _focus, ...component }) => component),
     };
   }
 
@@ -313,43 +310,43 @@ export class Mobigent {
 
     if (!this.options) {
       issues.push({
-        severity: "error",
-        code: "not_configured",
-        message: "Mobigent.configure has not been called."
+        severity: 'error',
+        code: 'not_configured',
+        message: 'Mobigent.configure has not been called.',
       });
     }
 
     if (this.options && totalCapabilityCount === 0) {
       issues.push({
-        severity: "warn",
-        code: "no_capabilities",
-        message: "No actions, resources, or components are registered."
+        severity: 'warn',
+        code: 'no_capabilities',
+        message: 'No actions, resources, or components are registered.',
       });
     }
 
-    if (this.options && this.connectionState !== "connected") {
+    if (this.options && this.connectionState !== 'connected') {
       issues.push({
-        severity: reconnectEnabled ? "info" : "warn",
-        code: "not_connected",
+        severity: reconnectEnabled ? 'info' : 'warn',
+        code: 'not_connected',
         message: reconnectEnabled
           ? `Bridge is ${this.connectionState}; reconnect is enabled.`
-          : `Bridge is ${this.connectionState}; reconnect is disabled.`
+          : `Bridge is ${this.connectionState}; reconnect is disabled.`,
       });
     }
 
     if (this.eventQueue.length > 0) {
       issues.push({
-        severity: "info",
-        code: "queued_events",
-        message: `${this.eventQueue.length} app event(s) are queued until the bridge reconnects.`
+        severity: 'info',
+        code: 'queued_events',
+        message: `${this.eventQueue.length} app event(s) are queued until the bridge reconnects.`,
       });
     }
 
     if (this.lastError) {
       issues.push({
-        severity: "error",
-        code: "last_error",
-        message: this.lastError
+        severity: 'error',
+        code: 'last_error',
+        message: this.lastError,
       });
     }
 
@@ -359,18 +356,18 @@ export class Mobigent {
       appName: this.options?.appName,
       gatewayUrl: this.options?.gatewayUrl,
       connectionState: this.connectionState,
-      connected: this.connectionState === "connected",
+      connected: this.connectionState === 'connected',
       capabilityCounts: {
         actions: actionCount,
         resources: resourceCount,
         components: componentCount,
-        total: totalCapabilityCount
+        total: totalCapabilityCount,
       },
       queuedEventCount: this.eventQueue.length,
       reconnectEnabled,
       heartbeatEnabled,
       lastError: this.lastError,
-      issues
+      issues,
     };
   }
 
@@ -384,22 +381,22 @@ export class Mobigent {
   }
 
   private async handleMessage(message: BridgeMessage) {
-    if (message.type === "pong") {
+    if (message.type === 'pong') {
       this.handlePong(message.id);
       return;
     }
 
-    if (message.type === "call_action") {
+    if (message.type === 'call_action') {
       await this.handleActionCall(message.id, message.name, message.input);
       return;
     }
 
-    if (message.type === "read_resource") {
+    if (message.type === 'read_resource') {
       await this.handleResourceRead(message.id, message.name);
       return;
     }
 
-    if (message.type === "focus_component") {
+    if (message.type === 'focus_component') {
       await this.handleComponentFocus(message.id, message.name, message.props);
     }
   }
@@ -407,23 +404,23 @@ export class Mobigent {
   private async handleActionCall(id: string, name: string, input: JsonObject) {
     const action = this.actions.get(name);
     if (!action) {
-      this.send({ type: "action_result", id, ok: false, error: `Unknown action: ${name}` });
+      this.send({ type: 'action_result', id, ok: false, error: `Unknown action: ${name}` });
       return;
     }
 
     const parsedInput = objectInputSchema.safeParse(input);
     if (!parsedInput.success) {
-      this.send({ type: "action_result", id, ok: false, error: "Action input must be an object." });
+      this.send({ type: 'action_result', id, ok: false, error: 'Action input must be an object.' });
       return;
     }
 
     const validation = validateJsonSchema(action.inputSchema, parsedInput.data);
     if (!validation.ok) {
       this.send({
-        type: "action_result",
+        type: 'action_result',
         id,
         ok: false,
-        error: `Invalid action input: ${validation.errors.join("; ")}`
+        error: `Invalid action input: ${validation.errors.join('; ')}`,
       });
       return;
     }
@@ -432,7 +429,7 @@ export class Mobigent {
       if (action.confirmation?.required) {
         const approved = await this.confirm(action, parsedInput.data);
         if (!approved) {
-          this.send({ type: "action_result", id, ok: false, error: "User rejected action." });
+          this.send({ type: 'action_result', id, ok: false, error: 'User rejected action.' });
           return;
         }
       }
@@ -442,21 +439,21 @@ export class Mobigent {
         const outputValidation = validateJsonSchema(action.outputSchema, result);
         if (!outputValidation.ok) {
           this.send({
-            type: "action_result",
+            type: 'action_result',
             id,
             ok: false,
-            error: `Invalid action output: ${outputValidation.errors.join("; ")}`
+            error: `Invalid action output: ${outputValidation.errors.join('; ')}`,
           });
           return;
         }
       }
-      this.send({ type: "action_result", id, ok: true, result });
+      this.send({ type: 'action_result', id, ok: true, result });
     } catch (error) {
       this.send({
-        type: "action_result",
+        type: 'action_result',
         id,
         ok: false,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
     }
   }
@@ -464,7 +461,7 @@ export class Mobigent {
   private async handleResourceRead(id: string, name: string) {
     const resource = this.resources.get(name);
     if (!resource) {
-      this.send({ type: "resource_result", id, ok: false, error: `Unknown resource: ${name}` });
+      this.send({ type: 'resource_result', id, ok: false, error: `Unknown resource: ${name}` });
       return;
     }
 
@@ -474,21 +471,21 @@ export class Mobigent {
         const validation = validateJsonSchema(resource.outputSchema, result);
         if (!validation.ok) {
           this.send({
-            type: "resource_result",
+            type: 'resource_result',
             id,
             ok: false,
-            error: `Invalid resource output: ${validation.errors.join("; ")}`
+            error: `Invalid resource output: ${validation.errors.join('; ')}`,
           });
           return;
         }
       }
-      this.send({ type: "resource_result", id, ok: true, result });
+      this.send({ type: 'resource_result', id, ok: true, result });
     } catch (error) {
       this.send({
-        type: "resource_result",
+        type: 'resource_result',
         id,
         ok: false,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
     }
   }
@@ -496,13 +493,18 @@ export class Mobigent {
   private async handleComponentFocus(id: string, name: string, props: JsonObject) {
     const component = this.components.get(name);
     if (!component) {
-      this.send({ type: "component_result", id, ok: false, error: `Unknown component: ${name}` });
+      this.send({ type: 'component_result', id, ok: false, error: `Unknown component: ${name}` });
       return;
     }
 
     const parsedProps = objectInputSchema.safeParse(props);
     if (!parsedProps.success) {
-      this.send({ type: "component_result", id, ok: false, error: "Component props must be an object." });
+      this.send({
+        type: 'component_result',
+        id,
+        ok: false,
+        error: 'Component props must be an object.',
+      });
       return;
     }
 
@@ -510,10 +512,10 @@ export class Mobigent {
       const validation = validateJsonSchema(component.propsSchema, parsedProps.data);
       if (!validation.ok) {
         this.send({
-          type: "component_result",
+          type: 'component_result',
           id,
           ok: false,
-          error: `Invalid component props: ${validation.errors.join("; ")}`
+          error: `Invalid component props: ${validation.errors.join('; ')}`,
         });
         return;
       }
@@ -521,13 +523,13 @@ export class Mobigent {
 
     try {
       const result = await component.focus(parsedProps.data);
-      this.send({ type: "component_result", id, ok: true, result });
+      this.send({ type: 'component_result', id, ok: true, result });
     } catch (error) {
       this.send({
-        type: "component_result",
+        type: 'component_result',
         id,
         ok: false,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
     }
   }
@@ -551,9 +553,9 @@ export class Mobigent {
 
     const manifest = this.getManifest();
     this.send({
-      type: "manifest",
+      type: 'manifest',
       manifest,
-      signature: this.options.signManifest ? await this.options.signManifest(manifest) : undefined
+      signature: this.options.signManifest ? await this.options.signManifest(manifest) : undefined,
     });
   }
 
@@ -603,17 +605,17 @@ export class Mobigent {
     this.socket = undefined;
 
     if (this.manualDisconnect) {
-      this.setConnectionState("disconnected");
+      this.setConnectionState('disconnected');
       return;
     }
 
     if (!this.shouldReconnect()) {
-      this.setConnectionState("disconnected");
+      this.setConnectionState('disconnected');
       return;
     }
 
     const delayMs = this.getReconnectDelayMs(this.reconnectAttempts);
-    this.setConnectionState("reconnecting");
+    this.setConnectionState('reconnecting');
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = undefined;
       this.reconnectAttempts += 1;
@@ -637,18 +639,18 @@ export class Mobigent {
         delayMs: 1000,
         maxDelayMs: 30_000,
         backoffFactor: 2,
-        jitterRatio: 0
+        jitterRatio: 0,
       };
     }
 
-    if (typeof reconnect === "object") {
+    if (typeof reconnect === 'object') {
       return {
         enabled: reconnect.enabled ?? true,
         maxAttempts: reconnect.maxAttempts ?? Infinity,
         delayMs: reconnect.delayMs ?? 1000,
         maxDelayMs: reconnect.maxDelayMs ?? 30_000,
         backoffFactor: reconnect.backoffFactor ?? 2,
-        jitterRatio: reconnect.jitterRatio ?? 0
+        jitterRatio: reconnect.jitterRatio ?? 0,
       };
     }
 
@@ -658,7 +660,7 @@ export class Mobigent {
       delayMs: 1000,
       maxDelayMs: 30_000,
       backoffFactor: 2,
-      jitterRatio: 0
+      jitterRatio: 0,
     };
   }
 
@@ -668,7 +670,7 @@ export class Mobigent {
     const cappedDelay = Math.max(initialDelay, maxDelayMs);
     const baseDelay = Math.min(
       cappedDelay,
-      initialDelay * Math.max(1, backoffFactor) ** attemptsCompleted
+      initialDelay * Math.max(1, backoffFactor) ** attemptsCompleted,
     );
     const normalizedJitter = Math.max(0, Math.min(1, jitterRatio));
     if (normalizedJitter === 0) {
@@ -685,10 +687,10 @@ export class Mobigent {
       return { enabled: true, maxSize: 100 };
     }
 
-    if (typeof eventQueue === "object") {
+    if (typeof eventQueue === 'object') {
       return {
         enabled: eventQueue.enabled ?? true,
-        maxSize: eventQueue.maxSize ?? 100
+        maxSize: eventQueue.maxSize ?? 100,
       };
     }
 
@@ -721,12 +723,12 @@ export class Mobigent {
       return;
     }
 
-    const id = this.createMessageId("heartbeat");
+    const id = this.createMessageId('heartbeat');
     this.pendingHeartbeatId = id;
     this.send({
-      type: "ping",
+      type: 'ping',
       id,
-      at: new Date().toISOString()
+      at: new Date().toISOString(),
     });
 
     if (timeoutMs > 0) {
@@ -760,22 +762,22 @@ export class Mobigent {
       return {
         enabled: true,
         intervalMs: 30_000,
-        timeoutMs: 10_000
+        timeoutMs: 10_000,
       };
     }
 
-    if (typeof heartbeat === "object") {
+    if (typeof heartbeat === 'object') {
       return {
         enabled: heartbeat.enabled ?? true,
         intervalMs: heartbeat.intervalMs ?? 30_000,
-        timeoutMs: heartbeat.timeoutMs ?? 10_000
+        timeoutMs: heartbeat.timeoutMs ?? 10_000,
       };
     }
 
     return {
       enabled: false,
       intervalMs: 30_000,
-      timeoutMs: 10_000
+      timeoutMs: 10_000,
     };
   }
 
@@ -801,15 +803,15 @@ export class Mobigent {
   private assertCapabilityName(name: string) {
     if (!/^[a-zA-Z][a-zA-Z0-9_]*$/.test(name)) {
       throw new Error(
-        `Invalid capability name "${name}". Use letters, numbers, and underscores, starting with a letter.`
+        `Invalid capability name "${name}". Use letters, numbers, and underscores, starting with a letter.`,
       );
     }
   }
 
-  private assertCapabilityAvailable(kind: "action" | "resource" | "component", name: string) {
+  private assertCapabilityAvailable(kind: 'action' | 'resource' | 'component', name: string) {
     if (this.actions.has(name) || this.resources.has(name) || this.components.has(name)) {
       throw new Error(
-        `Duplicate capability name "${name}". Unregister the existing capability before registering a ${kind} with the same name.`
+        `Duplicate capability name "${name}". Unregister the existing capability before registering a ${kind} with the same name.`,
       );
     }
   }
@@ -817,36 +819,38 @@ export class Mobigent {
 
 export function formatMobigentDiagnostics(
   diagnostics: MobigentDiagnostics,
-  options: MobigentDiagnosticsFormatOptions = {}
+  options: MobigentDiagnosticsFormatOptions = {},
 ) {
   const includeIssues = options.includeIssues ?? true;
   const includeGatewayUrl = options.includeGatewayUrl ?? true;
-  const status = diagnostics.issues.some((issue) => issue.severity === "error")
-    ? "ERROR"
-    : diagnostics.issues.some((issue) => issue.severity === "warn")
-      ? "WARN"
-      : "OK";
+  const status = diagnostics.issues.some((issue) => issue.severity === 'error')
+    ? 'ERROR'
+    : diagnostics.issues.some((issue) => issue.severity === 'warn')
+      ? 'WARN'
+      : 'OK';
   const lines = [
     `Mobigent app diagnostics: ${status}`,
     `configured: ${diagnostics.configured}`,
-    diagnostics.appId ? `app: ${diagnostics.appName ?? diagnostics.appId} (${diagnostics.appId})` : undefined,
+    diagnostics.appId
+      ? `app: ${diagnostics.appName ?? diagnostics.appId} (${diagnostics.appId})`
+      : undefined,
     includeGatewayUrl && diagnostics.gatewayUrl ? `gateway: ${diagnostics.gatewayUrl}` : undefined,
-    `connection: ${diagnostics.connectionState}${diagnostics.connected ? " (connected)" : ""}`,
+    `connection: ${diagnostics.connectionState}${diagnostics.connected ? ' (connected)' : ''}`,
     `capabilities: ${diagnostics.capabilityCounts.total} total, ${diagnostics.capabilityCounts.actions} actions, ${diagnostics.capabilityCounts.resources} resources, ${diagnostics.capabilityCounts.components} components`,
     `queuedEvents: ${diagnostics.queuedEventCount}`,
-    `reconnect: ${diagnostics.reconnectEnabled ? "enabled" : "disabled"}`,
-    `heartbeat: ${diagnostics.heartbeatEnabled ? "enabled" : "disabled"}`,
-    diagnostics.lastError ? `lastError: ${diagnostics.lastError}` : undefined
+    `reconnect: ${diagnostics.reconnectEnabled ? 'enabled' : 'disabled'}`,
+    `heartbeat: ${diagnostics.heartbeatEnabled ? 'enabled' : 'disabled'}`,
+    diagnostics.lastError ? `lastError: ${diagnostics.lastError}` : undefined,
   ].filter((line): line is string => Boolean(line));
 
   if (includeIssues && diagnostics.issues.length > 0) {
-    lines.push("issues:");
+    lines.push('issues:');
     for (const issue of diagnostics.issues) {
       lines.push(`- [${issue.severity.toUpperCase()}] ${issue.code}: ${issue.message}`);
     }
   }
 
-  return lines.join("\n");
+  return lines.join('\n');
 }
 
 export const mobigent = new Mobigent();

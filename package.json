@@ -14,7 +14,15 @@
     "build:sdk": "npm run build -w @mobigent/core -w @mobigent/providers -w @mobigent/gateway -w @mobigent/backend -w @mobigent/react-native -w @mobigent/app -w create-mobigent-app -w mobigent",
     "typecheck": "npm run build:sdk && npm run typecheck --workspaces --if-present",
     "test": "npm run build:sdk && node --test --import tsx tests/*.test.ts",
-    "verify": "npm run typecheck && npm test && npm run simple-dx:smoke && npm run bin:smoke && npm run rn-cli:smoke && npm run create-app:smoke && npm run create-app:runtime && npm run pack:check && npm run packed-install:smoke && npm run npm:preflight && npm run docs:build",
+    "test:coverage": "npm run build:sdk && node --test --experimental-test-coverage --import tsx tests/*.test.ts",
+    "test:gateway": "npm run build:sdk && node --test --test-name-pattern=\"gateway|HTTP|MCP|auth|policy|rate|idempot|audit|metric|CORS|manifest|agent profile|tool call|tool list\" --import tsx tests/*.test.ts",
+    "test:providers": "npm run build:sdk && node --test --test-name-pattern=\"provider|OpenAI|Anthropic|Gemini|retry|adapter\" --import tsx tests/*.test.ts",
+    "test:app-dx": "npm run build:sdk && node --test --test-name-pattern=\"app and backend|existing app|simple|DX|create-app|starter\" --import tsx tests/simple-dx.test.ts",
+    "test:native-protocol": "npm run build:sdk && node --test --import tsx tests/native-protocol.test.ts",
+    "lint": "eslint . --ext .ts,.tsx",
+    "format:check": "prettier --check '**/*.{ts,tsx,json,md,yml,yaml}'",
+    "format": "prettier --write '**/*.{ts,tsx,json,md,yml,yaml}'",
+    "verify": "npm run typecheck && npm run format:check && npm run lint && npm test && npm run simple-dx:smoke && npm run bin:smoke && npm run rn-cli:smoke && npm run create-app:smoke && npm run create-app:runtime && npm run pack:check && npm run packed-install:smoke && npm run npm:preflight && npm run docs:build",
     "pack:check": "tsx scripts/pack-check.ts",
     "npm:status": "tsx scripts/check-npm-status.ts",
     "npm:publish-ready": "tsx scripts/check-npm-publish-readiness.ts",
@@ -39,6 +47,7 @@
     "demo": "npm run build:sdk && tsx examples/expense-app/run-local-demo.ts",
     "demo:http": "npm run build:sdk && tsx examples/expense-app/run-http-demo.ts",
     "demo:magic": "npm run build:sdk && tsx examples/expense-app/run-flagship-demo.ts",
+    "docker:smoke": "tsx scripts/docker-smoke.ts",
     "clean": "rm -rf packages/*/dist examples/*/dist dist"
   },
   "keywords": [
@@ -56,7 +65,12 @@
   },
   "devDependencies": {
     "@types/node": "^25.9.1",
+    "@typescript-eslint/eslint-plugin": "^8.63.0",
+    "@typescript-eslint/parser": "^8.63.0",
+    "eslint": "^10.6.0",
+    "prettier": "^3.9.4",
     "tsx": "^4.22.3",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.63.0"
   }
 }

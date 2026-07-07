@@ -1,22 +1,28 @@
 #!/usr/bin/env node
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { BridgeGateway } from "./BridgeGateway.js";
-import { createMcpServer } from "./mcp.js";
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { BridgeGateway } from './BridgeGateway.js';
+import { createMcpServer } from './mcp.js';
+import { loadGatewayConfig } from './config.js';
 
-const bridgePort = Number(process.env.MOBIGENT_WS_PORT ?? 8787);
-const authToken = process.env.MOBIGENT_AUTH_TOKEN;
+const config = loadGatewayConfig();
 
-const gateway = new BridgeGateway({ port: bridgePort, authToken });
+const gateway = new BridgeGateway({
+  port: config.wsPort,
+  authToken: config.authToken,
+  manifestSigningSecret: config.manifestSigningSecret,
+  allowedAppIds: config.allowedAppIds,
+  agentProfiles: config.agentProfiles,
+});
 gateway.start();
 
 const server = createMcpServer(gateway);
 const transport = new StdioServerTransport();
 
-process.on("SIGINT", () => {
+process.on('SIGINT', () => {
   void server.close().finally(() => gateway.stop());
 });
 
-process.on("SIGTERM", () => {
+process.on('SIGTERM', () => {
   void server.close().finally(() => gateway.stop());
 });
 

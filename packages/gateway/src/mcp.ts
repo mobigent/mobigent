@@ -1,68 +1,64 @@
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
   type CallToolResult,
-  type Tool
-} from "@modelcontextprotocol/sdk/types.js";
-import type { JsonObject, ToolDescriptor } from "@mobigent/core";
-import { BridgeGateway } from "./BridgeGateway.js";
+  type Tool,
+} from '@modelcontextprotocol/sdk/types.js';
+import type { JsonObject, ToolDescriptor } from '@mobigent/core';
+import { BridgeGateway } from './BridgeGateway.js';
 
 export type MobigentMcpOptions = {
   name?: string;
   version?: string;
 };
 
-export function createMcpServer(
-  gateway: BridgeGateway,
-  options: MobigentMcpOptions = {}
-) {
+export function createMcpServer(gateway: BridgeGateway, options: MobigentMcpOptions = {}) {
   const server = new Server(
     {
-      name: options.name ?? "mobigent",
-      version: options.version ?? "0.1.15"
+      name: options.name ?? 'mobigent',
+      version: options.version ?? '0.1.15',
     },
     {
       capabilities: {
         tools: {
-          listChanged: true
-        }
+          listChanged: true,
+        },
       },
       instructions:
-        "Mobigent exposes typed, user-approved mobile app capabilities as MCP tools. Sensitive actions may require confirmation inside the mobile app."
-    }
+        'Mobigent exposes typed, user-approved mobile app capabilities as MCP tools. Sensitive actions may require confirmation inside the mobile app.',
+    },
   );
 
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
-    tools: gateway.listTools().map(toMcpTool)
+    tools: gateway.listTools().map(toMcpTool),
   }));
 
   server.setRequestHandler(CallToolRequestSchema, async (request): Promise<CallToolResult> => {
     try {
       const result = await gateway.callTool(
         request.params.name,
-        (request.params.arguments ?? {}) as JsonObject
+        (request.params.arguments ?? {}) as JsonObject,
       );
 
       return {
         content: [
           {
-            type: "text",
-            text: formatToolResult(result)
-          }
+            type: 'text',
+            text: formatToolResult(result),
+          },
         ],
-        structuredContent:
-          isJsonObject(result) ? result : { result }
+        structuredContent: isJsonObject(result) ? result : { result },
       };
     } catch (error) {
       return {
         isError: true,
         content: [
           {
-            type: "text",
-            text: error instanceof Error ? error.message : String(error)
-          }
-        ]
+            type: 'text',
+            text: error instanceof Error ? error.message : String(error),
+          },
+        ],
       };
     }
   });
@@ -77,32 +73,32 @@ export function createMcpServer(
 }
 
 function toMcpTool(tool: ToolDescriptor): Tool {
-  const destructive = !tool.readOnly && tool.risk === "high";
+  const destructive = !tool.readOnly && tool.risk === 'high';
 
   return {
     name: tool.name,
     description: tool.description,
     inputSchema: {
-      type: "object",
+      type: 'object',
       properties: tool.inputSchema.properties,
-      required: tool.inputSchema.required
+      required: tool.inputSchema.required,
     },
     annotations: {
       readOnlyHint: tool.readOnly,
       destructiveHint: destructive,
       openWorldHint: true,
-      title: tool.description
+      title: tool.description,
     },
     _meta: {
-      "mobigent/appId": tool.app.id,
-      "mobigent/appName": tool.app.name,
-      "mobigent/risk": tool.risk
-    }
+      'mobigent/appId': tool.app.id,
+      'mobigent/appName': tool.app.name,
+      'mobigent/risk': tool.risk,
+    },
   };
 }
 
 function formatToolResult(result: unknown) {
-  if (typeof result === "string") {
+  if (typeof result === 'string') {
     return result;
   }
 
@@ -110,5 +106,5 @@ function formatToolResult(result: unknown) {
 }
 
 function isJsonObject(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }

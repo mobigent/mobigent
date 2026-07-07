@@ -1,6 +1,16 @@
-import { ArrowRight, Check, Github, Lock, PlugZap, Radio, ShieldCheck, Smartphone, Terminal } from "lucide-react";
-import { createRoot } from "react-dom/client";
-import "./styles.css";
+import {
+  ArrowRight,
+  Check,
+  Github,
+  Lock,
+  PlugZap,
+  Radio,
+  ShieldCheck,
+  Smartphone,
+  Terminal,
+} from 'lucide-react';
+import { createRoot } from 'react-dom/client';
+import './styles.css';
 
 const quickstart = `npm install @mobigent/app
 npm install @mobigent/backend
@@ -31,8 +41,8 @@ function App() {
           <p>
             Install the app package, install the backend package, expose real app functions with
             withMobigent(App, functions) or createApp(functions), then startMobigent() and call
-            app.expense.create(input) through mobigent.app&lt;MyAppFunctions&gt;().
-            Mobigent handles app delivery, approvals, retries, discovery, and agent setup.
+            app.expense.create(input) through mobigent.app&lt;MyAppFunctions&gt;(). Mobigent handles
+            app delivery, approvals, retries, discovery, and agent setup.
           </p>
           <div className="heroActions">
             <a className="primaryButton" href="./docs.html">
@@ -45,9 +55,15 @@ function App() {
             </a>
           </div>
           <div className="proof">
-            <span><Check size={15} /> Expo-first</span>
-            <span><Check size={15} /> Backend package</span>
-            <span><Check size={15} /> In-app approval</span>
+            <span>
+              <Check size={15} /> Expo-first
+            </span>
+            <span>
+              <Check size={15} /> Backend package
+            </span>
+            <span>
+              <Check size={15} /> In-app approval
+            </span>
           </div>
         </div>
         <div className="heroVisual" aria-label="Mobigent product mark and quickstart">
@@ -73,7 +89,9 @@ function App() {
 
       <section id="why" className="section compactSection">
         <div className="sectionHeader">
-          <span className="eyebrow"><PlugZap size={15} /> Why Mobigent</span>
+          <span className="eyebrow">
+            <PlugZap size={15} /> Why Mobigent
+          </span>
           <h2>Agents should call app functions, not guess through UI.</h2>
         </div>
         <div className="problemGrid">
@@ -84,14 +102,17 @@ function App() {
             Sensitive actions can stop inside the app until the user says yes.
           </Feature>
           <Feature icon={<Terminal />} title="Provider-ready">
-            Start with the backend SDK, then connect ChatGPT Actions, Claude, Cursor, and more when you are ready.
+            Start with the backend SDK, then connect ChatGPT Actions, Claude, Cursor, and more when
+            you are ready.
           </Feature>
         </div>
       </section>
 
       <section className="section security">
         <div>
-          <span className="eyebrow"><Lock size={15} /> The big idea</span>
+          <span className="eyebrow">
+            <Lock size={15} /> The big idea
+          </span>
           <h2>Mobigent is the app-function layer for agentic mobile apps.</h2>
           <p>
             Define what agents may do. Keep the app in charge. Move fast without turning user trust
@@ -100,7 +121,10 @@ function App() {
         </div>
         <div className="launchCard">
           <strong>Build the first feature in minutes.</strong>
-          <p>Install two packages, expose one function, run the backend, and your agent can call real app logic.</p>
+          <p>
+            Install two packages, expose one function, run the backend, and your agent can call real
+            app logic.
+          </p>
           <a className="primaryButton" href="./docs.html">
             Open docs
             <ArrowRight size={17} />
@@ -139,7 +163,15 @@ function Metric({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Feature({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
+function Feature({
+  icon,
+  title,
+  children,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <article className="featureCard">
       <div className="icon">{icon}</div>
@@ -149,4 +181,4 @@ function Feature({ icon, title, children }: { icon: React.ReactNode; title: stri
   );
 }
 
-createRoot(document.getElementById("root")!).render(<App />);
+createRoot(document.getElementById('root')!).render(<App />);

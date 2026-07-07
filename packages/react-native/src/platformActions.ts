@@ -1,38 +1,40 @@
-import type { CapabilityManifest } from "@mobigent/core";
+import type { CapabilityManifest } from '@mobigent/core';
 
 export type MobigentAppleAppIntentPlan = {
-  kind: "mobigent.apple-app-intents.plan";
+  kind: 'mobigent.apple-app-intents.plan';
   appId: string;
   appName: string;
-  sdk: CapabilityManifest["sdk"];
+  sdk: CapabilityManifest['sdk'];
   intents: Array<{
     name: string;
     title: string;
     description: string;
-    risk: "low" | "medium" | "high";
+    risk: 'low' | 'medium' | 'high';
     requiresConfirmation: boolean;
     swiftTypeName: string;
   }>;
 };
 
 export type MobigentAndroidAppActionsPlan = {
-  kind: "mobigent.android-app-actions.plan";
+  kind: 'mobigent.android-app-actions.plan';
   appId: string;
   appName: string;
-  sdk: CapabilityManifest["sdk"];
+  sdk: CapabilityManifest['sdk'];
   actions: Array<{
     name: string;
     capability: string;
     description: string;
-    risk: "low" | "medium" | "high";
+    risk: 'low' | 'medium' | 'high';
     requiresConfirmation: boolean;
     deepLink: string;
   }>;
 };
 
-export function createAppleAppIntentsPlan(manifest: CapabilityManifest): MobigentAppleAppIntentPlan {
+export function createAppleAppIntentsPlan(
+  manifest: CapabilityManifest,
+): MobigentAppleAppIntentPlan {
   return {
-    kind: "mobigent.apple-app-intents.plan",
+    kind: 'mobigent.apple-app-intents.plan',
     appId: manifest.appId,
     appName: manifest.appName,
     sdk: manifest.sdk,
@@ -40,16 +42,18 @@ export function createAppleAppIntentsPlan(manifest: CapabilityManifest): Mobigen
       name: action.name,
       title: action.description,
       description: action.description,
-      risk: action.confirmation?.risk ?? "low",
+      risk: action.confirmation?.risk ?? 'low',
       requiresConfirmation: Boolean(action.confirmation?.required),
-      swiftTypeName: `${toPascalCase(action.name)}Intent`
-    }))
+      swiftTypeName: `${toPascalCase(action.name)}Intent`,
+    })),
   };
 }
 
-export function createAndroidAppActionsPlan(manifest: CapabilityManifest): MobigentAndroidAppActionsPlan {
+export function createAndroidAppActionsPlan(
+  manifest: CapabilityManifest,
+): MobigentAndroidAppActionsPlan {
   return {
-    kind: "mobigent.android-app-actions.plan",
+    kind: 'mobigent.android-app-actions.plan',
     appId: manifest.appId,
     appName: manifest.appName,
     sdk: manifest.sdk,
@@ -57,10 +61,10 @@ export function createAndroidAppActionsPlan(manifest: CapabilityManifest): Mobig
       name: action.name,
       capability: `actions.intent.${toConstantCase(action.name)}`,
       description: action.description,
-      risk: action.confirmation?.risk ?? "low",
+      risk: action.confirmation?.risk ?? 'low',
       requiresConfirmation: Boolean(action.confirmation?.required),
-      deepLink: `mobigent://${manifest.appId}/actions/${encodeURIComponent(action.name)}`
-    }))
+      deepLink: `mobigent://${manifest.appId}/actions/${encodeURIComponent(action.name)}`,
+    })),
   };
 }
 
@@ -75,9 +79,9 @@ export function renderAppleAppIntentsSwift(plan: MobigentAppleAppIntentPlan): st
     // Forward this call to MobigentClient or your React Native Mobigent module.
     return .result()
   }
-}`
+}`,
     )
-    .join("\n\n");
+    .join('\n\n');
 
   return `import AppIntents
 
@@ -96,9 +100,9 @@ export function renderAndroidAppActionsXml(plan: MobigentAndroidAppActionsPlan):
       android:targetClass="${escapeXml(plan.appId)}.MainActivity">
       <url-template android:value="${escapeXml(action.deepLink)}" />
     </intent>
-  </capability>`
+  </capability>`,
     )
-    .join("\n");
+    .join('\n');
 
   return `<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
 ${shortcuts}
@@ -111,16 +115,16 @@ const toPascalCase = (value: string) =>
     .split(/[^a-zA-Z0-9]+/)
     .filter(Boolean)
     .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
-    .join("");
+    .join('');
 
 const toConstantCase = (value: string) =>
   value
-    .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
+    .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
     .split(/[^a-zA-Z0-9]+/)
     .filter(Boolean)
-    .join("_")
+    .join('_')
     .toUpperCase();
 
-const escapeSwift = (value: string) => value.replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
+const escapeSwift = (value: string) => value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 const escapeXml = (value: string) =>
-  value.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');

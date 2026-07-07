@@ -7,13 +7,13 @@ Use this workflow when you are turning a proof of concept into an SDK integratio
 Expose one read function and one confirmed write function from a real feature. Write this directly in your app code:
 
 ```ts
-import { createApp } from "@mobigent/app";
+import { createApp } from '@mobigent/app';
 
 export const mobigent = createApp({
   expense: {
     list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
+    create: async (input) => createExpense(input),
+  },
 });
 ```
 
@@ -53,25 +53,30 @@ Use `wss://` for hosted gateways. Keep medium and high risk actions behind app-o
 Use built-in helpers, Zod, or TypeBox-style JSON Schema:
 
 ```ts
-import { fromZod, fromTypeBox, schema } from "@mobigent/app";
-import { z } from "zod";
+import { fromZod, fromTypeBox, schema } from '@mobigent/app';
+import { z } from 'zod';
 
-const zodInput = fromZod(z.object({
-  merchant: z.string(),
-  amount: z.number()
-}));
+const zodInput = fromZod(
+  z.object({
+    merchant: z.string(),
+    amount: z.number(),
+  }),
+);
 
 const typeBoxInput = fromTypeBox({
-  type: "object",
+  type: 'object',
   properties: {
-    title: { type: "string" }
+    title: { type: 'string' },
   },
-  required: ["title"]
+  required: ['title'],
 });
 
-const nativeInput = schema.object({
-  note: schema.string()
-}, { required: "all" });
+const nativeInput = schema.object(
+  {
+    note: schema.string(),
+  },
+  { required: 'all' },
+);
 ```
 
 ## 5. Generate Native Assistant Bridge Plans

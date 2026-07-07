@@ -1,18 +1,15 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import type { Server } from "node:http";
-import { basename, dirname, join } from "node:path";
-import {
-  BridgeGateway,
-  createHttpApp
-} from "@mobigent/gateway";
-import { sanitize, type JsonObject } from "@mobigent/core";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import type { Server } from 'node:http';
+import { basename, dirname, join } from 'node:path';
+import { BridgeGateway, createHttpApp } from '@mobigent/gateway';
+import { sanitize, type JsonObject } from '@mobigent/core';
 import {
   createProviderBundle,
   createProviderCatalog,
   filterProviderCatalog,
   type ProviderBundle,
-  type ProviderKind
-} from "@mobigent/providers";
+  type ProviderKind,
+} from '@mobigent/providers';
 
 export type MobigentBackendOptions = {
   wsPort?: number;
@@ -43,7 +40,10 @@ export type MobigentBackendOptions = {
 };
 
 export type MobigentBackendInput = MobigentBackendOptions | string;
-export type MobigentBackendIdentityOptions = Omit<MobigentBackendOptions, "app" | "appId" | "appName">;
+export type MobigentBackendIdentityOptions = Omit<
+  MobigentBackendOptions,
+  'app' | 'appId' | 'appName'
+>;
 export type MobigentBackendStartOptions = MobigentBackendIdentityOptions & {
   appName?: string;
 };
@@ -112,17 +112,12 @@ export type MobigentInferredAppIdentity = {
 };
 
 export type MobigentAgentKind =
-  | ProviderKind
-  | "chatgpt"
-  | "claude"
-  | "openai"
-  | "openapi-actions"
-  | "openapi-agent";
+  ProviderKind | 'chatgpt' | 'claude' | 'openai' | 'openapi-actions' | 'openapi-agent';
 
 export type MobigentAgentOptions = {
   baseUrl?: string;
   publicUrl?: string;
-  auth?: "none" | "bearer" | "api-key";
+  auth?: 'none' | 'bearer' | 'api-key';
   agentId?: string;
 };
 
@@ -131,7 +126,7 @@ export type MobigentAgentProfile = {
   allowedTools?: string[];
   deniedTools?: string[];
   readOnly?: boolean;
-  maxRisk?: "low" | "medium" | "high";
+  maxRisk?: 'low' | 'medium' | 'high';
 };
 
 export type MobigentJsonSchema = {
@@ -149,7 +144,7 @@ export type MobigentFunctionInfo = {
   inputSchema: MobigentJsonSchema;
   outputSchema?: MobigentJsonSchema;
   readOnly: boolean;
-  risk: "low" | "medium" | "high";
+  risk: 'low' | 'medium' | 'high';
   app: {
     id: string;
     name: string;
@@ -226,19 +221,39 @@ export type MobigentBackend = {
   connection: MobigentBackendClient;
   advanced: MobigentBackendAdvanced;
   client(): MobigentBackendClient;
-  client(appId: string, appName?: string, options?: Omit<MobigentBackendAppConfigOptions, "appId" | "appName">): MobigentBackendClient;
+  client(
+    appId: string,
+    appName?: string,
+    options?: Omit<MobigentBackendAppConfigOptions, 'appId' | 'appName'>,
+  ): MobigentBackendClient;
   client(options: MobigentBackendAppConfigOptions): MobigentBackendClient;
   forApp(): MobigentBackendClient;
-  forApp(appId: string, appName?: string, options?: Omit<MobigentBackendAppConfigOptions, "appId" | "appName">): MobigentBackendClient;
+  forApp(
+    appId: string,
+    appName?: string,
+    options?: Omit<MobigentBackendAppConfigOptions, 'appId' | 'appName'>,
+  ): MobigentBackendClient;
   forApp(options: MobigentBackendAppConfigOptions): MobigentBackendClient;
   appClient(): MobigentBackendClient;
-  appClient(appId: string, appName?: string, options?: Omit<MobigentBackendAppConfigOptions, "appId" | "appName">): MobigentBackendClient;
+  appClient(
+    appId: string,
+    appName?: string,
+    options?: Omit<MobigentBackendAppConfigOptions, 'appId' | 'appName'>,
+  ): MobigentBackendClient;
   appClient(options: MobigentBackendAppConfigOptions): MobigentBackendClient;
   appSettings(): MobigentBackendClient;
-  appSettings(appId: string, appName?: string, options?: Omit<MobigentBackendAppConfigOptions, "appId" | "appName">): MobigentBackendClient;
+  appSettings(
+    appId: string,
+    appName?: string,
+    options?: Omit<MobigentBackendAppConfigOptions, 'appId' | 'appName'>,
+  ): MobigentBackendClient;
   appSettings(options: MobigentBackendAppConfigOptions): MobigentBackendClient;
   pairing(): MobigentBackendClient;
-  pairing(appId: string, appName?: string, options?: Omit<MobigentBackendAppConfigOptions, "appId" | "appName">): MobigentBackendClient;
+  pairing(
+    appId: string,
+    appName?: string,
+    options?: Omit<MobigentBackendAppConfigOptions, 'appId' | 'appName'>,
+  ): MobigentBackendClient;
   pairing(options: MobigentBackendAppConfigOptions): MobigentBackendClient;
   app: MobigentBackendAppAccessor;
   setup: MobigentBackendSetupAccessor;
@@ -255,7 +270,11 @@ export type MobigentBackend = {
   use: MobigentBackendUse;
   apps(): MobigentAppSession[];
   resolveFunctionName(name: string): string;
-  call(name: string, input?: unknown, options?: MobigentBackendCallOptions): Promise<MobigentCallResult>;
+  call(
+    name: string,
+    input?: unknown,
+    options?: MobigentBackendCallOptions,
+  ): Promise<MobigentCallResult>;
   fn(name: string): MobigentBackendFunction;
 };
 
@@ -264,31 +283,52 @@ export type MobigentBackendCompatibility = {
   functions: MobigentBackendFunctions;
 };
 
-export type MobigentBackendFunction = (input?: unknown, options?: MobigentBackendCallOptions) => Promise<MobigentCallResult>;
+export type MobigentBackendFunction = (
+  input?: unknown,
+  options?: MobigentBackendCallOptions,
+) => Promise<MobigentCallResult>;
 export type MobigentBackendFeatureFunctions = {
   [functionName: string]: MobigentBackendFunction;
 };
 export type MobigentBackendUse = {
   <const T extends MobigentBackendAppFunctionContract>(): MobigentBackendAppFunctions<T>;
   (namespace: string): MobigentBackendFeatureFunctions;
-  <const T extends readonly string[]>(namespace: string, functions: T): MobigentBackendNamedFunctionMap<T>;
-  <const T extends Record<string, string>>(namespace: string, functions: T): MobigentBackendFunctionMap<T>;
-  <const T extends MobigentBackendAppFunctionContract>(functions: T): MobigentBackendAppFunctions<T>;
+  <const T extends readonly string[]>(
+    namespace: string,
+    functions: T,
+  ): MobigentBackendNamedFunctionMap<T>;
+  <const T extends Record<string, string>>(
+    namespace: string,
+    functions: T,
+  ): MobigentBackendFunctionMap<T>;
+  <const T extends MobigentBackendAppFunctionContract>(
+    functions: T,
+  ): MobigentBackendAppFunctions<T>;
   <const T extends Record<string, string>>(functions: T): MobigentBackendFunctionMap<T>;
 };
 export type MobigentBackendFunctions = {
   (): MobigentFunctionInfo[];
-  <const T extends MobigentBackendAppFunctionContract>(functions: T): MobigentBackendAppFunctions<T>;
+  <const T extends MobigentBackendAppFunctionContract>(
+    functions: T,
+  ): MobigentBackendAppFunctions<T>;
   <const T extends Record<string, string>>(functions: T): MobigentBackendFunctionMap<T>;
   [namespace: string]: MobigentBackendFeatureFunctions;
 };
 export type MobigentBackendAppAccessor = {
   <const T extends MobigentBackendAppFunctionContract>(): MobigentBackendAppFunctions<T>;
   (namespace: string): MobigentBackendFeatureFunctions;
-  <const T extends readonly string[]>(namespace: string, functions: T): MobigentBackendNamedFunctionMap<T>;
-  <const T extends Record<string, string>>(namespace: string, functions: T): MobigentBackendFunctionMap<T>;
+  <const T extends readonly string[]>(
+    namespace: string,
+    functions: T,
+  ): MobigentBackendNamedFunctionMap<T>;
+  <const T extends Record<string, string>>(
+    namespace: string,
+    functions: T,
+  ): MobigentBackendFunctionMap<T>;
   (options: MobigentBackendAppConfigOptions): MobigentBackendAppConfig;
-  <const T extends MobigentBackendAppFunctionContract>(functions: T): MobigentBackendAppFunctions<T>;
+  <const T extends MobigentBackendAppFunctionContract>(
+    functions: T,
+  ): MobigentBackendAppFunctions<T>;
   [namespace: string]: MobigentBackendFeatureFunctions;
 };
 export type MobigentBackendSetupAccessor = {
@@ -310,11 +350,11 @@ export type MobigentBackendAppFunctions<T extends MobigentBackendAppFunctionCont
     [FunctionName in keyof T[Namespace]]: MobigentBackendFunctionFor<T[Namespace][FunctionName]>;
   };
 };
-export type MobigentBackendFunctionFor<T> = T extends { kind: "action"; handler: infer Handler }
+export type MobigentBackendFunctionFor<T> = T extends { kind: 'action'; handler: infer Handler }
   ? MobigentBackendCallableFor<Handler>
-  : T extends { kind: "resource"; read: infer Reader }
+  : T extends { kind: 'resource'; read: infer Reader }
     ? MobigentBackendCallableFor<Reader>
-    : T extends { kind: "component"; focus: infer Focus }
+    : T extends { kind: 'component'; focus: infer Focus }
       ? MobigentBackendCallableFor<Focus>
       : MobigentBackendCallableFor<T>;
 export type MobigentBackendCallableFor<T> = T extends (...args: infer Args) => infer Result
@@ -338,7 +378,8 @@ export type BackendOptions = MobigentBackendOptions;
 export type BackendStartOptions = MobigentBackendStartOptions;
 export type BackendStatus = MobigentBackendStatus;
 export type BackendAppFunctionContract = MobigentBackendAppFunctionContract;
-export type BackendAppFunctions<T extends BackendAppFunctionContract> = MobigentBackendAppFunctions<T>;
+export type BackendAppFunctions<T extends BackendAppFunctionContract> =
+  MobigentBackendAppFunctions<T>;
 export type AppFunction = MobigentBackendFunction;
 export type AppFunctionInfo = MobigentFunctionInfo;
 export type AppSession = MobigentAppSession;
@@ -346,29 +387,31 @@ export type CallOptions = MobigentBackendCallOptions;
 export type CallResult = MobigentCallResult;
 
 const defaultMobigentBackendApp = {
-  appId: "app.mobigent.local",
-  appName: "Mobigent App"
+  appId: 'app.mobigent.local',
+  appName: 'Mobigent App',
 };
 
 export async function startMobigentBackend(
   appId: string,
   appName?: string,
-  options?: MobigentBackendIdentityOptions
+  options?: MobigentBackendIdentityOptions,
 ): Promise<MobigentBackendWithApp>;
 export async function startMobigentBackend(
   appId: string,
-  options?: MobigentBackendStartOptions
+  options?: MobigentBackendStartOptions,
 ): Promise<MobigentBackendWithApp>;
-export async function startMobigentBackend(options?: MobigentBackendOptions): Promise<MobigentBackendWithApp>;
+export async function startMobigentBackend(
+  options?: MobigentBackendOptions,
+): Promise<MobigentBackendWithApp>;
 export async function startMobigentBackend(
   input: MobigentBackendInput = {},
   appNameOrOptions?: string | MobigentBackendStartOptions,
-  identityOptions: MobigentBackendIdentityOptions = {}
+  identityOptions: MobigentBackendIdentityOptions = {},
 ): Promise<MobigentBackendWithApp> {
   const options = normalizeBackendOptions(input, appNameOrOptions, identityOptions);
   const wsPort = options.wsPort ?? Number(process.env.MOBIGENT_WS_PORT ?? 8787);
   const httpPort = options.httpPort ?? Number(process.env.MOBIGENT_HTTP_PORT ?? 8788);
-  const host = options.host ?? "localhost";
+  const host = options.host ?? 'localhost';
   const appToken = options.appToken ?? options.authToken ?? process.env.MOBIGENT_AUTH_TOKEN;
   const gateway = new BridgeGateway({
     port: wsPort,
@@ -377,9 +420,10 @@ export async function startMobigentBackend(
     auditRedactKeys: options.auditRedactKeys,
     allowedAppIds: options.allowedAppIds,
     agentProfiles: options.agentProfiles,
-    manifestSigningSecret: options.manifestSigningSecret ?? process.env.MOBIGENT_MANIFEST_SIGNING_SECRET,
+    manifestSigningSecret:
+      options.manifestSigningSecret ?? process.env.MOBIGENT_MANIFEST_SIGNING_SECRET,
     idempotencyRecordTtlMs: options.idempotencyRecordTtlMs,
-    cleanupIntervalMs: options.cleanupIntervalMs
+    cleanupIntervalMs: options.cleanupIntervalMs,
   });
 
   gateway.start();
@@ -388,7 +432,7 @@ export async function startMobigentBackend(
     apiKey: options.apiKey ?? process.env.MOBIGENT_HTTP_API_KEY,
     agentApiKeys: options.agentApiKeys,
     corsOrigins: options.corsOrigins,
-    jsonBodyLimit: options.jsonBodyLimit
+    jsonBodyLimit: options.jsonBodyLimit,
   });
 
   const httpServer = await listen(app, httpPort);
@@ -396,7 +440,7 @@ export async function startMobigentBackend(
     websocket: `ws://${host}:${wsPort}`,
     http: `http://${host}:${httpPort}`,
     inspector: `http://${host}:${httpPort}/inspect`,
-    openapi: `http://${host}:${httpPort}/openapi.json`
+    openapi: `http://${host}:${httpPort}/openapi.json`,
   };
 
   if (!options.silent) {
@@ -410,65 +454,95 @@ export async function startMobigentBackend(
   const appConfig = (appOptions: MobigentBackendAppConfigOptions): MobigentBackendAppConfig => ({
     appId: appOptions.appId,
     appName: appOptions.appName,
-    backendUrl: appOptions.backendUrl ?? appOptions.connectionUrl ?? appOptions.gatewayUrl ?? urls.websocket,
-    connectionUrl: appOptions.connectionUrl ?? appOptions.backendUrl ?? appOptions.gatewayUrl ?? urls.websocket,
+    backendUrl:
+      appOptions.backendUrl ?? appOptions.connectionUrl ?? appOptions.gatewayUrl ?? urls.websocket,
+    connectionUrl:
+      appOptions.connectionUrl ?? appOptions.backendUrl ?? appOptions.gatewayUrl ?? urls.websocket,
     version: appOptions.version,
-    authToken: appOptions.appToken ?? appOptions.authToken ?? appToken
+    authToken: appOptions.appToken ?? appOptions.authToken ?? appToken,
   });
   const appConfigModule = (appOptions: MobigentBackendAppConfigModuleOptions) =>
     formatMobigentAppConfigModule(appConfig(appOptions), {
-      exportName: appOptions.exportName
+      exportName: appOptions.exportName,
     });
   const defaultApp = appConfig(resolveDefaultAppOptions(options));
   const appConfigCode = formatMobigentAppConfigModule(defaultApp);
   const appConfigFiles = writeDefaultAppConfig(options, defaultApp, appConfigCode);
-  const createAgentCatalog = (agentOptions: MobigentAgentOptions = {}) => createProviderCatalog({
-    mcp: {
-      command: "mobigent-mcp"
-    },
-    openApi: {
-      baseUrl: agentOptions.publicUrl ?? agentOptions.baseUrl ?? urls.http,
-      auth: agentOptions.auth ?? (options.apiKey || process.env.MOBIGENT_HTTP_API_KEY ? "api-key" : "none")
-    }
-  });
+  const createAgentCatalog = (agentOptions: MobigentAgentOptions = {}) =>
+    createProviderCatalog({
+      mcp: {
+        command: 'mobigent-mcp',
+      },
+      openApi: {
+        baseUrl: agentOptions.publicUrl ?? agentOptions.baseUrl ?? urls.http,
+        auth:
+          agentOptions.auth ??
+          (options.apiKey || process.env.MOBIGENT_HTTP_API_KEY ? 'api-key' : 'none'),
+      },
+    });
 
-  const invoke = async (name: string, input: unknown = {}, callOptions: MobigentBackendCallOptions = {}) => {
+  const invoke = async (
+    name: string,
+    input: unknown = {},
+    callOptions: MobigentBackendCallOptions = {},
+  ) => {
     const { waitForApp = true, waitTimeoutMs, waitIntervalMs, ...toolCallOptions } = callOptions;
     const toolName = waitForApp
       ? await waitForBackendFunction(gateway, name, defaultApp, {
           timeoutMs: waitTimeoutMs,
-          intervalMs: waitIntervalMs
+          intervalMs: waitIntervalMs,
         })
       : resolveBackendToolName(gateway.listTools(), name, defaultApp);
 
     return gateway.callTool(toolName, input as JsonObject, toolCallOptions);
   };
 
-  const appFunction = (name: string): MobigentBackendFunction =>
-    (input: unknown = {}, callOptions?: MobigentBackendCallOptions) => invoke(name, input, callOptions);
-  const appFeature = (namespace: string): MobigentBackendFeatureFunctions => createFeatureFunctionProxy(namespace, appFunction);
-  function appFunctions<const T extends MobigentBackendAppFunctionContract>(): MobigentBackendAppFunctions<T>;
+  const appFunction =
+    (name: string): MobigentBackendFunction =>
+    (input: unknown = {}, callOptions?: MobigentBackendCallOptions) =>
+      invoke(name, input, callOptions);
+  const appFeature = (namespace: string): MobigentBackendFeatureFunctions =>
+    createFeatureFunctionProxy(namespace, appFunction);
+  function appFunctions<
+    const T extends MobigentBackendAppFunctionContract,
+  >(): MobigentBackendAppFunctions<T>;
   function appFunctions(namespace: string): MobigentBackendFeatureFunctions;
-  function appFunctions<const T extends readonly string[]>(namespace: string, functions: T): MobigentBackendNamedFunctionMap<T>;
-  function appFunctions<const T extends Record<string, string>>(namespace: string, functions: T): MobigentBackendFunctionMap<T>;
-  function appFunctions<const T extends MobigentBackendAppFunctionContract>(functions: T): MobigentBackendAppFunctions<T>;
-  function appFunctions<const T extends Record<string, string>>(functions: T): MobigentBackendFunctionMap<T>;
+  function appFunctions<const T extends readonly string[]>(
+    namespace: string,
+    functions: T,
+  ): MobigentBackendNamedFunctionMap<T>;
+  function appFunctions<const T extends Record<string, string>>(
+    namespace: string,
+    functions: T,
+  ): MobigentBackendFunctionMap<T>;
+  function appFunctions<const T extends MobigentBackendAppFunctionContract>(
+    functions: T,
+  ): MobigentBackendAppFunctions<T>;
+  function appFunctions<const T extends Record<string, string>>(
+    functions: T,
+  ): MobigentBackendFunctionMap<T>;
   function appFunctions<const T extends Record<string, string>, const U extends readonly string[]>(
     functionsOrNamespace?: T | MobigentBackendAppFunctionContract | string,
-    namespaceFunctions?: T | U
-  ): MobigentBackendFunctionMap<T> | MobigentBackendAppFunctions<MobigentBackendAppFunctionContract> | MobigentBackendNamedFunctionMap<U> | MobigentBackendFeatureFunctions {
+    namespaceFunctions?: T | U,
+  ):
+    | MobigentBackendFunctionMap<T>
+    | MobigentBackendAppFunctions<MobigentBackendAppFunctionContract>
+    | MobigentBackendNamedFunctionMap<U>
+    | MobigentBackendFeatureFunctions {
     if (!functionsOrNamespace) {
       return createBackendAppFunctionContractProxy(appFeature);
     }
 
-    if (typeof functionsOrNamespace === "string") {
+    if (typeof functionsOrNamespace === 'string') {
       if (!namespaceFunctions) {
         return appFeature(functionsOrNamespace);
       }
 
-      return createBackendFunctionBindings(functionsOrNamespace, namespaceFunctions, appFunction) as
-        | MobigentBackendFunctionMap<T>
-        | MobigentBackendNamedFunctionMap<U>;
+      return createBackendFunctionBindings(
+        functionsOrNamespace,
+        namespaceFunctions,
+        appFunction,
+      ) as MobigentBackendFunctionMap<T> | MobigentBackendNamedFunctionMap<U>;
     }
 
     const functions = functionsOrNamespace;
@@ -476,26 +550,38 @@ export async function startMobigentBackend(
       return createBackendAppFunctionContractBindings(functions, appFunction);
     }
 
-    return createBackendFunctionBindings(undefined, functions, appFunction) as MobigentBackendFunctionMap<T>;
+    return createBackendFunctionBindings(
+      undefined,
+      functions,
+      appFunction,
+    ) as MobigentBackendFunctionMap<T>;
   }
-  const functions = createBackendFunctionsAccessor(() => gateway.listTools(), appFeature, appFunction);
+  const functions = createBackendFunctionsAccessor(
+    () => gateway.listTools(),
+    appFeature,
+    appFunction,
+  );
   function client(): MobigentBackendClient;
-  function client(appId: string, appName?: string, options?: Omit<MobigentBackendAppConfigOptions, "appId" | "appName">): MobigentBackendClient;
+  function client(
+    appId: string,
+    appName?: string,
+    options?: Omit<MobigentBackendAppConfigOptions, 'appId' | 'appName'>,
+  ): MobigentBackendClient;
   function client(options: MobigentBackendAppConfigOptions): MobigentBackendClient;
   function client(
     input?: string | MobigentBackendAppConfigOptions,
     appName?: string,
-    clientOptions: Omit<MobigentBackendAppConfigOptions, "appId" | "appName"> = {}
+    clientOptions: Omit<MobigentBackendAppConfigOptions, 'appId' | 'appName'> = {},
   ): MobigentBackendClient {
     if (!input) {
       return defaultApp;
     }
 
-    return typeof input === "string"
+    return typeof input === 'string'
       ? appConfig({
           ...clientOptions,
           appId: input,
-          appName: appName ?? inferAppNameFromId(input)
+          appName: appName ?? inferAppNameFromId(input),
         })
       : appConfig(input);
   }
@@ -511,10 +597,13 @@ export async function startMobigentBackend(
     appConfigCode,
     appConfig,
     appConfigModule,
-    copyAppConfig: () => appConfigCode
+    copyAppConfig: () => appConfigCode,
   };
 
-  const agent = (kind: MobigentAgentKind = "chatgpt-actions", agentOptions: MobigentAgentOptions = {}) => {
+  const agent = (
+    kind: MobigentAgentKind = 'chatgpt-actions',
+    agentOptions: MobigentAgentOptions = {},
+  ) => {
     const id = normalizeAgentKind(kind);
     const [provider] = filterProviderCatalog(createAgentCatalog(agentOptions), { ids: [id] });
     if (!provider) {
@@ -527,7 +616,7 @@ export async function startMobigentBackend(
     return bundle;
   };
   const setup = createBackendSetupAccessor(agent, (agentOptions = {}) =>
-    createAgentCatalog(agentOptions).map((provider) => createProviderBundle(provider))
+    createAgentCatalog(agentOptions).map((provider) => createProviderBundle(provider)),
   );
 
   const backend = {
@@ -555,14 +644,17 @@ export async function startMobigentBackend(
     appConfigCode,
     copyAppConfig: advanced.copyAppConfig,
     stop: () => stopBackend(httpServer, gateway),
-    ready: async (readyOptions?: MobigentBackendReadyOptions) => toBackendStatus(await waitForBackendReady(gateway, readyOptions)),
-    waitForApp: async (readyOptions?: MobigentBackendReadyOptions) => toBackendStatus(await waitForBackendReady(gateway, readyOptions)),
+    ready: async (readyOptions?: MobigentBackendReadyOptions) =>
+      toBackendStatus(await waitForBackendReady(gateway, readyOptions)),
+    waitForApp: async (readyOptions?: MobigentBackendReadyOptions) =>
+      toBackendStatus(await waitForBackendReady(gateway, readyOptions)),
     listFunctions: () => gateway.listTools().map(toBackendFunctionInfo),
     use: appFunctions,
     apps: () => gateway.listApps().map(toBackendAppSession),
-    resolveFunctionName: (name: string) => resolveBackendToolName(gateway.listTools(), name, defaultApp),
+    resolveFunctionName: (name: string) =>
+      resolveBackendToolName(gateway.listTools(), name, defaultApp),
     call: invoke,
-    fn: appFunction
+    fn: appFunction,
   };
 
   defineLegacyBackendFields(backend, {
@@ -577,7 +669,8 @@ export async function startMobigentBackend(
     appConfigModule,
     copyAppConfig: advanced.copyAppConfig,
     tools: () => gateway.listTools(),
-    resolveToolName: (name: string) => resolveBackendToolName(gateway.listTools(), name, defaultApp),
+    resolveToolName: (name: string) =>
+      resolveBackendToolName(gateway.listTools(), name, defaultApp),
     callApp: invoke,
     invoke,
     functions,
@@ -585,7 +678,7 @@ export async function startMobigentBackend(
     appFunction,
     appFeature,
     feature: appFeature,
-    appFunctions
+    appFunctions,
   });
 
   return backend as MobigentBackendWithApp;
@@ -593,12 +686,13 @@ export async function startMobigentBackend(
 
 function createBackendSetupAccessor(
   agent: (kind?: MobigentAgentKind, options?: MobigentAgentOptions) => ProviderBundle,
-  all: (options?: MobigentAgentOptions) => ProviderBundle[]
+  all: (options?: MobigentAgentOptions) => ProviderBundle[],
 ): MobigentBackendSetupAccessor {
-  const setup = ((kind?: MobigentAgentKind, options?: MobigentAgentOptions) => agent(kind, options)) as MobigentBackendSetupAccessor;
-  setup.chatgpt = (options?: MobigentAgentOptions) => agent("chatgpt", options);
-  setup.claude = (options?: MobigentAgentOptions) => agent("claude", options);
-  setup.openai = (options?: MobigentAgentOptions) => agent("openai", options);
+  const setup = ((kind?: MobigentAgentKind, options?: MobigentAgentOptions) =>
+    agent(kind, options)) as MobigentBackendSetupAccessor;
+  setup.chatgpt = (options?: MobigentAgentOptions) => agent('chatgpt', options);
+  setup.claude = (options?: MobigentAgentOptions) => agent('claude', options);
+  setup.openai = (options?: MobigentAgentOptions) => agent('openai', options);
   setup.all = all;
   return setup;
 }
@@ -612,30 +706,38 @@ function defineLegacyBackendFields(target: object, fields: Record<string, unknow
         {
           configurable: true,
           enumerable: false,
-          value
-        }
-      ])
-    )
+          value,
+        },
+      ]),
+    ),
   );
 }
 
 function createBackendFunctionBindings<const T extends Record<string, string> | readonly string[]>(
   namespace: string | undefined,
   functions: T,
-  appFunction: (name: string) => MobigentBackendFunction
+  appFunction: (name: string) => MobigentBackendFunction,
 ) {
   if (Array.isArray(functions)) {
-    return Object.fromEntries(functions.map((functionName) => [functionName, appFunction(joinBackendFunctionName(namespace, functionName))]));
+    return Object.fromEntries(
+      functions.map((functionName) => [
+        functionName,
+        appFunction(joinBackendFunctionName(namespace, functionName)),
+      ]),
+    );
   }
 
   return Object.fromEntries(
-    Object.entries(functions).map(([alias, functionName]) => [alias, appFunction(joinBackendFunctionName(namespace, functionName))])
+    Object.entries(functions).map(([alias, functionName]) => [
+      alias,
+      appFunction(joinBackendFunctionName(namespace, functionName)),
+    ]),
   );
 }
 
 function createBackendAppFunctionContractBindings(
   functions: MobigentBackendAppFunctionContract,
-  appFunction: (name: string) => MobigentBackendFunction
+  appFunction: (name: string) => MobigentBackendFunction,
 ): MobigentBackendAppFunctions<MobigentBackendAppFunctionContract> {
   return Object.fromEntries(
     Object.entries(functions).map(([namespace, namespaceFunctions]) => [
@@ -643,15 +745,15 @@ function createBackendAppFunctionContractBindings(
       Object.fromEntries(
         Object.keys(namespaceFunctions).map((functionName) => [
           functionName,
-          appFunction(joinBackendFunctionName(namespace, functionName))
-        ])
-      )
-    ])
+          appFunction(joinBackendFunctionName(namespace, functionName)),
+        ]),
+      ),
+    ]),
   ) as MobigentBackendAppFunctions<MobigentBackendAppFunctionContract>;
 }
 
 function createBackendAppFunctionContractProxy(
-  appFeature: (namespace: string) => MobigentBackendFeatureFunctions
+  appFeature: (namespace: string) => MobigentBackendFeatureFunctions,
 ): MobigentBackendAppFunctions<MobigentBackendAppFunctionContract> {
   const cache = new Map<string, MobigentBackendFeatureFunctions>();
 
@@ -659,7 +761,7 @@ function createBackendAppFunctionContractProxy(
     {},
     {
       get(_target, property) {
-        if (typeof property !== "string" || property === "then") {
+        if (typeof property !== 'string' || property === 'then') {
           return undefined;
         }
 
@@ -668,17 +770,17 @@ function createBackendAppFunctionContractProxy(
         }
 
         return cache.get(property);
-      }
-    }
+      },
+    },
   ) as MobigentBackendAppFunctions<MobigentBackendAppFunctionContract>;
 }
 
 function isBackendAliasMap(value: unknown): value is Record<string, string> {
   return Boolean(
     value &&
-      typeof value === "object" &&
-      !Array.isArray(value) &&
-      Object.values(value).every((entry) => typeof entry === "string")
+    typeof value === 'object' &&
+    !Array.isArray(value) &&
+    Object.values(value).every((entry) => typeof entry === 'string'),
   );
 }
 
@@ -689,13 +791,13 @@ function joinBackendFunctionName(namespace: string | undefined, functionName: st
 function normalizeBackendOptions(
   input: MobigentBackendInput,
   appNameOrOptions?: string | MobigentBackendStartOptions,
-  identityOptions: MobigentBackendIdentityOptions = {}
+  identityOptions: MobigentBackendIdentityOptions = {},
 ): MobigentBackendOptions {
-  if (typeof input !== "string") {
+  if (typeof input !== 'string') {
     return input;
   }
 
-  if (typeof appNameOrOptions === "object" && appNameOrOptions) {
+  if (typeof appNameOrOptions === 'object' && appNameOrOptions) {
     const { appName, ...options } = appNameOrOptions;
     return { ...options, appId: input, appName };
   }
@@ -706,7 +808,7 @@ function normalizeBackendOptions(
 function createBackendFunctionsAccessor(
   list: () => MobigentFunctionInfo[],
   appFeature: (namespace: string) => MobigentBackendFeatureFunctions,
-  appFunction: (name: string) => MobigentBackendFunction
+  appFunction: (name: string) => MobigentBackendFunction,
 ): MobigentBackendFunctions {
   const cache = new Map<string, MobigentBackendFeatureFunctions>();
   const callable = ((aliases?: Record<string, string> | MobigentBackendAppFunctionContract) => {
@@ -718,13 +820,16 @@ function createBackendFunctionsAccessor(
       return createBackendAppFunctionContractBindings(aliases, appFunction);
     }
 
-    const entries = Object.entries(aliases).map(([alias, functionName]) => [alias, appFunction(functionName)]);
+    const entries = Object.entries(aliases).map(([alias, functionName]) => [
+      alias,
+      appFunction(functionName),
+    ]);
     return Object.fromEntries(entries);
   }) as MobigentBackendFunctions;
 
   return new Proxy(callable, {
     get(target, property, receiver) {
-      if (typeof property !== "string" || property === "then") {
+      if (typeof property !== 'string' || property === 'then') {
         return Reflect.get(target, property, receiver);
       }
 
@@ -737,22 +842,25 @@ function createBackendFunctionsAccessor(
       }
 
       return cache.get(property);
-    }
+    },
   });
 }
 
 function createBackendAppAccessor(
   appConfig: (options: MobigentBackendAppConfigOptions) => MobigentBackendAppConfig,
   appFeature: (namespace: string) => MobigentBackendFeatureFunctions,
-  appFunction: (name: string) => MobigentBackendFunction
+  appFunction: (name: string) => MobigentBackendFunction,
 ): MobigentBackendAppAccessor {
   const cache = new Map<string, MobigentBackendFeatureFunctions>();
-  const callable = ((input?: MobigentBackendAppConfigOptions | MobigentBackendAppFunctionContract | string, namespaceFunctions?: Record<string, string> | readonly string[]) => {
+  const callable = ((
+    input?: MobigentBackendAppConfigOptions | MobigentBackendAppFunctionContract | string,
+    namespaceFunctions?: Record<string, string> | readonly string[],
+  ) => {
     if (!input) {
       return createBackendAppFunctionContractProxy(appFeature);
     }
 
-    if (typeof input === "string") {
+    if (typeof input === 'string') {
       if (!namespaceFunctions) {
         return appFeature(input);
       }
@@ -769,7 +877,7 @@ function createBackendAppAccessor(
 
   return new Proxy(callable, {
     get(target, property, receiver) {
-      if (typeof property !== "string" || property === "then") {
+      if (typeof property !== 'string' || property === 'then') {
         return Reflect.get(target, property, receiver);
       }
 
@@ -782,34 +890,37 @@ function createBackendAppAccessor(
       }
 
       return cache.get(property);
-    }
+    },
   });
 }
 
 function isBackendAppConfigOptions(value: unknown): value is MobigentBackendAppConfigOptions {
   return Boolean(
     value &&
-      typeof value === "object" &&
-      !Array.isArray(value) &&
-      (("appId" in value && typeof value.appId === "string") ||
-        ("id" in value && typeof value.id === "string") ||
-        ("appName" in value && typeof value.appName === "string") ||
-        ("name" in value && typeof value.name === "string") ||
-        ("backendUrl" in value && typeof value.backendUrl === "string") ||
-        ("connectionUrl" in value && typeof value.connectionUrl === "string") ||
-        ("gatewayUrl" in value && typeof value.gatewayUrl === "string") ||
-        ("authToken" in value && typeof value.authToken === "string"))
+    typeof value === 'object' &&
+    !Array.isArray(value) &&
+    (('appId' in value && typeof value.appId === 'string') ||
+      ('id' in value && typeof value.id === 'string') ||
+      ('appName' in value && typeof value.appName === 'string') ||
+      ('name' in value && typeof value.name === 'string') ||
+      ('backendUrl' in value && typeof value.backendUrl === 'string') ||
+      ('connectionUrl' in value && typeof value.connectionUrl === 'string') ||
+      ('gatewayUrl' in value && typeof value.gatewayUrl === 'string') ||
+      ('authToken' in value && typeof value.authToken === 'string')),
   );
 }
 
-function createFeatureFunctionProxy(namespace: string, appFunction: (name: string) => MobigentBackendFunction) {
+function createFeatureFunctionProxy(
+  namespace: string,
+  appFunction: (name: string) => MobigentBackendFunction,
+) {
   const cache = new Map<string, MobigentBackendFunction>();
 
   return new Proxy(
     {},
     {
       get(_target, property) {
-        if (typeof property !== "string" || property === "then") {
+        if (typeof property !== 'string' || property === 'then') {
           return undefined;
         }
 
@@ -818,37 +929,39 @@ function createFeatureFunctionProxy(namespace: string, appFunction: (name: strin
         }
 
         return cache.get(property);
-      }
-    }
+      },
+    },
   ) as MobigentBackendFeatureFunctions;
 }
 
 function writeDefaultAppConfig(
   options: MobigentBackendOptions,
   defaultApp: MobigentBackendAppConfig,
-  appConfigCode: string
+  appConfigCode: string,
 ) {
   if (!options.appDir || options.writeAppConfig === false) {
     return {};
   }
 
-  const fileName = options.appConfigFile ?? "mobigent.app.json";
+  const fileName = options.appConfigFile ?? 'mobigent.app.json';
   const jsonPath = join(options.appDir, fileName);
 
   mkdirSync(dirname(jsonPath), { recursive: true });
-  writeFileSync(jsonPath, `${JSON.stringify(defaultApp, null, 2)}\n`, "utf8");
+  writeFileSync(jsonPath, `${JSON.stringify(defaultApp, null, 2)}\n`, 'utf8');
 
   let modulePath: string | undefined;
   if (options.appConfigModuleFile) {
     modulePath = join(options.appDir, options.appConfigModuleFile);
     mkdirSync(dirname(modulePath), { recursive: true });
-    writeFileSync(modulePath, appConfigCode, "utf8");
+    writeFileSync(modulePath, appConfigCode, 'utf8');
   }
 
   return { jsonPath, modulePath };
 }
 
-function resolveDefaultAppOptions(options: MobigentBackendOptions): MobigentBackendAppConfigOptions {
+function resolveDefaultAppOptions(
+  options: MobigentBackendOptions,
+): MobigentBackendAppConfigOptions {
   if (options.app) {
     return normalizeDefaultApp(options.app);
   }
@@ -860,7 +973,7 @@ function resolveDefaultAppOptions(options: MobigentBackendOptions): MobigentBack
     return normalizeDefaultApp({
       id: options.appId ?? envApp.appId ?? inferred.appId,
       name: options.appName ?? envApp.appName,
-      version: options.version ?? envApp.version
+      version: options.version ?? envApp.version,
     });
   }
 
@@ -868,7 +981,7 @@ function resolveDefaultAppOptions(options: MobigentBackendOptions): MobigentBack
     return normalizeDefaultApp({
       id: envApp.appId ?? defaultMobigentBackendApp.appId,
       name: envApp.appName,
-      version: envApp.version
+      version: envApp.version,
     });
   }
 
@@ -879,19 +992,21 @@ function resolveDefaultAppOptions(options: MobigentBackendOptions): MobigentBack
   return inferMobigentAppIdentity(options.appDir ?? process.cwd());
 }
 
-function readMobigentBackendEnvironmentApp(): Partial<Pick<MobigentBackendAppConfigOptions, "appId" | "appName" | "version">> {
+function readMobigentBackendEnvironmentApp(): Partial<
+  Pick<MobigentBackendAppConfigOptions, 'appId' | 'appName' | 'version'>
+> {
   return omitUndefinedValues({
     appId: process.env.MOBIGENT_APP_ID ?? process.env.MOBIGENT_APP,
     appName: process.env.MOBIGENT_APP_NAME,
-    version: process.env.MOBIGENT_APP_VERSION
+    version: process.env.MOBIGENT_APP_VERSION,
   });
 }
 
 export function formatMobigentAppConfigModule(
   config: MobigentBackendAppConfig,
-  options: { exportName?: string } = {}
+  options: { exportName?: string } = {},
 ) {
-  const exportName = options.exportName ?? "mobigentConfig";
+  const exportName = options.exportName ?? 'mobigentConfig';
   assertValidExportName(exportName);
 
   return `import { defineMobigentConfig } from "@mobigent/app/app";
@@ -905,12 +1020,12 @@ export function inferMobigentAppIdentity(startDir = process.cwd()): MobigentInfe
 
   return {
     appId: inferAppId(projectName),
-    appName: inferAppName(projectName)
+    appName: inferAppName(projectName),
   };
 }
 
 export const mobigentBackend = {
-  start: startMobigentBackend
+  start: startMobigentBackend,
 };
 export const startMobigent: typeof startMobigentBackend = startMobigentBackend;
 export const createMobigentBackend: typeof startMobigentBackend = startMobigentBackend;
@@ -919,7 +1034,9 @@ function toBackendFunctionInfo(functionInfo: MobigentFunctionInfo): MobigentFunc
   return functionInfo;
 }
 
-function toBackendAppSession(session: ReturnType<BridgeGateway["listApps"]>[number]): MobigentAppSession {
+function toBackendAppSession(
+  session: ReturnType<BridgeGateway['listApps']>[number],
+): MobigentAppSession {
   return {
     sessionId: session.sessionId,
     connectedAt: session.connectedAt,
@@ -934,26 +1051,26 @@ function toBackendAppSession(session: ReturnType<BridgeGateway["listApps"]>[numb
           sdk: session.app.sdk,
           version: session.app.version,
           protocolVersion: session.app.protocolVersion,
-          protocolCompatible: session.app.protocolCompatible
+          protocolCompatible: session.app.protocolCompatible,
         }
       : undefined,
     capabilities: {
       actions: session.capabilities.actions,
       resources: session.capabilities.resources,
       components: session.capabilities.components,
-      functions: session.capabilities.tools
+      functions: session.capabilities.tools,
     },
     manifest: session.manifest
       ? {
           acceptedAt: session.manifest.acceptedAt,
           signed: session.manifest.signed,
-          keyId: session.manifest.keyId
+          keyId: session.manifest.keyId,
         }
-      : undefined
+      : undefined,
   };
 }
 
-function toBackendStatus(status: ReturnType<BridgeGateway["getStatus"]>): MobigentBackendStatus {
+function toBackendStatus(status: ReturnType<BridgeGateway['getStatus']>): MobigentBackendStatus {
   return {
     appSessions: status.appSessions,
     authenticatedAppSessions: status.authenticatedAppSessions,
@@ -964,14 +1081,14 @@ function toBackendStatus(status: ReturnType<BridgeGateway["getStatus"]>): Mobige
     rateLimitBuckets: status.rateLimitBuckets,
     manifestSigningRequired: status.manifestSigningRequired,
     appAllowlistEnabled: status.appAllowlistEnabled,
-    agentProfilesConfigured: status.agentProfilesConfigured
+    agentProfilesConfigured: status.agentProfilesConfigured,
   };
 }
 
 function listen(app: ReturnType<typeof createHttpApp>, port: number) {
   return new Promise<Server>((resolve, reject) => {
     const server = app.listen(port, () => resolve(server));
-    server.once("error", reject);
+    server.once('error', reject);
   });
 }
 
@@ -981,11 +1098,13 @@ function assertValidExportName(value: string) {
   }
 }
 
-function normalizeDefaultApp(app: MobigentBackendDefaultAppOptions): MobigentBackendAppConfigOptions {
+function normalizeDefaultApp(
+  app: MobigentBackendDefaultAppOptions,
+): MobigentBackendAppConfigOptions {
   const appId = app.appId ?? app.id;
 
   if (!appId) {
-    throw new Error("Mobigent backend app config requires appId or app.id.");
+    throw new Error('Mobigent backend app config requires appId or app.id.');
   }
 
   const appName = app.appName ?? app.name ?? inferAppNameFromId(appId);
@@ -998,27 +1117,29 @@ function normalizeDefaultApp(app: MobigentBackendDefaultAppOptions): MobigentBac
     connectionUrl: app.connectionUrl,
     gatewayUrl: app.gatewayUrl,
     appToken: app.appToken,
-    authToken: app.authToken
+    authToken: app.authToken,
   };
 }
 
 function omitUndefinedValues<T extends Record<string, unknown>>(value: T): T {
-  return Object.fromEntries(Object.entries(value).filter(([, entryValue]) => entryValue !== undefined)) as T;
+  return Object.fromEntries(
+    Object.entries(value).filter(([, entryValue]) => entryValue !== undefined),
+  ) as T;
 }
 
 function inferAppNameFromId(appId: string): string {
-  return titleFromName(appId.split(".").filter(Boolean).at(-1) ?? appId);
+  return titleFromName(appId.split('.').filter(Boolean).at(-1) ?? appId);
 }
 
 function findProjectName(startDir: string): string {
   let dir = startDir;
 
   while (true) {
-    const packageJsonPath = join(dir, "package.json");
+    const packageJsonPath = join(dir, 'package.json');
     if (existsSync(packageJsonPath)) {
       try {
-        const parsed = JSON.parse(readFileSync(packageJsonPath, "utf8")) as { name?: unknown };
-        if (typeof parsed.name === "string" && parsed.name.trim()) {
+        const parsed = JSON.parse(readFileSync(packageJsonPath, 'utf8')) as { name?: unknown };
+        if (typeof parsed.name === 'string' && parsed.name.trim()) {
           return parsed.name;
         }
       } catch {
@@ -1033,7 +1154,7 @@ function findProjectName(startDir: string): string {
     dir = parent;
   }
 
-  return basename(startDir) || "mobigent-app";
+  return basename(startDir) || 'mobigent-app';
 }
 
 function inferAppName(projectName: string): string {
@@ -1041,36 +1162,36 @@ function inferAppName(projectName: string): string {
 }
 
 function inferAppId(projectName: string): string {
-  const withoutNpmScope = projectName.replace(/^@/, "");
+  const withoutNpmScope = projectName.replace(/^@/, '');
   const segments = withoutNpmScope
     .split(/[/.]+/)
     .flatMap((segment) => segment.split(/[-_\s]+/))
-    .map((segment) => segment.toLowerCase().replace(/[^a-z0-9]+/g, ""))
+    .map((segment) => segment.toLowerCase().replace(/[^a-z0-9]+/g, ''))
     .filter(Boolean);
 
-  return ["app", ...(segments.length > 0 ? segments : ["mobigent"])].join(".");
+  return ['app', ...(segments.length > 0 ? segments : ['mobigent'])].join('.');
 }
 
 function titleFromName(value: string): string {
   const name = value
-    .replace(/^@[^/]+\//, "")
-    .replace(/[-_.]+/g, " ")
+    .replace(/^@[^/]+\//, '')
+    .replace(/[-_.]+/g, ' ')
     .trim();
 
-  return (name || "Mobigent App").replace(/\b\w/g, (letter) => letter.toUpperCase());
+  return (name || 'Mobigent App').replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function normalizeAgentKind(kind: MobigentAgentKind): ProviderKind {
   switch (kind) {
-    case "chatgpt":
-    case "openapi-actions":
-      return "chatgpt-actions";
-    case "claude":
-      return "claude-desktop";
-    case "openai":
-      return "openai-responses";
-    case "openapi-agent":
-      return "openapi";
+    case 'chatgpt':
+    case 'openapi-actions':
+      return 'chatgpt-actions';
+    case 'claude':
+      return 'claude-desktop';
+    case 'openai':
+      return 'openai-responses';
+    case 'openapi-agent':
+      return 'openapi';
     default:
       return kind;
   }
@@ -1079,7 +1200,7 @@ function normalizeAgentKind(kind: MobigentAgentKind): ProviderKind {
 function resolveBackendToolName(
   tools: MobigentFunctionInfo[],
   name: string,
-  defaultApp?: MobigentBackendAppConfig
+  defaultApp?: MobigentBackendAppConfig,
 ) {
   return findBackendToolName(tools, name, defaultApp) ?? name;
 }
@@ -1087,7 +1208,7 @@ function resolveBackendToolName(
 function findBackendToolName(
   tools: MobigentFunctionInfo[],
   name: string,
-  defaultApp?: MobigentBackendAppConfig
+  defaultApp?: MobigentBackendAppConfig,
 ) {
   if (tools.some((tool) => tool.name === name)) {
     return name;
@@ -1100,14 +1221,16 @@ function findBackendToolName(
     }
   }
 
-  const matchingTools = tools.filter((tool) => candidates.some((candidate) => tool.name.endsWith(`.${candidate}`)));
+  const matchingTools = tools.filter((tool) =>
+    candidates.some((candidate) => tool.name.endsWith(`.${candidate}`)),
+  );
   if (matchingTools.length === 1) {
     return matchingTools[0].name;
   }
 
   if (matchingTools.length > 1) {
     throw new Error(
-      `Mobigent function name ${name} is ambiguous. Use one of: ${matchingTools.map((tool) => tool.name).join(", ")}`
+      `Mobigent function name ${name} is ambiguous. Use one of: ${matchingTools.map((tool) => tool.name).join(', ')}`,
     );
   }
 
@@ -1120,17 +1243,13 @@ function createToolNameCandidates(name: string, defaultApp?: MobigentBackendAppC
 
   return [
     ...(appPrefix ? capabilityNames.map((capabilityName) => `${appPrefix}.${capabilityName}`) : []),
-    ...capabilityNames
+    ...capabilityNames,
   ];
 }
 
 function createCapabilityNameCandidates(name: string) {
-  const normalized = name.replace(/\s+/g, "").replace(/[.:/]+/g, "_");
-  const candidates = [
-    normalized,
-    `get_${normalized}`,
-    `show_${normalized}`
-  ];
+  const normalized = name.replace(/\s+/g, '').replace(/[.:/]+/g, '_');
+  const candidates = [normalized, `get_${normalized}`, `show_${normalized}`];
 
   return [...new Set(candidates)];
 }
@@ -1155,7 +1274,7 @@ function waitForBackendReady(gateway: BridgeGateway, options: MobigentBackendRea
   const intervalMs = options.intervalMs ?? 100;
   const startedAt = Date.now();
 
-  return new Promise<ReturnType<BridgeGateway["getStatus"]>>((resolve, reject) => {
+  return new Promise<ReturnType<BridgeGateway['getStatus']>>((resolve, reject) => {
     let timer: NodeJS.Timeout | undefined;
 
     const check = () => {
@@ -1171,10 +1290,10 @@ function waitForBackendReady(gateway: BridgeGateway, options: MobigentBackendRea
       if (Date.now() - startedAt >= timeoutMs) {
         reject(
           new Error(
-              `Mobigent backend is waiting for ${minApps} connected app(s) and ${minFunctions} exposed function(s). ` +
+            `Mobigent backend is waiting for ${minApps} connected app(s) and ${minFunctions} exposed function(s). ` +
               `Current state: ${status.appsWithManifests} app(s), ${status.tools} function(s). ` +
-              "Start the app, wire it with createApp(functions).with(App), and set MOBIGENT_APP / EXPO_PUBLIC_MOBIGENT_APP for production identity."
-          )
+              'Start the app, wire it with createApp(functions).with(App), and set MOBIGENT_APP / EXPO_PUBLIC_MOBIGENT_APP for production identity.',
+          ),
         );
         return;
       }
@@ -1190,7 +1309,7 @@ function waitForBackendFunction(
   gateway: BridgeGateway,
   name: string,
   defaultApp: MobigentBackendAppConfig | undefined,
-  options: Pick<MobigentBackendReadyOptions, "timeoutMs" | "intervalMs"> = {}
+  options: Pick<MobigentBackendReadyOptions, 'timeoutMs' | 'intervalMs'> = {},
 ) {
   const timeoutMs = options.timeoutMs ?? 10_000;
   const intervalMs = options.intervalMs ?? 100;
@@ -1223,8 +1342,8 @@ function waitForBackendFunction(
           new Error(
             `Mobigent backend is waiting for app function ${name}. ` +
               `Current state: ${status.appsWithManifests} app(s), ${status.tools} function(s). ` +
-              "Start the app, wire it with createApp(functions).with(App), and set MOBIGENT_APP / EXPO_PUBLIC_MOBIGENT_APP for production identity."
-          )
+              'Start the app, wire it with createApp(functions).with(App), and set MOBIGENT_APP / EXPO_PUBLIC_MOBIGENT_APP for production identity.',
+          ),
         );
         return;
       }

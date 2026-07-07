@@ -59,13 +59,13 @@ Use this shape for clients that support stdio MCP servers:
 Then expose app functions with the same app id:
 
 ```ts
-import { createApp } from "@mobigent/app";
+import { createApp } from '@mobigent/app';
 
-export const mobigent = createApp("com.example.expenses", {
+export const mobigent = createApp('com.example.expenses', {
   expense: {
     list: async () => ({ expenses: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
+    create: async (input) => createExpense(input),
+  },
 });
 ```
 
@@ -74,10 +74,10 @@ export const mobigent = createApp("com.example.expenses", {
 An app write function:
 
 ```ts
-createApp("com.example.expenses", {
+createApp('com.example.expenses', {
   expense: {
-    create: async (input) => createExpense(input)
-  }
+    create: async (input) => createExpense(input),
+  },
 });
 ```
 

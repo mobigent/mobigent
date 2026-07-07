@@ -1,13 +1,13 @@
 #!/usr/bin/env node
-import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
-import { basename, dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
+import { basename, dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   createProviderBundle,
   createProviderCatalog,
   filterProviderCatalog,
-  type ProviderKind
-} from "@mobigent/providers";
+  type ProviderKind,
+} from '@mobigent/providers';
 
 export type MobigentBackendInitOptions = {
   appId: string;
@@ -30,31 +30,28 @@ export type MobigentBackendGeneratedFile = {
 };
 
 export type MobigentBackendAgentKind =
-  | ProviderKind
-  | "chatgpt"
-  | "claude"
-  | "openai"
-  | "openapi-actions"
-  | "openapi-agent";
+  ProviderKind | 'chatgpt' | 'claude' | 'openai' | 'openapi-actions' | 'openapi-agent';
 
 export type MobigentBackendAgentOptions = {
   kind: MobigentBackendAgentKind;
   baseUrl: string;
-  auth: "none" | "bearer" | "api-key";
-  format: "guide" | "json";
+  auth: 'none' | 'bearer' | 'api-key';
+  format: 'guide' | 'json';
 };
 
-export function createMobigentBackendFiles(options: MobigentBackendInitOptions): MobigentBackendGeneratedFile[] {
+export function createMobigentBackendFiles(
+  options: MobigentBackendInitOptions,
+): MobigentBackendGeneratedFile[] {
   const appConfigModuleFile = resolveAppConfigModuleFile(options);
   const files = [
     {
       path: join(options.outDir, options.fileName),
-      contents: createBackendFile(options)
+      contents: createBackendFile(options),
     },
     {
       path: options.envFile,
-      contents: createEnvFile()
-    }
+      contents: createEnvFile(),
+    },
   ];
 
   if (options.appDir) {
@@ -62,7 +59,7 @@ export function createMobigentBackendFiles(options: MobigentBackendInitOptions):
     if (!files.some((file) => file.path === appConfigPath)) {
       files.push({
         path: appConfigPath,
-        contents: createAppConfigFile(options)
+        contents: createAppConfigFile(options),
       });
     }
 
@@ -71,7 +68,7 @@ export function createMobigentBackendFiles(options: MobigentBackendInitOptions):
       if (!files.some((file) => file.path === appConfigModulePath)) {
         files.push({
           path: appConfigModulePath,
-          contents: createAppConfigModuleFile(options)
+          contents: createAppConfigModuleFile(options),
         });
       }
     }
@@ -92,7 +89,7 @@ export function writeMobigentBackendFiles(options: MobigentBackendInitOptions) {
       throw new Error(`${file.path} already exists. Re-run with --force to overwrite it.`);
     }
     mkdirSync(dirname(file.path), { recursive: true });
-    writeFileSync(file.path, file.contents, "utf8");
+    writeFileSync(file.path, file.contents, 'utf8');
   }
 
   return files;
@@ -102,7 +99,7 @@ export function runMobigentBackendCli(
   argv = process.argv.slice(2),
   output = process.stdout,
   errorOutput = process.stderr,
-  commandName = basename(process.argv[1] ?? "mobigent-backend")
+  commandName = basename(process.argv[1] ?? 'mobigent-backend'),
 ) {
   try {
     const normalized = normalizeCommand(argv, commandName);
@@ -112,12 +109,12 @@ export function runMobigentBackendCli(
       return 0;
     }
 
-    if (normalized.command === "agent") {
+    if (normalized.command === 'agent') {
       output.write(formatAgentSetup(parseAgentArgs(normalized.args)));
       return 0;
     }
 
-    if (normalized.command !== "init") {
+    if (normalized.command !== 'init') {
       throw new Error(`Unknown mobigent backend command ${normalized.command}\n\n${helpText()}`);
     }
 
@@ -137,43 +134,43 @@ export function runMobigentBackendCli(
 
 function normalizeCommand(argv: string[], commandName: string) {
   const [first, ...rest] = argv;
-  const hasSubcommand = first && !first.startsWith("-");
-  const command = hasSubcommand ? first : "init";
+  const hasSubcommand = first && !first.startsWith('-');
+  const command = hasSubcommand ? first : 'init';
   const args = hasSubcommand ? rest : argv;
 
-  if (first === "--help" || first === "-h" || first === "help") {
+  if (first === '--help' || first === '-h' || first === 'help') {
     return {
-      command: "help",
+      command: 'help',
       help: true,
       options: defaultOptions(),
-      args: []
+      args: [],
     };
   }
 
-  if (rest.includes("--help") || rest.includes("-h")) {
+  if (rest.includes('--help') || rest.includes('-h')) {
     return {
       command,
       help: true,
       options: defaultOptions(),
-      args: rest
+      args: rest,
     };
   }
 
-  if (commandName === "mobigent-backend" && command === "backend") {
+  if (commandName === 'mobigent-backend' && command === 'backend') {
     return {
-      command: "init",
+      command: 'init',
       help: false,
       options: parseArgs(rest),
-      args: rest
+      args: rest,
     };
   }
 
-  if (command === "agent") {
+  if (command === 'agent') {
     return {
       command,
       help: false,
       options: defaultOptions(),
-      args
+      args,
     };
   }
 
@@ -181,7 +178,7 @@ function normalizeCommand(argv: string[], commandName: string) {
     command,
     help: false,
     options: parseArgs(args),
-    args
+    args,
   };
 }
 
@@ -192,7 +189,7 @@ function parseArgs(argv: string[]) {
     const arg = argv[index];
     const next = () => {
       const value = argv[index + 1];
-      if (!value || value.startsWith("--")) {
+      if (!value || value.startsWith('--')) {
         throw new Error(`Missing value for ${arg}`);
       }
       index += 1;
@@ -200,47 +197,47 @@ function parseArgs(argv: string[]) {
     };
 
     switch (arg) {
-      case "--app-id":
-      case "--app":
+      case '--app-id':
+      case '--app':
         options.appId = next();
         break;
-      case "--app-name":
+      case '--app-name':
         options.appName = next();
         break;
-      case "--out-dir":
+      case '--out-dir':
         options.outDir = next();
         break;
-      case "--file":
+      case '--file':
         options.fileName = next();
         break;
-      case "--env":
+      case '--env':
         options.envFile = next();
         break;
-      case "--config-file":
+      case '--config-file':
         options.configFile = next();
         break;
-      case "--app-dir":
+      case '--app-dir':
         options.appDir = next();
-        options.appConfigModuleFile ||= join("src", "mobigent-config.ts");
+        options.appConfigModuleFile ||= join('src', 'mobigent-config.ts');
         break;
-      case "--app-config-module":
+      case '--app-config-module':
         options.appConfigModuleFile = next();
         break;
-      case "--gateway-url":
-      case "--connection-url":
+      case '--gateway-url':
+      case '--connection-url':
         options.connectionUrl = next();
         break;
-      case "--auth-token":
+      case '--auth-token':
         options.authToken = next();
         break;
-      case "--force":
+      case '--force':
         options.force = true;
         break;
-      case "--dry-run":
+      case '--dry-run':
         options.dryRun = true;
         break;
-      case "--help":
-      case "-h":
+      case '--help':
+      case '-h':
         break;
       default:
         throw new Error(`Unknown option ${arg}\n\n${helpText()}`);
@@ -256,17 +253,17 @@ function parseArgs(argv: string[]) {
 
 function parseAgentArgs(argv: string[]): MobigentBackendAgentOptions {
   const options: MobigentBackendAgentOptions = {
-    kind: "chatgpt-actions",
-    baseUrl: "http://localhost:8788",
-    auth: "none",
-    format: "guide"
+    kind: 'chatgpt-actions',
+    baseUrl: 'http://localhost:8788',
+    auth: 'none',
+    format: 'guide',
   };
 
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     const next = () => {
       const value = argv[index + 1];
-      if (!value || value.startsWith("--")) {
+      if (!value || value.startsWith('--')) {
         throw new Error(`Missing value for ${arg}`);
       }
       index += 1;
@@ -274,33 +271,33 @@ function parseAgentArgs(argv: string[]): MobigentBackendAgentOptions {
     };
 
     switch (arg) {
-      case "--provider":
-      case "--agent":
+      case '--provider':
+      case '--agent':
         options.kind = next() as MobigentBackendAgentKind;
         break;
-      case "--base-url":
-      case "--url":
-      case "--public-url":
+      case '--base-url':
+      case '--url':
+      case '--public-url':
         options.baseUrl = next();
         break;
-      case "--auth": {
+      case '--auth': {
         const auth = next();
-        if (auth !== "none" && auth !== "bearer" && auth !== "api-key") {
-          throw new Error("--auth must be none, bearer, or api-key.");
+        if (auth !== 'none' && auth !== 'bearer' && auth !== 'api-key') {
+          throw new Error('--auth must be none, bearer, or api-key.');
         }
         options.auth = auth;
         break;
       }
-      case "--format": {
+      case '--format': {
         const format = next();
-        if (format !== "guide" && format !== "json") {
-          throw new Error("--format must be guide or json.");
+        if (format !== 'guide' && format !== 'json') {
+          throw new Error('--format must be guide or json.');
         }
         options.format = format;
         break;
       }
       default:
-        if (arg.startsWith("--")) {
+        if (arg.startsWith('--')) {
           throw new Error(`Unknown option ${arg}\n\n${helpText()}`);
         }
         options.kind = arg as MobigentBackendAgentKind;
@@ -313,18 +310,18 @@ function parseAgentArgs(argv: string[]): MobigentBackendAgentOptions {
 
 function defaultOptions(): MobigentBackendInitOptions {
   return {
-    appId: "",
-    appName: "",
-    outDir: "src",
-    fileName: "mobigent.ts",
-    envFile: ".env.mobigent",
-    configFile: "mobigent.app.json",
+    appId: '',
+    appName: '',
+    outDir: 'src',
+    fileName: 'mobigent.ts',
+    envFile: '.env.mobigent',
+    configFile: 'mobigent.app.json',
     appDir: undefined,
     appConfigModuleFile: undefined,
-    connectionUrl: "ws://localhost:8787",
-    authToken: "",
+    connectionUrl: 'ws://localhost:8787',
+    authToken: '',
     force: false,
-    dryRun: false
+    dryRun: false,
   };
 }
 
@@ -332,12 +329,12 @@ function formatAgentSetup(options: MobigentBackendAgentOptions) {
   const id = normalizeAgentKind(options.kind);
   const catalog = createProviderCatalog({
     mcp: {
-      command: "mobigent-mcp"
+      command: 'mobigent-mcp',
     },
     openApi: {
       baseUrl: options.baseUrl,
-      auth: options.auth
-    }
+      auth: options.auth,
+    },
   });
   const [provider] = filterProviderCatalog(catalog, { ids: [id] });
 
@@ -346,18 +343,18 @@ function formatAgentSetup(options: MobigentBackendAgentOptions) {
   }
 
   const bundle = createProviderBundle(provider);
-  return options.format === "json" ? `${JSON.stringify(bundle, null, 2)}\n` : `${bundle.guide}\n`;
+  return options.format === 'json' ? `${JSON.stringify(bundle, null, 2)}\n` : `${bundle.guide}\n`;
 }
 
 function createBackendFile(options: MobigentBackendInitOptions) {
   const appConfigModuleFile = resolveAppConfigModuleFile(options);
   const optionLines = [
-    options.appDir ? `  appDir: ${JSON.stringify(options.appDir)}` : "",
-    appConfigModuleFile ? `  appConfigModuleFile: ${JSON.stringify(appConfigModuleFile)}` : "",
-    "  appToken: process.env.MOBIGENT_AUTH_TOKEN",
-    "  apiKey: process.env.MOBIGENT_HTTP_API_KEY"
+    options.appDir ? `  appDir: ${JSON.stringify(options.appDir)}` : '',
+    appConfigModuleFile ? `  appConfigModuleFile: ${JSON.stringify(appConfigModuleFile)}` : '',
+    '  appToken: process.env.MOBIGENT_AUTH_TOKEN',
+    '  apiKey: process.env.MOBIGENT_HTTP_API_KEY',
   ].filter(Boolean);
-  const optionsBlock = optionLines.join(",\n");
+  const optionsBlock = optionLines.join(',\n');
   const startExpression = options.appDir
     ? `startMobigent({\n${optionsBlock}\n})`
     : `startMobigent(${JSON.stringify(options.appId)}, {\n${optionsBlock}\n})`;
@@ -393,7 +390,7 @@ function createAppConfigFile(options: MobigentBackendInitOptions) {
   const config: Record<string, string> = {
     appId: options.appId,
     appName: options.appName,
-    connectionUrl: options.connectionUrl
+    connectionUrl: options.connectionUrl,
   };
 
   if (options.authToken) {
@@ -410,11 +407,14 @@ export const mobigentConfig = defineMobigentConfig(${createAppConfigFile(options
 `;
 }
 
-function formatSuccessMessage(options: MobigentBackendInitOptions, files: MobigentBackendGeneratedFile[]) {
+function formatSuccessMessage(
+  options: MobigentBackendInitOptions,
+  files: MobigentBackendGeneratedFile[],
+) {
   const appConfigModuleFile = resolveAppConfigModuleFile(options);
 
   return `Created Mobigent backend files:
-${files.map((file) => `  ${file.path}`).join("\n")}
+${files.map((file) => `  ${file.path}`).join('\n')}
 
 Then in your app:
   npm install @mobigent/app
@@ -428,7 +428,7 @@ Then in your app:
   For production identity, set:
     MOBIGENT_APP=${options.appId}
     EXPO_PUBLIC_MOBIGENT_APP=${options.appId}
-${options.appDir ? `\nOptional app config files were also written to ${join(options.appDir, options.configFile)} and ${join(options.appDir, appConfigModuleFile ?? join("src", "mobigent-config.ts"))}.\n` : "\nNo app config file is required for the normal app/backend path.\n"}
+${options.appDir ? `\nOptional app config files were also written to ${join(options.appDir, options.configFile)} and ${join(options.appDir, appConfigModuleFile ?? join('src', 'mobigent-config.ts'))}.\n` : '\nNo app config file is required for the normal app/backend path.\n'}
 
 Need sample files instead of hand-writing them?
   Run mobigent new my-demo --install. The app-side init command is only a generator for examples.
@@ -441,8 +441,12 @@ Then open:
 `;
 }
 
-function resolveAppConfigModuleFile(options: Pick<MobigentBackendInitOptions, "appDir" | "appConfigModuleFile">) {
-  return options.appConfigModuleFile ?? (options.appDir ? join("src", "mobigent-config.ts") : undefined);
+function resolveAppConfigModuleFile(
+  options: Pick<MobigentBackendInitOptions, 'appDir' | 'appConfigModuleFile'>,
+) {
+  return (
+    options.appConfigModuleFile ?? (options.appDir ? join('src', 'mobigent-config.ts') : undefined)
+  );
 }
 
 function helpText() {
@@ -481,15 +485,15 @@ Options:
 
 function normalizeAgentKind(kind: MobigentBackendAgentKind): ProviderKind {
   switch (kind) {
-    case "chatgpt":
-    case "openapi-actions":
-      return "chatgpt-actions";
-    case "claude":
-      return "claude-desktop";
-    case "openai":
-      return "openai-responses";
-    case "openapi-agent":
-      return "openapi";
+    case 'chatgpt':
+    case 'openapi-actions':
+      return 'chatgpt-actions';
+    case 'claude':
+      return 'claude-desktop';
+    case 'openai':
+      return 'openai-responses';
+    case 'openapi-agent':
+      return 'openapi';
     default:
       return kind;
   }
@@ -499,11 +503,11 @@ function findProjectName(startDir = process.cwd()): string {
   let dir = startDir;
 
   while (true) {
-    const packageJsonPath = join(dir, "package.json");
+    const packageJsonPath = join(dir, 'package.json');
     if (existsSync(packageJsonPath)) {
       try {
-        const parsed = JSON.parse(readFileSync(packageJsonPath, "utf8")) as { name?: unknown };
-        if (typeof parsed.name === "string" && parsed.name.trim()) {
+        const parsed = JSON.parse(readFileSync(packageJsonPath, 'utf8')) as { name?: unknown };
+        if (typeof parsed.name === 'string' && parsed.name.trim()) {
           return parsed.name;
         }
       } catch {
@@ -518,7 +522,7 @@ function findProjectName(startDir = process.cwd()): string {
     dir = parent;
   }
 
-  return basename(startDir) || "mobigent-app";
+  return basename(startDir) || 'mobigent-app';
 }
 
 function inferAppName(projectName: string): string {
@@ -526,27 +530,30 @@ function inferAppName(projectName: string): string {
 }
 
 function inferAppId(projectName: string): string {
-  const withoutNpmScope = projectName.replace(/^@/, "");
+  const withoutNpmScope = projectName.replace(/^@/, '');
   const segments = withoutNpmScope
     .split(/[/.]+/)
     .flatMap((segment) => segment.split(/[-_\s]+/))
-    .map((segment) => segment.toLowerCase().replace(/[^a-z0-9]+/g, ""))
+    .map((segment) => segment.toLowerCase().replace(/[^a-z0-9]+/g, ''))
     .filter(Boolean);
 
-  return ["app", ...(segments.length > 0 ? segments : ["mobigent"])].join(".");
+  return ['app', ...(segments.length > 0 ? segments : ['mobigent'])].join('.');
 }
 
 function titleFromName(value: string): string {
   const name = value
-    .replace(/^@[^/]+\//, "")
-    .replace(/[-_.]+/g, " ")
+    .replace(/^@[^/]+\//, '')
+    .replace(/[-_.]+/g, ' ')
     .trim();
 
-  return (name || "Mobigent App").replace(/\b\w/g, (letter) => letter.toUpperCase());
+  return (name || 'Mobigent App').replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function isMainModule() {
-  return Boolean(process.argv[1]) && realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
+  return (
+    Boolean(process.argv[1]) &&
+    realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url))
+  );
 }
 
 if (isMainModule()) {

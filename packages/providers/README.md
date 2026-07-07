@@ -33,76 +33,76 @@ import {
   createLangChainProvider,
   createCrewAiProvider,
   createAutoGenProvider,
-  createHaystackProvider
-} from "@mobigent/providers";
+  createHaystackProvider,
+} from '@mobigent/providers';
 
 createClaudeDesktopProvider({
-  command: "mobigent-mcp",
-  env: { MOBIGENT_AUTH_TOKEN: "dev-secret" }
+  command: 'mobigent-mcp',
+  env: { MOBIGENT_AUTH_TOKEN: 'dev-secret' },
 });
 
 createChatGptActionsProvider({
-  baseUrl: "https://example.ngrok.app"
+  baseUrl: 'https://example.ngrok.app',
 });
 
 createOpenAiResponsesProvider({
-  baseUrl: "http://localhost:8788",
-  agentId: "openai-responses"
+  baseUrl: 'http://localhost:8788',
+  agentId: 'openai-responses',
 });
 
-createOpenRouterProvider({ baseUrl: "http://localhost:8788" });
-createLiteLlmProvider({ baseUrl: "http://localhost:8788" });
-createOllamaProvider({ baseUrl: "http://localhost:8788" });
-createLmStudioProvider({ baseUrl: "http://localhost:8788" });
-createGroqProvider({ baseUrl: "http://localhost:8788" });
-createPerplexityProvider({ baseUrl: "http://localhost:8788" });
-createXaiGrokProvider({ baseUrl: "http://localhost:8788" });
-createDeepSeekProvider({ baseUrl: "http://localhost:8788" });
-createTogetherAiProvider({ baseUrl: "http://localhost:8788" });
-createFireworksAiProvider({ baseUrl: "http://localhost:8788" });
-createQwenDashScopeProvider({ baseUrl: "http://localhost:8788" });
-createNvidiaNimProvider({ baseUrl: "http://localhost:8788" });
-createCloudflareAiGatewayProvider({ baseUrl: "http://localhost:8788" });
-createMistralProvider({ baseUrl: "http://localhost:8788" });
-createCohereProvider({ baseUrl: "http://localhost:8788" });
+createOpenRouterProvider({ baseUrl: 'http://localhost:8788' });
+createLiteLlmProvider({ baseUrl: 'http://localhost:8788' });
+createOllamaProvider({ baseUrl: 'http://localhost:8788' });
+createLmStudioProvider({ baseUrl: 'http://localhost:8788' });
+createGroqProvider({ baseUrl: 'http://localhost:8788' });
+createPerplexityProvider({ baseUrl: 'http://localhost:8788' });
+createXaiGrokProvider({ baseUrl: 'http://localhost:8788' });
+createDeepSeekProvider({ baseUrl: 'http://localhost:8788' });
+createTogetherAiProvider({ baseUrl: 'http://localhost:8788' });
+createFireworksAiProvider({ baseUrl: 'http://localhost:8788' });
+createQwenDashScopeProvider({ baseUrl: 'http://localhost:8788' });
+createNvidiaNimProvider({ baseUrl: 'http://localhost:8788' });
+createCloudflareAiGatewayProvider({ baseUrl: 'http://localhost:8788' });
+createMistralProvider({ baseUrl: 'http://localhost:8788' });
+createCohereProvider({ baseUrl: 'http://localhost:8788' });
 
 createAnthropicToolUseProvider({
-  baseUrl: "http://localhost:8788",
-  auth: "bearer"
+  baseUrl: 'http://localhost:8788',
+  auth: 'bearer',
 });
 
 createGoogleGeminiProvider({
-  baseUrl: "http://localhost:8788"
+  baseUrl: 'http://localhost:8788',
 });
 
 createGoogleVertexAiProvider({
-  baseUrl: "http://localhost:8788"
+  baseUrl: 'http://localhost:8788',
 });
 
 createAwsBedrockConverseProvider({
-  baseUrl: "http://localhost:8788"
+  baseUrl: 'http://localhost:8788',
 });
 
 createVercelAiSdkProvider({
-  baseUrl: "http://localhost:8788"
+  baseUrl: 'http://localhost:8788',
 });
 
 createLangChainProvider({
-  baseUrl: "http://localhost:8788"
+  baseUrl: 'http://localhost:8788',
 });
 
-createCrewAiProvider({ baseUrl: "http://localhost:8788" });
-createAutoGenProvider({ baseUrl: "http://localhost:8788" });
-createHaystackProvider({ baseUrl: "http://localhost:8788" });
+createCrewAiProvider({ baseUrl: 'http://localhost:8788' });
+createAutoGenProvider({ baseUrl: 'http://localhost:8788' });
+createHaystackProvider({ baseUrl: 'http://localhost:8788' });
 
 const runtime = await createMobigentProviderRuntime({
-  kind: "openrouter",
+  kind: 'openrouter',
   client,
-  toolNames: { mode: "provider-safe" }
+  toolNames: { mode: 'provider-safe' },
 });
 const toolResults = await runtime.executeToolCalls(modelMessage.tool_calls ?? []);
 const providerMessages = runtime.formatToolCallResults(toolResults);
-const anthropicToolResult = formatMobigentToolCallResult(toolResults[0], "anthropic-tool-use");
+const anthropicToolResult = formatMobigentToolCallResult(toolResults[0], 'anthropic-tool-use');
 ```
 
 Supported provider shapes:
@@ -245,39 +245,41 @@ import {
   recommendProviders,
   createProviderSetupPlan,
   summarizeProviderCatalog,
-  validateProviderSetup
-} from "@mobigent/providers";
+  validateProviderSetup,
+} from '@mobigent/providers';
 
 const catalog = createProviderCatalog({
-  mcp: { command: "mobigent-mcp" },
-  openApi: { baseUrl: "https://mobigent.example" }
+  mcp: { command: 'mobigent-mcp' },
+  openApi: { baseUrl: 'https://mobigent.example' },
 });
 
 const runtimeProviders = filterProviderCatalog(catalog, { runtimeOnly: true });
 const localDynamicProviders = filterProviderCatalog(catalog, {
-  transport: "stdio",
-  supportsDynamicTools: true
+  transport: 'stdio',
+  supportsDynamicTools: true,
 });
 const hostedSchemaProviders = filterProviderCatalog(catalog, {
-  transport: "openapi",
-  requiresPublicUrl: true
+  transport: 'openapi',
+  requiresPublicUrl: true,
 });
 const openAiCompatibleProviders = filterProviderCatalog(catalog, {
   runtimeOnly: true,
-  query: "openai-compatible"
+  query: 'openai-compatible',
 });
 const recommendedRuntimeProviders = recommendProviders(catalog, {
-  useCase: "runtime-agent",
-  query: "openrouter",
-  limit: 1
+  useCase: 'runtime-agent',
+  query: 'openrouter',
+  limit: 1,
 });
 const setupPlan = createProviderSetupPlan(catalog, {
-  useCase: "runtime-agent",
-  query: "openrouter",
-  runtimeEnv: { agentId: "openrouter-prod", watchTools: true }
+  useCase: 'runtime-agent',
+  query: 'openrouter',
+  runtimeEnv: { agentId: 'openrouter-prod', watchTools: true },
 });
 const recommendationPresets = listProviderRecommendationPresets();
-const setupReport = validateProviderSetup(catalog.find((provider) => provider.id === "openrouter")!);
+const setupReport = validateProviderSetup(
+  catalog.find((provider) => provider.id === 'openrouter')!,
+);
 console.log(formatProviderSetupValidation(setupReport));
 const summary = summarizeProviderCatalog(catalog);
 ```
@@ -319,18 +321,18 @@ import {
   formatMobigentProviderRuntimeReport,
   watchMobigentProviderRuntime,
   stringifyProviderRuntimeEnv,
-  createMobigentToolExecutor
-} from "@mobigent/providers";
+  createMobigentToolExecutor,
+} from '@mobigent/providers';
 
 const client = createMobigentHttpClient({
-  baseUrl: "http://localhost:8788",
-  auth: "bearer",
+  baseUrl: 'http://localhost:8788',
+  auth: 'bearer',
   apiKey: process.env.MOBIGENT_HTTP_API_KEY,
-  agentId: "openai-responses",
+  agentId: 'openai-responses',
   timeoutMs: 30000,
   retries: 2,
   retryDelayMs: 250,
-  requestId: () => crypto.randomUUID()
+  requestId: () => crypto.randomUUID(),
 });
 
 const health = await client.getHealth();
@@ -341,14 +343,21 @@ const snapshot = await client.getSnapshot();
 const metrics = await client.getMetrics();
 const auditEvents = await client.listAuditEvents({ limit: 50 });
 const apps = await client.listApps();
-const visibility = await client.listAgentVisibility({ agentId: ["openrouter", "chatgpt-actions"] });
+const visibility = await client.listAgentVisibility({ agentId: ['openrouter', 'chatgpt-actions'] });
 const tools = await client.waitForTools({ timeoutMs: 30000, intervalMs: 500 });
-const diagnostics = await client.diagnose({ minApps: 1, minTools: 1, expectedProvider: "openrouter" });
+const diagnostics = await client.diagnose({
+  minApps: 1,
+  minTools: 1,
+  expectedProvider: 'openrouter',
+});
 console.log(formatMobigentProviderDiagnostics(diagnostics));
 const safeNames = createProviderSafeToolNameMap(tools);
 const providers = await client.listProviders();
 const runtimeProviders = filterProviderCatalog(providers, { runtimeOnly: true });
-const localProviders = filterProviderCatalog(providers, { transport: "stdio", supportsDynamicTools: true });
+const localProviders = filterProviderCatalog(providers, {
+  transport: 'stdio',
+  supportsDynamicTools: true,
+});
 const providerSummary = summarizeProviderCatalog(providers);
 const openAiTools = toOpenAiTools(tools);
 const chatFunctionTools = toChatFunctionTools(tools);
@@ -364,32 +373,34 @@ const crewAiTools = toCrewAiTools(tools, client);
 const autoGenTools = toAutoGenTools(tools, client);
 const haystackTools = toHaystackTools(tools, client);
 const executeTool = createMobigentToolExecutor(client);
-const bundle = createProviderBundle(createOpenRouterProvider({ baseUrl: "http://localhost:8788" }));
+const bundle = createProviderBundle(createOpenRouterProvider({ baseUrl: 'http://localhost:8788' }));
 const runtimeEnv = createProviderRuntimeEnv(bundle.provider, { watchTools: true });
 const runtimeEnvFile = stringifyProviderRuntimeEnv(bundle.provider);
 
 const anthropicRuntime = await createMobigentProviderRuntime({
-  kind: "anthropic-tool-use",
+  kind: 'anthropic-tool-use',
   client,
-  waitForTools: { timeoutMs: 30000, intervalMs: 500 }
+  waitForTools: { timeoutMs: 30000, intervalMs: 500 },
 });
 
 const openRouterRuntime = await createMobigentProviderRuntime({
-  kind: "openrouter",
+  kind: 'openrouter',
   client,
-  toolNames: { mode: "provider-safe" }
+  toolNames: { mode: 'provider-safe' },
 });
-console.log(formatMobigentProviderRuntimeReport(createMobigentProviderRuntimeReport(openRouterRuntime)));
+console.log(
+  formatMobigentProviderRuntimeReport(createMobigentProviderRuntimeReport(openRouterRuntime)),
+);
 const toolResults = await openRouterRuntime.executeToolCalls(modelMessage.tool_calls ?? []);
 
 const bootstrap = await createMobigentProviderRuntimeFromEnv({
-  requestId: () => crypto.randomUUID()
+  requestId: () => crypto.randomUUID(),
 });
 
 for await (const runtime of watchMobigentProviderRuntime({
-  kind: "anthropic-tool-use",
+  kind: 'anthropic-tool-use',
   client,
-  stream: { signal: controller.signal }
+  stream: { signal: controller.signal },
 })) {
   console.log(runtime.reason, runtime.rawTools.length);
 }
@@ -452,25 +463,25 @@ The HTTP client also supports custom headers, provider identities, request ids, 
 
 ```ts
 const client = createMobigentHttpClient({
-  baseUrl: "http://localhost:8788",
-  auth: "api-key",
+  baseUrl: 'http://localhost:8788',
+  auth: 'api-key',
   apiKey: process.env.MOBIGENT_HTTP_API_KEY,
-  agentId: "anthropic-tool-use",
-  headers: { "x-provider-workspace": "prod" },
+  agentId: 'anthropic-tool-use',
+  headers: { 'x-provider-workspace': 'prod' },
   timeoutMs: 30000,
   requestId: () => crypto.randomUUID(),
   retries: 2,
-  retryDelayMs: 250
+  retryDelayMs: 250,
 });
 
 await client.callTool(
-  "com_example_app.create_expense",
-  { amount: 42, merchant: "Taxi" },
+  'com_example_app.create_expense',
+  { amount: 42, merchant: 'Taxi' },
   {
-    idempotencyKey: "expense-create-123",
-    requestId: "provider-call-123",
-    timeoutMs: 10_000
-  }
+    idempotencyKey: 'expense-create-123',
+    requestId: 'provider-call-123',
+    timeoutMs: 10_000,
+  },
 );
 ```
 
@@ -482,7 +493,7 @@ HTTP, network, and malformed gateway responses throw `MobigentHttpError`:
 
 ```ts
 try {
-  await executeTool("com_example_app.create_expense", { amount: "bad" });
+  await executeTool('com_example_app.create_expense', { amount: 'bad' });
 } catch (error) {
   if (error instanceof MobigentHttpError) {
     console.log(error.code, error.status, error.retryable);

@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-import { spawnSync } from "node:child_process";
-import { realpathSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { defaultMobigentVersion, releaseTarballSpec } from "./index.js";
+import { spawnSync } from 'node:child_process';
+import { realpathSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { defaultMobigentVersion, releaseTarballSpec } from './index.js';
 
-type InstallTarget = "app" | "backend" | "both";
+type InstallTarget = 'app' | 'backend' | 'both';
 
 type ParsedOptions = {
   target: InstallTarget;
@@ -14,21 +14,28 @@ type ParsedOptions = {
 };
 
 const installTargetLabels: Record<InstallTarget, string> = {
-  app: "app SDK",
-  backend: "backend SDK",
-  both: "app and backend SDKs"
+  app: 'app SDK',
+  backend: 'backend SDK',
+  both: 'app and backend SDKs',
 };
 
 const installTargets: Record<InstallTarget, string[]> = {
-  app: ["mobigent-core", "mobigent-react-native", "mobigent-app"],
-  backend: ["mobigent-core", "mobigent-providers", "mobigent-gateway", "mobigent-backend"],
-  both: ["mobigent-core", "mobigent-react-native", "mobigent-app", "mobigent-providers", "mobigent-gateway", "mobigent-backend"]
+  app: ['mobigent-core', 'mobigent-react-native', 'mobigent-app'],
+  backend: ['mobigent-core', 'mobigent-providers', 'mobigent-gateway', 'mobigent-backend'],
+  both: [
+    'mobigent-core',
+    'mobigent-react-native',
+    'mobigent-app',
+    'mobigent-providers',
+    'mobigent-gateway',
+    'mobigent-backend',
+  ],
 };
 
 export function runMobigentInstallCli(
   argv = process.argv.slice(2),
   output = process.stdout,
-  errorOutput = process.stderr
+  errorOutput = process.stderr,
 ) {
   try {
     const options = parseArgs(argv);
@@ -37,21 +44,25 @@ export function runMobigentInstallCli(
       return 0;
     }
 
-    const specs = installTargets[options.target].map((name) => releaseTarballSpec(name, options.version));
-    const command = ["npm", "install", ...specs];
+    const specs = installTargets[options.target].map((name) =>
+      releaseTarballSpec(name, options.version),
+    );
+    const command = ['npm', 'install', ...specs];
 
     if (options.dryRun) {
       output.write(`${friendlyInstallCommand(options.target)}\n`);
       if (options.version === defaultMobigentVersion) {
-        output.write("Mobigent installs the matching runtime packages for this public release behind the scenes.\n");
+        output.write(
+          'Mobigent installs the matching runtime packages for this public release behind the scenes.\n',
+        );
       }
       return 0;
     }
 
     output.write(`Installing Mobigent ${installTargetLabels[options.target]}...\n`);
     const result = spawnSync(command[0], command.slice(1), {
-      encoding: "utf8",
-      stdio: "pipe"
+      encoding: 'utf8',
+      stdio: 'pipe',
     });
     if (result.stdout) {
       output.write(result.stdout);
@@ -66,7 +77,7 @@ export function runMobigentInstallCli(
       throw new Error(`npm install failed with exit code ${result.status}`);
     }
 
-    output.write("Mobigent packages installed.\n");
+    output.write('Mobigent packages installed.\n');
     return 0;
   } catch (error) {
     errorOutput.write(`${error instanceof Error ? error.message : String(error)}\n`);
@@ -76,20 +87,20 @@ export function runMobigentInstallCli(
 
 function friendlyInstallCommand(target: InstallTarget) {
   switch (target) {
-    case "app":
-      return "npm install @mobigent/app";
-    case "backend":
-      return "npm install @mobigent/backend";
-    case "both":
-      return "npm install @mobigent/app @mobigent/backend";
+    case 'app':
+      return 'npm install @mobigent/app';
+    case 'backend':
+      return 'npm install @mobigent/backend';
+    case 'both':
+      return 'npm install @mobigent/app @mobigent/backend';
   }
 }
 
 function parseArgs(argv: string[]): ParsedOptions {
   const options: ParsedOptions = {
-    target: "both",
+    target: 'both',
     version: defaultMobigentVersion,
-    dryRun: false
+    dryRun: false,
   };
 
   let targetSeen = false;
@@ -97,7 +108,7 @@ function parseArgs(argv: string[]): ParsedOptions {
     const arg = argv[index];
     const next = () => {
       const value = argv[index + 1];
-      if (!value || value.startsWith("--")) {
+      if (!value || value.startsWith('--')) {
         throw new Error(`Missing value for ${arg}`);
       }
       index += 1;
@@ -105,19 +116,19 @@ function parseArgs(argv: string[]): ParsedOptions {
     };
 
     switch (arg) {
-      case "--version":
-      case "--package-version":
+      case '--version':
+      case '--package-version':
         options.version = next();
         break;
-      case "--dry-run":
+      case '--dry-run':
         options.dryRun = true;
         break;
-      case "--help":
-      case "-h":
+      case '--help':
+      case '-h':
         options.help = true;
         break;
       default:
-        if (arg.startsWith("-")) {
+        if (arg.startsWith('-')) {
           throw new Error(`Unknown option ${arg}\n\n${helpText()}`);
         }
         if (targetSeen) {
@@ -132,10 +143,10 @@ function parseArgs(argv: string[]): ParsedOptions {
 }
 
 function parseTarget(value: string): InstallTarget {
-  if (value === "app" || value === "backend" || value === "both") {
+  if (value === 'app' || value === 'backend' || value === 'both') {
     return value;
   }
-  throw new Error("Install target must be app, backend, or both.");
+  throw new Error('Install target must be app, backend, or both.');
 }
 
 function helpText() {
@@ -161,7 +172,10 @@ Options:
 }
 
 function isMainModule() {
-  return Boolean(process.argv[1]) && realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
+  return (
+    Boolean(process.argv[1]) &&
+    realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url))
+  );
 }
 
 if (isMainModule()) {

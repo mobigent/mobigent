@@ -24,13 +24,13 @@ npm install @mobigent/app
 Create one app SDK object and expose the functions agents may call:
 
 ```ts
-import { createApp, type AppFunctions } from "@mobigent/app";
+import { createApp, type AppFunctions } from '@mobigent/app';
 
 export const appFunctions = {
   expense: {
     list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
+    create: async (input) => createExpense(input),
+  },
 } satisfies AppFunctions;
 
 export type MyAppFunctions = typeof appFunctions;
@@ -43,22 +43,22 @@ Plain functions are the beginner path. Mobigent treats `list`, `get`, `read`, `f
 Add `write()` only when you want validation, descriptions, or custom approval text:
 
 ```ts
-import { write } from "@mobigent/app";
+import { write } from '@mobigent/app';
 
 create: write(createExpense, {
   input: {
-    merchant: "string",
-    amount: "number"
+    merchant: 'string',
+    amount: 'number',
   },
-  confirm: "Create expense?"
-})
+  confirm: 'Create expense?',
+});
 ```
 
 Wrap the app once:
 
 ```tsx
-import { mobigent } from "./mobigent";
-import App from "./App";
+import { mobigent } from './mobigent';
+import App from './App';
 
 export default mobigent.with(App);
 ```
@@ -66,14 +66,14 @@ export default mobigent.with(App);
 Or wrap directly in one file while you are trying the SDK:
 
 ```tsx
-import { withMobigent } from "@mobigent/app";
-import App from "./App";
+import { withMobigent } from '@mobigent/app';
+import App from './App';
 
 export default withMobigent(App, {
   expense: {
     list: async () => ({ items: await listExpenses() }),
-    create: async (input) => createExpense(input)
-  }
+    create: async (input) => createExpense(input),
+  },
 });
 ```
 
@@ -88,13 +88,13 @@ npm install @mobigent/backend
 ```
 
 ```ts
-import { startMobigent } from "@mobigent/backend";
-import type { MyAppFunctions } from "../app/mobigent";
+import { startMobigent } from '@mobigent/backend';
+import type { MyAppFunctions } from '../app/mobigent';
 
 const mobigent = await startMobigent();
 const app = mobigent.app<MyAppFunctions>();
 
-await app.expense.create({ merchant: "Airport Taxi", amount: 42.25 });
+await app.expense.create({ merchant: 'Airport Taxi', amount: 42.25 });
 await app.expense.list();
 ```
 
@@ -116,12 +116,12 @@ Prefer generated sample files? Use the starter. Starter generation is a demo sho
 That import is type-only, so your backend gets autocomplete without loading React Native code. If the backend cannot share that function shape, bind the app function group once:
 
 ```ts
-const expenses = mobigent.app("expense", {
-  createExpense: "create",
-  listExpenses: "list"
+const expenses = mobigent.app('expense', {
+  createExpense: 'create',
+  listExpenses: 'list',
 });
 
-await expenses.createExpense({ merchant: "Airport Taxi", amount: 42.25 });
+await expenses.createExpense({ merchant: 'Airport Taxi', amount: 42.25 });
 await expenses.listExpenses();
 ```
 

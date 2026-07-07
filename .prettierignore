@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+*.tsbuildinfo
+apps/docs/build/
+apps/docs/.docusaurus/
+packages/ios/.build/
+packages/android/.gradle/
+packages/android/build/
+examples/ios-expense/.build/
+examples/android-expense/.gradle/
+examples/android-expense/build/
+coverage/
+.vite/

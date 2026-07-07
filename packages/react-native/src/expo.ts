@@ -1,8 +1,5 @@
-import type {
-  MobigentAppIdentity,
-  MobigentEnvironmentMode
-} from "./provider.js";
-import type { MobigentGatewayPlatform } from "./gatewayUrl.js";
+import type { MobigentAppIdentity, MobigentEnvironmentMode } from './provider.js';
+import type { MobigentGatewayPlatform } from './gatewayUrl.js';
 
 export type MobigentExpoPluginOptions = {
   app?: MobigentAppIdentity;
@@ -26,9 +23,10 @@ export type MobigentExpoPluginConfig = {
   extra?: Record<string, unknown>;
 };
 
-export default function withMobigentExpoConfig<
-  Config extends MobigentExpoPluginConfig
->(config: Config, options: MobigentExpoPluginOptions = {}): Config {
+export default function withMobigentExpoConfig<Config extends MobigentExpoPluginConfig>(
+  config: Config,
+  options: MobigentExpoPluginOptions = {},
+): Config {
   return {
     ...config,
     extra: {
@@ -49,14 +47,14 @@ export default function withMobigentExpoConfig<
         deviceHost: options.deviceHost,
         platform: options.platform,
         authToken: options.authToken,
-        enabled: options.enabled
-      })
-    }
+        enabled: options.enabled,
+      }),
+    },
   };
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {
-  return Boolean(value && typeof value === "object" && !Array.isArray(value));
+  return Boolean(value && typeof value === 'object' && !Array.isArray(value));
 }
 
 function removeUndefinedFields<T extends Record<string, unknown>>(value: T): T {

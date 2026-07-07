@@ -1,19 +1,19 @@
 #!/usr/bin/env node
-import { realpathSync } from "node:fs";
-import { basename } from "node:path";
-import { fileURLToPath } from "node:url";
+import { realpathSync } from 'node:fs';
+import { basename } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   createMobigentAppFiles,
   formatSuccessMessage,
   installMobigentAppDependencies,
   writeMobigentApp,
-  type CreateMobigentAppOptions
-} from "./index.js";
+  type CreateMobigentAppOptions,
+} from './index.js';
 
 export function runCreateMobigentAppCli(
   argv = process.argv.slice(2),
   output = process.stdout,
-  errorOutput = process.stderr
+  errorOutput = process.stderr,
 ) {
   try {
     const options = parseArgs(argv);
@@ -30,7 +30,7 @@ export function runCreateMobigentAppCli(
 
     writeMobigentApp(options);
     if (options.installDependencies) {
-      output.write("Installing dependencies...\n");
+      output.write('Installing dependencies...\n');
       const install = installMobigentAppDependencies(options);
       if (install.stdout) {
         output.write(install.stdout);
@@ -57,16 +57,16 @@ type ParsedOptions = CreateMobigentAppOptions & { help?: boolean };
 
 function parseArgs(argv: string[]): ParsedOptions {
   const options: ParsedOptions = {
-    targetDir: "mobigent-demo",
-    appId: "com.mobigent.demo",
-    appName: "Mobigent Demo",
+    targetDir: 'mobigent-demo',
+    appId: 'com.mobigent.demo',
+    appName: 'Mobigent Demo',
     gatewayPort: 8787,
     httpPort: 8788,
     appPort: 8790,
     openBrowser: true,
     force: false,
     dryRun: false,
-    packageSource: defaultPackageSource()
+    packageSource: defaultPackageSource(),
   };
 
   let targetSeen = false;
@@ -75,7 +75,7 @@ function parseArgs(argv: string[]): ParsedOptions {
     const arg = argv[index];
     const next = () => {
       const value = argv[index + 1];
-      if (!value || value.startsWith("--")) {
+      if (!value || value.startsWith('--')) {
         throw new Error(`Missing value for ${arg}`);
       }
       index += 1;
@@ -83,54 +83,54 @@ function parseArgs(argv: string[]): ParsedOptions {
     };
 
     switch (arg) {
-      case "--app-id":
+      case '--app-id':
         options.appId = next();
         options.stableAppIdentity = true;
         break;
-      case "--app-name":
+      case '--app-name':
         options.appName = next();
         options.stableAppIdentity = true;
         break;
-      case "--package-name":
+      case '--package-name':
         options.packageName = next();
         break;
-      case "--gateway-port":
-      case "--connection-port":
+      case '--gateway-port':
+      case '--connection-port':
         options.gatewayPort = parsePort(arg, next());
         break;
-      case "--http-port":
+      case '--http-port':
         options.httpPort = parsePort(arg, next());
         break;
-      case "--app-port":
+      case '--app-port':
         options.appPort = parsePort(arg, next());
         break;
-      case "--no-open":
+      case '--no-open':
         options.openBrowser = false;
         break;
-      case "--local-packages":
+      case '--local-packages':
         options.localPackages = next();
         break;
-      case "--package-source":
+      case '--package-source':
         options.packageSource = parsePackageSource(next());
         break;
-      case "--package-version":
+      case '--package-version':
         options.packageVersion = next();
         break;
-      case "--install":
+      case '--install':
         options.installDependencies = true;
         break;
-      case "--force":
+      case '--force':
         options.force = true;
         break;
-      case "--dry-run":
+      case '--dry-run':
         options.dryRun = true;
         break;
-      case "--help":
-      case "-h":
+      case '--help':
+      case '-h':
         options.help = true;
         break;
       default:
-        if (arg.startsWith("-")) {
+        if (arg.startsWith('-')) {
           throw new Error(`Unknown option ${arg}\n\n${helpText()}`);
         }
         if (targetSeen) {
@@ -154,14 +154,14 @@ function parsePort(name: string, value: string) {
 }
 
 function parsePackageSource(value: string) {
-  if (value === "github-release" || value === "npm") {
+  if (value === 'github-release' || value === 'npm') {
     return value;
   }
-  throw new Error("--package-source must be github-release or npm.");
+  throw new Error('--package-source must be github-release or npm.');
 }
 
-function defaultPackageSource(): CreateMobigentAppOptions["packageSource"] {
-  return process.env.MOBIGENT_PACKAGE_SOURCE === "npm" ? "npm" : "github-release";
+function defaultPackageSource(): CreateMobigentAppOptions['packageSource'] {
+  return process.env.MOBIGENT_PACKAGE_SOURCE === 'npm' ? 'npm' : 'github-release';
 }
 
 function helpText() {
@@ -193,7 +193,10 @@ Options:
 }
 
 function isMainModule() {
-  return Boolean(process.argv[1]) && realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
+  return (
+    Boolean(process.argv[1]) &&
+    realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url))
+  );
 }
 
 if (isMainModule()) {

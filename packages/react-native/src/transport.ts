@@ -2,16 +2,16 @@ export type MobigentSocket = {
   readyState: number;
   send(data: string): void;
   close(): void;
-  addEventListener?(event: "open", listener: () => void): void;
-  addEventListener?(event: "error", listener: (event: unknown) => void): void;
-  addEventListener?(event: "message", listener: (event: { data: unknown }) => void): void;
-  addEventListener?(event: "close", listener: () => void): void;
-  on?(event: "open", listener: () => void): void;
-  on?(event: "error", listener: (event: unknown) => void): void;
-  on?(event: "message", listener: (data: unknown) => void): void;
-  on?(event: "close", listener: () => void): void;
-  once?(event: "open", listener: () => void): void;
-  once?(event: "error", listener: (event: unknown) => void): void;
+  addEventListener?(event: 'open', listener: () => void): void;
+  addEventListener?(event: 'error', listener: (event: unknown) => void): void;
+  addEventListener?(event: 'message', listener: (event: { data: unknown }) => void): void;
+  addEventListener?(event: 'close', listener: () => void): void;
+  on?(event: 'open', listener: () => void): void;
+  on?(event: 'error', listener: (event: unknown) => void): void;
+  on?(event: 'message', listener: (data: unknown) => void): void;
+  on?(event: 'close', listener: () => void): void;
+  once?(event: 'open', listener: () => void): void;
+  once?(event: 'error', listener: (event: unknown) => void): void;
 };
 
 export type MobigentSocketFactory = (url: string) => MobigentSocket;
@@ -26,7 +26,7 @@ export function createDefaultSocket(url: string): MobigentSocket {
   const WebSocketCtor = (globalThis as GlobalWithWebSocket).WebSocket;
   if (!WebSocketCtor) {
     throw new Error(
-      "No global WebSocket implementation found. React Native provides one by default; Node tests should inject createSocket."
+      'No global WebSocket implementation found. React Native provides one by default; Node tests should inject createSocket.',
     );
   }
 
@@ -36,37 +36,37 @@ export function createDefaultSocket(url: string): MobigentSocket {
 export function onceOpen(socket: MobigentSocket) {
   return new Promise<void>((resolve, reject) => {
     if (socket.addEventListener) {
-      socket.addEventListener("open", resolve);
-      socket.addEventListener("error", reject);
+      socket.addEventListener('open', resolve);
+      socket.addEventListener('error', reject);
       return;
     }
 
     if (socket.once) {
-      socket.once("open", resolve);
-      socket.once("error", reject);
+      socket.once('open', resolve);
+      socket.once('error', reject);
       return;
     }
 
     if (socket.on) {
-      socket.on("open", resolve);
-      socket.on("error", reject);
+      socket.on('open', resolve);
+      socket.on('error', reject);
       return;
     }
 
-    reject(new Error("WebSocket implementation does not support event listeners."));
+    reject(new Error('WebSocket implementation does not support event listeners.'));
   });
 }
 
 export function onMessage(socket: MobigentSocket, listener: (message: string) => void) {
   if (socket.addEventListener) {
-    socket.addEventListener("message", (event) => {
+    socket.addEventListener('message', (event) => {
       listener(readMessageData(event.data));
     });
     return;
   }
 
   if (socket.on) {
-    socket.on("message", (data) => {
+    socket.on('message', (data) => {
       listener(readMessageData(data));
     });
   }
@@ -74,28 +74,28 @@ export function onMessage(socket: MobigentSocket, listener: (message: string) =>
 
 export function onClose(socket: MobigentSocket, listener: () => void) {
   if (socket.addEventListener) {
-    socket.addEventListener("close", listener);
+    socket.addEventListener('close', listener);
     return;
   }
 
   if (socket.on) {
-    socket.on("close", listener);
+    socket.on('close', listener);
   }
 }
 
 export function onError(socket: MobigentSocket, listener: (error: unknown) => void) {
   if (socket.addEventListener) {
-    socket.addEventListener("error", listener);
+    socket.addEventListener('error', listener);
     return;
   }
 
   if (socket.on) {
-    socket.on("error", listener);
+    socket.on('error', listener);
   }
 }
 
 function readMessageData(data: unknown) {
-  if (typeof data === "string") {
+  if (typeof data === 'string') {
     return data;
   }
 

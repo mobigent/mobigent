@@ -9,13 +9,13 @@ Mobigent records structured gateway audit events for sessions, app manifests, ap
 ## Subscribe in code
 
 ```ts
-import { BridgeGateway } from "@mobigent/gateway";
+import { BridgeGateway } from '@mobigent/gateway';
 
 const gateway = new BridgeGateway({
   port: 8787,
   auditLogLimit: 1000,
-  auditLogPath: "./mobigent-audit.jsonl",
-  auditRedactKeys: ["email", "ssn"]
+  auditLogPath: './mobigent-audit.jsonl',
+  auditRedactKeys: ['email', 'ssn'],
 });
 
 gateway.onAudit((event) => {
@@ -78,7 +78,7 @@ Set `auditLogPath` to append every audit event as one JSON object per line:
 ```ts
 const gateway = new BridgeGateway({
   port: 8787,
-  auditLogPath: "/var/log/mobigent/audit.jsonl"
+  auditLogPath: '/var/log/mobigent/audit.jsonl',
 });
 ```
 
@@ -110,7 +110,7 @@ Add app-specific keys in code:
 ```ts
 const gateway = new BridgeGateway({
   port: 8787,
-  auditRedactKeys: ["email", "ssn", "cardNumber"]
+  auditRedactKeys: ['email', 'ssn', 'cardNumber'],
 });
 ```
 

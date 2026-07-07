@@ -14,14 +14,14 @@ export {
   type MobigentEventQueueOptions,
   type MobigentHeartbeatOptions,
   type MobigentManifestSigner,
-  type MobigentReconnectOptions
-} from "./AgentBridge.js";
+  type MobigentReconnectOptions,
+} from './AgentBridge.js';
 export {
   ConfirmationController,
   createConfirmationController,
   type ConfirmationListener,
-  type ConfirmationRequest
-} from "./confirmation.js";
+  type ConfirmationRequest,
+} from './confirmation.js';
 export {
   createMobigentRoot,
   createApp,
@@ -34,8 +34,8 @@ export {
   type MobigentSimpleAppIdentityOptions,
   type MobigentSimpleAppInput,
   type MobigentSimpleAppOptions,
-  type MobigentWithAppOptions
-} from "./setup.js";
+  type MobigentWithAppOptions,
+} from './setup.js';
 export {
   agentFeature,
   action,
@@ -77,8 +77,8 @@ export {
   type MobigentSimpleFunctionMap,
   type MobigentSimpleObjectSchema,
   type MobigentSimpleResourceOptions,
-  type MobigentSimpleSchema
-} from "./simple.js";
+  type MobigentSimpleSchema,
+} from './simple.js';
 export {
   arraySchema,
   booleanSchema,
@@ -93,24 +93,30 @@ export {
   stringSchema,
   type MobigentObjectSchemaOptions,
   type MobigentObjectSchemaShape,
-  type MobigentSchemaOptions
-} from "./schema.js";
-export { fromJsonSchema, fromTypeBox, fromZod, schemaAdapters, type MobigentSchemaAdapterOptions } from "./schemaAdapters.js";
+  type MobigentSchemaOptions,
+} from './schema.js';
+export {
+  fromJsonSchema,
+  fromTypeBox,
+  fromZod,
+  schemaAdapters,
+  type MobigentSchemaAdapterOptions,
+} from './schemaAdapters.js';
 export {
   createAndroidAppActionsPlan,
   createAppleAppIntentsPlan,
   renderAndroidAppActionsXml,
   renderAppleAppIntentsSwift,
   type MobigentAndroidAppActionsPlan,
-  type MobigentAppleAppIntentPlan
-} from "./platformActions.js";
+  type MobigentAppleAppIntentPlan,
+} from './platformActions.js';
 export {
   createMobigentGatewayUrl,
   createMobigentGatewayUrlForPlatform,
   type MobigentGatewayPlatform,
   type MobigentGatewayTarget,
-  type MobigentGatewayUrlOptions
-} from "./gatewayUrl.js";
+  type MobigentGatewayUrlOptions,
+} from './gatewayUrl.js';
 export {
   AgentAction,
   AgentComponent,
@@ -241,8 +247,8 @@ export {
   type MobigentResourceReader,
   type MobigentResourceRegistration,
   type MobigentStatus,
-  type MobigentStatusLevel
-} from "./provider.js";
+  type MobigentStatusLevel,
+} from './provider.js';
 export {
   AgentApp,
   MobigentApp,
@@ -267,9 +273,9 @@ export {
   type MobigentConfirmationModalProps,
   type MobigentDiagnosticsPanelProps,
   type MobigentExpoAppOptions,
-  type MobigentStatusBadgeProps
-} from "./ui.js";
-export type { MobigentSocket, MobigentSocketFactory } from "./transport.js";
+  type MobigentStatusBadgeProps,
+} from './ui.js';
+export type { MobigentSocket, MobigentSocketFactory } from './transport.js';
 export type {
   ActionDefinition,
   CapabilityManifest,
@@ -278,5 +284,5 @@ export type {
   ConfirmationPolicy,
   JsonObject,
   JsonSchema,
-  ResourceDefinition
-} from "@mobigent/core";
+  ResourceDefinition,
+} from '@mobigent/core';
