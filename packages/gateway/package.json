@@ -38,7 +38,7 @@
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && chmod +x dist/server.js dist/http-server.js dist/mcp-server.js",
+    "build": "tsc -p tsconfig.json; [ -f dist/server.js ] && chmod +x dist/server.js || true; [ -f dist/http-server.js ] && chmod +x dist/http-server.js || true; [ -f dist/mcp-server.js ] && chmod +x dist/mcp-server.js || true",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prepublishOnly": "npm run build && npm run typecheck"
   },

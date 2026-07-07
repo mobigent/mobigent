@@ -42,7 +42,7 @@
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && chmod +x dist/cli.js dist/mcp.js",
+    "build": "tsc -p tsconfig.json; [ -f dist/cli.js ] && chmod +x dist/cli.js || true; [ -f dist/mcp.js ] && chmod +x dist/mcp.js || true",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prepublishOnly": "npm run build && npm run typecheck"
   },

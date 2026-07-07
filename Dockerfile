@@ -12,7 +12,11 @@ RUN npm ci
 
 FROM deps AS build
 COPY . .
-RUN npm run build:sdk
+# Build only packages needed for the gateway runtime image.
+# Dependency order: core → providers → gateway.
+RUN npm run build -w @mobigent/core \
+  && npm run build -w @mobigent/providers \
+  && npm run build -w @mobigent/gateway
 RUN npm prune --omit=dev --workspaces
 
 FROM node:22-bookworm-slim AS runtime

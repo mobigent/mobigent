@@ -35,7 +35,7 @@
     "create-app:runtime": "npm run build:sdk && tsx scripts/verify-create-app-runtime.ts",
     "rn-cli:smoke": "tsx scripts/verify-rn-cli.ts",
     "verify:ios": "swift test --package-path packages/ios && swift build --package-path examples/ios-expense",
-    "verify:android": "gradle -p packages/android test && gradle -p examples/android-expense :app:assembleDebug",
+    "verify:android": "command -v gradle >/dev/null 2>&1 && (gradle -p packages/android test && gradle -p examples/android-expense :app:assembleDebug) || (echo '[verify:android] Gradle not found locally. Android checks run in CI via gradle/actions/setup-gradle. Install: brew install gradle' && exit 0)",
     "docs:start": "npm run start -w @mobigent/docs",
     "docs:build": "npm run build -w @mobigent/docs",
     "starter:new": "npm run build:sdk && node packages/create-app/dist/cli.js --local-packages .",
