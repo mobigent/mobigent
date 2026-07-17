@@ -67,7 +67,9 @@ const server = app.listen(config.httpPort, () => {
   if (config.agentProfiles && Object.keys(config.agentProfiles).length) {
     console.log(`Agent profiles are enabled for: ${Object.keys(config.agentProfiles).join(', ')}`);
   }
-  console.log(`Endpoint policies — health:${config.healthEndpoint} ready:${config.readyEndpoint} config:${config.configEndpoint} openapi:${config.openApiEndpoint}`);
+  console.log(
+    `Endpoint policies — health:${config.healthEndpoint} ready:${config.readyEndpoint} config:${config.configEndpoint} openapi:${config.openApiEndpoint}`,
+  );
   console.log(`Inspector mode: ${config.inspectorMode}`);
 });
 

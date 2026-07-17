@@ -5161,6 +5161,33 @@ test('HTTP gateway can require an agent-facing API key', async () => {
   }
 });
 
+test('HTTP gateway rate limits authenticated requests', async () => {
+  const wsPort = 18_812;
+  const httpPort = 18_813;
+  const gateway = new BridgeGateway({ port: wsPort });
+  const app = createHttpApp(gateway, {
+    apiKey: 'http-secret',
+    httpRateLimitPerMinute: 2,
+  });
+  let server: ReturnType<typeof app.listen> | undefined;
+
+  gateway.start();
+  server = app.listen(httpPort);
+
+  try {
+    const headers = { 'x-mobigent-api-key': 'http-secret' };
+    assert.equal((await fetch(`http://localhost:${httpPort}/tools`, { headers })).status, 200);
+    assert.equal((await fetch(`http://localhost:${httpPort}/tools`, { headers })).status, 200);
+
+    const limited = await fetch(`http://localhost:${httpPort}/tools`, { headers });
+    assert.equal(limited.status, 429);
+    assert.equal(((await limited.json()) as { code: string }).code, 'rate_limited');
+  } finally {
+    gateway.stop();
+    server?.close();
+  }
+});
+
 test('HTTP gateway binds per-agent API keys to agent identity', async () => {
   const wsPort = 18_843;
   const httpPort = 18_844;

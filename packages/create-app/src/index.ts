@@ -632,19 +632,88 @@ export async function createExpense(input: {
 export function parsePrompt(prompt: string) {
   const amountMatch = prompt.match(/(?:\\$|usd\\s*)?(\\d+(?:\\.\\d{1,2})?)/i);
   const categoryMatch = prompt.match(/\\b(meals|travel|software|office|lodging|transport|shopping)\\b/i);
-  const merchantMatch = prompt.match(/\\b(?:at|from|for)\\s+(.+?)(?:\\s+(?:with|as|under|category|note|notes)\\b|$)/i);
-  const notesMatch = prompt.match(/\\bnotes?\\s*[:\\-]?\\s*["']?(.+?)["']?$/i);
+  const merchant = readPromptSegment(prompt, ["at", "from", "for"], ["with", "as", "under", "category", "note", "notes"]);
+  const notes = readPromptNotes(prompt);
 
   return {
     amount: amountMatch ? Number(amountMatch[1]) : 42.8,
-    merchant: merchantMatch?.[1]?.replace(/[.,]$/, "").trim() || "Expo Coffee",
+    merchant: merchant?.replace(/[.,]$/, "").trim() || "Expo Coffee",
     category: categoryMatch ? titleCase(categoryMatch[1]) : "Meals",
-    notes: notesMatch?.[1]?.trim() || "Created from the Mobigent starter"
+    notes: notes || "Created from the Mobigent starter"
   };
 }
 
 function titleCase(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+}
+
+function readPromptSegment(prompt: string, starters: string[], terminators: string[]) {
+  const paddedPrompt = \` \${prompt} \`;
+  const lowerPrompt = paddedPrompt.toLowerCase();
+  let bestStart = -1;
+  let bestLength = 0;
+
+  for (const starter of starters) {
+    const index = lowerPrompt.indexOf(\` \${starter} \`);
+    if (index !== -1 && (bestStart === -1 || index < bestStart)) {
+      bestStart = index;
+      bestLength = starter.length + 2;
+    }
+  }
+
+  if (bestStart === -1) {
+    return undefined;
+  }
+
+  const valueStart = bestStart + bestLength;
+  let valueEnd = paddedPrompt.length;
+
+  for (const terminator of terminators) {
+    const index = lowerPrompt.indexOf(\` \${terminator}\`, valueStart);
+    if (index !== -1 && index < valueEnd) {
+      valueEnd = index;
+    }
+  }
+
+  return paddedPrompt.slice(valueStart, valueEnd).trim();
+}
+
+function readPromptNotes(prompt: string) {
+  const lowerPrompt = prompt.toLowerCase();
+  let markerIndex = lowerPrompt.indexOf("notes");
+  let markerLength = "notes".length;
+
+  if (markerIndex === -1) {
+    markerIndex = lowerPrompt.indexOf("note");
+    markerLength = "note".length;
+  }
+
+  if (markerIndex === -1) {
+    return undefined;
+  }
+
+  let valueStart = markerIndex + markerLength;
+  while (valueStart < prompt.length && prompt[valueStart] === " ") {
+    valueStart += 1;
+  }
+  if (prompt[valueStart] === ":" || prompt[valueStart] === "-") {
+    valueStart += 1;
+  }
+  while (valueStart < prompt.length && prompt[valueStart] === " ") {
+    valueStart += 1;
+  }
+
+  const quote = prompt[valueStart] === "\\"" || prompt[valueStart] === "'" ? prompt[valueStart] : "";
+  if (quote) {
+    valueStart += 1;
+  }
+
+  let value = prompt.slice(valueStart).trim();
+  if (quote && value.endsWith(quote)) {
+    value = value.slice(0, -1).trim();
+  }
+
+  return value;
 }
 `;
 }
@@ -736,13 +805,47 @@ export function createNodeSocket(url: string): WebSocket {
 }
 
 function sanitizePackageName(name: string) {
-  const normalized = name
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9._/-]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+  let normalized = '';
+  let lastWasSeparator = false;
+
+  for (const char of name.trim().toLowerCase()) {
+    if (isPackageNameChar(char)) {
+      normalized += char;
+      lastWasSeparator = false;
+    } else if (!lastWasSeparator) {
+      normalized += '-';
+      lastWasSeparator = true;
+    }
+  }
+
+  normalized = trimChar(normalized, '-');
 
   return normalized || 'mobigent-app';
+}
+
+function isPackageNameChar(char: string) {
+  return (
+    (char >= 'a' && char <= 'z') ||
+    (char >= '0' && char <= '9') ||
+    char === '.' ||
+    char === '_' ||
+    char === '/' ||
+    char === '-'
+  );
+}
+
+function trimChar(value: string, char: string) {
+  let start = 0;
+  let end = value.length;
+
+  while (start < end && value[start] === char) {
+    start += 1;
+  }
+  while (end > start && value[end - 1] === char) {
+    end -= 1;
+  }
+
+  return value.slice(start, end);
 }
 
 function localPackageSpec(options: CreateMobigentAppOptions, packageDir: string) {

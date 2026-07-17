@@ -6,22 +6,22 @@ Mobigent is pre-1.0 (currently `0.1.15`). Breaking changes may occur in minor ve
 
 ### Package Exports (npm)
 
-| Package | Stability | Notes |
-|---|---|---|
-| `@mobigent/core` | Stable | Protocol types, validation, canonical JSON, tool naming |
-| `@mobigent/app` | Stable | `createApp`, `withMobigent`, `write()`, app function types |
-| `@mobigent/backend` | Stable | `startMobigent`, app proxy, agent setup |
-| `@mobigent/gateway` | Stable | Server entrypoints, HTTP API shape, OpenAPI schema |
-| `@mobigent/providers` | Preview | Provider adapters may change shape as upstream APIs evolve |
-| `@mobigent/react-native` | Stable | Transport, hooks, confirmation, diagnostics |
-| `mobigent` (CLI) | Preview | CLI commands may change before 1.0 |
-| `create-mobigent-app` | Preview | Generated starter may change before 1.0 |
+| Package                  | Stability | Notes                                                      |
+| ------------------------ | --------- | ---------------------------------------------------------- |
+| `@mobigent/core`         | Stable    | Protocol types, validation, canonical JSON, tool naming    |
+| `@mobigent/app`          | Stable    | `createApp`, `withMobigent`, `write()`, app function types |
+| `@mobigent/backend`      | Stable    | `startMobigent`, app proxy, agent setup                    |
+| `@mobigent/gateway`      | Stable    | Server entrypoints, HTTP API shape, OpenAPI schema         |
+| `@mobigent/providers`    | Preview   | Provider adapters may change shape as upstream APIs evolve |
+| `@mobigent/react-native` | Stable    | Transport, hooks, confirmation, diagnostics                |
+| `mobigent` (CLI)         | Preview   | CLI commands may change before 1.0                         |
+| `create-mobigent-app`    | Preview   | Generated starter may change before 1.0                    |
 
 **ESM-only:** All packages are ESM only (`"type": "module"`). CJS wrappers are not provided and will not be added.
 
 ### Protocol Version
 
-The gateway and SDKs use a protocol version field (`currentProtocolVersion = 1`). 
+The gateway and SDKs use a protocol version field (`currentProtocolVersion = 1`).
 
 - **Current supported versions:** `[1]`
 - **Version window:** The gateway will support the current and previous protocol version after 1.0.
@@ -36,16 +36,17 @@ The gateway and SDKs use a protocol version field (`currentProtocolVersion = 1`)
 
 ### Native SDKs
 
-| Platform | Stability | Target |
-|---|---|---|
-| iOS (Swift Package) | Preview | iOS 15+, Swift 5.9+ |
-| Android (Kotlin/Gradle) | Preview | API 23+, JVM 17 |
+| Platform                | Stability | Target              |
+| ----------------------- | --------- | ------------------- |
+| iOS (Swift Package)     | Preview   | iOS 15+, Swift 5.9+ |
+| Android (Kotlin/Gradle) | Preview   | API 23+, JVM 17     |
 
 Native SDKs may change their public API before 1.0. Breaking changes will be noted in release notes.
 
 ### Provider Adapters
 
 Provider adapters in `@mobigent/providers` are **Preview**. They may change:
+
 - Constructor signatures
 - Integration guide format
 - Tool name mapping behavior
@@ -68,28 +69,29 @@ Before 1.0:
 4. **Compatibility tests** for protocol changes
 
 After 1.0:
+
 - Semantic versioning: major version bump for breaking changes
 - Deprecation cycle: deprecate → warn for one major version → remove
 - Migration guides for each major version
 
 ## Supported Runtimes
 
-| Runtime | Minimum Version | Notes |
-|---|---|---|
-| Node.js | 20 | Required by all packages |
-| React Native | 0.76+ | Required by `@mobigent/react-native` and `@mobigent/app` |
-| Expo | SDK 52+ | Supported via `@mobigent/app` Expo plugin |
-| iOS | 15.0+ | Required by Swift Package |
-| Android | API 23+ | Required by Kotlin library |
-| TypeScript | 5.5+ | Type declarations provided for all packages |
+| Runtime      | Minimum Version | Notes                                                    |
+| ------------ | --------------- | -------------------------------------------------------- |
+| Node.js      | 20              | Required by all packages                                 |
+| React Native | 0.76+           | Required by `@mobigent/react-native` and `@mobigent/app` |
+| Expo         | SDK 52+         | Supported via `@mobigent/app` Expo plugin                |
+| iOS          | 15.0+           | Required by Swift Package                                |
+| Android      | API 23+         | Required by Kotlin library                               |
+| TypeScript   | 5.5+            | Type declarations provided for all packages              |
 
 ## Package Manager Support
 
-| Manager | Status |
-|---|---|
-| npm | Supported and tested |
-| yarn | Expected to work (not tested in CI) |
-| pnpm | Expected to work (not tested in CI) |
+| Manager | Status                              |
+| ------- | ----------------------------------- |
+| npm     | Supported and tested                |
+| yarn    | Expected to work (not tested in CI) |
+| pnpm    | Expected to work (not tested in CI) |
 
 ## Deprecation Policy
 

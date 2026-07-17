@@ -6,13 +6,13 @@ A single Mobigent gateway instance can handle many app sessions and tool calls. 
 
 **Capacity guidelines for one Node.js process (2 vCPU, 2 GB RAM):**
 
-| Metric | Approximate Limit |
-|---|---|
-| Connected app sessions | 100–500 |
-| Tools per manifest | 100–500 |
-| Concurrent tool calls | 50–200 |
-| SSE clients | 50–100 |
-| Audit events in memory | 500–1000 |
+| Metric                 | Approximate Limit |
+| ---------------------- | ----------------- |
+| Connected app sessions | 100–500           |
+| Tools per manifest     | 100–500           |
+| Concurrent tool calls  | 50–200            |
+| SSE clients            | 50–100            |
+| Audit events in memory | 500–1000          |
 
 Limits depend on tool call latency, input/output sizes, and cleanup configuration.
 
@@ -54,14 +54,14 @@ HTTP API calls do NOT require sticky sessions. Any instance can serve `/tools/:n
 
 To scale beyond a single instance, the following state must be shared:
 
-| State | Current | Shared Required? | Solution |
-|---|---|---|---|
-| App session → WebSocket | Per-instance | Yes (routing) | Sticky sessions |
-| Tool registry | Per-instance | Eventual | Sync via app connect/disconnect events |
-| Idempotency records | Per-instance | Yes (for durability) | Shared `IdempotencyStore` |
-| Rate-limit buckets | Per-instance | Yes (for accuracy) | Shared `RateLimitStore` |
-| Audit events | Per-instance | Yes (for completeness) | Shared `AuditSink` |
-| Metrics | Per-instance | No | Aggregate from all instances |
+| State                   | Current      | Shared Required?       | Solution                               |
+| ----------------------- | ------------ | ---------------------- | -------------------------------------- |
+| App session → WebSocket | Per-instance | Yes (routing)          | Sticky sessions                        |
+| Tool registry           | Per-instance | Eventual               | Sync via app connect/disconnect events |
+| Idempotency records     | Per-instance | Yes (for durability)   | Shared `IdempotencyStore`              |
+| Rate-limit buckets      | Per-instance | Yes (for accuracy)     | Shared `RateLimitStore`                |
+| Audit events            | Per-instance | Yes (for completeness) | Shared `AuditSink`                     |
+| Metrics                 | Per-instance | No                     | Aggregate from all instances           |
 
 ### Shared Storage Implementations
 
@@ -82,8 +82,8 @@ services:
   gateway:
     build: .
     ports:
-      - "8787:8787"
-      - "8788:8788"
+      - '8787:8787'
+      - '8788:8788'
     environment:
       - MOBIGENT_ENV=production
       - MOBIGENT_AUTH_TOKEN=${MOBIGENT_AUTH_TOKEN}
@@ -134,7 +134,7 @@ spec:
               name: http
           env:
             - name: MOBIGENT_ENV
-              value: "production"
+              value: 'production'
             - name: MOBIGENT_AUTH_TOKEN
               valueFrom:
                 secretKeyRef:
@@ -194,13 +194,13 @@ The gateway handles SIGTERM:
 
 ## Performance Budgets
 
-| Operation | Target (P50) | Target (P99) |
-|---|---|---|
-| Manifest registration | < 50ms | < 200ms |
-| Tool list | < 10ms | < 50ms |
-| Tool call overhead (excl. app) | < 5ms | < 50ms |
-| Health check | < 5ms | < 20ms |
-| Audit write (memory) | < 1ms | < 10ms |
+| Operation                      | Target (P50) | Target (P99) |
+| ------------------------------ | ------------ | ------------ |
+| Manifest registration          | < 50ms       | < 200ms      |
+| Tool list                      | < 10ms       | < 50ms       |
+| Tool call overhead (excl. app) | < 5ms        | < 50ms       |
+| Health check                   | < 5ms        | < 20ms       |
+| Audit write (memory)           | < 1ms        | < 10ms       |
 
 Memory per connected app session: ~50-100 KB (varies with tool count and manifest size).
 

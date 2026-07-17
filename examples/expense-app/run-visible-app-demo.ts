@@ -197,23 +197,96 @@ function parseExpensePrompt(prompt: string): AgentRun['input'] {
   );
   const category = categoryMatch ? titleCase(categoryMatch[1]) : fallback.category;
 
-  const merchantMatch = prompt.match(
-    /\b(?:at|from|for)\s+(.+?)(?:\s+(?:with|as|under|category|note|notes)\b|$)/i,
-  );
-  const merchant = merchantMatch?.[1]?.replace(/[.,]$/, '').trim() || fallback.merchant;
+  const merchant =
+    readPromptSegment(
+      prompt,
+      ['at', 'from', 'for'],
+      ['with', 'as', 'under', 'category', 'note', 'notes'],
+    )
+      ?.replace(/[.,]$/, '')
+      .trim() || fallback.merchant;
 
-  const notesMatch = prompt.match(/\bnotes?\s*[:\-]?\s*["']?(.+?)["']?$/i);
+  const notes = readPromptNotes(prompt);
 
   return {
     amount,
     merchant,
     category,
-    notes: notesMatch?.[1]?.trim() || fallback.notes,
+    notes: notes || fallback.notes,
   };
 }
 
 function titleCase(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+}
+
+function readPromptSegment(prompt: string, starters: string[], terminators: string[]) {
+  const paddedPrompt = ` ${prompt} `;
+  const lowerPrompt = paddedPrompt.toLowerCase();
+  let bestStart = -1;
+  let bestLength = 0;
+
+  for (const starter of starters) {
+    const index = lowerPrompt.indexOf(` ${starter} `);
+    if (index !== -1 && (bestStart === -1 || index < bestStart)) {
+      bestStart = index;
+      bestLength = starter.length + 2;
+    }
+  }
+
+  if (bestStart === -1) {
+    return undefined;
+  }
+
+  const valueStart = bestStart + bestLength;
+  let valueEnd = paddedPrompt.length;
+
+  for (const terminator of terminators) {
+    const index = lowerPrompt.indexOf(` ${terminator}`, valueStart);
+    if (index !== -1 && index < valueEnd) {
+      valueEnd = index;
+    }
+  }
+
+  return paddedPrompt.slice(valueStart, valueEnd).trim();
+}
+
+function readPromptNotes(prompt: string) {
+  const lowerPrompt = prompt.toLowerCase();
+  let markerIndex = lowerPrompt.indexOf('notes');
+  let markerLength = 'notes'.length;
+
+  if (markerIndex === -1) {
+    markerIndex = lowerPrompt.indexOf('note');
+    markerLength = 'note'.length;
+  }
+
+  if (markerIndex === -1) {
+    return undefined;
+  }
+
+  let valueStart = markerIndex + markerLength;
+  while (valueStart < prompt.length && prompt[valueStart] === ' ') {
+    valueStart += 1;
+  }
+  if (prompt[valueStart] === ':' || prompt[valueStart] === '-') {
+    valueStart += 1;
+  }
+  while (valueStart < prompt.length && prompt[valueStart] === ' ') {
+    valueStart += 1;
+  }
+
+  const quote = prompt[valueStart] === '"' || prompt[valueStart] === "'" ? prompt[valueStart] : '';
+  if (quote) {
+    valueStart += 1;
+  }
+
+  let value = prompt.slice(valueStart).trim();
+  if (quote && value.endsWith(quote)) {
+    value = value.slice(0, -1).trim();
+  }
+
+  return value;
 }
 
 function openDemoPage(url: string) {

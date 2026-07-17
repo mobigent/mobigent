@@ -110,7 +110,8 @@ export interface IdempotencyStore {
    * Iterate over all records for cleanup.
    * Returns all keys for memory implementation.
    */
-  entries(): IterableIterator<[string, IdempotencyRecord]> | Promise<Array<[string, IdempotencyRecord]>>;
+  entries():
+    IterableIterator<[string, IdempotencyRecord]> | Promise<Array<[string, IdempotencyRecord]>>;
 
   /** Number of records currently stored. */
   readonly size: number;
@@ -239,9 +240,7 @@ export function createMemoryStorage(auditLimit = 500): GatewayStorage {
  */
 export function createProductionStorage(auditLogPath?: string): GatewayStorage {
   return {
-    audit: auditLogPath
-      ? new JsonlAuditSink(auditLogPath)
-      : new MemoryAuditSink(1000),
+    audit: auditLogPath ? new JsonlAuditSink(auditLogPath) : new MemoryAuditSink(1000),
     idempotency: new MemoryIdempotencyStore(),
     rateLimit: new MemoryRateLimitStore(),
   };

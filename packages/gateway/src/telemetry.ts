@@ -27,10 +27,7 @@ export type TelemetryTracer = {
 };
 
 export type TelemetryMeter = {
-  createCounter(
-    name: string,
-    options?: { description?: string; unit?: string },
-  ): TelemetryCounter;
+  createCounter(name: string, options?: { description?: string; unit?: string }): TelemetryCounter;
   createHistogram(
     name: string,
     options?: { description?: string; unit?: string },
@@ -211,10 +208,10 @@ export function createGatewayMetrics(telemetry: Telemetry = noopTelemetry) {
       description: 'Number of app sessions connected.',
       unit: '1',
     }),
-    appDisconnections: telemetry.meter.createCounter(
-      'mobigent.app_sessions.disconnected',
-      { description: 'Number of app sessions disconnected.', unit: '1' },
-    ),
+    appDisconnections: telemetry.meter.createCounter('mobigent.app_sessions.disconnected', {
+      description: 'Number of app sessions disconnected.',
+      unit: '1',
+    }),
     authRejections: telemetry.meter.createCounter('mobigent.auth.rejections', {
       description: 'Number of authentication rejections.',
       unit: '1',
@@ -231,10 +228,10 @@ export function createGatewayMetrics(telemetry: Telemetry = noopTelemetry) {
       description: 'Number of HTTP requests received.',
       unit: '1',
     }),
-    httpRequestDurationMs: telemetry.meter.createHistogram(
-      'mobigent.http.request_duration_ms',
-      { description: 'HTTP request duration in milliseconds.', unit: 'ms' },
-    ),
+    httpRequestDurationMs: telemetry.meter.createHistogram('mobigent.http.request_duration_ms', {
+      description: 'HTTP request duration in milliseconds.',
+      unit: 'ms',
+    }),
   };
 }
 

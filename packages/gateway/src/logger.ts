@@ -60,7 +60,11 @@ const LOG_LEVEL_ORDER: Record<LogLevel, number> = {
 export function createConsoleLogger(minLevel: LogLevel = 'info'): Logger {
   const minOrder = LOG_LEVEL_ORDER[minLevel];
 
-  function log(level: LogLevel, message: string, fields?: Omit<LogEntry, 'level' | 'message' | 'timestamp'>): void {
+  function log(
+    level: LogLevel,
+    message: string,
+    fields?: Omit<LogEntry, 'level' | 'message' | 'timestamp'>,
+  ): void {
     if (LOG_LEVEL_ORDER[level] < minOrder) return;
 
     const entry: LogEntry = {

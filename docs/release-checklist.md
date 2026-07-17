@@ -115,5 +115,5 @@ If the release has a critical issue:
 - Release date: _______________
 - Version: _______________
 - Any deviations from checklist:
-  _______________________________________________
-  _______________________________________________
+  ***
+  ***

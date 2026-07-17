@@ -66,18 +66,18 @@ When `@opentelemetry/api` is not installed, all telemetry calls are no-ops.
 
 The gateway exposes Prometheus metrics at `/metrics/prometheus`. Available metrics:
 
-| Metric | Type | Description |
-|---|---|---|
-| `mobigent_app_sessions` | gauge | Currently connected app sessions |
-| `mobigent_authenticated_app_sessions` | gauge | Authenticated app sessions |
-| `mobigent_apps_with_manifests` | gauge | Apps with accepted manifests |
-| `mobigent_tools` | gauge | Currently exposed tools |
-| `mobigent_idempotency_records` | gauge | Retained idempotency records |
-| `mobigent_rate_limit_buckets` | gauge | Active rate-limit buckets |
-| `mobigent_audit_events_total` | counter | Audit events by type |
-| `mobigent_tool_calls_total` | counter | Tool calls by outcome |
-| `mobigent_tool_calls_by_tool_total` | counter | Tool calls by tool and outcome |
-| `mobigent_tool_calls_by_agent_total` | counter | Tool calls by agent and outcome |
+| Metric                                | Type    | Description                      |
+| ------------------------------------- | ------- | -------------------------------- |
+| `mobigent_app_sessions`               | gauge   | Currently connected app sessions |
+| `mobigent_authenticated_app_sessions` | gauge   | Authenticated app sessions       |
+| `mobigent_apps_with_manifests`        | gauge   | Apps with accepted manifests     |
+| `mobigent_tools`                      | gauge   | Currently exposed tools          |
+| `mobigent_idempotency_records`        | gauge   | Retained idempotency records     |
+| `mobigent_rate_limit_buckets`         | gauge   | Active rate-limit buckets        |
+| `mobigent_audit_events_total`         | counter | Audit events by type             |
+| `mobigent_tool_calls_total`           | counter | Tool calls by outcome            |
+| `mobigent_tool_calls_by_tool_total`   | counter | Tool calls by tool and outcome   |
+| `mobigent_tool_calls_by_agent_total`  | counter | Tool calls by agent and outcome  |
 
 ## Dashboards
 
@@ -86,6 +86,7 @@ The gateway exposes Prometheus metrics at `/metrics/prometheus`. Available metri
 Recommended Prometheus queries for a Grafana dashboard:
 
 **Uptime & Sessions:**
+
 ```
 # Active sessions
 mobigent_app_sessions
@@ -98,6 +99,7 @@ mobigent_tools
 ```
 
 **Tool Call Rate:**
+
 ```
 # Tool calls per second (1m rate)
 rate(mobigent_tool_calls_total[1m])
@@ -109,6 +111,7 @@ sum(rate(mobigent_tool_calls_total[5m]))
 ```
 
 **Latency (from OTel histograms):**
+
 ```
 # P50, P95, P99 tool call latency
 histogram_quantile(0.50, rate(mobigent_tool_calls_duration_ms[5m]))
@@ -117,6 +120,7 @@ histogram_quantile(0.99, rate(mobigent_tool_calls_duration_ms[5m]))
 ```
 
 **Security Panel:**
+
 ```
 # Auth rejection rate
 rate(mobigent_tool_calls_total{outcome="denied"}[5m])
@@ -131,22 +135,22 @@ Recommended alert rules:
 
 ### Critical (P1 — immediate response)
 
-| Alert | Expression | Threshold | For |
-|---|---|---|---|
-| Gateway down | `up == 0` | — | 1m |
-| Readiness failing | `mobigent_apps_with_manifests < 1` | — | 5m |
-| Audit sink failure | `rate(mobigent_audit_sink_failures[5m]) > 0` | > 0 | 5m |
-| No connected apps | `mobigent_app_sessions == 0` | — | 10m |
+| Alert              | Expression                                   | Threshold | For |
+| ------------------ | -------------------------------------------- | --------- | --- |
+| Gateway down       | `up == 0`                                    | —         | 1m  |
+| Readiness failing  | `mobigent_apps_with_manifests < 1`           | —         | 5m  |
+| Audit sink failure | `rate(mobigent_audit_sink_failures[5m]) > 0` | > 0       | 5m  |
+| No connected apps  | `mobigent_app_sessions == 0`                 | —         | 10m |
 
 ### Warning (P2 — investigate)
 
-| Alert | Expression | Threshold | For |
-|---|---|---|---|
-| High tool failure rate | `rate(tool_calls_total{outcome="failed"}[5m]) / rate(tool_calls_total[5m])` | > 0.10 | 5m |
-| High tool timeout rate | `rate(tool_calls_total{outcome="timed_out"}[5m]) / rate(tool_calls_total[5m])` | > 0.05 | 5m |
-| Auth rejection spike | `rate(mobigent_auth_rejections[5m])` | > 5 | 5m |
-| Manifest rejection spike | `rate(mobigent_manifest_rejections[5m])` | > 3 | 5m |
-| High HTTP 5xx rate | `rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m])` | > 0.05 | 5m |
+| Alert                    | Expression                                                                     | Threshold | For |
+| ------------------------ | ------------------------------------------------------------------------------ | --------- | --- |
+| High tool failure rate   | `rate(tool_calls_total{outcome="failed"}[5m]) / rate(tool_calls_total[5m])`    | > 0.10    | 5m  |
+| High tool timeout rate   | `rate(tool_calls_total{outcome="timed_out"}[5m]) / rate(tool_calls_total[5m])` | > 0.05    | 5m  |
+| Auth rejection spike     | `rate(mobigent_auth_rejections[5m])`                                           | > 5       | 5m  |
+| Manifest rejection spike | `rate(mobigent_manifest_rejections[5m])`                                       | > 3       | 5m  |
+| High HTTP 5xx rate       | `rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m])` | > 0.05    | 5m  |
 
 ## Correlation
 

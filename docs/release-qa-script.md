@@ -223,19 +223,19 @@ gradle -p examples/android-expense :app:assembleDebug
 
 ## Results
 
-| Gate | Status | Notes |
-|---|---|---|
-| `npm run verify` | ⬜ | |
-| `npm run verify:ios` | ⬜ | |
-| `npm run verify:android` | ⬜ | |
-| `npm run docs:build` | ⬜ | |
-| Package check | ⬜ | |
-| Docker smoke | ⬜ | |
-| Starter app | ⬜ | |
-| Gateway runtime | ⬜ | |
-| Production config | ⬜ | |
-| Full-loop demo | ⬜ | |
-| Mobile runtime | ⬜ | |
+| Gate                     | Status | Notes |
+| ------------------------ | ------ | ----- |
+| `npm run verify`         | ⬜     |       |
+| `npm run verify:ios`     | ⬜     |       |
+| `npm run verify:android` | ⬜     |       |
+| `npm run docs:build`     | ⬜     |       |
+| Package check            | ⬜     |       |
+| Docker smoke             | ⬜     |       |
+| Starter app              | ⬜     |       |
+| Gateway runtime          | ⬜     |       |
+| Production config        | ⬜     |       |
+| Full-loop demo           | ⬜     |       |
+| Mobile runtime           | ⬜     |       |
 
 **QA performed by:** _______________
 **Date:** _______________

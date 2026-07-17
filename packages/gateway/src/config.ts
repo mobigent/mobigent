@@ -170,9 +170,7 @@ function parseStringMap(raw: string, envName: string): Record<string, string> {
 
 function validateEndpointPolicy(value: string, key: string): EndpointPolicy {
   if (!['public', 'protected', 'disabled'].includes(value)) {
-    throw new Error(
-      `${key} must be one of: public, protected, disabled. Got "${value}"`,
-    );
+    throw new Error(`${key} must be one of: public, protected, disabled. Got "${value}"`);
   }
   return value as EndpointPolicy;
 }
@@ -238,20 +236,14 @@ export function loadGatewayConfig(overrides?: Partial<GatewayConfig>): GatewayCo
     }
   }
 
-  const env = capture(
-    () => validateEnv(envStr('MOBIGENT_ENV', DEFAULTS.env)!),
-    DEFAULTS.env,
-  );
+  const env = capture(() => validateEnv(envStr('MOBIGENT_ENV', DEFAULTS.env)!), DEFAULTS.env);
 
   const strictProductionMode = capture(
-    () => envBool('MOBIGENT_STRICT_PRODUCTION', env === 'production') ?? (env === 'production'),
+    () => envBool('MOBIGENT_STRICT_PRODUCTION', env === 'production') ?? env === 'production',
     env === 'production',
   );
 
-  const wsPort = capture(
-    () => envNum('MOBIGENT_WS_PORT', DEFAULTS.wsPort)!,
-    DEFAULTS.wsPort,
-  );
+  const wsPort = capture(() => envNum('MOBIGENT_WS_PORT', DEFAULTS.wsPort)!, DEFAULTS.wsPort);
   const httpPort = capture(
     () => envNum('MOBIGENT_HTTP_PORT', DEFAULTS.httpPort)!,
     DEFAULTS.httpPort,
@@ -279,10 +271,7 @@ export function loadGatewayConfig(overrides?: Partial<GatewayConfig>): GatewayCo
     () => envNum('MOBIGENT_IDEMPOTENCY_RECORD_TTL_MS'),
     undefined,
   );
-  const cleanupIntervalMs = capture(
-    () => envNum('MOBIGENT_CLEANUP_INTERVAL_MS'),
-    undefined,
-  );
+  const cleanupIntervalMs = capture(() => envNum('MOBIGENT_CLEANUP_INTERVAL_MS'), undefined);
 
   // Endpoint policy
   const healthEndpoint = capture(
@@ -318,10 +307,7 @@ export function loadGatewayConfig(overrides?: Partial<GatewayConfig>): GatewayCo
   const openApiEndpoint = capture(
     () =>
       envStr('MOBIGENT_OPENAPI_ENDPOINT')
-        ? validateEndpointPolicy(
-            envStr('MOBIGENT_OPENAPI_ENDPOINT')!,
-            'MOBIGENT_OPENAPI_ENDPOINT',
-          )
+        ? validateEndpointPolicy(envStr('MOBIGENT_OPENAPI_ENDPOINT')!, 'MOBIGENT_OPENAPI_ENDPOINT')
         : env === 'production'
           ? PRODUCTION_DEFAULTS.openApiEndpoint!
           : DEFAULTS.openApiEndpoint,
@@ -367,21 +353,17 @@ export function loadGatewayConfig(overrides?: Partial<GatewayConfig>): GatewayCo
   const warnings: string[] = [];
   if (env === 'production') {
     if (!config.authToken) {
-      const msg =
-        'MOBIGENT_AUTH_TOKEN is not set. App sessions will not require authentication.';
+      const msg = 'MOBIGENT_AUTH_TOKEN is not set. App sessions will not require authentication.';
       if (strictProductionMode) problems.push(msg);
       else warnings.push(msg);
     }
     if (!config.httpApiKey && !config.httpAgentApiKeys) {
-      const msg =
-        'No HTTP API key configured. HTTP endpoints will not require authentication.';
+      const msg = 'No HTTP API key configured. HTTP endpoints will not require authentication.';
       if (strictProductionMode) problems.push(msg);
       else warnings.push(msg);
     }
     if (!config.allowedAppIds?.length) {
-      warnings.push(
-        'MOBIGENT_ALLOWED_APP_IDS is not set. Any app id can connect.',
-      );
+      warnings.push('MOBIGENT_ALLOWED_APP_IDS is not set. Any app id can connect.');
     }
     if (!config.manifestSigningSecret) {
       warnings.push(
@@ -395,9 +377,7 @@ export function loadGatewayConfig(overrides?: Partial<GatewayConfig>): GatewayCo
       else warnings.push(msg);
     }
     if (!config.httpCorsOrigins?.length) {
-      warnings.push(
-        'MOBIGENT_HTTP_CORS_ORIGINS is not set. CORS will allow all origins.',
-      );
+      warnings.push('MOBIGENT_HTTP_CORS_ORIGINS is not set. CORS will allow all origins.');
     }
     if (!config.httpJsonBodyLimit) {
       warnings.push(
@@ -407,15 +387,11 @@ export function loadGatewayConfig(overrides?: Partial<GatewayConfig>): GatewayCo
   }
 
   if (problems.length > 0) {
-    throw new Error(
-      `Gateway configuration errors:\n${problems.map((p) => `  - ${p}`).join('\n')}`,
-    );
+    throw new Error(`Gateway configuration errors:\n${problems.map((p) => `  - ${p}`).join('\n')}`);
   }
 
   if (warnings.length > 0) {
-    console.warn(
-      `Gateway configuration warnings:\n${warnings.map((w) => `  - ${w}`).join('\n')}`,
-    );
+    console.warn(`Gateway configuration warnings:\n${warnings.map((w) => `  - ${w}`).join('\n')}`);
   }
 
   return config;
@@ -435,9 +411,7 @@ export function configDiagnostics(config: GatewayConfig): Record<string, unknown
     httpApiKey: redact(config.httpApiKey),
     httpAgentApiKeys: redact(config.httpAgentApiKeys),
     httpJsonBodyLimit: config.httpJsonBodyLimit ?? '(unlimited)',
-    httpCorsOrigins: config.httpCorsOrigins?.length
-      ? config.httpCorsOrigins.join(', ')
-      : '(all)',
+    httpCorsOrigins: config.httpCorsOrigins?.length ? config.httpCorsOrigins.join(', ') : '(all)',
     auditLogPath: config.auditLogPath ?? '(memory only)',
     auditRedactKeys: config.auditRedactKeys?.join(', ') ?? '(defaults only)',
     manifestSigningSecret: redact(config.manifestSigningSecret),

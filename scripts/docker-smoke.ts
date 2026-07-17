@@ -28,9 +28,7 @@ console.log('  Image built.');
 run(`docker rm -f mobigent-smoke 2>/dev/null || true`, { ignoreError: true });
 
 console.log('Starting container...');
-run(
-  `docker run -d --name mobigent-smoke -p ${HTTP_PORT}:8788 ${IMAGE}`,
-);
+run(`docker run -d --name mobigent-smoke -p ${HTTP_PORT}:8788 ${IMAGE}`);
 
 // Wait for startup
 console.log('Waiting for gateway startup...');
