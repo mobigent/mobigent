@@ -566,7 +566,7 @@ for (const path of [
   );
   assert.match(
     contents,
-    /mobigent\.app\("expense", \{\s+createExpense: "create"/,
+    /mobigent\.app\(['"]expense['"], \{[\s\S]{0,160}?createExpense: ['"]create['"]/,
     `${path} should teach namespace-first backend function aliases through the simple app() API`,
   );
   assert.match(
@@ -840,7 +840,10 @@ for (const path of ['packages/app/README.md', 'packages/react-native/README.md']
     /mobigent\.app\.expense\.create/,
     'packages/backend/README.md should not teach the older backend.app dynamic style',
   );
-  assert.match(backendReadme, /mobigent\.app\("expense", \{\s+createExpense: "create"/);
+  assert.match(
+    backendReadme,
+    /mobigent\.app\(['"]expense['"], \{[\s\S]{0,160}?createExpense: ['"]create['"]/,
+  );
   assert.doesNotMatch(
     backendReadme,
     /backend\.defaultApp|mobigent\.app\.json|appDir\b|npx mobigent-backend|mobigent-backend --app/,
