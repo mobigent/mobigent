@@ -1,5 +1,6 @@
 import cors from 'cors';
 import express, { type Express, type NextFunction, type Request, type Response } from 'express';
+import rateLimit from 'express-rate-limit';
 import { z } from 'zod';
 import type { JsonSchema, ToolDescriptor } from '@mobigent/core';
 import { sanitize, validateJsonSchema } from '@mobigent/core';
@@ -102,9 +103,9 @@ export type MobigentGatewayConfig = {
 
 export function createHttpApp(gateway: BridgeGateway, options: MobigentHttpOptions = {}): Express {
   const app = express();
-  const httpAuthRateLimiter = createHttpAuthRateLimiter(options.httpRateLimitPerMinute ?? 120);
 
   app.use(cors(createCorsOptions(options.corsOrigins)));
+  app.use(createHttpRateLimiter(options.httpRateLimitPerMinute ?? 120));
   app.use(express.json({ limit: options.jsonBodyLimit ?? '1mb' }));
   app.use(handleJsonBodyError);
 
@@ -128,12 +129,6 @@ export function createHttpApp(gateway: BridgeGateway, options: MobigentHttpOptio
       if (!auth.ok) {
         res.status(401).json({
           ...gatewayErrorBody('unauthorized', 'Missing or invalid Mobigent HTTP API key.'),
-        });
-        return;
-      }
-      if (!httpAuthRateLimiter.consume(httpRateLimitKey(req, auth))) {
-        res.status(429).json({
-          ...gatewayErrorBody('rate_limited', 'Too many Mobigent HTTP requests.'),
         });
         return;
       }
@@ -1446,44 +1441,18 @@ function authorizeHttpRequest(
   return { ok: false };
 }
 
-function createHttpAuthRateLimiter(limitPerMinute: number) {
-  const buckets = new Map<string, number[]>();
-  const windowMs = 60_000;
-
-  return {
-    consume(key: string) {
-      const now = Date.now();
-      const windowStart = now - windowMs;
-      const calls = (buckets.get(key) ?? []).filter((timestamp) => timestamp > windowStart);
-
-      if (calls.length >= limitPerMinute) {
-        buckets.set(key, calls);
-        return false;
-      }
-
-      calls.push(now);
-      buckets.set(key, calls);
-      return true;
+function createHttpRateLimiter(limitPerMinute: number) {
+  return rateLimit({
+    windowMs: 60_000,
+    limit: limitPerMinute,
+    standardHeaders: true,
+    legacyHeaders: false,
+    handler: (_req, res) => {
+      res.status(429).json({
+        ...gatewayErrorBody('rate_limited', 'Too many Mobigent HTTP requests.'),
+      });
     },
-  };
-}
-
-function httpRateLimitKey(req: Request, auth: { ok: true; agentId?: string }) {
-  if (auth.agentId) {
-    return `agent:${auth.agentId}`;
-  }
-
-  const credential = req.header('x-mobigent-api-key') ?? bearerToken(req.header('authorization'));
-  return credential ? `key:${fingerprintValue(credential)}` : `ip:${req.ip}`;
-}
-
-function fingerprintValue(value: string) {
-  let hash = 2_166_136_261;
-  for (let index = 0; index < value.length; index += 1) {
-    hash ^= value.charCodeAt(index);
-    hash = Math.imul(hash, 16_777_619);
-  }
-  return (hash >>> 0).toString(36);
+  });
 }
 
 function bearerToken(authorization: string | undefined) {
