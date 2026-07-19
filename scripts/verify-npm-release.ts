@@ -157,7 +157,7 @@ const releaseWorkflow = await readFile('.github/workflows/release.yml', 'utf8');
 const publishScript = await readFile('scripts/publish-npm.ts', 'utf8');
 assert.match(
   releaseWorkflow,
-  /tags:\s*\n\s+- "v\*\.\*\.\*"/,
+  /tags:\s*\n\s+- ['"]v\*\.\*\.\*['"]/,
   'release workflow must run on SemVer tags.',
 );
 assert.doesNotMatch(
