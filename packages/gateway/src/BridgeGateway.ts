@@ -309,6 +309,13 @@ export class BridgeGateway {
   start() {
     this.appServer = new WebSocketServer({ port: this.port });
     this.appServer.on('connection', (socket) => this.handleConnection(socket));
+    this.appServer.on('error', (err) => {
+      this.logger.error('WebSocket server error', {
+        eventType: 'gateway.error',
+        errorCode: 'WS_SERVER_ERROR',
+        context: { message: err.message },
+      });
+    });
     this.startCleanupTimer();
     this.logger.info('Gateway listening for mobile apps', {
       eventType: 'gateway.started',
@@ -572,9 +579,7 @@ export class BridgeGateway {
     try {
       this.assertRateLimitAllowsCall(name, route.policy, options.agentId);
     } catch (error) {
-      if (idempotency?.key) {
-        this.idempotencyRecords.delete(idempotency.key);
-      }
+      // Keep the idempotency record so retrying does not execute the call twice.
       this.emitAudit({
         type: 'tool.call.denied',
         severity: 'warn',
@@ -730,6 +735,20 @@ export class BridgeGateway {
         );
       }
 
+      // Stale unsettled record with no promise means a previous attempt
+      // was aborted before the call reached the app (e.g., rate-limited).
+      // Overwrite it so the retry can proceed normally.
+      if (!existing.settled && !existing.promise) {
+        const freshRecord: IdempotencyRecord = {
+          inputHash,
+          createdAt: Date.now(),
+          lastUsedAt: Date.now(),
+          settled: false,
+        };
+        this.idempotencyRecords.set(key, freshRecord);
+        return { key, record: freshRecord, reused: false };
+      }
+
       existing.lastUsedAt = Date.now();
       this.emitAudit({
         type: 'tool.call.deduplicated',
@@ -829,13 +848,31 @@ export class BridgeGateway {
       });
       this.emitToolsChanged();
     });
+
+    socket.on('error', (err) => {
+      this.logger.error('WebSocket session error', {
+        sessionId: session.id,
+        eventType: 'session.error',
+        errorCode: 'WS_SESSION_ERROR',
+        context: { message: err.message },
+      });
+      this.sessions.delete(session.id);
+      this.emitToolsChanged();
+    });
   }
 
   private handleAppMessage(session: AppSession, message: BridgeMessage) {
     if (message.type === 'hello') {
       const protocolVersion = message.protocolVersion ?? currentProtocolVersion;
       if (!isSupportedProtocolVersion(protocolVersion)) {
-        console.warn(`Rejected app session with unsupported protocol version: ${protocolVersion}`);
+        this.logger.warn(
+          `Rejected app session with unsupported protocol version: ${protocolVersion}`,
+          {
+            sessionId: session.id,
+            eventType: 'app.rejected',
+            context: { protocolVersion, supportedProtocolVersions },
+          },
+        );
         session.authenticated = false;
         this.emitAudit({
           type: 'app.rejected',
@@ -857,7 +894,11 @@ export class BridgeGateway {
       }
 
       if (this.allowedAppIds.size > 0 && !this.allowedAppIds.has(message.appId)) {
-        console.warn(`Rejected app session with disallowed app id: ${message.appId}`);
+        this.logger.warn(`Rejected app session with disallowed app id: ${message.appId}`, {
+          sessionId: session.id,
+          eventType: 'app.rejected',
+          context: { appId: message.appId },
+        });
         session.authenticated = false;
         this.emitAudit({
           type: 'app.rejected',
@@ -876,32 +917,53 @@ export class BridgeGateway {
         return;
       }
 
-      if (this.authToken && message.authToken !== this.authToken) {
-        console.warn(`Rejected unauthenticated app session: ${session.id}`);
-        this.emitAudit({
-          type: 'app.rejected',
-          severity: 'warn',
-          message: `Rejected unauthenticated app session: ${session.id}.`,
-          sessionId: session.id,
-          app: {
-            id: message.appId,
-            name: message.appName,
-          },
-        });
-        session.socket.close(1008, 'Invalid Mobigent auth token.');
-        return;
+      if (this.authToken) {
+        const expected = Buffer.from(this.authToken);
+        const actual = Buffer.from(message.authToken ?? '');
+        const authFailed = expected.length !== actual.length || !timingSafeEqual(expected, actual);
+        if (authFailed) {
+          this.logger.warn(`Rejected unauthenticated app session: ${session.id}`, {
+            sessionId: session.id,
+            eventType: 'app.rejected',
+          });
+          this.emitAudit({
+            type: 'app.rejected',
+            severity: 'warn',
+            message: `Rejected unauthenticated app session: ${session.id}.`,
+            sessionId: session.id,
+            app: {
+              id: message.appId,
+              name: message.appName,
+            },
+          });
+          session.socket.close(1008, 'Invalid Mobigent auth token.');
+          return;
+        }
       }
 
       session.authenticated = true;
       session.protocolVersion = protocolVersion;
-      console.log(`App hello: ${message.appName} (${message.appId}) via ${message.sdk}`);
-      session.socket.send(
-        JSON.stringify({
-          type: 'ready',
-          protocolVersion,
-          supportedProtocolVersions,
-        } satisfies BridgeMessage),
-      );
+      this.logger.info(`App hello: ${message.appName} (${message.appId}) via ${message.sdk}`, {
+        sessionId: session.id,
+        eventType: 'app.authenticated',
+        context: { appId: message.appId, appName: message.appName, sdk: message.sdk },
+      });
+      try {
+        session.socket.send(
+          JSON.stringify({
+            type: 'ready',
+            protocolVersion,
+            supportedProtocolVersions,
+          } satisfies BridgeMessage),
+        );
+      } catch (sendErr) {
+        this.logger.error('Failed to send ready message to app session', {
+          sessionId: session.id,
+          eventType: 'gateway.error',
+          errorCode: 'WS_SEND_ERROR',
+          context: { error: sendErr instanceof Error ? sendErr.message : String(sendErr) },
+        });
+      }
       this.emitAudit({
         type: 'app.authenticated',
         severity: 'info',
@@ -917,14 +979,20 @@ export class BridgeGateway {
     }
 
     if (!session.authenticated) {
-      console.warn(`Ignoring message from unauthenticated app session: ${session.id}`);
+      this.logger.warn(`Ignoring message from unauthenticated app session: ${session.id}`, {
+        sessionId: session.id,
+        eventType: 'app.rejected',
+      });
       return;
     }
 
     if (message.type === 'manifest') {
       const manifestValidation = validateCapabilityManifest(message.manifest);
       if (!manifestValidation.ok) {
-        console.warn(`Rejected malformed manifest from ${session.id}`);
+        this.logger.warn(`Rejected malformed manifest from ${session.id}`, {
+          sessionId: session.id,
+          eventType: 'manifest.rejected',
+        });
         this.emitAudit({
           type: 'manifest.rejected',
           severity: 'warn',
@@ -942,7 +1010,11 @@ export class BridgeGateway {
       const manifestProtocolVersion =
         message.manifest.protocolVersion ?? session.protocolVersion ?? currentProtocolVersion;
       if (!isSupportedProtocolVersion(manifestProtocolVersion)) {
-        console.warn(`Rejected manifest with unsupported protocol version from ${session.id}`);
+        this.logger.warn(`Rejected manifest with unsupported protocol version from ${session.id}`, {
+          sessionId: session.id,
+          eventType: 'manifest.rejected',
+          context: { protocolVersion: manifestProtocolVersion, supportedProtocolVersions },
+        });
         this.emitAudit({
           type: 'manifest.rejected',
           severity: 'warn',
@@ -962,7 +1034,10 @@ export class BridgeGateway {
       }
 
       if (!this.verifyManifestSignature(message.manifest, message.signature)) {
-        console.warn(`Rejected unsigned or invalid manifest from ${session.id}`);
+        this.logger.warn(`Rejected unsigned or invalid manifest from ${session.id}`, {
+          sessionId: session.id,
+          eventType: 'manifest.rejected',
+        });
         this.emitAudit({
           type: 'manifest.rejected',
           severity: 'warn',
@@ -978,8 +1053,13 @@ export class BridgeGateway {
 
       const duplicateToolName = this.findDuplicateToolName(session, message.manifest);
       if (duplicateToolName) {
-        console.warn(
+        this.logger.warn(
           `Rejected manifest from ${session.id} because ${duplicateToolName} is already exposed`,
+          {
+            sessionId: session.id,
+            eventType: 'manifest.rejected',
+            context: { duplicateToolName },
+          },
         );
         this.emitAudit({
           type: 'manifest.rejected',
@@ -1001,8 +1081,17 @@ export class BridgeGateway {
       session.manifest = message.manifest;
       session.manifestAcceptedAt = new Date().toISOString();
       session.manifestSignature = message.signature;
-      console.log(
+      this.logger.info(
         `Manifest registered: ${message.manifest.appName} with ${message.manifest.actions.length} actions, ${message.manifest.resources.length} resources, and ${message.manifest.components?.length ?? 0} components`,
+        {
+          sessionId: session.id,
+          eventType: 'manifest.registered',
+          context: {
+            actionCount: message.manifest.actions.length,
+            resourceCount: message.manifest.resources.length,
+            componentCount: message.manifest.components?.length ?? 0,
+          },
+        },
       );
       this.emitAudit({
         type: 'manifest.registered',
@@ -1021,7 +1110,11 @@ export class BridgeGateway {
     }
 
     if (message.type === 'event') {
-      console.log(`App event: ${message.name}`, this.redactValue(message.payload));
+      this.logger.info(`App event: ${message.name}`, {
+        sessionId: session.id,
+        eventType: 'app.event',
+        context: { name: message.name, payload: this.redactValue(message.payload) },
+      });
       this.emitAudit({
         type: 'app.event',
         severity: 'info',
@@ -1038,13 +1131,22 @@ export class BridgeGateway {
     }
 
     if (message.type === 'ping') {
-      session.socket.send(
-        JSON.stringify({
-          type: 'pong',
-          id: message.id,
-          at: new Date().toISOString(),
-        } satisfies BridgeMessage),
-      );
+      try {
+        session.socket.send(
+          JSON.stringify({
+            type: 'pong',
+            id: message.id,
+            at: new Date().toISOString(),
+          } satisfies BridgeMessage),
+        );
+      } catch (sendErr) {
+        this.logger.error('Failed to send pong to app session', {
+          sessionId: session.id,
+          eventType: 'gateway.error',
+          errorCode: 'WS_SEND_ERROR',
+          context: { error: sendErr instanceof Error ? sendErr.message : String(sendErr) },
+        });
+      }
       return;
     }
 
@@ -1157,8 +1259,9 @@ export class BridgeGateway {
       throw new Error('App session is not connected.');
     }
 
+    let timeout: NodeJS.Timeout;
     const response = new Promise<unknown>((resolve, reject) => {
-      const timeout = setTimeout(() => {
+      timeout = setTimeout(() => {
         this.pending.delete(id);
         const error = new Error(`Timed out waiting for app response to ${id}.`);
         reject(error);
@@ -1167,7 +1270,21 @@ export class BridgeGateway {
       this.pending.set(id, { resolve, reject, timeout });
     });
 
-    session.socket.send(JSON.stringify(message));
+    try {
+      session.socket.send(JSON.stringify(message));
+    } catch (sendErr) {
+      clearTimeout(timeout!);
+      this.pending.delete(id);
+      this.logger.error('Failed to send message to app session', {
+        sessionId: session.id,
+        eventType: 'gateway.error',
+        errorCode: 'WS_SEND_ERROR',
+        context: { error: sendErr instanceof Error ? sendErr.message : String(sendErr) },
+      });
+      throw new Error(
+        `Failed to send message to app session: ${sendErr instanceof Error ? sendErr.message : String(sendErr)}`,
+      );
+    }
     return response;
   }
 
@@ -1409,10 +1526,15 @@ export class BridgeGateway {
       mkdirSync(dirname(this.auditLogPath), { recursive: true });
       appendFileSync(this.auditLogPath, `${JSON.stringify(event)}\n`, 'utf8');
     } catch (error) {
-      console.warn(
+      this.logger.warn(
         `Failed to write Mobigent audit event to ${this.auditLogPath}: ${
           error instanceof Error ? error.message : String(error)
         }`,
+        {
+          eventType: 'gateway.error',
+          errorCode: 'AUDIT_SINK_FAILURE',
+          context: { auditPath: this.auditLogPath },
+        },
       );
     }
   }

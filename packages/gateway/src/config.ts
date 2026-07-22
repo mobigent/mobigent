@@ -445,3 +445,9 @@ export function configDiagnostics(config: GatewayConfig): Record<string, unknown
     inspectorMode: config.inspectorMode,
   };
 }
+
+/**
+ * The current release version of the Mobigent gateway.
+ * Centralised here to avoid duplication across the codebase.
+ */
+export const MOBIGENT_VERSION = '0.1.15';

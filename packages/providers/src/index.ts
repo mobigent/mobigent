@@ -469,6 +469,7 @@ export type MobigentToolCallOptions = {
   idempotencyKey?: string;
   requestId?: string;
   timeoutMs?: number;
+  signal?: AbortSignal;
 };
 
 export type MobigentToolChangeEvent = {
@@ -2219,13 +2220,15 @@ export function createMobigentHttpClient(options: MobigentHttpClientOptions): Mo
       }
     },
     async callTool(toolName, input = {}, callOptions = {}) {
+      const { signal: callSignal, ...headerOptions } = callOptions;
       const response = await requestWithRetries(
         request,
         `${baseUrl}/tools/${encodeURIComponent(toolName)}/call`,
         () => ({
           method: 'POST',
-          headers: createHttpHeaders(options, callOptions),
+          headers: createHttpHeaders(options, headerOptions),
           body: JSON.stringify(input),
+          signal: callSignal,
         }),
         retries,
         retryDelayMs,
@@ -2393,8 +2396,12 @@ export function createMobigentToolExecutor(
         ? createProviderSafeToolNameMap([], options.toolNames).resolve
         : (toolName: string) => toolName;
 
-  return async (toolName: string, input: Record<string, unknown> = {}) => {
-    return client.callTool(resolveToolName(toolName), input);
+  return async (
+    toolName: string,
+    input: Record<string, unknown> = {},
+    callOptions?: MobigentToolCallOptions,
+  ) => {
+    return client.callTool(resolveToolName(toolName), input, callOptions);
   };
 }
 
@@ -4333,6 +4340,31 @@ function createHttpHeaders(
   return headers;
 }
 
+function combineAbortSignals(
+  ...signals: (AbortSignal | null | undefined)[]
+): AbortSignal | undefined {
+  const active = signals.filter((s): s is AbortSignal => s !== undefined && s !== null);
+  if (active.length === 0) return undefined;
+  if (active.length === 1) return active[0];
+
+  for (const sig of active) {
+    if (sig.aborted) return sig;
+  }
+
+  const controller = new AbortController();
+  const onAbort = (event: Event) => {
+    const target = event.target as AbortSignal | null;
+    controller.abort(target?.reason);
+    for (const other of active) {
+      other.removeEventListener('abort', onAbort);
+    }
+  };
+  for (const sig of active) {
+    sig.addEventListener('abort', onAbort, { once: true });
+  }
+  return controller.signal;
+}
+
 async function requestWithRetries(
   request: typeof fetch,
   url: string,
@@ -4348,10 +4380,12 @@ async function requestWithRetries(
     const timeoutMs = readRequestTimeoutMs(requestInit);
     const timeout = createRequestTimeoutSignal(timeoutMs);
 
+    const combinedSignal = combineAbortSignals(timeout.signal, requestInit.signal);
+
     try {
       const response = await request(url, {
         ...requestInit,
-        signal: timeout.signal ?? requestInit.signal,
+        signal: combinedSignal,
       });
       if (!isTransientStatus(response.status) || attempt === retries) {
         return response;
@@ -4475,6 +4509,7 @@ async function* watchSseStream<T>(
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
+  const MAX_BUFFER_SIZE = 1_048_576; // 1 MB
 
   try {
     while (true) {
@@ -4484,6 +4519,18 @@ async function* watchSseStream<T>(
       }
 
       buffer += decoder.decode(chunk.value, { stream: true });
+
+      if (buffer.length > MAX_BUFFER_SIZE) {
+        const msg = `Mobigent ${label} buffer exceeded ${MAX_BUFFER_SIZE} bytes without finding a frame delimiter.`;
+        await reader.cancel();
+        throw new MobigentHttpError({
+          code: 'invalid_response',
+          operation,
+          message: msg,
+          body: undefined,
+        });
+      }
+
       let boundary = buffer.indexOf('\n\n');
       while (boundary >= 0) {
         const frame = buffer.slice(0, boundary);
@@ -4496,7 +4543,17 @@ async function* watchSseStream<T>(
       }
     }
   } finally {
+    try {
+      await reader.cancel();
+    } catch {
+      // reader.cancel() can reject if the stream already errored — ignore during cleanup
+    }
     reader.releaseLock();
+    try {
+      await response.body?.cancel();
+    } catch {
+      // body.cancel() can also reject on an already-aborted stream — ignore
+    }
   }
 }
 
@@ -4520,7 +4577,13 @@ function parseSseFrame<T>(
     return undefined;
   }
 
-  const parsed = JSON.parse(data) as unknown;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(data) as unknown;
+  } catch {
+    // JSON parse failure — skip the frame so the stream continues
+    return undefined;
+  }
   if (!validate(parsed)) {
     throw new MobigentHttpError({
       code: 'invalid_response',
@@ -4883,7 +4946,7 @@ async function readJson(response: Response): Promise<unknown> {
   try {
     return JSON.parse(text) as unknown;
   } catch {
-    return text;
+    return { __parse_error: true, raw: text };
   }
 }
 

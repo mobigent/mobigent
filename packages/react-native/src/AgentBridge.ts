@@ -138,6 +138,7 @@ export class Mobigent {
   private heartbeatTimeout?: ReturnType<typeof setTimeout>;
   private pendingHeartbeatId?: string;
   private lastError?: string;
+  private manifestDirty = false;
 
   configure(options: AgentBridgeOptions) {
     this.options = {
@@ -151,13 +152,13 @@ export class Mobigent {
     this.assertCapabilityName(action.name);
     this.assertCapabilityAvailable('action', action.name);
     this.actions.set(action.name, action);
-    void this.sendManifest();
+    void this.scheduleManifest();
   }
 
   unregisterAction(name: string) {
     const deleted = this.actions.delete(name);
     if (deleted) {
-      void this.sendManifest();
+      void this.scheduleManifest();
     }
     return deleted;
   }
@@ -166,13 +167,13 @@ export class Mobigent {
     this.assertCapabilityName(resource.name);
     this.assertCapabilityAvailable('resource', resource.name);
     this.resources.set(resource.name, resource);
-    void this.sendManifest();
+    void this.scheduleManifest();
   }
 
   unregisterResource(name: string) {
     const deleted = this.resources.delete(name);
     if (deleted) {
-      void this.sendManifest();
+      void this.scheduleManifest();
     }
     return deleted;
   }
@@ -181,13 +182,13 @@ export class Mobigent {
     this.assertCapabilityName(component.name);
     this.assertCapabilityAvailable('component', component.name);
     this.components.set(component.name, component);
-    void this.sendManifest();
+    void this.scheduleManifest();
   }
 
   unregisterComponent(name: string) {
     const deleted = this.components.delete(name);
     if (deleted) {
-      void this.sendManifest();
+      void this.scheduleManifest();
     }
     return deleted;
   }
@@ -199,12 +200,14 @@ export class Mobigent {
 
     this.manualDisconnect = false;
     this.setConnectionState(this.reconnectAttempts > 0 ? 'reconnecting' : 'connecting');
-    const socket = (this.options.createSocket ?? createDefaultSocket)(this.options.gatewayUrl);
-    this.socket = socket;
+    let socket: MobigentSocket;
 
     try {
+      socket = (this.options.createSocket ?? createDefaultSocket)(this.options.gatewayUrl);
+      this.socket = socket;
       await onceOpen(socket);
     } catch (error) {
+      this.socket = undefined;
       this.recordError(error);
       if (!this.getReconnectOptions().enabled) {
         this.setConnectionState('error');
@@ -241,7 +244,7 @@ export class Mobigent {
       protocolVersion: mobigentProtocolVersion,
       authToken: this.options.authToken,
     });
-    void this.sendManifest();
+    void this.scheduleManifest();
     this.flushEventQueue();
     this.startHeartbeat();
   }
@@ -543,7 +546,23 @@ export class Mobigent {
       return this.options.confirmationController.request(action, input);
     }
 
+    if (action.confirmation?.required) {
+      const message = `Mobigent: action "${action.name}" requires confirmation but no confirm handler or confirmationController is configured. Auto-approving.`;
+      console.warn(message);
+      this.lastError = message;
+    }
+
     return true;
+  }
+
+  private scheduleManifest() {
+    if (!this.manifestDirty) {
+      this.manifestDirty = true;
+      void Promise.resolve().then(() => {
+        this.manifestDirty = false;
+        return this.sendManifest();
+      });
+    }
   }
 
   private async sendManifest() {
@@ -565,7 +584,12 @@ export class Mobigent {
       return;
     }
 
-    socket.send(JSON.stringify(message));
+    try {
+      socket.send(JSON.stringify(message));
+    } catch (error) {
+      console.error('Mobigent: send failed', error);
+      this.recordError(error);
+    }
   }
 
   private canSend() {
@@ -590,9 +614,11 @@ export class Mobigent {
       return;
     }
 
-    const queued = this.eventQueue.splice(0);
-    for (const message of queued) {
-      this.send(message);
+    while (this.eventQueue.length > 0 && this.canSend()) {
+      const message = this.eventQueue.shift();
+      if (message) {
+        this.send(message);
+      }
     }
   }
 
@@ -620,7 +646,12 @@ export class Mobigent {
       this.reconnectTimer = undefined;
       this.reconnectAttempts += 1;
       void this.connect().catch(() => {
-        this.handleSocketClose();
+        if (this.reconnectAttempts >= this.getReconnectOptions().maxAttempts) {
+          this.socket = undefined;
+          this.setConnectionState('disconnected');
+        } else {
+          this.handleSocketClose();
+        }
       });
     }, delayMs);
   }
@@ -667,7 +698,7 @@ export class Mobigent {
   private getReconnectDelayMs(attemptsCompleted: number) {
     const { delayMs, maxDelayMs, backoffFactor, jitterRatio } = this.getReconnectOptions();
     const initialDelay = Math.max(0, delayMs);
-    const cappedDelay = Math.max(initialDelay, maxDelayMs);
+    const cappedDelay = Math.min(initialDelay, maxDelayMs);
     const baseDelay = Math.min(
       cappedDelay,
       initialDelay * Math.max(1, backoffFactor) ** attemptsCompleted,

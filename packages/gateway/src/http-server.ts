@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { BridgeGateway } from './BridgeGateway.js';
 import { createHttpApp } from './http.js';
-import { loadGatewayConfig, configDiagnostics } from './config.js';
+import { loadGatewayConfig, configDiagnostics, MOBIGENT_VERSION } from './config.js';
 import { createConsoleLogger } from './logger.js';
 import { createTelemetry, createGatewayMetrics } from './telemetry.js';
 import type { Request, Response, NextFunction } from 'express';
@@ -11,7 +11,7 @@ const logger = createConsoleLogger(config.logLevel);
 
 logger.info('Mobigent Gateway starting', {
   eventType: 'gateway.starting',
-  context: { env: config.env, version: '0.1.15' },
+  context: { env: config.env, version: MOBIGENT_VERSION },
 });
 
 logger.info('Gateway configuration loaded', {
@@ -30,10 +30,15 @@ createTelemetry()
     logger.info('OpenTelemetry auto-detected and initialized', {
       eventType: 'telemetry.initialized',
     });
-    // Metrics are available for the gateway to use.
+    // telemetryMetrics is available for HTTP middleware integration.
     // The Telemetry object can be passed to BridgeGateway or HTTP middleware
-    // for trace context propagation.
+    // for trace context propagation. For example, createHttpApp could accept
+    // a metrics parameter to instrument request durations.
     telemetryMetrics = metrics;
+    logger.info('Telemetry metrics initialized and ready for middleware', {
+      eventType: 'telemetry.metrics_ready',
+      context: { metricsAvailable: true },
+    });
   })
   .catch(() => {
     logger.debug('OpenTelemetry not available — running without traces/metrics.', {
@@ -201,3 +206,25 @@ function gracefulShutdown(signal: string) {
 
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+
+// ---------------------------------------------------------------------------
+// Global unhandled rejection and exception handlers
+// ---------------------------------------------------------------------------
+
+process.on('unhandledRejection', (reason: unknown) => {
+  logger.error('Unhandled rejection, shutting down', {
+    eventType: 'process.unhandled_rejection',
+    errorCode: 'UNHANDLED_REJECTION',
+    context: { reason: reason instanceof Error ? reason.message : String(reason) },
+  });
+  gracefulShutdown('unhandledRejection');
+});
+
+process.on('uncaughtException', (error: Error) => {
+  logger.error('Uncaught exception, shutting down', {
+    eventType: 'process.uncaught_exception',
+    errorCode: 'UNCAUGHT_EXCEPTION',
+    context: { message: error.message, stack: error.stack },
+  });
+  gracefulShutdown('uncaughtException');
+});

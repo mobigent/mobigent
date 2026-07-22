@@ -6,6 +6,7 @@ import type { JsonSchema, ToolDescriptor } from '@mobigent/core';
 import { sanitize, validateJsonSchema } from '@mobigent/core';
 import { createProviderCatalog } from '@mobigent/providers';
 import { BridgeGateway } from './BridgeGateway.js';
+import { MOBIGENT_VERSION } from './config.js';
 
 const callBodySchema = z.record(z.string(), z.unknown()).default({});
 const positiveIntegerSchema = z.coerce.number().int().positive().max(120_000);
@@ -553,7 +554,7 @@ export function createGatewayConfig(
 ): MobigentGatewayConfig {
   return {
     name: 'Mobigent Gateway',
-    version: '0.1.15',
+    version: MOBIGENT_VERSION,
     baseUrl,
     protocol: {
       currentVersion: 1,
@@ -756,7 +757,7 @@ export function createOpenApiSpec(
       title: 'Mobigent Gateway',
       description:
         'Expose mobile app capabilities to AI agents through typed, permissioned actions. /openapi.json is agent-scoped when x-mobigent-agent or ?agentId= is provided.',
-      version: '0.1.15',
+      version: MOBIGENT_VERSION,
     },
     servers: [
       {

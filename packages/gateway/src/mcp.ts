@@ -7,6 +7,7 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import type { JsonObject, ToolDescriptor } from '@mobigent/core';
 import { BridgeGateway } from './BridgeGateway.js';
+import { MOBIGENT_VERSION } from './config.js';
 
 export type MobigentMcpOptions = {
   name?: string;
@@ -17,7 +18,7 @@ export function createMcpServer(gateway: BridgeGateway, options: MobigentMcpOpti
   const server = new Server(
     {
       name: options.name ?? 'mobigent',
-      version: options.version ?? '0.1.15',
+      version: options.version ?? MOBIGENT_VERSION,
     },
     {
       capabilities: {

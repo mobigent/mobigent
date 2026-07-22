@@ -8,6 +8,7 @@
  */
 
 import type { Logger } from './logger.js';
+import { MOBIGENT_VERSION } from './config.js';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -104,10 +105,10 @@ async function tryLoadOtel(): Promise<Telemetry> {
       return noopTelemetry;
     }
 
-    const otelTracer = trace.getTracer('mobigent-gateway', '0.1.15');
+    const otelTracer = trace.getTracer('mobigent-gateway', MOBIGENT_VERSION);
     const otelMeter =
       metrics && typeof metrics.getMeter === 'function'
-        ? metrics.getMeter('mobigent-gateway', '0.1.15')
+        ? metrics.getMeter('mobigent-gateway', MOBIGENT_VERSION)
         : undefined;
 
     cachedOtelTelemetry = {

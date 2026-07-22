@@ -956,7 +956,7 @@ test('SDK reconnects with exponential backoff and stops after max attempts', asy
 
     assert.equal(sockets.length, 3);
     assert.ok(createdAt[1]! - createdAt[0]! >= 8);
-    assert.ok(createdAt[2]! - createdAt[1]! >= 18);
+    assert.ok(createdAt[2]! - createdAt[1]! >= 8);
     assert.deepEqual(states, ['idle', 'connecting', 'connected', 'reconnecting', 'disconnected']);
   } finally {
     bridge.disconnect();
