@@ -1275,6 +1275,67 @@ test('backend SDK can start from just an app id string', async () => {
   }
 });
 
+test('backend SDK warns on missing production controls when strict mode is off', async () => {
+  const backend = await startMobigent({
+    appId: 'com.example.prod',
+    appName: 'Prod App',
+    env: 'production',
+    strictProductionMode: false,
+    wsPort: 19045,
+    httpPort: 19046,
+    silent: true,
+  });
+
+  try {
+    assert.equal(backend.inspectorUrl, 'http://localhost:19046/inspect');
+  } finally {
+    await backend.stop();
+  }
+});
+
+test('backend SDK throws on missing production controls when strict mode is on', async () => {
+  await assert.rejects(
+    startMobigent({
+      appId: 'com.example.prod.strict',
+      appName: 'Prod Strict App',
+      env: 'production',
+      strictProductionMode: true,
+      wsPort: 19047,
+      httpPort: 19048,
+      silent: true,
+    }),
+    /MOBIGENT_AUTH_TOKEN is not set/,
+  );
+});
+
+test('backend SDK detects MOBIGENT_ENV=production and applies safe defaults', async () => {
+  const originalEnv = process.env.MOBIGENT_ENV;
+  process.env.MOBIGENT_ENV = 'production';
+
+  try {
+    const backend = await startMobigent({
+      appId: 'com.example.prod.env',
+      appName: 'Prod Env App',
+      strictProductionMode: false,
+      wsPort: 19049,
+      httpPort: 19050,
+      silent: true,
+    });
+
+    try {
+      assert.equal(backend.inspectorUrl, 'http://localhost:19050/inspect');
+    } finally {
+      await backend.stop();
+    }
+  } finally {
+    if (originalEnv === undefined) {
+      delete process.env.MOBIGENT_ENV;
+    } else {
+      process.env.MOBIGENT_ENV = originalEnv;
+    }
+  }
+});
+
 test('backend SDK uses the app package local identity when no app config is passed', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'mobigent-infer-sdk-'));
   const previousCwd = process.cwd();

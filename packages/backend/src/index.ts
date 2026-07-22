@@ -37,6 +37,22 @@ export type MobigentBackendOptions = {
   appConfigFile?: string;
   appConfigModuleFile?: string | false;
   writeAppConfig?: boolean;
+  /** Endpoint policy for /health. Default: public (dev) / protected (production). */
+  healthEndpoint?: 'public' | 'protected' | 'disabled';
+  /** Endpoint policy for /ready. Default: public (dev) / protected (production). */
+  readyEndpoint?: 'public' | 'protected' | 'disabled';
+  /** Endpoint policy for /config. Default: public (dev) / protected (production). */
+  configEndpoint?: 'public' | 'protected' | 'disabled';
+  /** Endpoint policy for /openapi.json. Default: public (dev) / protected (production). */
+  openApiEndpoint?: 'public' | 'protected' | 'disabled';
+  /** Inspector mode. Default: enabled (dev) / disabled (production). */
+  inspectorMode?: 'enabled' | 'disabled' | 'protected' | 'internal';
+  /** HTTP rate limit per credential/IP per minute. Default: 120. */
+  httpRateLimitPerMinute?: number;
+  /** Production environment mode. When "production", safe defaults are applied. */
+  env?: 'development' | 'staging' | 'production';
+  /** Fail on missing production controls when env=production. Default: true. */
+  strictProductionMode?: boolean;
 };
 
 export type MobigentBackendInput = MobigentBackendOptions | string;
@@ -412,7 +428,41 @@ export async function startMobigentBackend(
   const wsPort = options.wsPort ?? Number(process.env.MOBIGENT_WS_PORT ?? 8787);
   const httpPort = options.httpPort ?? Number(process.env.MOBIGENT_HTTP_PORT ?? 8788);
   const host = options.host ?? 'localhost';
+  const env =
+    options.env ??
+    (process.env.MOBIGENT_ENV === 'production'
+      ? 'production'
+      : process.env.MOBIGENT_ENV === 'staging'
+        ? 'staging'
+        : 'development');
+  const isProduction = env === 'production';
+  const strict = options.strictProductionMode ?? isProduction;
   const appToken = options.appToken ?? options.authToken ?? process.env.MOBIGENT_AUTH_TOKEN;
+
+  // Production safety checks
+  if (isProduction) {
+    const warnings: string[] = [];
+    if (!appToken) {
+      warnings.push('MOBIGENT_AUTH_TOKEN is not set. App connections will not be authenticated.');
+    }
+    if (!options.apiKey && !process.env.MOBIGENT_HTTP_API_KEY && !options.agentApiKeys) {
+      warnings.push('No API key configured. The backend API will be publicly accessible.');
+    }
+    if (options.inspectorMode === undefined && !process.env.MOBIGENT_INSPECTOR) {
+      warnings.push(
+        'Inspector is enabled. Set inspectorMode: "disabled" or MOBIGENT_INSPECTOR=disabled for production.',
+      );
+    }
+    if (warnings.length > 0) {
+      const prefix = strict ? 'ERROR' : 'WARNING';
+      const output = `Mobigent production ${prefix.toLowerCase()}s:\n${warnings.map((w) => `  - ${w}`).join('\n')}`;
+      if (strict) {
+        throw new Error(output);
+      }
+      console.warn(output);
+    }
+  }
+
   const gateway = new BridgeGateway({
     port: wsPort,
     authToken: appToken,
@@ -433,6 +483,12 @@ export async function startMobigentBackend(
     agentApiKeys: options.agentApiKeys,
     corsOrigins: options.corsOrigins,
     jsonBodyLimit: options.jsonBodyLimit,
+    healthEndpoint: options.healthEndpoint,
+    readyEndpoint: options.readyEndpoint,
+    configEndpoint: options.configEndpoint,
+    openApiEndpoint: options.openApiEndpoint,
+    inspectorMode: options.inspectorMode ?? (isProduction ? 'disabled' : 'enabled'),
+    httpRateLimitPerMinute: options.httpRateLimitPerMinute,
   });
 
   const httpServer = await listen(app, httpPort);
