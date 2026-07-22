@@ -108,12 +108,50 @@ function App() {
         </div>
       </section>
 
+      <section id="demo" className="section compactSection">
+        <div className="sectionHeader">
+          <span className="eyebrow">
+            <Terminal size={15} /> Try it now
+          </span>
+          <h2>See the full loop in 30 seconds. No signup, no app changes.</h2>
+        </div>
+        <div className="problemGrid">
+          <div className="featureCard demoStep">
+            <div className="icon">
+              <span>1</span>
+            </div>
+            <h3>Clone and run</h3>
+            <pre className="inlinePre">
+              git clone https://github.com/mobigent/mobigent && cd mobigent && npm install && npm
+              run demo:app
+            </pre>
+          </div>
+          <div className="featureCard demoStep">
+            <div className="icon">
+              <span>2</span>
+            </div>
+            <h3>Open the inspector</h3>
+            <pre className="inlinePre">open http://localhost:8788/inspect</pre>
+          </div>
+          <div className="featureCard demoStep">
+            <div className="icon">
+              <span>3</span>
+            </div>
+            <h3>Watch the agent call</h3>
+            <p>
+              The demo page at localhost:8790 shows live app state. Click Run agent request or call
+              the API directly.
+            </p>
+          </div>
+        </div>
+      </section>
+
       <section className="section security">
         <div>
           <span className="eyebrow">
             <Lock size={15} /> The big idea
           </span>
-          <h2>Mobigent is the app-function layer for agentic mobile apps.</h2>
+          <h2>Your app functions, agent-accessible. You stay in control.</h2>
           <p>
             Define what agents may do. Keep the app in charge. Move fast without turning user trust
             into an experiment.
