@@ -6,7 +6,7 @@ import { createConsoleLogger } from './logger.js';
 import type { Request, Response, NextFunction } from 'express';
 
 const config = loadGatewayConfig();
-const logger = createConsoleLogger(config.env === 'production' ? 'info' : 'debug');
+const logger = createConsoleLogger(config.logLevel);
 
 logger.info('Mobigent Gateway starting', {
   eventType: 'gateway.starting',

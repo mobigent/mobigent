@@ -17,7 +17,17 @@ const expectedExports: Record<string, string[]> = {
     'sanitize',
     'validateJsonSchema',
   ],
-  '@mobigent/gateway': ['BridgeGateway', 'createHttpApp', 'createOpenApiSpec', 'createMcpServer'],
+  '@mobigent/gateway': [
+    'BridgeGateway',
+    'createHttpApp',
+    'createOpenApiSpec',
+    'createMcpServer',
+    'loadGatewayConfig',
+    'createConsoleLogger',
+    'createTelemetry',
+    'createMemoryStorage',
+    'createProductionStorage',
+  ],
   '@mobigent/app': ['createApp', 'withMobigent'],
   '@mobigent/backend': ['startMobigent'],
 };

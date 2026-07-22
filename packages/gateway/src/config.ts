@@ -39,6 +39,8 @@ export type GatewayConfig = {
   idempotencyRecordTtlMs?: number;
   /** Interval for cleaning up expired records in ms. */
   cleanupIntervalMs?: number;
+  /** Minimum log level for structured output. */
+  logLevel: 'debug' | 'info' | 'warn' | 'error';
 
   // -- Production safety --
   /** Deployment environment: "production", "staging", or "development". */
@@ -80,6 +82,7 @@ const DEFAULTS = {
   wsPort: 8787,
   httpPort: 8788,
   env: 'development' as const,
+  logLevel: 'info' as const,
   healthEndpoint: 'public' as const,
   readyEndpoint: 'public' as const,
   configEndpoint: 'public' as const,
@@ -250,6 +253,14 @@ export function loadGatewayConfig(overrides?: Partial<GatewayConfig>): GatewayCo
     undefined,
   );
   const cleanupIntervalMs = capture(() => envNum('MOBIGENT_CLEANUP_INTERVAL_MS'), undefined);
+  const logLevel = capture(() => {
+    const raw = envStr('MOBIGENT_LOG_LEVEL');
+    if (!raw) return DEFAULTS.logLevel;
+    const l = raw.toLowerCase();
+    if (['debug', 'info', 'warn', 'error'].includes(l))
+      return l as 'debug' | 'info' | 'warn' | 'error';
+    throw new Error(`MOBIGENT_LOG_LEVEL must be one of: debug, info, warn, error. Got "${raw}"`);
+  }, DEFAULTS.logLevel);
 
   // Endpoint policy
   const healthEndpoint = capture(
@@ -317,6 +328,7 @@ export function loadGatewayConfig(overrides?: Partial<GatewayConfig>): GatewayCo
     agentProfiles,
     idempotencyRecordTtlMs,
     cleanupIntervalMs,
+    logLevel,
     env,
     strictProductionMode,
     healthEndpoint,
