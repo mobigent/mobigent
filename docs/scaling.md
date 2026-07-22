@@ -65,13 +65,13 @@ To scale beyond a single instance, the following state must be shared:
 
 ### Shared Storage Implementations
 
-The gateway storage interfaces (`AuditSink`, `IdempotencyStore`, `RateLimitStore`) allow plugging in shared backends:
+The gateway storage interfaces (`AuditSink`, `IdempotencyStore`, `RateLimitStore`) are planned/in-progress extension points for plugging in shared backends:
 
 - **Redis:** Good for idempotency and rate-limit state (atomic counters, TTL)
 - **PostgreSQL:** Good for audit events and idempotency records
 - **S3/GCS:** Good for audit log files (append-only)
 
-Implement the `IdempotencyStore` and `RateLimitStore` interfaces with your backend of choice and pass them to the gateway.
+Until those interfaces are wired into `BridgeGateway` constructor options, idempotency and rate limits remain per-instance.
 
 ## Deployment Topologies
 

@@ -14,6 +14,7 @@ import {
   createMcpServer,
   createOpenApiSpec,
 } from '@mobigent/gateway';
+import { loadGatewayConfig } from '../packages/gateway/src/config.js';
 import {
   canonicalJson,
   validateCapabilityManifest,
@@ -246,6 +247,48 @@ test('React Native package exposes mobigent as primary singleton with legacy ali
 
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+const gatewayEnvKeys = [
+  'MOBIGENT_ENV',
+  'MOBIGENT_STRICT_PRODUCTION',
+  'MOBIGENT_AUTH_TOKEN',
+  'MOBIGENT_HTTP_API_KEY',
+  'MOBIGENT_HTTP_AGENT_API_KEYS',
+  'MOBIGENT_HTTP_JSON_LIMIT',
+  'MOBIGENT_HTTP_CORS_ORIGINS',
+  'MOBIGENT_AUDIT_LOG_PATH',
+  'MOBIGENT_AUDIT_REDACT_KEYS',
+  'MOBIGENT_MANIFEST_SIGNING_SECRET',
+  'MOBIGENT_ALLOWED_APP_IDS',
+  'MOBIGENT_AGENT_PROFILES',
+  'MOBIGENT_IDEMPOTENCY_RECORD_TTL_MS',
+  'MOBIGENT_CLEANUP_INTERVAL_MS',
+  'MOBIGENT_HEALTH_ENDPOINT',
+  'MOBIGENT_READY_ENDPOINT',
+  'MOBIGENT_CONFIG_ENDPOINT',
+  'MOBIGENT_OPENAPI_ENDPOINT',
+  'MOBIGENT_INSPECTOR',
+] as const;
+
+function withCleanGatewayEnv<T>(fn: () => T): T {
+  const snapshot = new Map<string, string | undefined>();
+  for (const key of gatewayEnvKeys) {
+    snapshot.set(key, process.env[key]);
+    delete process.env[key];
+  }
+
+  try {
+    return fn();
+  } finally {
+    for (const [key, value] of snapshot) {
+      if (value === undefined) {
+        delete process.env[key];
+      } else {
+        process.env[key] = value;
+      }
+    }
+  }
 }
 
 class MockMobigentSocket implements MobigentSocket {
@@ -5185,6 +5228,92 @@ test('HTTP gateway rate limits authenticated requests', async () => {
   } finally {
     gateway.stop();
     server?.close();
+  }
+});
+
+test('gateway config production overrides drive safety checks and endpoint defaults', () => {
+  const originalWarn = console.warn;
+  console.warn = () => {};
+
+  try {
+    withCleanGatewayEnv(() => {
+      const nonStrict = loadGatewayConfig({
+        env: 'production',
+        strictProductionMode: false,
+      });
+
+      assert.equal(nonStrict.env, 'production');
+      assert.equal(nonStrict.strictProductionMode, false);
+      assert.equal(nonStrict.configEndpoint, 'protected');
+      assert.equal(nonStrict.openApiEndpoint, 'protected');
+      assert.equal(nonStrict.inspectorMode, 'disabled');
+
+      assert.throws(
+        () =>
+          loadGatewayConfig({
+            env: 'production',
+            strictProductionMode: true,
+          }),
+        /MOBIGENT_AUTH_TOKEN is not set/,
+      );
+    });
+  } finally {
+    console.warn = originalWarn;
+  }
+});
+
+test('HTTP gateway inspector policy supports protected and disabled modes', async () => {
+  const protectedGateway = new BridgeGateway(18_875);
+  const protectedApp = createHttpApp(protectedGateway, {
+    apiKey: 'inspect-secret',
+    inspectorMode: 'protected',
+  });
+  const protectedServer = protectedApp.listen(18_876);
+
+  const disabledGateway = new BridgeGateway(18_877);
+  const disabledApp = createHttpApp(disabledGateway, {
+    apiKey: 'inspect-secret',
+    inspectorMode: 'disabled',
+  });
+  const disabledServer = disabledApp.listen(18_878);
+
+  const internalGateway = new BridgeGateway(18_879);
+  const internalApp = createHttpApp(internalGateway, {
+    apiKey: 'inspect-secret',
+    inspectorMode: 'internal',
+  });
+  const internalServer = internalApp.listen(18_880);
+
+  protectedGateway.start();
+  disabledGateway.start();
+  internalGateway.start();
+
+  try {
+    const denied = await fetch('http://localhost:18876/inspect');
+    assert.equal(denied.status, 401);
+
+    const allowed = await fetch('http://localhost:18876/inspect', {
+      headers: { 'x-mobigent-api-key': 'inspect-secret' },
+    });
+    assert.equal(allowed.status, 200);
+    assert.match(await allowed.text(), /Mobigent Inspector/);
+
+    const disabled = await fetch('http://localhost:18878/inspect', {
+      headers: { 'x-mobigent-api-key': 'inspect-secret' },
+    });
+    assert.equal(disabled.status, 404);
+
+    const internal = await fetch('http://localhost:18880/inspect', {
+      headers: { 'x-mobigent-api-key': 'inspect-secret' },
+    });
+    assert.equal(internal.status, 404);
+  } finally {
+    protectedGateway.stop();
+    disabledGateway.stop();
+    internalGateway.stop();
+    protectedServer.close();
+    disabledServer.close();
+    internalServer.close();
   }
 });
 

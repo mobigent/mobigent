@@ -2,9 +2,13 @@
 
 This guide covers monitoring, dashboards, alerts, and operational visibility for Mobigent gateway deployments.
 
+## Current Runtime State
+
+The gateway currently exposes health, readiness, JSON metrics, Prometheus metrics, audit events, and audit/tool SSE streams. Structured logger and OpenTelemetry helper modules exist in the source tree, but they are not wired into the default gateway runtime yet. Treat structured logging and OpenTelemetry as in-progress extension points until the gateway constructor accepts logger/telemetry injection and emits through them by default.
+
 ## Structured Logging
 
-The gateway emits structured JSON logs to stdout (info/debug) and stderr (warn/error). Each log line includes:
+Planned structured JSON logs should include fields like:
 
 ```json
 {
@@ -20,13 +24,13 @@ The gateway emits structured JSON logs to stdout (info/debug) and stderr (warn/e
 }
 ```
 
-Log levels: `debug`, `info`, `warn`, `error`.
+Planned log levels: `debug`, `info`, `warn`, `error`.
 
-Set `MOBIGENT_LOG_LEVEL=debug` for verbose output in development. Production defaults to `info`.
+`MOBIGENT_LOG_LEVEL` is not currently wired into the gateway runtime.
 
 ### Custom Logger Injection
 
-Embedders can inject a custom logger that implements the `Logger` interface (see `packages/gateway/src/logger.ts`). This allows routing logs to existing infrastructure (Winston, Pino, Datadog, etc.).
+`packages/gateway/src/logger.ts` defines a `Logger` interface and console/no-op helpers. Gateway constructor injection is still a follow-up, so embedders cannot route all gateway runtime logs through this interface yet.
 
 ### Secret Safety
 
@@ -34,7 +38,7 @@ Logs never include raw action inputs, results, API keys, auth tokens, or signing
 
 ## OpenTelemetry
 
-The gateway auto-detects `@opentelemetry/api`. When installed, it emits:
+`packages/gateway/src/telemetry.ts` contains OpenTelemetry-compatible helper abstractions. The default gateway runtime does not auto-detect or emit OpenTelemetry spans/metrics yet. Once wired, it should emit:
 
 - **Traces**: Spans for each tool call (`tool_call.<name>`)
 - **Metrics**: Counters and histograms for tool calls, sessions, auth, HTTP requests
@@ -60,7 +64,7 @@ sdk.start();
 // Then start the gateway
 ```
 
-When `@opentelemetry/api` is not installed, all telemetry calls are no-ops.
+When the helper is used without `@opentelemetry/api`, telemetry calls are no-ops.
 
 ## Prometheus Metrics
 
@@ -162,4 +166,4 @@ Every request through the gateway can be correlated using these fields:
 - `agentId` — the provider/agent identity
 - `tool` — the tool name being called
 
-These fields appear in structured logs, audit events, OpenTelemetry spans, and HTTP response headers (`x-mobigent-request-id`).
+Today these fields appear in audit events and selected request/call metadata. Structured logs, OpenTelemetry spans, and response headers are planned follow-ups.

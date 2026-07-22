@@ -101,7 +101,7 @@ Use `/ready` as the Kubernetes readiness probe. Use `/health` as the liveness pr
 ### App Auth Token
 
 1. Generate new token
-2. Set `MOBIGENT_AUTH_TOKEN=new-token` on gateway (both old and new temporarily)
+2. Set `MOBIGENT_AUTH_TOKEN=new-token` on gateway.
 3. Deploy updated app builds with new token
 4. Remove old token from gateway config
 5. Restart gateway
@@ -122,13 +122,12 @@ Use `/ready` as the Kubernetes readiness probe. Use `/health` as the liveness pr
 
 ## Gateway Restart / Drain
 
-The gateway handles SIGTERM gracefully:
+On SIGTERM, the packaged gateway closes the HTTP server and stops the WebSocket gateway. Full drain semantics are still a follow-up:
 
-1. Stop accepting new HTTP requests
-2. Stop accepting new WebSocket connections
-3. Allow in-flight tool calls to complete (up to configured timeout)
-4. Emit `gateway.stopped` audit event
-5. Close all connections and exit
+1. HTTP server stops accepting new connections.
+2. WebSocket sessions are closed.
+3. Pending tool calls are rejected with `Gateway stopped.`
+4. A `gateway.stopped` audit event is emitted.
 
 ### Scaling with Sticky Sessions
 
@@ -139,7 +138,7 @@ In a multi-instance deployment:
    - Consistent hashing on `appId`
 2. HTTP API calls do not require stickiness
 3. Rate limits and idempotency are per-instance until durable storage is configured
-4. Use the shared storage interfaces (`AuditSink`, `IdempotencyStore`, `RateLimitStore`) for cross-instance consistency
+4. Shared storage interfaces are planned/in-progress; until they are wired into `BridgeGateway`, use sticky sessions and treat idempotency/rate limits as per-instance.
 
 ## Provider Import Issues
 

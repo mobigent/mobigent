@@ -244,7 +244,7 @@ flowchart LR
 - [x] Input validation via JSON Schema
 - [x] Structured logging (secret-safe)
 - [x] Endpoint policy (public/protected/disabled)
-- [x] Inspector access control (enabled/disabled/protected/internal)
+- [x] Inspector access control (enabled/disabled/protected; `internal` is accepted but disabled until a separate internal listener exists)
 - [x] Production mode safety checks
 
 ### Recommended (P1)

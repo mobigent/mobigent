@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Agent Loop Review Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["status", "summary", "blocking_findings", "checks_run", "next_executor_prompt"],
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": ["pass", "fail"]
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "blocking_findings": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "checks_run": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["command", "status", "detail"],
+        "properties": {
+          "command": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pass", "fail", "skip"]
+          },
+          "detail": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "next_executor_prompt": {
+      "type": "string"
+    }
+  }
+}

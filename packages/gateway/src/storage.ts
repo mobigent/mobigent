@@ -12,7 +12,6 @@
 import { appendFileSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import type { AuditEvent } from './BridgeGateway.js';
-import type { JsonObject } from '@mobigent/core';
 
 // ---------------------------------------------------------------------------
 // AuditSink

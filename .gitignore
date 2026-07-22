@@ -1,6 +1,9 @@
 node_modules/
 dist/
 build/
+**/.build/
+.agents/runs/*
+!.agents/runs/.gitkeep
 .DS_Store
 .env
 .env.*

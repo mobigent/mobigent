@@ -77,6 +77,42 @@ npm run dev:mcp
 npm run demo:app
 ```
 
+## Reviewer/Executor Loop
+
+Use the local loop when one agent should implement and another should independently verify:
+
+```bash
+npm run agent:start
+npm run agent:resume:last
+npm run agent:status
+npm run agent:tail
+npm run agent:loop -- .agents/prompts/production-readiness-verification.md
+npm run agent:resume -- .agents/runs/<run-id>
+```
+
+Roles:
+
+- The executor may edit files, run tests, and report results.
+- The reviewer verifies independently, returns machine-readable pass/fail output, and owns the final decision.
+- If the reviewer fails the pass, the loop writes a focused next assignment and hands it back to the executor.
+- If `AGENT_PUSH_ON_PASS=1` is set, every reviewer-approved stage is committed and pushed with `gh` authentication to the configured GitHub target. Use `GH_TOKEN` or `GITHUB_TOKEN` from the shell environment only; never write tokens into repo files, prompts, logs, or commits.
+- If interrupted, resume from the saved run directory instead of starting a duplicate run.
+- Run artifacts are written under `.agents/runs/` and are intentionally ignored.
+
+Useful environment overrides:
+
+```bash
+AGENT_MAX_ROUNDS=5 npm run agent:loop -- path/to/assignment.md
+AGENT_MAX_ROUNDS=until-pass AGENT_STALL_LIMIT=3 npm run agent:loop -- path/to/assignment.md
+AGENT_MAX_MINUTES=180 npm run agent:loop -- path/to/assignment.md
+AGENT_PUSH_ON_PASS=1 GH_TOKEN=<token> GITHUB_TARGET_REPO=vivekjm/mobigent npm run agent:loop -- path/to/assignment.md
+GH_TOKEN=<token> npm run agent:start
+GH_TOKEN=<token> npm run agent:resume:last
+CLAUDE_BASE_URL=https://api.deepseek.com/anthropic npm run agent:loop -- path/to/assignment.md
+EXECUTOR_BIN=claude npm run agent:loop -- path/to/assignment.md
+REVIEWER_BIN=<reviewer-cli> npm run agent:loop -- path/to/assignment.md
+```
+
 ## Production-Readiness Priorities
 
 Execute in this order unless the user says otherwise:

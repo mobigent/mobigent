@@ -1412,6 +1412,7 @@ function getEndpointPolicy(
     const mode = options.inspectorMode ?? 'enabled';
     if (mode === 'disabled') return 'disabled';
     if (mode === 'protected') return 'protected';
+    if (mode === 'internal') return 'disabled';
     return 'public';
   }
   // All other endpoints: protected when HTTP auth is configured

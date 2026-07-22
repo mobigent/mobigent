@@ -130,21 +130,6 @@ function envList(key: string): string[] | undefined {
     .filter(Boolean);
 }
 
-function envJsonObject(key: string, label: string): Record<string, unknown> {
-  const v = process.env[key];
-  if (!v) throw new Error(`${key} is required (${label})`);
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(v);
-  } catch {
-    throw new Error(`${key} must be valid JSON (${label})`);
-  }
-  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-    throw new Error(`${key} must be a JSON object (${label})`);
-  }
-  return parsed as Record<string, unknown>;
-}
-
 function parseAgentProfiles(
   raw: string,
 ): Record<string, import('./BridgeGateway.js').AgentProfile> {
@@ -197,13 +182,6 @@ function validateEnv(value: string): 'production' | 'staging' | 'development' {
 // ---------------------------------------------------------------------------
 // Secret redaction
 // ---------------------------------------------------------------------------
-
-const SECRET_KEYS = new Set([
-  'authToken',
-  'httpApiKey',
-  'httpAgentApiKeys',
-  'manifestSigningSecret',
-]);
 
 function redact(value: unknown): unknown {
   if (typeof value === 'string' && value.length > 0) {
@@ -349,17 +327,45 @@ export function loadGatewayConfig(overrides?: Partial<GatewayConfig>): GatewayCo
     ...overrides,
   };
 
+  if (
+    overrides?.env &&
+    overrides.strictProductionMode === undefined &&
+    envStr('MOBIGENT_STRICT_PRODUCTION') === undefined
+  ) {
+    config.strictProductionMode = config.env === 'production';
+  }
+  if (!overrides?.healthEndpoint && envStr('MOBIGENT_HEALTH_ENDPOINT') === undefined) {
+    config.healthEndpoint =
+      config.env === 'production' ? PRODUCTION_DEFAULTS.healthEndpoint! : DEFAULTS.healthEndpoint;
+  }
+  if (!overrides?.readyEndpoint && envStr('MOBIGENT_READY_ENDPOINT') === undefined) {
+    config.readyEndpoint =
+      config.env === 'production' ? PRODUCTION_DEFAULTS.readyEndpoint! : DEFAULTS.readyEndpoint;
+  }
+  if (!overrides?.configEndpoint && envStr('MOBIGENT_CONFIG_ENDPOINT') === undefined) {
+    config.configEndpoint =
+      config.env === 'production' ? PRODUCTION_DEFAULTS.configEndpoint! : DEFAULTS.configEndpoint;
+  }
+  if (!overrides?.openApiEndpoint && envStr('MOBIGENT_OPENAPI_ENDPOINT') === undefined) {
+    config.openApiEndpoint =
+      config.env === 'production' ? PRODUCTION_DEFAULTS.openApiEndpoint! : DEFAULTS.openApiEndpoint;
+  }
+  if (!overrides?.inspectorMode && envStr('MOBIGENT_INSPECTOR') === undefined) {
+    config.inspectorMode =
+      config.env === 'production' ? PRODUCTION_DEFAULTS.inspectorMode! : DEFAULTS.inspectorMode;
+  }
+
   // Production safety checks
   const warnings: string[] = [];
-  if (env === 'production') {
+  if (config.env === 'production') {
     if (!config.authToken) {
       const msg = 'MOBIGENT_AUTH_TOKEN is not set. App sessions will not require authentication.';
-      if (strictProductionMode) problems.push(msg);
+      if (config.strictProductionMode) problems.push(msg);
       else warnings.push(msg);
     }
     if (!config.httpApiKey && !config.httpAgentApiKeys) {
       const msg = 'No HTTP API key configured. HTTP endpoints will not require authentication.';
-      if (strictProductionMode) problems.push(msg);
+      if (config.strictProductionMode) problems.push(msg);
       else warnings.push(msg);
     }
     if (!config.allowedAppIds?.length) {
@@ -373,7 +379,7 @@ export function loadGatewayConfig(overrides?: Partial<GatewayConfig>): GatewayCo
     if (config.inspectorMode === 'enabled') {
       const msg =
         'Inspector is enabled in production. Set MOBIGENT_INSPECTOR=disabled or MOBIGENT_INSPECTOR=protected.';
-      if (strictProductionMode) problems.push(msg);
+      if (config.strictProductionMode) problems.push(msg);
       else warnings.push(msg);
     }
     if (!config.httpCorsOrigins?.length) {
