@@ -141,6 +141,7 @@ function createPackageJson(packageName: string, options?: CreateMobigentAppOptio
     ? {
         '@mobigent/backend': localPackageSpec(options, 'backend'),
         '@mobigent/app': localPackageSpec(options, 'app'),
+        react: '^18.3.1',
         express: '^5.2.1',
         ws: '^8.21.0',
       }
@@ -148,12 +149,14 @@ function createPackageJson(packageName: string, options?: CreateMobigentAppOptio
       ? {
           '@mobigent/backend': releaseTarballSpec('mobigent-backend', version),
           '@mobigent/app': releaseTarballSpec('mobigent-app', version),
+          react: '^18.3.1',
           express: '^5.2.1',
           ws: '^8.21.0',
         }
       : {
           '@mobigent/backend': `^${version}`,
           '@mobigent/app': `^${version}`,
+          react: '^18.3.1',
           express: '^5.2.1',
           ws: '^8.21.0',
         };
