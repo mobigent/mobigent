@@ -425,6 +425,7 @@ export function configDiagnostics(config: GatewayConfig): Record<string, unknown
     strictProduction: config.strictProductionMode,
     wsPort: config.wsPort,
     httpPort: config.httpPort,
+    logLevel: config.logLevel,
     authToken: redact(config.authToken),
     httpApiKey: redact(config.httpApiKey),
     httpAgentApiKeys: redact(config.httpAgentApiKeys),

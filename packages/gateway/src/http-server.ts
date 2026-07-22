@@ -3,6 +3,7 @@ import { BridgeGateway } from './BridgeGateway.js';
 import { createHttpApp } from './http.js';
 import { loadGatewayConfig, configDiagnostics } from './config.js';
 import { createConsoleLogger } from './logger.js';
+import { createTelemetry, createGatewayMetrics } from './telemetry.js';
 import type { Request, Response, NextFunction } from 'express';
 
 const config = loadGatewayConfig();
@@ -17,6 +18,28 @@ logger.info('Gateway configuration loaded', {
   eventType: 'config.loaded',
   context: configDiagnostics(config),
 });
+
+// ---------------------------------------------------------------------------
+// OpenTelemetry auto-detection
+// ---------------------------------------------------------------------------
+
+let telemetryMetrics: ReturnType<typeof createGatewayMetrics> | undefined;
+
+createTelemetry()
+  .then(({ telemetry, metrics }) => {
+    logger.info('OpenTelemetry auto-detected and initialized', {
+      eventType: 'telemetry.initialized',
+    });
+    // Metrics are available for the gateway to use.
+    // The Telemetry object can be passed to BridgeGateway or HTTP middleware
+    // for trace context propagation.
+    telemetryMetrics = metrics;
+  })
+  .catch(() => {
+    logger.debug('OpenTelemetry not available — running without traces/metrics.', {
+      eventType: 'telemetry.unavailable',
+    });
+  });
 
 const gateway = new BridgeGateway({
   port: config.wsPort,
