@@ -207,9 +207,9 @@ Optional helpers:
 
 ## Status
 
-Mobigent is an early developer preview. The current SDK includes React Native, native iOS, native Android, local app/backend delivery, HTTP/OpenAPI, MCP, confirmation flow, validation, audit events, provider examples, GitHub Pages docs, native CI, and Docker production hosting.
+Mobigent is in beta. The SDK includes React Native, native iOS (Swift Package), native Android (Kotlin/Gradle), local app/backend delivery, HTTP/OpenAPI, MCP, confirmation flow, validation, structured logging, audit events, Prometheus metrics, provider adapters for 30+ agent frameworks, GitHub Pages docs, native CI, and Docker production hosting.
 
-The goal is simple: make Mobigent the easiest way to build agentic mobile apps.
+The goal: make Mobigent the easiest way to build agentic mobile apps. Install two packages, expose normal functions, call them from backend code. The SDK handles the rest.
 
 ## License
 
