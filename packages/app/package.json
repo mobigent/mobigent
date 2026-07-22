@@ -66,7 +66,7 @@
     "@mobigent/react-native": "0.1.15"
   },
   "peerDependencies": {
-    "react": "^19.2.6",
+    "react": ">=18.3.1",
     "react-native": "^0.85.3"
   },
   "peerDependenciesMeta": {
