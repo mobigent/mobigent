@@ -495,6 +495,49 @@ const productionBackend = [
   ['Retry safely', 'Forward request ids and idempotency keys from provider calls.'],
 ];
 
+const productionDocs = [
+  {
+    title: 'Production Gateway',
+    href: 'https://github.com/mobigent/mobigent/blob/main/docs/production-gateway.md',
+  },
+  {
+    title: 'Observability & Monitoring',
+    href: 'https://github.com/mobigent/mobigent/blob/main/docs/observability.md',
+  },
+  {
+    title: 'Operations Runbook',
+    href: 'https://github.com/mobigent/mobigent/blob/main/docs/operations.md',
+  },
+  {
+    title: 'Scaling Guide',
+    href: 'https://github.com/mobigent/mobigent/blob/main/docs/scaling.md',
+  },
+  {
+    title: 'Security & Threat Model',
+    href: 'https://github.com/mobigent/mobigent/blob/main/docs/threat-model.md',
+  },
+  {
+    title: 'Compatibility Policy',
+    href: 'https://github.com/mobigent/mobigent/blob/main/docs/compatibility-policy.md',
+  },
+  {
+    title: 'Migration Guide',
+    href: 'https://github.com/mobigent/mobigent/blob/main/docs/migration.md',
+  },
+  {
+    title: 'Provider Compatibility',
+    href: 'https://github.com/mobigent/mobigent/blob/main/docs/provider-compatibility.md',
+  },
+  {
+    title: 'Release Checklist',
+    href: 'https://github.com/mobigent/mobigent/blob/main/docs/release-checklist.md',
+  },
+  {
+    title: 'Mobile E2E Validation',
+    href: 'https://github.com/mobigent/mobigent/blob/main/docs/mobile-e2e-validation.md',
+  },
+];
+
 function Docs() {
   return (
     <main>
@@ -808,6 +851,24 @@ function Docs() {
         <div className="apiList">
           {productionBackend.map(([name, text]) => (
             <Row key={name} title={name} text={text} />
+          ))}
+        </div>
+        <div className="sectionHeader compact" style={{ marginTop: '2rem' }}>
+          <span className="eyebrow">
+            <BookOpen size={15} /> Production docs
+          </span>
+          <h3>Detailed guides for operating Mobigent in production.</h3>
+        </div>
+        <div className="apiList">
+          {productionDocs.map(({ title, href }) => (
+            <div className="tableRow" key={title}>
+              <strong>{title}</strong>
+              <span>
+                <a href={href} target="_blank" rel="noopener noreferrer">
+                  Read the guide →
+                </a>
+              </span>
+            </div>
           ))}
         </div>
       </section>
