@@ -205,6 +205,20 @@ Optional helpers:
 - ChatGPT Actions: [docs/chatgpt-actions.md](./docs/chatgpt-actions.md)
 - MCP: [docs/mcp.md](./docs/mcp.md)
 
+## How It Works
+
+Mobigent follows the same pattern as Firebase, Stripe, or any backend SDK you already know:
+
+| Step | You do | Mobigent handles |
+|------|--------|------------------|
+| 1. Install | `npm install @mobigent/app @mobigent/backend` | All dependencies, no native linking |
+| 2. Expose | Write normal async functions in your app | Input/output validation, read/write detection |
+| 3. Wrap | `export default mobigent.with(App)` | WebSocket connection, reconnect, heartbeat |
+| 4. Call | `await app.expense.create(input)` from your backend | Delivery, routing, user confirmation, retries, audit |
+| 5. Agents | `mobigent.connect.chatgpt()` when ready | 30+ agent frameworks, tool discovery, provider setup |
+
+The SDK handles delivery, validation, confirmations, retries, events, agent setup, and audit logs. You write the app functions and call them.
+
 ## Status
 
 Mobigent is in beta. The SDK includes React Native, native iOS (Swift Package), native Android (Kotlin/Gradle), local app/backend delivery, HTTP/OpenAPI, MCP, confirmation flow, validation, structured logging, audit events, Prometheus metrics, provider adapters for 30+ agent frameworks, GitHub Pages docs, native CI, and Docker production hosting.

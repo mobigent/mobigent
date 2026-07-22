@@ -1,7 +1,7 @@
 {
   "name": "@mobigent/gateway",
   "version": "0.1.15",
-  "description": "Advanced Mobigent transport package for routing agent calls to mobile app functions.",
+  "description": "Transport layer for routing agent calls to mobile app functions.",
   "type": "module",
   "license": "MIT",
   "repository": {
