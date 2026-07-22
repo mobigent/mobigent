@@ -4,11 +4,13 @@ This guide covers monitoring, dashboards, alerts, and operational visibility for
 
 ## Current Runtime State
 
-The gateway currently exposes health, readiness, JSON metrics, Prometheus metrics, audit events, and audit/tool SSE streams. Structured logger and OpenTelemetry helper modules exist in the source tree, but they are not wired into the default gateway runtime yet. Treat structured logging and OpenTelemetry as in-progress extension points until the gateway constructor accepts logger/telemetry injection and emits through them by default.
+The gateway now emits structured JSON logs through the `Logger` interface defined in `packages/gateway/src/logger.ts`. The default gateway runtime (`http-server.ts`) wires a console-backed structured logger with JSON output to stdout/stderr. Key lifecycle events — startup, shutdown, session connect/disconnect, malformed messages — are logged with correlation fields (`sessionId`, `appId`, `eventType`). The gateway constructor accepts an optional `logger` parameter for embedders who want to route logs to existing infrastructure.
+
+OpenTelemetry helpers exist in `telemetry.ts` but are not yet auto-detected by the default runtime. Embedders can still import `createTelemetry()` and pass the result to the gateway.
 
 ## Structured Logging
 
-Planned structured JSON logs should include fields like:
+The gateway emits structured JSON logs to stdout (info/debug) and stderr (warn/error). Each log line includes:
 
 ```json
 {
@@ -24,13 +26,13 @@ Planned structured JSON logs should include fields like:
 }
 ```
 
-Planned log levels: `debug`, `info`, `warn`, `error`.
+Log levels: `debug`, `info`, `warn`, `error`.
 
-`MOBIGENT_LOG_LEVEL` is not currently wired into the gateway runtime.
+Set `MOBIGENT_LOG_LEVEL` to `debug`, `info`, `warn`, or `error` to control verbosity. Production defaults to `info`.
 
 ### Custom Logger Injection
 
-`packages/gateway/src/logger.ts` defines a `Logger` interface and console/no-op helpers. Gateway constructor injection is still a follow-up, so embedders cannot route all gateway runtime logs through this interface yet.
+Embedders can inject a custom logger that implements the `Logger` interface (see `packages/gateway/src/logger.ts`). Pass it via `new BridgeGateway({ logger: myLogger })`. This allows routing logs to existing infrastructure (Winston, Pino, Datadog, etc.). The gateway also accepts `logger` in its HTTP server startup.
 
 ### Secret Safety
 
@@ -38,7 +40,7 @@ Logs never include raw action inputs, results, API keys, auth tokens, or signing
 
 ## OpenTelemetry
 
-`packages/gateway/src/telemetry.ts` contains OpenTelemetry-compatible helper abstractions. The default gateway runtime does not auto-detect or emit OpenTelemetry spans/metrics yet. Once wired, it should emit:
+`packages/gateway/src/telemetry.ts` contains OpenTelemetry-compatible helper abstractions (`createTelemetry()`, `createGatewayMetrics()`, `startTracedToolCall()`). The gateway constructor is ready for telemetry injection. The default runtime does not yet auto-detect `@opentelemetry/api` — embedders should call `createTelemetry()` and pass the result. Once wired, it emits:
 
 - **Traces**: Spans for each tool call (`tool_call.<name>`)
 - **Metrics**: Counters and histograms for tool calls, sessions, auth, HTTP requests

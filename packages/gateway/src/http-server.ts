@@ -2,14 +2,21 @@
 import { BridgeGateway } from './BridgeGateway.js';
 import { createHttpApp } from './http.js';
 import { loadGatewayConfig, configDiagnostics } from './config.js';
+import { createConsoleLogger } from './logger.js';
+import type { Request, Response, NextFunction } from 'express';
 
 const config = loadGatewayConfig();
+const logger = createConsoleLogger(config.env === 'production' ? 'info' : 'debug');
 
-if (config.env === 'production') {
-  console.log('Mobigent Gateway starting in production mode.');
-}
+logger.info('Mobigent Gateway starting', {
+  eventType: 'gateway.starting',
+  context: { env: config.env, version: '0.1.15' },
+});
 
-console.log('Gateway configuration:', configDiagnostics(config));
+logger.info('Gateway configuration loaded', {
+  eventType: 'config.loaded',
+  context: configDiagnostics(config),
+});
 
 const gateway = new BridgeGateway({
   port: config.wsPort,
@@ -21,6 +28,7 @@ const gateway = new BridgeGateway({
   manifestSigningSecret: config.manifestSigningSecret,
   allowedAppIds: config.allowedAppIds,
   agentProfiles: config.agentProfiles,
+  logger,
 });
 gateway.start();
 
@@ -35,50 +43,138 @@ const app = createHttpApp(gateway, {
   openApiEndpoint: config.openApiEndpoint,
   inspectorMode: config.inspectorMode,
 });
+
+// Track in-flight requests for graceful shutdown
+let inFlight = 0;
+
+app.use((_req: Request, _res: Response, next: NextFunction) => {
+  inFlight++;
+  _res.on('finish', () => {
+    inFlight--;
+  });
+  next();
+});
+
 const server = app.listen(config.httpPort, () => {
-  console.log(`Mobigent HTTP API listening on http://localhost:${config.httpPort}`);
-  console.log(`OpenAPI schema: http://localhost:${config.httpPort}/openapi.json`);
+  logger.info(`HTTP API listening on http://localhost:${config.httpPort}`, {
+    eventType: 'http.started',
+    context: {
+      httpPort: config.httpPort,
+      wsPort: config.wsPort,
+      openApiPath: '/openapi.json',
+    },
+  });
+
   if (config.httpApiKey) {
-    console.log('HTTP API key auth is enabled.');
+    logger.info('HTTP API key auth is enabled', { eventType: 'config.auth.http_api_key' });
   }
   if (config.httpAgentApiKeys && Object.keys(config.httpAgentApiKeys).length) {
-    console.log(
-      `Per-agent HTTP API keys are enabled for: ${Object.keys(config.httpAgentApiKeys).join(', ')}`,
+    logger.info(
+      `Per-agent HTTP API keys enabled for: ${Object.keys(config.httpAgentApiKeys).join(', ')}`,
+      { eventType: 'config.auth.agent_api_keys' },
     );
   }
   if (config.httpCorsOrigins?.length) {
-    console.log(`HTTP CORS origins are restricted to: ${config.httpCorsOrigins.join(', ')}`);
+    logger.info(`HTTP CORS restricted to: ${config.httpCorsOrigins.join(', ')}`, {
+      eventType: 'config.cors',
+    });
   }
   if (config.httpJsonBodyLimit) {
-    console.log(`HTTP JSON body limit is ${config.httpJsonBodyLimit}.`);
+    logger.info(`HTTP JSON body limit: ${config.httpJsonBodyLimit}`, {
+      eventType: 'config.json_limit',
+    });
   }
   if (config.auditLogPath) {
-    console.log(`Audit events will be written to ${config.auditLogPath}.`);
+    logger.info(`Audit events → ${config.auditLogPath}`, {
+      eventType: 'config.audit_log',
+    });
   }
   if (config.auditRedactKeys?.length) {
-    console.log(`Additional audit redaction keys: ${config.auditRedactKeys.join(', ')}`);
+    logger.info(`Additional audit redaction keys: ${config.auditRedactKeys.join(', ')}`, {
+      eventType: 'config.audit_redaction',
+    });
   }
   if (config.manifestSigningSecret) {
-    console.log('Manifest signature verification is enabled.');
+    logger.info('Manifest signature verification enabled', {
+      eventType: 'config.manifest_signing',
+    });
   }
   if (config.allowedAppIds?.length) {
-    console.log(`App id allowlist is enabled: ${config.allowedAppIds.join(', ')}`);
+    logger.info(`App id allowlist: ${config.allowedAppIds.join(', ')}`, {
+      eventType: 'config.app_allowlist',
+    });
   }
   if (config.agentProfiles && Object.keys(config.agentProfiles).length) {
-    console.log(`Agent profiles are enabled for: ${Object.keys(config.agentProfiles).join(', ')}`);
+    logger.info(`Agent profiles enabled for: ${Object.keys(config.agentProfiles).join(', ')}`, {
+      eventType: 'config.agent_profiles',
+    });
   }
-  console.log(
+  logger.info(
     `Endpoint policies — health:${config.healthEndpoint} ready:${config.readyEndpoint} config:${config.configEndpoint} openapi:${config.openApiEndpoint}`,
+    {
+      eventType: 'config.endpoint_policies',
+    },
   );
-  console.log(`Inspector mode: ${config.inspectorMode}`);
+  logger.info(`Inspector mode: ${config.inspectorMode}`, {
+    eventType: 'config.inspector_mode',
+  });
 });
 
-process.on('SIGINT', () => {
-  server.close();
-  gateway.stop();
-});
+// ---------------------------------------------------------------------------
+// Graceful shutdown with drain
+// ---------------------------------------------------------------------------
 
-process.on('SIGTERM', () => {
-  server.close();
+const SHUTDOWN_DRAIN_TIMEOUT_MS = 30_000;
+
+function gracefulShutdown(signal: string) {
+  logger.info(`Received ${signal}, initiating graceful shutdown...`, {
+    eventType: 'gateway.shutdown.initiated',
+  });
+
+  // Stop accepting new HTTP connections
+  server.close((err) => {
+    if (err) {
+      logger.error('Error closing HTTP server', {
+        eventType: 'gateway.shutdown.error',
+        errorCode: 'HTTP_CLOSE_ERROR',
+      });
+    }
+  });
+
+  // Stop accepting new WebSocket connections
   gateway.stop();
-});
+
+  // Wait for in-flight requests to drain
+  const drainStart = Date.now();
+  const checkDrain = setInterval(() => {
+    if (inFlight <= 0) {
+      clearInterval(checkDrain);
+      logger.info('All in-flight requests drained, exiting.', {
+        eventType: 'gateway.shutdown.complete',
+        context: { drainMs: Date.now() - drainStart },
+      });
+      process.exit(0);
+    }
+    if (Date.now() - drainStart >= SHUTDOWN_DRAIN_TIMEOUT_MS) {
+      clearInterval(checkDrain);
+      logger.warn(`Shutdown drain timeout after ${SHUTDOWN_DRAIN_TIMEOUT_MS}ms, forcing exit.`, {
+        eventType: 'gateway.shutdown.drain_timeout',
+        errorCode: 'DRAIN_TIMEOUT',
+        context: { inFlight },
+      });
+      process.exit(1);
+    }
+  }, 100);
+
+  // Failsafe: force exit after drain timeout + buffer
+  setTimeout(() => {
+    logger.error('Forced shutdown after timeout.', {
+      eventType: 'gateway.shutdown.forced',
+      errorCode: 'FORCED_SHUTDOWN',
+    });
+    process.exit(1);
+  }, SHUTDOWN_DRAIN_TIMEOUT_MS + 5_000);
+}
+
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));

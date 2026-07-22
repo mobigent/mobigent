@@ -12,6 +12,8 @@ import type {
   ToolDescriptor,
 } from '@mobigent/core';
 import { canonicalJson, toolName, validateCapabilityManifest } from '@mobigent/core';
+import type { Logger } from './logger.js';
+import { createConsoleLogger, createNoopLogger, buildLogContext } from './logger.js';
 
 type PendingCall = {
   resolve: (value: unknown) => void;
@@ -167,6 +169,8 @@ export type BridgeGatewayOptions = {
   manifestSigningSecret?: string;
   allowedAppIds?: string[];
   agentProfiles?: Record<string, AgentProfile>;
+  /** Structured logger for gateway lifecycle and request events. */
+  logger?: Logger;
 };
 
 const defaultAuditRedactKeys = [
@@ -267,6 +271,7 @@ export class BridgeGateway {
   private readonly manifestSigningSecret?: string;
   private readonly allowedAppIds: Set<string>;
   private readonly agentProfiles: Map<string, AgentProfile>;
+  private readonly logger: Logger;
   private cleanupTimer?: NodeJS.Timeout;
 
   constructor(options: BridgeGatewayOptions | number = 8787) {
@@ -279,6 +284,7 @@ export class BridgeGateway {
       this.auditRedactKeys = new Set(defaultAuditRedactKeys.map((key) => key.toLowerCase()));
       this.allowedAppIds = new Set();
       this.agentProfiles = new Map();
+      this.logger = createConsoleLogger('info');
       return;
     }
 
@@ -297,13 +303,17 @@ export class BridgeGateway {
     this.manifestSigningSecret = options.manifestSigningSecret;
     this.allowedAppIds = new Set(options.allowedAppIds ?? []);
     this.agentProfiles = new Map(Object.entries(options.agentProfiles ?? {}));
+    this.logger = options.logger ?? createConsoleLogger('info');
   }
 
   start() {
     this.appServer = new WebSocketServer({ port: this.port });
     this.appServer.on('connection', (socket) => this.handleConnection(socket));
     this.startCleanupTimer();
-    console.log(`Mobigent gateway listening for mobile apps on ws://localhost:${this.port}`);
+    this.logger.info('Gateway listening for mobile apps', {
+      eventType: 'gateway.started',
+      context: { port: this.port },
+    });
     this.emitAudit({
       type: 'gateway.started',
       severity: 'info',
@@ -326,6 +336,7 @@ export class BridgeGateway {
     this.stopCleanupTimer();
     this.appServer?.close();
     this.emitToolsChanged();
+    this.logger.info('Gateway stopped', { eventType: 'gateway.stopped' });
     this.emitAudit({
       type: 'gateway.stopped',
       severity: 'info',
@@ -771,7 +782,10 @@ export class BridgeGateway {
     };
 
     this.sessions.set(session.id, session);
-    console.log(`Mobile app session connected: ${session.id}`);
+    this.logger.info(`App session connected: ${session.id}`, {
+      sessionId: session.id,
+      eventType: 'session.connected',
+    });
     this.emitAudit({
       type: 'session.connected',
       severity: 'info',
@@ -785,7 +799,11 @@ export class BridgeGateway {
         this.handleAppMessage(session, JSON.parse(raw.toString()) as BridgeMessage);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        console.warn(`Ignoring malformed app message from ${session.id}: ${message}`);
+        this.logger.warn(`Malformed app message from ${session.id}`, {
+          sessionId: session.id,
+          eventType: 'message.malformed',
+          errorCode: 'MALFORMED_MESSAGE',
+        });
         this.emitAudit({
           type: 'message.malformed',
           severity: 'warn',
@@ -797,7 +815,11 @@ export class BridgeGateway {
 
     socket.on('close', () => {
       this.sessions.delete(session.id);
-      console.log(`Mobile app session disconnected: ${session.id}`);
+      this.logger.info(`App session disconnected: ${session.id}`, {
+        sessionId: session.id,
+        eventType: 'session.disconnected',
+        appId: session.manifest?.appId,
+      });
       this.emitAudit({
         type: 'session.disconnected',
         severity: 'info',
